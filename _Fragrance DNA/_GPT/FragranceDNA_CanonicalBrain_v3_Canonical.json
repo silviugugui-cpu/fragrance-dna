@@ -1,0 +1,122 @@
+{
+  "document_name": "FragranceDNA_CanonicalBrain_v3_Canonical",
+  "status": "CANONICAL",
+  "purpose": "Unified operational brain for FragranceDNA. Consolidates CanonicalBrain v2 with all later architectural decisions.",
+  "core_mission": {
+    "primary_goal": "Help users understand their olfactory identity.",
+    "secondary_goal": "Provide increasingly accurate fragrance testing recommendations.",
+    "philosophy": [
+      "Understand people first, fragrances second.",
+      "There is no universally best fragrance.",
+      "The platform explains why users like fragrances, not only which fragrances they like.",
+      "Fragrances are diagnostic tools for self-discovery."
+    ]
+  },
+  "source_of_truth": {
+    "attribute_profile": true,
+    "dna_profile_is_derived": true
+  },
+  "core_principles": {
+    "perfumes_are_diagnostic_tools": true,
+    "attribute_profile_is_canonical": true,
+    "discovery_question_first": true,
+    "user_language_rule": true,
+    "continuous_learning": true
+  },
+  "dna_model_v1": [
+    "Freshness",
+    "Warmth",
+    "Complexity",
+    "Elegance",
+    "Character",
+    "Presence",
+    "Comfort",
+    "Uniqueness",
+    "Versatility",
+    "Luxury",
+    "Formality"
+  ],
+  "user_journey": [
+    "Recognizable Smells",
+    "Initial DNA Estimate",
+    "Discovery Recommendations",
+    "Structured Feedback",
+    "DNA Refinement",
+    "Confidence Growth",
+    "Generated Fragrance DNA"
+  ],
+  "onboarding": {
+    "recognizable_smells": {
+      "method": "Three-column sorting",
+      "columns": ["LOVE", "NEUTRAL_OR_UNKNOWN", "HATE"]
+    },
+    "desired_experiences": true,
+    "known_fragrances": true
+  },
+  "user_levels": {
+    "Explorer": {
+      "language": "Everyday language only"
+    },
+    "Enthusiast": {
+      "language": "Mixed consumer/fragrance language"
+    },
+    "Connoisseur": {
+      "language": "Professional fragrance terminology allowed"
+    }
+  },
+  "evaluation_framework": {
+    "attributes_per_benchmark": 6,
+    "selection_pattern": {
+      "recognizable_smells": 2,
+      "sensory_impressions": 2,
+      "identity_signals": 1,
+      "behavioral_signals": 1
+    },
+    "attribute_isolation_principle": true,
+    "evaluations_1_to_6": "Evaluate the attribute, not the fragrance.",
+    "evaluation_7": "Evaluate the fragrance overall.",
+    "scale": [-100, -66, -33, 0, 33, 66, 100]
+  },
+  "profile_maturity_model": {
+    "formula": "0.40 Coverage + 0.30 Consistency + 0.30 DataVolume"
+  },
+  "recommendation_modes": {
+    "Discovery": {
+      "goal": "Reduce uncertainty and improve profiling"
+    },
+    "Enjoyment": {
+      "goal": "Maximize predicted enjoyment"
+    },
+    "Balanced": {
+      "goal": "Balance learning and enjoyment"
+    }
+  },
+  "discovery_architecture": {
+    "foundation_pack": [
+      "FD001 Fresh vs Rich",
+      "FD002 Likes Sweetness",
+      "FD003 Likes Complexity",
+      "FD004 Seeks Elegance",
+      "FD005 Seeks Character",
+      "FD006 Seeks Presence",
+      "FD007 Comfort vs Stimulation",
+      "FD008 Seeks Uniqueness",
+      "FD009 Needs Versatility",
+      "FD010 Seeks Luxury",
+      "FD011 Likes Dark Fragrances",
+      "FD012 Wants Signature Scent"
+    ],
+    "refinement_pack_examples": [
+      "Honey vs Vanilla",
+      "Likes Tobacco",
+      "Likes Leather",
+      "Likes Gourmand"
+    ],
+    "advanced_pack_examples": [
+      "Artistic vs Wearable",
+      "Mass Appeal vs Distinctive",
+      "Safe vs Challenging"
+    ]
+  },
+  "canonical_rule": "Attributes are the center of the system. Fragrances are measurement instruments on input and profile expressions on output."
+}

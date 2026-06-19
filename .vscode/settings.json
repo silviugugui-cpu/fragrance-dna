@@ -1,0 +1,16 @@
+{
+  "tailwindCSS.includeLanguages": {
+    "css": "css",
+    "postcss": "css",
+    "scss": "scss",
+    "sass": "sass",
+    "javascript": "javascript",
+    "javascriptreact": "javascript",
+    "typescript": "javascript",
+    "typescriptreact": "javascript"
+  },
+  "tailwindCSS.emmetCompletions": true,
+  "css.validate": false,
+  "less.validate": false,
+  "scss.validate": false
+}

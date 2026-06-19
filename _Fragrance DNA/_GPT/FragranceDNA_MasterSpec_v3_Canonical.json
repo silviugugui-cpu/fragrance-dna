@@ -1,0 +1,149 @@
+{
+  "project": {
+    "name": "Fragrance DNA",
+    "version": "2.0",
+    "status": "CANONICAL",
+    "mission": "Understand people first, fragrances second."
+  },
+  "core_principles": {
+    "perfumes_are_diagnostic_tools": true,
+    "discovery_question_first": true,
+    "foundation_first_rule": true,
+    "user_language_rule": true,
+    "three_alternative_rule": true
+  },
+  "core_journey": [
+    "Recognizable Smells",
+    "Initial DNA Estimate",
+    "Discovery Recommendations",
+    "Structured Feedback",
+    "DNA Refinement",
+    "Confidence Growth",
+    "Generated Fragrance DNA"
+  ],
+  "recommendation_engines": {
+    "discovery_engine": {
+      "question": "What do we still not know about the user?",
+      "optimization_targets": [
+        "information_gain",
+        "availability",
+        "coverage_gap"
+      ]
+    },
+    "compatibility_engine": {
+      "question": "What fragrance is most likely to be enjoyed by the user?",
+      "optimization_targets": [
+        "compatibility_probability"
+      ]
+    }
+  },
+  "dna_axes": [
+    "Freshness",
+    "Warmth",
+    "Complexity",
+    "Elegance",
+    "Character",
+    "Presence",
+    "Comfort",
+    "Uniqueness",
+    "Versatility",
+    "Luxury"
+  ],
+  "confidence_model": {
+    "initial_dna": {
+      "range": "0-35"
+    },
+    "emerging_dna": {
+      "range": "35-70"
+    },
+    "advanced_dna": {
+      "range": "70-100"
+    }
+  },
+  "attribute_system": {
+    "groups": [
+      "RecognizableSmells",
+      "SensoryImpressions",
+      "IdentitySignals",
+      "BehavioralSignals"
+    ],
+    "evaluation_rule": {
+      "recognizable_smells": 2,
+      "sensory_impressions": 2,
+      "identity_signals": 1,
+      "behavioral_signals": 1,
+      "total_attributes": 6
+    }
+  },
+  "user_experience": {
+    "default_mode": "Explorer",
+    "explorer_language": true,
+    "fragrance_jargon_allowed_for": [
+      "Enthusiast",
+      "Expert"
+    ]
+  },
+  "discovery_question_architecture": {
+    "question_is_primary_asset": true,
+    "foundation_pack": {
+      "purpose": "Build Initial DNA",
+      "questions": [
+        "FD001 Fresh vs Rich",
+        "FD002 Likes Sweetness",
+        "FD003 Likes Complexity",
+        "FD004 Seeks Elegance",
+        "FD005 Seeks Character",
+        "FD006 Seeks Presence",
+        "FD007 Comfort vs Stimulation",
+        "FD008 Seeks Uniqueness",
+        "FD009 Needs Versatility",
+        "FD010 Seeks Luxury",
+        "FD011 Likes Dark Fragrances",
+        "FD012 Wants Signature Scent"
+      ]
+    },
+    "refinement_pack": {
+      "purpose": "Explain DNA",
+      "examples": [
+        "Citrus vs Green",
+        "Honey vs Vanilla",
+        "Likes Tobacco",
+        "Likes Marine",
+        "Likes Leather",
+        "Likes Vetiver",
+        "Likes Gourmand"
+      ]
+    },
+    "advanced_pack": {
+      "purpose": "Generate Unique Signature",
+      "examples": [
+        "Artistic vs Wearable",
+        "Mass Appeal vs Distinctive",
+        "Intimate vs Expansive",
+        "Abstract vs Literal",
+        "Safe vs Challenging"
+      ]
+    }
+  },
+  "discovery_batch_model": {
+    "structure": {
+      "question": 1,
+      "attributes": 6,
+      "niche_option": 1,
+      "designer_option": 1,
+      "dupe_option": 1
+    },
+    "user_tests_only_one_option": true
+  },
+  "database_rules": {
+    "perfume_must_serve_at_least_one_discovery_question": true,
+    "availability_is_required": true,
+    "diagnostic_value_is_required": true
+  },
+  "future_documents": [
+    "FragranceDNA_FoundationDiscoveryPack_v1",
+    "FragranceDNA_RefinementDiscoveryPack_v1",
+    "FragranceDNA_AdvancedDiscoveryPack_v1",
+    "FragranceDNA_MasterFragrancePool_v1"
+  ]
+}

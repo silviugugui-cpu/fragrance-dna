@@ -1,0 +1,2722 @@
+{
+  "FragranceDNA_USER_ATTRIBUTE_LAYER_v3": {
+    "note": "true semantic + axis driven human translation layer",
+    "layers": [
+      {
+        "name": "1 Million",
+        "type": "designer",
+        "dna_axes": {
+          "Freshness": 60,
+          "Warmth": 90,
+          "Complexity": 60,
+          "Elegance": 70,
+          "Character": 90,
+          "Presence": 90,
+          "Comfort": 75,
+          "Uniqueness": 60,
+          "Versatility": 80,
+          "Luxury": 75
+        },
+        "semantic_v1": {
+          "freshness": 60,
+          "warmth": 90,
+          "citrus": 60,
+          "woods": 36.0,
+          "spices": 100,
+          "sweetness": 90,
+          "gourmand": 90,
+          "floral": 60,
+          "musk_clean": 75,
+          "leather_dark": 80,
+          "aromatic": 90
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "carismatic",
+            "intens",
+            "distinct"
+          ],
+          "concrete": [
+            "spices",
+            "sweetness",
+            "gourmand"
+          ]
+        }
+      },
+      {
+        "name": "40 Knots",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 85,
+          "Warmth": 65,
+          "Complexity": 57,
+          "Elegance": 92,
+          "Character": 84,
+          "Presence": 67,
+          "Comfort": 61,
+          "Uniqueness": 58,
+          "Versatility": 79,
+          "Luxury": 73,
+          "Formality": 61
+        },
+        "semantic_v1": {
+          "freshness": 85,
+          "warmth": 65,
+          "citrus": 95,
+          "woods": 34.199999999999996,
+          "spices": 84,
+          "sweetness": 65,
+          "gourmand": 65,
+          "floral": 60,
+          "musk_clean": 61,
+          "leather_dark": 60,
+          "aromatic": 84
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "elegant",
+            "luminos",
+            "distinct"
+          ],
+          "concrete": [
+            "citrus",
+            "spices",
+            "aromatic"
+          ]
+        }
+      },
+      {
+        "name": "Acqua di Gio Parfum",
+        "type": "hybrid",
+        "dna_axes": {
+          "Freshness": 73,
+          "Warmth": 29,
+          "Complexity": 61,
+          "Elegance": 91,
+          "Character": 60,
+          "Presence": 83,
+          "Comfort": 84,
+          "Uniqueness": 68,
+          "Versatility": 78,
+          "Luxury": 73,
+          "Formality": 87
+        },
+        "semantic_v1": {
+          "freshness": 73,
+          "warmth": 29,
+          "citrus": 83,
+          "woods": 56.6,
+          "spices": 60,
+          "sweetness": 29,
+          "gourmand": 29,
+          "floral": 60,
+          "musk_clean": 84,
+          "leather_dark": 60,
+          "aromatic": 60
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "elegant",
+            "curat",
+            "carismatic"
+          ],
+          "concrete": [
+            "musk_clean",
+            "citrus",
+            "spices"
+          ]
+        }
+      },
+      {
+        "name": "Allure Homme Sport",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 70,
+          "Warmth": 29,
+          "Complexity": 59,
+          "Elegance": 89,
+          "Character": 94,
+          "Presence": 95,
+          "Comfort": 72,
+          "Uniqueness": 86,
+          "Versatility": 68,
+          "Luxury": 69,
+          "Formality": 79
+        },
+        "semantic_v1": {
+          "freshness": 70,
+          "warmth": 29,
+          "citrus": 80,
+          "woods": 35.4,
+          "spices": 94,
+          "sweetness": 29,
+          "gourmand": 29,
+          "floral": 60,
+          "musk_clean": 72,
+          "leather_dark": 60,
+          "aromatic": 94
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "carismatic",
+            "distinct",
+            "elegant"
+          ],
+          "concrete": [
+            "spices",
+            "aromatic",
+            "citrus"
+          ]
+        }
+      },
+      {
+        "name": "Allure Homme Sport Eau Extreme",
+        "type": "designer",
+        "dna_axes": {
+          "Freshness": 90,
+          "Warmth": 90,
+          "Complexity": 60,
+          "Elegance": 85,
+          "Character": 70,
+          "Presence": 90,
+          "Comfort": 90,
+          "Uniqueness": 60,
+          "Versatility": 95,
+          "Luxury": 75
+        },
+        "semantic_v1": {
+          "freshness": 90,
+          "warmth": 90,
+          "citrus": 100,
+          "woods": 36.0,
+          "spices": 70,
+          "sweetness": 90,
+          "gourmand": 90,
+          "floral": 60,
+          "musk_clean": 90,
+          "leather_dark": 60,
+          "aromatic": 70
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "carismatic",
+            "luminos",
+            "intens"
+          ],
+          "concrete": [
+            "citrus",
+            "sweetness",
+            "gourmand"
+          ]
+        }
+      },
+      {
+        "name": "Althair",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 60,
+          "Warmth": 45,
+          "Complexity": 90,
+          "Elegance": 91,
+          "Character": 60,
+          "Presence": 75,
+          "Comfort": 87,
+          "Uniqueness": 81,
+          "Versatility": 71,
+          "Luxury": 73,
+          "Formality": 53
+        },
+        "semantic_v1": {
+          "freshness": 60,
+          "warmth": 45,
+          "citrus": 70,
+          "woods": 54.0,
+          "spices": 60,
+          "sweetness": 45,
+          "gourmand": 45,
+          "floral": 60,
+          "musk_clean": 87,
+          "leather_dark": 60,
+          "aromatic": 60
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "elegant",
+            "sofisticat",
+            "curat"
+          ],
+          "concrete": [
+            "musk_clean",
+            "citrus",
+            "spices"
+          ]
+        }
+      },
+      {
+        "name": "Ani",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 66,
+          "Warmth": 65,
+          "Complexity": 75,
+          "Elegance": 65,
+          "Character": 74,
+          "Presence": 76,
+          "Comfort": 90,
+          "Uniqueness": 70,
+          "Versatility": 93,
+          "Luxury": 81,
+          "Formality": 70
+        },
+        "semantic_v1": {
+          "freshness": 66,
+          "warmth": 65,
+          "citrus": 76,
+          "woods": 45.0,
+          "spices": 74,
+          "sweetness": 65,
+          "gourmand": 65,
+          "floral": 60,
+          "musk_clean": 90,
+          "leather_dark": 60,
+          "aromatic": 84
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "curat",
+            "distinct",
+            "carismatic"
+          ],
+          "concrete": [
+            "musk_clean",
+            "aromatic",
+            "citrus"
+          ]
+        }
+      },
+      {
+        "name": "Azzaro The Most Wanted",
+        "type": "designer",
+        "dna_axes": {
+          "Freshness": 60,
+          "Warmth": 90,
+          "Complexity": 60,
+          "Elegance": 70,
+          "Character": 90,
+          "Presence": 90,
+          "Comfort": 75,
+          "Uniqueness": 60,
+          "Versatility": 80,
+          "Luxury": 75
+        },
+        "semantic_v1": {
+          "freshness": 60,
+          "warmth": 90,
+          "citrus": 70,
+          "woods": 56.0,
+          "spices": 100,
+          "sweetness": 90,
+          "gourmand": 90,
+          "floral": 60,
+          "musk_clean": 75,
+          "leather_dark": 60,
+          "aromatic": 90
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "carismatic",
+            "intens",
+            "distinct"
+          ],
+          "concrete": [
+            "spices",
+            "sweetness",
+            "gourmand"
+          ]
+        }
+      },
+      {
+        "name": "Bleecker Street",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 74,
+          "Warmth": 78,
+          "Complexity": 66,
+          "Elegance": 61,
+          "Character": 90,
+          "Presence": 74,
+          "Comfort": 68,
+          "Uniqueness": 82,
+          "Versatility": 65,
+          "Luxury": 90,
+          "Formality": 76
+        },
+        "semantic_v1": {
+          "freshness": 74,
+          "warmth": 78,
+          "citrus": 84,
+          "woods": 39.6,
+          "spices": 90,
+          "sweetness": 78,
+          "gourmand": 78,
+          "floral": 60,
+          "musk_clean": 68,
+          "leather_dark": 60,
+          "aromatic": 100
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "distinct",
+            "intens",
+            "carismatic"
+          ],
+          "concrete": [
+            "aromatic",
+            "spices",
+            "citrus"
+          ]
+        }
+      },
+      {
+        "name": "Blessed Baraka",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 65,
+          "Warmth": 80,
+          "Complexity": 61,
+          "Elegance": 69,
+          "Character": 67,
+          "Presence": 76,
+          "Comfort": 73,
+          "Uniqueness": 86,
+          "Versatility": 95,
+          "Luxury": 63,
+          "Formality": 64
+        },
+        "semantic_v1": {
+          "freshness": 65,
+          "warmth": 80,
+          "citrus": 75,
+          "woods": 36.6,
+          "spices": 67,
+          "sweetness": 80,
+          "gourmand": 80,
+          "floral": 60,
+          "musk_clean": 73,
+          "leather_dark": 60,
+          "aromatic": 77
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "intens",
+            "distinct",
+            "carismatic"
+          ],
+          "concrete": [
+            "sweetness",
+            "gourmand",
+            "aromatic"
+          ]
+        }
+      },
+      {
+        "name": "Bleu de Chanel EDP",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 11,
+          "Warmth": 85,
+          "Complexity": 67,
+          "Elegance": 73,
+          "Character": 70,
+          "Presence": 67,
+          "Comfort": 64,
+          "Uniqueness": 80,
+          "Versatility": 84,
+          "Luxury": 72,
+          "Formality": 66
+        },
+        "semantic_v1": {
+          "freshness": 11,
+          "warmth": 85,
+          "citrus": 21,
+          "woods": 40.199999999999996,
+          "spices": 70,
+          "sweetness": 85,
+          "gourmand": 85,
+          "floral": 60,
+          "musk_clean": 64,
+          "leather_dark": 60,
+          "aromatic": 80
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "intens",
+            "distinct",
+            "elegant"
+          ],
+          "concrete": [
+            "sweetness",
+            "gourmand",
+            "aromatic"
+          ]
+        }
+      },
+      {
+        "name": "Bleu de Chanel EDT",
+        "type": "designer",
+        "dna_axes": {
+          "Freshness": 90,
+          "Warmth": 90,
+          "Complexity": 60,
+          "Elegance": 70,
+          "Character": 70,
+          "Presence": 70,
+          "Comfort": 90,
+          "Uniqueness": 60,
+          "Versatility": 95,
+          "Luxury": 90
+        },
+        "semantic_v1": {
+          "freshness": 90,
+          "warmth": 90,
+          "citrus": 100,
+          "woods": 56.0,
+          "spices": 85,
+          "sweetness": 90,
+          "gourmand": 90,
+          "floral": 60,
+          "musk_clean": 90,
+          "leather_dark": 60,
+          "aromatic": 70
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "luminos",
+            "intens",
+            "curat"
+          ],
+          "concrete": [
+            "citrus",
+            "sweetness",
+            "gourmand"
+          ]
+        }
+      },
+      {
+        "name": "Bleu de Chanel Parfum",
+        "type": "designer",
+        "dna_axes": {
+          "Freshness": 90,
+          "Warmth": 90,
+          "Complexity": 60,
+          "Elegance": 85,
+          "Character": 70,
+          "Presence": 70,
+          "Comfort": 90,
+          "Uniqueness": 60,
+          "Versatility": 95,
+          "Luxury": 90
+        },
+        "semantic_v1": {
+          "freshness": 90,
+          "warmth": 90,
+          "citrus": 100,
+          "woods": 56.0,
+          "spices": 70,
+          "sweetness": 90,
+          "gourmand": 90,
+          "floral": 60,
+          "musk_clean": 90,
+          "leather_dark": 60,
+          "aromatic": 70
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "luminos",
+            "intens",
+            "curat"
+          ],
+          "concrete": [
+            "citrus",
+            "sweetness",
+            "gourmand"
+          ]
+        }
+      },
+      {
+        "name": "Carlisle",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 41,
+          "Warmth": 82,
+          "Complexity": 63,
+          "Elegance": 80,
+          "Character": 84,
+          "Presence": 78,
+          "Comfort": 68,
+          "Uniqueness": 56,
+          "Versatility": 68,
+          "Luxury": 64,
+          "Formality": 68
+        },
+        "semantic_v1": {
+          "freshness": 41,
+          "warmth": 82,
+          "citrus": 51,
+          "woods": 37.8,
+          "spices": 84,
+          "sweetness": 82,
+          "gourmand": 82,
+          "floral": 60,
+          "musk_clean": 68,
+          "leather_dark": 60,
+          "aromatic": 94
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "distinct",
+            "intens",
+            "elegant"
+          ],
+          "concrete": [
+            "aromatic",
+            "spices",
+            "sweetness"
+          ]
+        }
+      },
+      {
+        "name": "Chanel Allure Homme Sport",
+        "type": "designer",
+        "dna_axes": {
+          "Freshness": 90,
+          "Warmth": 60,
+          "Complexity": 60,
+          "Elegance": 70,
+          "Character": 70,
+          "Presence": 90,
+          "Comfort": 90,
+          "Uniqueness": 60,
+          "Versatility": 95,
+          "Luxury": 90
+        },
+        "semantic_v1": {
+          "freshness": 90,
+          "warmth": 60,
+          "citrus": 100,
+          "woods": 36.0,
+          "spices": 70,
+          "sweetness": 60,
+          "gourmand": 60,
+          "floral": 60,
+          "musk_clean": 90,
+          "leather_dark": 60,
+          "aromatic": 70
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "carismatic",
+            "luminos",
+            "curat"
+          ],
+          "concrete": [
+            "citrus",
+            "musk_clean",
+            "spices"
+          ]
+        }
+      },
+      {
+        "name": "Chanel Egoiste Platinum",
+        "type": "designer",
+        "dna_axes": {
+          "Freshness": 90,
+          "Warmth": 60,
+          "Complexity": 60,
+          "Elegance": 85,
+          "Character": 70,
+          "Presence": 70,
+          "Comfort": 90,
+          "Uniqueness": 60,
+          "Versatility": 95,
+          "Luxury": 90
+        },
+        "semantic_v1": {
+          "freshness": 90,
+          "warmth": 60,
+          "citrus": 100,
+          "woods": 36.0,
+          "spices": 70,
+          "sweetness": 60,
+          "gourmand": 60,
+          "floral": 60,
+          "musk_clean": 90,
+          "leather_dark": 60,
+          "aromatic": 70
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "luminos",
+            "curat",
+            "elegant"
+          ],
+          "concrete": [
+            "citrus",
+            "musk_clean",
+            "spices"
+          ]
+        }
+      },
+      {
+        "name": "Chanel Platinum Egoiste",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 57,
+          "Warmth": 39,
+          "Complexity": 69,
+          "Elegance": 89,
+          "Character": 66,
+          "Presence": 93,
+          "Comfort": 83,
+          "Uniqueness": 68,
+          "Versatility": 86,
+          "Luxury": 60,
+          "Formality": 60
+        },
+        "semantic_v1": {
+          "freshness": 57,
+          "warmth": 39,
+          "citrus": 67,
+          "woods": 41.4,
+          "spices": 66,
+          "sweetness": 39,
+          "gourmand": 39,
+          "floral": 60,
+          "musk_clean": 83,
+          "leather_dark": 60,
+          "aromatic": 66
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "carismatic",
+            "elegant",
+            "curat"
+          ],
+          "concrete": [
+            "musk_clean",
+            "citrus",
+            "spices"
+          ]
+        }
+      },
+      {
+        "name": "Dear Polly",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 56,
+          "Warmth": 73,
+          "Complexity": 70,
+          "Elegance": 64,
+          "Character": 72,
+          "Presence": 89,
+          "Comfort": 89,
+          "Uniqueness": 59,
+          "Versatility": 86,
+          "Luxury": 62,
+          "Formality": 90
+        },
+        "semantic_v1": {
+          "freshness": 56,
+          "warmth": 73,
+          "citrus": 66,
+          "woods": 42.0,
+          "spices": 72,
+          "sweetness": 73,
+          "gourmand": 73,
+          "floral": 60,
+          "musk_clean": 89,
+          "leather_dark": 60,
+          "aromatic": 82
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "carismatic",
+            "curat",
+            "distinct"
+          ],
+          "concrete": [
+            "musk_clean",
+            "aromatic",
+            "sweetness"
+          ]
+        }
+      },
+      {
+        "name": "Dior Homme 2020",
+        "type": "designer",
+        "dna_axes": {
+          "Freshness": 90,
+          "Warmth": 90,
+          "Complexity": 60,
+          "Elegance": 85,
+          "Character": 70,
+          "Presence": 70,
+          "Comfort": 90,
+          "Uniqueness": 60,
+          "Versatility": 95,
+          "Luxury": 90
+        },
+        "semantic_v1": {
+          "freshness": 90,
+          "warmth": 90,
+          "citrus": 90,
+          "woods": 56.0,
+          "spices": 85,
+          "sweetness": 90,
+          "gourmand": 90,
+          "floral": 60,
+          "musk_clean": 90,
+          "leather_dark": 60,
+          "aromatic": 70
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "luminos",
+            "intens",
+            "curat"
+          ],
+          "concrete": [
+            "citrus",
+            "sweetness",
+            "gourmand"
+          ]
+        }
+      },
+      {
+        "name": "Dior Homme Original",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 12,
+          "Warmth": 12,
+          "Complexity": 71,
+          "Elegance": 62,
+          "Character": 89,
+          "Presence": 96,
+          "Comfort": 62,
+          "Uniqueness": 87,
+          "Versatility": 70,
+          "Luxury": 82,
+          "Formality": 53
+        },
+        "semantic_v1": {
+          "freshness": 12,
+          "warmth": 12,
+          "citrus": 22,
+          "woods": 42.6,
+          "spices": 89,
+          "sweetness": 12,
+          "gourmand": 12,
+          "floral": 60,
+          "musk_clean": 62,
+          "leather_dark": 60,
+          "aromatic": 89
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "carismatic",
+            "distinct",
+            "sofisticat"
+          ],
+          "concrete": [
+            "spices",
+            "aromatic",
+            "musk_clean"
+          ]
+        }
+      },
+      {
+        "name": "Dior Sauvage Elixir",
+        "type": "designer",
+        "dna_axes": {
+          "Freshness": 60,
+          "Warmth": 90,
+          "Complexity": 70,
+          "Elegance": 70,
+          "Character": 90,
+          "Presence": 90,
+          "Comfort": 75,
+          "Uniqueness": 60,
+          "Versatility": 80,
+          "Luxury": 90
+        },
+        "semantic_v1": {
+          "freshness": 60,
+          "warmth": 90,
+          "citrus": 60,
+          "woods": 42.0,
+          "spices": 100,
+          "sweetness": 90,
+          "gourmand": 90,
+          "floral": 60,
+          "musk_clean": 75,
+          "leather_dark": 60,
+          "aromatic": 90
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "carismatic",
+            "intens",
+            "distinct"
+          ],
+          "concrete": [
+            "spices",
+            "sweetness",
+            "gourmand"
+          ]
+        }
+      },
+      {
+        "name": "Erba Gold",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 48,
+          "Warmth": 77,
+          "Complexity": 59,
+          "Elegance": 74,
+          "Character": 92,
+          "Presence": 87,
+          "Comfort": 74,
+          "Uniqueness": 79,
+          "Versatility": 92,
+          "Luxury": 76,
+          "Formality": 59
+        },
+        "semantic_v1": {
+          "freshness": 48,
+          "warmth": 77,
+          "citrus": 58,
+          "woods": 35.4,
+          "spices": 92,
+          "sweetness": 77,
+          "gourmand": 77,
+          "floral": 60,
+          "musk_clean": 74,
+          "leather_dark": 60,
+          "aromatic": 100
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "distinct",
+            "carismatic",
+            "intens"
+          ],
+          "concrete": [
+            "aromatic",
+            "spices",
+            "sweetness"
+          ]
+        }
+      },
+      {
+        "name": "Erolfa",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 36,
+          "Warmth": 93,
+          "Complexity": 64,
+          "Elegance": 65,
+          "Character": 91,
+          "Presence": 81,
+          "Comfort": 60,
+          "Uniqueness": 61,
+          "Versatility": 68,
+          "Luxury": 90,
+          "Formality": 72
+        },
+        "semantic_v1": {
+          "freshness": 36,
+          "warmth": 93,
+          "citrus": 46,
+          "woods": 38.4,
+          "spices": 91,
+          "sweetness": 93,
+          "gourmand": 93,
+          "floral": 60,
+          "musk_clean": 60,
+          "leather_dark": 60,
+          "aromatic": 91
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "intens",
+            "distinct",
+            "carismatic"
+          ],
+          "concrete": [
+            "sweetness",
+            "gourmand",
+            "spices"
+          ]
+        }
+      },
+      {
+        "name": "Follow",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 18,
+          "Warmth": 56,
+          "Complexity": 87,
+          "Elegance": 87,
+          "Character": 74,
+          "Presence": 73,
+          "Comfort": 62,
+          "Uniqueness": 68,
+          "Versatility": 74,
+          "Luxury": 91,
+          "Formality": 63
+        },
+        "semantic_v1": {
+          "freshness": 18,
+          "warmth": 56,
+          "citrus": 28,
+          "woods": 52.199999999999996,
+          "spices": 74,
+          "sweetness": 56,
+          "gourmand": 56,
+          "floral": 60,
+          "musk_clean": 62,
+          "leather_dark": 60,
+          "aromatic": 74
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "elegant",
+            "sofisticat",
+            "distinct"
+          ],
+          "concrete": [
+            "spices",
+            "aromatic",
+            "musk_clean"
+          ]
+        }
+      },
+      {
+        "name": "Givenchy Gentleman Society",
+        "type": "hybrid",
+        "dna_axes": {
+          "Freshness": 19,
+          "Warmth": 53,
+          "Complexity": 80,
+          "Elegance": 86,
+          "Character": 83,
+          "Presence": 75,
+          "Comfort": 85,
+          "Uniqueness": 64,
+          "Versatility": 67,
+          "Luxury": 87,
+          "Formality": 56
+        },
+        "semantic_v1": {
+          "freshness": 19,
+          "warmth": 53,
+          "citrus": 29,
+          "woods": 68.0,
+          "spices": 83,
+          "sweetness": 53,
+          "gourmand": 53,
+          "floral": 60,
+          "musk_clean": 85,
+          "leather_dark": 60,
+          "aromatic": 83
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "elegant",
+            "curat",
+            "distinct"
+          ],
+          "concrete": [
+            "musk_clean",
+            "spices",
+            "aromatic"
+          ]
+        }
+      },
+      {
+        "name": "Greenley",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 24,
+          "Warmth": 70,
+          "Complexity": 59,
+          "Elegance": 76,
+          "Character": 92,
+          "Presence": 85,
+          "Comfort": 70,
+          "Uniqueness": 80,
+          "Versatility": 91,
+          "Luxury": 73,
+          "Formality": 58
+        },
+        "semantic_v1": {
+          "freshness": 24,
+          "warmth": 70,
+          "citrus": 34,
+          "woods": 35.4,
+          "spices": 92,
+          "sweetness": 70,
+          "gourmand": 70,
+          "floral": 60,
+          "musk_clean": 70,
+          "leather_dark": 60,
+          "aromatic": 100
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "distinct",
+            "carismatic",
+            "elegant"
+          ],
+          "concrete": [
+            "aromatic",
+            "spices",
+            "sweetness"
+          ]
+        }
+      },
+      {
+        "name": "Hacivat",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 10,
+          "Warmth": 34,
+          "Complexity": 77,
+          "Elegance": 60,
+          "Character": 85,
+          "Presence": 89,
+          "Comfort": 82,
+          "Uniqueness": 59,
+          "Versatility": 87,
+          "Luxury": 65,
+          "Formality": 75
+        },
+        "semantic_v1": {
+          "freshness": 10,
+          "warmth": 34,
+          "citrus": 20,
+          "woods": 46.199999999999996,
+          "spices": 85,
+          "sweetness": 34,
+          "gourmand": 34,
+          "floral": 60,
+          "musk_clean": 82,
+          "leather_dark": 60,
+          "aromatic": 85
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "carismatic",
+            "distinct",
+            "curat"
+          ],
+          "concrete": [
+            "spices",
+            "aromatic",
+            "musk_clean"
+          ]
+        }
+      },
+      {
+        "name": "Lafayette Street",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 83,
+          "Warmth": 40,
+          "Complexity": 72,
+          "Elegance": 83,
+          "Character": 94,
+          "Presence": 61,
+          "Comfort": 66,
+          "Uniqueness": 65,
+          "Versatility": 74,
+          "Luxury": 79,
+          "Formality": 61
+        },
+        "semantic_v1": {
+          "freshness": 83,
+          "warmth": 40,
+          "citrus": 93,
+          "woods": 43.199999999999996,
+          "spices": 94,
+          "sweetness": 40,
+          "gourmand": 40,
+          "floral": 60,
+          "musk_clean": 66,
+          "leather_dark": 60,
+          "aromatic": 94
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "distinct",
+            "elegant",
+            "luminos"
+          ],
+          "concrete": [
+            "spices",
+            "aromatic",
+            "citrus"
+          ]
+        }
+      },
+      {
+        "name": "Mefisto",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 27,
+          "Warmth": 32,
+          "Complexity": 84,
+          "Elegance": 62,
+          "Character": 88,
+          "Presence": 74,
+          "Comfort": 77,
+          "Uniqueness": 90,
+          "Versatility": 80,
+          "Luxury": 69,
+          "Formality": 55
+        },
+        "semantic_v1": {
+          "freshness": 27,
+          "warmth": 32,
+          "citrus": 37,
+          "woods": 50.4,
+          "spices": 88,
+          "sweetness": 32,
+          "gourmand": 32,
+          "floral": 60,
+          "musk_clean": 77,
+          "leather_dark": 60,
+          "aromatic": 88
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "distinct",
+            "sofisticat",
+            "curat"
+          ],
+          "concrete": [
+            "spices",
+            "aromatic",
+            "musk_clean"
+          ]
+        }
+      },
+      {
+        "name": "Montabaco Intensivo",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 59,
+          "Warmth": 74,
+          "Complexity": 83,
+          "Elegance": 82,
+          "Character": 82,
+          "Presence": 90,
+          "Comfort": 69,
+          "Uniqueness": 87,
+          "Versatility": 75,
+          "Luxury": 67,
+          "Formality": 57
+        },
+        "semantic_v1": {
+          "freshness": 59,
+          "warmth": 74,
+          "citrus": 69,
+          "woods": 49.8,
+          "spices": 82,
+          "sweetness": 74,
+          "gourmand": 74,
+          "floral": 60,
+          "musk_clean": 69,
+          "leather_dark": 60,
+          "aromatic": 82
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "carismatic",
+            "sofisticat",
+            "elegant"
+          ],
+          "concrete": [
+            "spices",
+            "aromatic",
+            "sweetness"
+          ]
+        }
+      },
+      {
+        "name": "Montblanc Explorer",
+        "type": "hybrid",
+        "dna_axes": {
+          "Freshness": 84,
+          "Warmth": 95,
+          "Complexity": 67,
+          "Elegance": 93,
+          "Character": 66,
+          "Presence": 95,
+          "Comfort": 77,
+          "Uniqueness": 63,
+          "Versatility": 82,
+          "Luxury": 81,
+          "Formality": 80
+        },
+        "semantic_v1": {
+          "freshness": 84,
+          "warmth": 95,
+          "citrus": 94,
+          "woods": 60.199999999999996,
+          "spices": 66,
+          "sweetness": 95,
+          "gourmand": 95,
+          "floral": 60,
+          "musk_clean": 77,
+          "leather_dark": 60,
+          "aromatic": 66
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "carismatic",
+            "intens",
+            "elegant"
+          ],
+          "concrete": [
+            "sweetness",
+            "gourmand",
+            "citrus"
+          ]
+        }
+      },
+      {
+        "name": "Narcotic Delight",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 38,
+          "Warmth": 64,
+          "Complexity": 59,
+          "Elegance": 73,
+          "Character": 64,
+          "Presence": 96,
+          "Comfort": 67,
+          "Uniqueness": 73,
+          "Versatility": 61,
+          "Luxury": 95,
+          "Formality": 69
+        },
+        "semantic_v1": {
+          "freshness": 38,
+          "warmth": 64,
+          "citrus": 48,
+          "woods": 35.4,
+          "spices": 64,
+          "sweetness": 64,
+          "gourmand": 64,
+          "floral": 60,
+          "musk_clean": 67,
+          "leather_dark": 60,
+          "aromatic": 74
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "carismatic",
+            "distinct",
+            "elegant"
+          ],
+          "concrete": [
+            "aromatic",
+            "musk_clean",
+            "spices"
+          ]
+        }
+      },
+      {
+        "name": "Naxos",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 69,
+          "Warmth": 50,
+          "Complexity": 69,
+          "Elegance": 68,
+          "Character": 81,
+          "Presence": 86,
+          "Comfort": 92,
+          "Uniqueness": 73,
+          "Versatility": 65,
+          "Luxury": 67,
+          "Formality": 73
+        },
+        "semantic_v1": {
+          "freshness": 69,
+          "warmth": 50,
+          "citrus": 79,
+          "woods": 41.4,
+          "spices": 81,
+          "sweetness": 50,
+          "gourmand": 50,
+          "floral": 60,
+          "musk_clean": 92,
+          "leather_dark": 60,
+          "aromatic": 91
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "curat",
+            "distinct",
+            "carismatic"
+          ],
+          "concrete": [
+            "musk_clean",
+            "aromatic",
+            "spices"
+          ]
+        }
+      },
+      {
+        "name": "New Haarlem",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 84,
+          "Warmth": 25,
+          "Complexity": 87,
+          "Elegance": 86,
+          "Character": 61,
+          "Presence": 80,
+          "Comfort": 90,
+          "Uniqueness": 74,
+          "Versatility": 83,
+          "Luxury": 81,
+          "Formality": 51
+        },
+        "semantic_v1": {
+          "freshness": 84,
+          "warmth": 25,
+          "citrus": 94,
+          "woods": 52.199999999999996,
+          "spices": 61,
+          "sweetness": 25,
+          "gourmand": 25,
+          "floral": 60,
+          "musk_clean": 90,
+          "leather_dark": 60,
+          "aromatic": 61
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "curat",
+            "sofisticat",
+            "elegant"
+          ],
+          "concrete": [
+            "citrus",
+            "musk_clean",
+            "spices"
+          ]
+        }
+      },
+      {
+        "name": "Nio",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 46,
+          "Warmth": 73,
+          "Complexity": 66,
+          "Elegance": 72,
+          "Character": 87,
+          "Presence": 67,
+          "Comfort": 63,
+          "Uniqueness": 84,
+          "Versatility": 82,
+          "Luxury": 66,
+          "Formality": 56
+        },
+        "semantic_v1": {
+          "freshness": 46,
+          "warmth": 73,
+          "citrus": 56,
+          "woods": 39.6,
+          "spices": 87,
+          "sweetness": 73,
+          "gourmand": 73,
+          "floral": 60,
+          "musk_clean": 63,
+          "leather_dark": 60,
+          "aromatic": 97
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "distinct",
+            "intens",
+            "elegant"
+          ],
+          "concrete": [
+            "aromatic",
+            "spices",
+            "sweetness"
+          ]
+        }
+      },
+      {
+        "name": "Oajan",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 81,
+          "Warmth": 60,
+          "Complexity": 77,
+          "Elegance": 95,
+          "Character": 75,
+          "Presence": 87,
+          "Comfort": 84,
+          "Uniqueness": 91,
+          "Versatility": 74,
+          "Luxury": 67,
+          "Formality": 74
+        },
+        "semantic_v1": {
+          "freshness": 81,
+          "warmth": 60,
+          "citrus": 91,
+          "woods": 46.199999999999996,
+          "spices": 75,
+          "sweetness": 60,
+          "gourmand": 60,
+          "floral": 60,
+          "musk_clean": 84,
+          "leather_dark": 60,
+          "aromatic": 75
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "elegant",
+            "carismatic",
+            "curat"
+          ],
+          "concrete": [
+            "citrus",
+            "musk_clean",
+            "spices"
+          ]
+        }
+      },
+      {
+        "name": "Ombre Leather",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 27,
+          "Warmth": 30,
+          "Complexity": 80,
+          "Elegance": 60,
+          "Character": 70,
+          "Presence": 84,
+          "Comfort": 60,
+          "Uniqueness": 61,
+          "Versatility": 71,
+          "Luxury": 85,
+          "Formality": 78
+        },
+        "semantic_v1": {
+          "freshness": 27,
+          "warmth": 30,
+          "citrus": 37,
+          "woods": 48.0,
+          "spices": 70,
+          "sweetness": 30,
+          "gourmand": 30,
+          "floral": 60,
+          "musk_clean": 60,
+          "leather_dark": 60,
+          "aromatic": 70
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "carismatic",
+            "sofisticat",
+            "distinct"
+          ],
+          "concrete": [
+            "spices",
+            "aromatic",
+            "floral"
+          ]
+        }
+      },
+      {
+        "name": "Original Vetiver",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 94,
+          "Warmth": 39,
+          "Complexity": 72,
+          "Elegance": 78,
+          "Character": 79,
+          "Presence": 80,
+          "Comfort": 61,
+          "Uniqueness": 91,
+          "Versatility": 89,
+          "Luxury": 62,
+          "Formality": 74
+        },
+        "semantic_v1": {
+          "freshness": 94,
+          "warmth": 39,
+          "citrus": 100,
+          "woods": 43.199999999999996,
+          "spices": 79,
+          "sweetness": 39,
+          "gourmand": 39,
+          "floral": 60,
+          "musk_clean": 61,
+          "leather_dark": 60,
+          "aromatic": 79
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "luminos",
+            "carismatic",
+            "distinct"
+          ],
+          "concrete": [
+            "citrus",
+            "spices",
+            "aromatic"
+          ]
+        }
+      },
+      {
+        "name": "Prada L'Homme",
+        "type": "hybrid",
+        "dna_axes": {
+          "Freshness": 11,
+          "Warmth": 84,
+          "Complexity": 65,
+          "Elegance": 78,
+          "Character": 75,
+          "Presence": 80,
+          "Comfort": 60,
+          "Uniqueness": 80,
+          "Versatility": 71,
+          "Luxury": 95,
+          "Formality": 83
+        },
+        "semantic_v1": {
+          "freshness": 11,
+          "warmth": 84,
+          "citrus": 21,
+          "woods": 39.0,
+          "spices": 75,
+          "sweetness": 84,
+          "gourmand": 84,
+          "floral": 60,
+          "musk_clean": 60,
+          "leather_dark": 60,
+          "aromatic": 85
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "distinct",
+            "intens",
+            "carismatic"
+          ],
+          "concrete": [
+            "aromatic",
+            "sweetness",
+            "gourmand"
+          ]
+        }
+      },
+      {
+        "name": "Prada Luna Rossa Carbon",
+        "type": "hybrid",
+        "dna_axes": {
+          "Freshness": 61,
+          "Warmth": 83,
+          "Complexity": 61,
+          "Elegance": 93,
+          "Character": 94,
+          "Presence": 67,
+          "Comfort": 77,
+          "Uniqueness": 66,
+          "Versatility": 80,
+          "Luxury": 74,
+          "Formality": 83
+        },
+        "semantic_v1": {
+          "freshness": 61,
+          "warmth": 83,
+          "citrus": 71,
+          "woods": 36.6,
+          "spices": 100,
+          "sweetness": 83,
+          "gourmand": 83,
+          "floral": 60,
+          "musk_clean": 77,
+          "leather_dark": 60,
+          "aromatic": 94
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "distinct",
+            "elegant",
+            "intens"
+          ],
+          "concrete": [
+            "spices",
+            "aromatic",
+            "sweetness"
+          ]
+        }
+      },
+      {
+        "name": "Reflection Man",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 47,
+          "Warmth": 76,
+          "Complexity": 78,
+          "Elegance": 71,
+          "Character": 68,
+          "Presence": 90,
+          "Comfort": 65,
+          "Uniqueness": 63,
+          "Versatility": 94,
+          "Luxury": 64,
+          "Formality": 84
+        },
+        "semantic_v1": {
+          "freshness": 47,
+          "warmth": 76,
+          "citrus": 57,
+          "woods": 46.8,
+          "spices": 68,
+          "sweetness": 76,
+          "gourmand": 76,
+          "floral": 60,
+          "musk_clean": 65,
+          "leather_dark": 60,
+          "aromatic": 68
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "carismatic",
+            "sofisticat",
+            "intens"
+          ],
+          "concrete": [
+            "sweetness",
+            "gourmand",
+            "spices"
+          ]
+        }
+      },
+      {
+        "name": "Renaissance",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 94,
+          "Warmth": 44,
+          "Complexity": 67,
+          "Elegance": 91,
+          "Character": 90,
+          "Presence": 63,
+          "Comfort": 79,
+          "Uniqueness": 79,
+          "Versatility": 95,
+          "Luxury": 66,
+          "Formality": 82
+        },
+        "semantic_v1": {
+          "freshness": 94,
+          "warmth": 44,
+          "citrus": 100,
+          "woods": 40.199999999999996,
+          "spices": 90,
+          "sweetness": 44,
+          "gourmand": 44,
+          "floral": 60,
+          "musk_clean": 79,
+          "leather_dark": 60,
+          "aromatic": 90
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "luminos",
+            "elegant",
+            "distinct"
+          ],
+          "concrete": [
+            "citrus",
+            "spices",
+            "aromatic"
+          ]
+        }
+      },
+      {
+        "name": "Royal Oud",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 20,
+          "Warmth": 87,
+          "Complexity": 71,
+          "Elegance": 68,
+          "Character": 82,
+          "Presence": 64,
+          "Comfort": 69,
+          "Uniqueness": 81,
+          "Versatility": 81,
+          "Luxury": 73,
+          "Formality": 69
+        },
+        "semantic_v1": {
+          "freshness": 20,
+          "warmth": 87,
+          "citrus": 30,
+          "woods": 42.6,
+          "spices": 82,
+          "sweetness": 87,
+          "gourmand": 87,
+          "floral": 60,
+          "musk_clean": 69,
+          "leather_dark": 60,
+          "aromatic": 82
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "intens",
+            "distinct",
+            "sofisticat"
+          ],
+          "concrete": [
+            "sweetness",
+            "gourmand",
+            "spices"
+          ]
+        }
+      },
+      {
+        "name": "Sauvage EDP",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 80,
+          "Warmth": 62,
+          "Complexity": 76,
+          "Elegance": 90,
+          "Character": 68,
+          "Presence": 74,
+          "Comfort": 61,
+          "Uniqueness": 57,
+          "Versatility": 64,
+          "Luxury": 83,
+          "Formality": 53
+        },
+        "semantic_v1": {
+          "freshness": 80,
+          "warmth": 62,
+          "citrus": 90,
+          "woods": 45.6,
+          "spices": 68,
+          "sweetness": 62,
+          "gourmand": 62,
+          "floral": 60,
+          "musk_clean": 61,
+          "leather_dark": 60,
+          "aromatic": 68
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "elegant",
+            "luminos",
+            "sofisticat"
+          ],
+          "concrete": [
+            "citrus",
+            "spices",
+            "aromatic"
+          ]
+        }
+      },
+      {
+        "name": "Sauvage EDT",
+        "type": "designer",
+        "dna_axes": {
+          "Freshness": 90,
+          "Warmth": 60,
+          "Complexity": 60,
+          "Elegance": 70,
+          "Character": 90,
+          "Presence": 90,
+          "Comfort": 75,
+          "Uniqueness": 60,
+          "Versatility": 80,
+          "Luxury": 75
+        },
+        "semantic_v1": {
+          "freshness": 90,
+          "warmth": 60,
+          "citrus": 100,
+          "woods": 36.0,
+          "spices": 90,
+          "sweetness": 60,
+          "gourmand": 60,
+          "floral": 60,
+          "musk_clean": 75,
+          "leather_dark": 60,
+          "aromatic": 90
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "carismatic",
+            "luminos",
+            "distinct"
+          ],
+          "concrete": [
+            "citrus",
+            "spices",
+            "aromatic"
+          ]
+        }
+      },
+      {
+        "name": "Sauvage Elixir",
+        "type": "designer",
+        "dna_axes": {
+          "Freshness": 60,
+          "Warmth": 90,
+          "Complexity": 70,
+          "Elegance": 70,
+          "Character": 90,
+          "Presence": 90,
+          "Comfort": 75,
+          "Uniqueness": 60,
+          "Versatility": 80,
+          "Luxury": 75
+        },
+        "semantic_v1": {
+          "freshness": 60,
+          "warmth": 90,
+          "citrus": 60,
+          "woods": 42.0,
+          "spices": 100,
+          "sweetness": 90,
+          "gourmand": 90,
+          "floral": 60,
+          "musk_clean": 75,
+          "leather_dark": 60,
+          "aromatic": 90
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "carismatic",
+            "intens",
+            "distinct"
+          ],
+          "concrete": [
+            "spices",
+            "sweetness",
+            "gourmand"
+          ]
+        }
+      },
+      {
+        "name": "Sedley",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 76,
+          "Warmth": 77,
+          "Complexity": 59,
+          "Elegance": 71,
+          "Character": 92,
+          "Presence": 62,
+          "Comfort": 84,
+          "Uniqueness": 74,
+          "Versatility": 62,
+          "Luxury": 62,
+          "Formality": 66
+        },
+        "semantic_v1": {
+          "freshness": 76,
+          "warmth": 77,
+          "citrus": 86,
+          "woods": 35.4,
+          "spices": 92,
+          "sweetness": 77,
+          "gourmand": 77,
+          "floral": 60,
+          "musk_clean": 84,
+          "leather_dark": 60,
+          "aromatic": 100
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "distinct",
+            "curat",
+            "intens"
+          ],
+          "concrete": [
+            "aromatic",
+            "spices",
+            "citrus"
+          ]
+        }
+      },
+      {
+        "name": "Side Effect",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 40,
+          "Warmth": 78,
+          "Complexity": 80,
+          "Elegance": 68,
+          "Character": 89,
+          "Presence": 79,
+          "Comfort": 62,
+          "Uniqueness": 69,
+          "Versatility": 66,
+          "Luxury": 80,
+          "Formality": 50
+        },
+        "semantic_v1": {
+          "freshness": 40,
+          "warmth": 78,
+          "citrus": 50,
+          "woods": 48.0,
+          "spices": 89,
+          "sweetness": 78,
+          "gourmand": 78,
+          "floral": 60,
+          "musk_clean": 62,
+          "leather_dark": 60,
+          "aromatic": 99
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "distinct",
+            "sofisticat",
+            "carismatic"
+          ],
+          "concrete": [
+            "aromatic",
+            "spices",
+            "sweetness"
+          ]
+        }
+      },
+      {
+        "name": "Silver Mountain Water",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 37,
+          "Warmth": 39,
+          "Complexity": 63,
+          "Elegance": 74,
+          "Character": 67,
+          "Presence": 63,
+          "Comfort": 73,
+          "Uniqueness": 73,
+          "Versatility": 89,
+          "Luxury": 94,
+          "Formality": 78
+        },
+        "semantic_v1": {
+          "freshness": 37,
+          "warmth": 39,
+          "citrus": 47,
+          "woods": 37.8,
+          "spices": 67,
+          "sweetness": 39,
+          "gourmand": 39,
+          "floral": 60,
+          "musk_clean": 73,
+          "leather_dark": 60,
+          "aromatic": 77
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "distinct",
+            "elegant",
+            "curat"
+          ],
+          "concrete": [
+            "aromatic",
+            "musk_clean",
+            "spices"
+          ]
+        }
+      },
+      {
+        "name": "Spicebomb Extreme",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 15,
+          "Warmth": 72,
+          "Complexity": 87,
+          "Elegance": 71,
+          "Character": 80,
+          "Presence": 95,
+          "Comfort": 78,
+          "Uniqueness": 76,
+          "Versatility": 80,
+          "Luxury": 86,
+          "Formality": 69
+        },
+        "semantic_v1": {
+          "freshness": 15,
+          "warmth": 72,
+          "citrus": 25,
+          "woods": 52.199999999999996,
+          "spices": 80,
+          "sweetness": 72,
+          "gourmand": 72,
+          "floral": 60,
+          "musk_clean": 78,
+          "leather_dark": 60,
+          "aromatic": 80
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "carismatic",
+            "sofisticat",
+            "distinct"
+          ],
+          "concrete": [
+            "spices",
+            "aromatic",
+            "musk_clean"
+          ]
+        }
+      },
+      {
+        "name": "Terre d'Hermes EDT",
+        "type": "designer",
+        "dna_axes": {
+          "Freshness": 90,
+          "Warmth": 90,
+          "Complexity": 60,
+          "Elegance": 70,
+          "Character": 70,
+          "Presence": 70,
+          "Comfort": 75,
+          "Uniqueness": 80,
+          "Versatility": 80,
+          "Luxury": 90
+        },
+        "semantic_v1": {
+          "freshness": 90,
+          "warmth": 90,
+          "citrus": 100,
+          "woods": 56.0,
+          "spices": 70,
+          "sweetness": 90,
+          "gourmand": 90,
+          "floral": 60,
+          "musk_clean": 75,
+          "leather_dark": 60,
+          "aromatic": 70
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "luminos",
+            "intens",
+            "curat"
+          ],
+          "concrete": [
+            "citrus",
+            "sweetness",
+            "gourmand"
+          ]
+        }
+      },
+      {
+        "name": "Terre d'Hermès EDT",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 94,
+          "Warmth": 31,
+          "Complexity": 82,
+          "Elegance": 83,
+          "Character": 69,
+          "Presence": 80,
+          "Comfort": 68,
+          "Uniqueness": 76,
+          "Versatility": 70,
+          "Luxury": 90,
+          "Formality": 54
+        },
+        "semantic_v1": {
+          "freshness": 94,
+          "warmth": 31,
+          "citrus": 100,
+          "woods": 49.199999999999996,
+          "spices": 69,
+          "sweetness": 31,
+          "gourmand": 31,
+          "floral": 60,
+          "musk_clean": 68,
+          "leather_dark": 60,
+          "aromatic": 69
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "luminos",
+            "elegant",
+            "sofisticat"
+          ],
+          "concrete": [
+            "citrus",
+            "spices",
+            "aromatic"
+          ]
+        }
+      },
+      {
+        "name": "The Scent of Peace for Him",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 38,
+          "Warmth": 34,
+          "Complexity": 83,
+          "Elegance": 68,
+          "Character": 91,
+          "Presence": 64,
+          "Comfort": 82,
+          "Uniqueness": 66,
+          "Versatility": 78,
+          "Luxury": 67,
+          "Formality": 76
+        },
+        "semantic_v1": {
+          "freshness": 38,
+          "warmth": 34,
+          "citrus": 48,
+          "woods": 49.8,
+          "spices": 91,
+          "sweetness": 34,
+          "gourmand": 34,
+          "floral": 60,
+          "musk_clean": 82,
+          "leather_dark": 60,
+          "aromatic": 100
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "distinct",
+            "sofisticat",
+            "curat"
+          ],
+          "concrete": [
+            "aromatic",
+            "spices",
+            "musk_clean"
+          ]
+        }
+      },
+      {
+        "name": "Torino21",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 33,
+          "Warmth": 52,
+          "Complexity": 84,
+          "Elegance": 78,
+          "Character": 63,
+          "Presence": 76,
+          "Comfort": 60,
+          "Uniqueness": 66,
+          "Versatility": 86,
+          "Luxury": 92,
+          "Formality": 78
+        },
+        "semantic_v1": {
+          "freshness": 33,
+          "warmth": 52,
+          "citrus": 43,
+          "woods": 50.4,
+          "spices": 63,
+          "sweetness": 52,
+          "gourmand": 52,
+          "floral": 60,
+          "musk_clean": 60,
+          "leather_dark": 60,
+          "aromatic": 73
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "sofisticat",
+            "elegant",
+            "carismatic"
+          ],
+          "concrete": [
+            "aromatic",
+            "spices",
+            "floral"
+          ]
+        }
+      },
+      {
+        "name": "Triumph Of Bacchus",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 72,
+          "Warmth": 70,
+          "Complexity": 72,
+          "Elegance": 79,
+          "Character": 78,
+          "Presence": 94,
+          "Comfort": 67,
+          "Uniqueness": 88,
+          "Versatility": 84,
+          "Luxury": 64,
+          "Formality": 51
+        },
+        "semantic_v1": {
+          "freshness": 72,
+          "warmth": 70,
+          "citrus": 82,
+          "woods": 43.199999999999996,
+          "spices": 78,
+          "sweetness": 70,
+          "gourmand": 70,
+          "floral": 60,
+          "musk_clean": 67,
+          "leather_dark": 60,
+          "aromatic": 78
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "carismatic",
+            "elegant",
+            "distinct"
+          ],
+          "concrete": [
+            "citrus",
+            "spices",
+            "aromatic"
+          ]
+        }
+      },
+      {
+        "name": "Valentino Born In Roma",
+        "type": "designer",
+        "dna_axes": {
+          "Freshness": 90,
+          "Warmth": 90,
+          "Complexity": 60,
+          "Elegance": 70,
+          "Character": 70,
+          "Presence": 90,
+          "Comfort": 75,
+          "Uniqueness": 60,
+          "Versatility": 80,
+          "Luxury": 75
+        },
+        "semantic_v1": {
+          "freshness": 90,
+          "warmth": 90,
+          "citrus": 100,
+          "woods": 36.0,
+          "spices": 85,
+          "sweetness": 90,
+          "gourmand": 90,
+          "floral": 60,
+          "musk_clean": 75,
+          "leather_dark": 60,
+          "aromatic": 70
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "carismatic",
+            "luminos",
+            "intens"
+          ],
+          "concrete": [
+            "citrus",
+            "sweetness",
+            "gourmand"
+          ]
+        }
+      },
+      {
+        "name": "Valentino Uomo Intense",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 65,
+          "Warmth": 35,
+          "Complexity": 57,
+          "Elegance": 76,
+          "Character": 94,
+          "Presence": 87,
+          "Comfort": 66,
+          "Uniqueness": 79,
+          "Versatility": 61,
+          "Luxury": 63,
+          "Formality": 63
+        },
+        "semantic_v1": {
+          "freshness": 65,
+          "warmth": 35,
+          "citrus": 75,
+          "woods": 34.199999999999996,
+          "spices": 94,
+          "sweetness": 35,
+          "gourmand": 35,
+          "floral": 60,
+          "musk_clean": 66,
+          "leather_dark": 60,
+          "aromatic": 100
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "distinct",
+            "carismatic",
+            "elegant"
+          ],
+          "concrete": [
+            "aromatic",
+            "spices",
+            "citrus"
+          ]
+        }
+      },
+      {
+        "name": "Versace Dylan Blue",
+        "type": "designer",
+        "dna_axes": {
+          "Freshness": 90,
+          "Warmth": 60,
+          "Complexity": 60,
+          "Elegance": 70,
+          "Character": 70,
+          "Presence": 90,
+          "Comfort": 90,
+          "Uniqueness": 60,
+          "Versatility": 95,
+          "Luxury": 75
+        },
+        "semantic_v1": {
+          "freshness": 90,
+          "warmth": 60,
+          "citrus": 100,
+          "woods": 36.0,
+          "spices": 70,
+          "sweetness": 60,
+          "gourmand": 60,
+          "floral": 60,
+          "musk_clean": 90,
+          "leather_dark": 60,
+          "aromatic": 70
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "carismatic",
+            "luminos",
+            "curat"
+          ],
+          "concrete": [
+            "citrus",
+            "musk_clean",
+            "spices"
+          ]
+        }
+      },
+      {
+        "name": "Versace Eros",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 95,
+          "Warmth": 27,
+          "Complexity": 72,
+          "Elegance": 82,
+          "Character": 76,
+          "Presence": 69,
+          "Comfort": 87,
+          "Uniqueness": 57,
+          "Versatility": 77,
+          "Luxury": 77,
+          "Formality": 54
+        },
+        "semantic_v1": {
+          "freshness": 95,
+          "warmth": 27,
+          "citrus": 100,
+          "woods": 43.199999999999996,
+          "spices": 76,
+          "sweetness": 27,
+          "gourmand": 27,
+          "floral": 60,
+          "musk_clean": 87,
+          "leather_dark": 60,
+          "aromatic": 76
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "luminos",
+            "curat",
+            "elegant"
+          ],
+          "concrete": [
+            "citrus",
+            "musk_clean",
+            "spices"
+          ]
+        }
+      },
+      {
+        "name": "Vibrato",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 40,
+          "Warmth": 61,
+          "Complexity": 87,
+          "Elegance": 83,
+          "Character": 68,
+          "Presence": 90,
+          "Comfort": 61,
+          "Uniqueness": 64,
+          "Versatility": 80,
+          "Luxury": 94,
+          "Formality": 66
+        },
+        "semantic_v1": {
+          "freshness": 40,
+          "warmth": 61,
+          "citrus": 50,
+          "woods": 52.199999999999996,
+          "spices": 68,
+          "sweetness": 61,
+          "gourmand": 61,
+          "floral": 60,
+          "musk_clean": 61,
+          "leather_dark": 60,
+          "aromatic": 68
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "carismatic",
+            "sofisticat",
+            "elegant"
+          ],
+          "concrete": [
+            "spices",
+            "aromatic",
+            "sweetness"
+          ]
+        }
+      },
+      {
+        "name": "Viking Cologne",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 32,
+          "Warmth": 95,
+          "Complexity": 68,
+          "Elegance": 87,
+          "Character": 79,
+          "Presence": 84,
+          "Comfort": 88,
+          "Uniqueness": 64,
+          "Versatility": 70,
+          "Luxury": 81,
+          "Formality": 84
+        },
+        "semantic_v1": {
+          "freshness": 32,
+          "warmth": 95,
+          "citrus": 42,
+          "woods": 40.8,
+          "spices": 79,
+          "sweetness": 95,
+          "gourmand": 95,
+          "floral": 60,
+          "musk_clean": 88,
+          "leather_dark": 60,
+          "aromatic": 79
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "intens",
+            "curat",
+            "elegant"
+          ],
+          "concrete": [
+            "sweetness",
+            "gourmand",
+            "musk_clean"
+          ]
+        }
+      },
+      {
+        "name": "Wulong Cha",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 92,
+          "Warmth": 62,
+          "Complexity": 90,
+          "Elegance": 61,
+          "Character": 79,
+          "Presence": 93,
+          "Comfort": 83,
+          "Uniqueness": 80,
+          "Versatility": 90,
+          "Luxury": 87,
+          "Formality": 52
+        },
+        "semantic_v1": {
+          "freshness": 92,
+          "warmth": 62,
+          "citrus": 100,
+          "woods": 54.0,
+          "spices": 79,
+          "sweetness": 62,
+          "gourmand": 62,
+          "floral": 60,
+          "musk_clean": 83,
+          "leather_dark": 60,
+          "aromatic": 79
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "carismatic",
+            "luminos",
+            "sofisticat"
+          ],
+          "concrete": [
+            "citrus",
+            "musk_clean",
+            "spices"
+          ]
+        }
+      },
+      {
+        "name": "Y EDP",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 53,
+          "Warmth": 72,
+          "Complexity": 64,
+          "Elegance": 62,
+          "Character": 90,
+          "Presence": 89,
+          "Comfort": 86,
+          "Uniqueness": 66,
+          "Versatility": 87,
+          "Luxury": 85,
+          "Formality": 81
+        },
+        "semantic_v1": {
+          "freshness": 53,
+          "warmth": 72,
+          "citrus": 63,
+          "woods": 38.4,
+          "spices": 90,
+          "sweetness": 72,
+          "gourmand": 72,
+          "floral": 60,
+          "musk_clean": 86,
+          "leather_dark": 60,
+          "aromatic": 100
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "distinct",
+            "carismatic",
+            "curat"
+          ],
+          "concrete": [
+            "aromatic",
+            "spices",
+            "musk_clean"
+          ]
+        }
+      },
+      {
+        "name": "YSL Y EDP",
+        "type": "designer",
+        "dna_axes": {
+          "Freshness": 90,
+          "Warmth": 90,
+          "Complexity": 60,
+          "Elegance": 85,
+          "Character": 70,
+          "Presence": 90,
+          "Comfort": 90,
+          "Uniqueness": 60,
+          "Versatility": 95,
+          "Luxury": 75
+        },
+        "semantic_v1": {
+          "freshness": 90,
+          "warmth": 90,
+          "citrus": 100,
+          "woods": 36.0,
+          "spices": 70,
+          "sweetness": 90,
+          "gourmand": 90,
+          "floral": 60,
+          "musk_clean": 90,
+          "leather_dark": 60,
+          "aromatic": 70
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "carismatic",
+            "luminos",
+            "intens"
+          ],
+          "concrete": [
+            "citrus",
+            "sweetness",
+            "gourmand"
+          ]
+        }
+      },
+      {
+        "name": "Île Pourpre",
+        "type": "niche",
+        "dna_axes": {
+          "Freshness": 44,
+          "Warmth": 74,
+          "Complexity": 87,
+          "Elegance": 83,
+          "Character": 94,
+          "Presence": 70,
+          "Comfort": 65,
+          "Uniqueness": 67,
+          "Versatility": 67,
+          "Luxury": 79,
+          "Formality": 65
+        },
+        "semantic_v1": {
+          "freshness": 44,
+          "warmth": 74,
+          "citrus": 54,
+          "woods": 52.199999999999996,
+          "spices": 94,
+          "sweetness": 74,
+          "gourmand": 74,
+          "floral": 60,
+          "musk_clean": 65,
+          "leather_dark": 60,
+          "aromatic": 94
+        },
+        "user_attributes_v3": {
+          "abstract": [
+            "distinct",
+            "sofisticat",
+            "elegant"
+          ],
+          "concrete": [
+            "spices",
+            "aromatic",
+            "sweetness"
+          ]
+        }
+      }
+    ]
+  }
+}

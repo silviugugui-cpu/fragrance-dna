@@ -1,0 +1,1907 @@
+{
+  "FragranceDNA_v3_REINTEGRATED": {
+    "model": "canonical_6_attributes + 10_dna_axes",
+    "fragrances": [
+      {
+        "name": "Nio",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "citrus green airy",
+              "intensity": 0.95
+            },
+            {
+              "accord": "herbal",
+              "type": "clean aromatic lift",
+              "intensity": 0.8
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 46,
+          "Warmth": 73,
+          "Complexity": 66,
+          "Elegance": 72,
+          "Character": 87,
+          "Presence": 67,
+          "Comfort": 63,
+          "Uniqueness": 84,
+          "Versatility": 82,
+          "Luxury": 66,
+          "Formality": 56
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 46,
+          "Warm_vs_Cool": 73,
+          "Sweet_vs_Dry": 73,
+          "Simple_vs_Complex": 66,
+          "Soft_vs_Bold": 67,
+          "Familiar_vs_Unique": 84
+        }
+      },
+      {
+        "name": "Renaissance",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 94,
+          "Warmth": 44,
+          "Complexity": 67,
+          "Elegance": 91,
+          "Character": 90,
+          "Presence": 63,
+          "Comfort": 79,
+          "Uniqueness": 79,
+          "Versatility": 95,
+          "Luxury": 66,
+          "Formality": 82
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 94,
+          "Warm_vs_Cool": 44,
+          "Sweet_vs_Dry": 44,
+          "Simple_vs_Complex": 67,
+          "Soft_vs_Bold": 63,
+          "Familiar_vs_Unique": 79
+        }
+      },
+      {
+        "name": "Torino21",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "citrus green airy",
+              "intensity": 0.95
+            },
+            {
+              "accord": "herbal",
+              "type": "clean aromatic lift",
+              "intensity": 0.8
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 33,
+          "Warmth": 52,
+          "Complexity": 84,
+          "Elegance": 78,
+          "Character": 63,
+          "Presence": 76,
+          "Comfort": 60,
+          "Uniqueness": 66,
+          "Versatility": 86,
+          "Luxury": 92,
+          "Formality": 78
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 33,
+          "Warm_vs_Cool": 52,
+          "Sweet_vs_Dry": 52,
+          "Simple_vs_Complex": 84,
+          "Soft_vs_Bold": 76,
+          "Familiar_vs_Unique": 66
+        }
+      },
+      {
+        "name": "Greenley",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 24,
+          "Warmth": 70,
+          "Complexity": 59,
+          "Elegance": 76,
+          "Character": 92,
+          "Presence": 85,
+          "Comfort": 70,
+          "Uniqueness": 80,
+          "Versatility": 91,
+          "Luxury": 73,
+          "Formality": 58
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 24,
+          "Warm_vs_Cool": 70,
+          "Sweet_vs_Dry": 70,
+          "Simple_vs_Complex": 59,
+          "Soft_vs_Bold": 85,
+          "Familiar_vs_Unique": 80
+        }
+      },
+      {
+        "name": "Silver Mountain Water",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 37,
+          "Warmth": 39,
+          "Complexity": 63,
+          "Elegance": 74,
+          "Character": 67,
+          "Presence": 63,
+          "Comfort": 73,
+          "Uniqueness": 73,
+          "Versatility": 89,
+          "Luxury": 94,
+          "Formality": 78
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 37,
+          "Warm_vs_Cool": 39,
+          "Sweet_vs_Dry": 39,
+          "Simple_vs_Complex": 63,
+          "Soft_vs_Bold": 63,
+          "Familiar_vs_Unique": 73
+        }
+      },
+      {
+        "name": "Erolfa",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 36,
+          "Warmth": 93,
+          "Complexity": 64,
+          "Elegance": 65,
+          "Character": 91,
+          "Presence": 81,
+          "Comfort": 60,
+          "Uniqueness": 61,
+          "Versatility": 68,
+          "Luxury": 90,
+          "Formality": 72
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 36,
+          "Warm_vs_Cool": 93,
+          "Sweet_vs_Dry": 93,
+          "Simple_vs_Complex": 64,
+          "Soft_vs_Bold": 81,
+          "Familiar_vs_Unique": 61
+        }
+      },
+      {
+        "name": "Viking Cologne",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 32,
+          "Warmth": 95,
+          "Complexity": 68,
+          "Elegance": 87,
+          "Character": 79,
+          "Presence": 84,
+          "Comfort": 88,
+          "Uniqueness": 64,
+          "Versatility": 70,
+          "Luxury": 81,
+          "Formality": 84
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 32,
+          "Warm_vs_Cool": 95,
+          "Sweet_vs_Dry": 95,
+          "Simple_vs_Complex": 68,
+          "Soft_vs_Bold": 84,
+          "Familiar_vs_Unique": 64
+        }
+      },
+      {
+        "name": "Wulong Cha",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "citrus green airy",
+              "intensity": 0.95
+            },
+            {
+              "accord": "herbal",
+              "type": "clean aromatic lift",
+              "intensity": 0.8
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 92,
+          "Warmth": 62,
+          "Complexity": 90,
+          "Elegance": 61,
+          "Character": 79,
+          "Presence": 93,
+          "Comfort": 83,
+          "Uniqueness": 80,
+          "Versatility": 90,
+          "Luxury": 87,
+          "Formality": 52
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 92,
+          "Warm_vs_Cool": 62,
+          "Sweet_vs_Dry": 62,
+          "Simple_vs_Complex": 90,
+          "Soft_vs_Bold": 93,
+          "Familiar_vs_Unique": 80
+        }
+      },
+      {
+        "name": "Naxos",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "sweet/warm",
+              "type": "dense gourmand",
+              "intensity": 0.9
+            },
+            {
+              "accord": "amber",
+              "type": "deep resinous base",
+              "intensity": 0.85
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 69,
+          "Warmth": 50,
+          "Complexity": 69,
+          "Elegance": 68,
+          "Character": 81,
+          "Presence": 86,
+          "Comfort": 92,
+          "Uniqueness": 73,
+          "Versatility": 65,
+          "Luxury": 67,
+          "Formality": 73
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 69,
+          "Warm_vs_Cool": 50,
+          "Sweet_vs_Dry": 50,
+          "Simple_vs_Complex": 69,
+          "Soft_vs_Bold": 86,
+          "Familiar_vs_Unique": 73
+        }
+      },
+      {
+        "name": "Carlisle",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "sweet/warm",
+              "type": "dense gourmand",
+              "intensity": 0.9
+            },
+            {
+              "accord": "amber",
+              "type": "deep resinous base",
+              "intensity": 0.85
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 41,
+          "Warmth": 82,
+          "Complexity": 63,
+          "Elegance": 80,
+          "Character": 84,
+          "Presence": 78,
+          "Comfort": 68,
+          "Uniqueness": 56,
+          "Versatility": 68,
+          "Luxury": 64,
+          "Formality": 68
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 41,
+          "Warm_vs_Cool": 82,
+          "Sweet_vs_Dry": 82,
+          "Simple_vs_Complex": 63,
+          "Soft_vs_Bold": 78,
+          "Familiar_vs_Unique": 56
+        }
+      },
+      {
+        "name": "Oajan",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "sweet/warm",
+              "type": "dense gourmand",
+              "intensity": 0.9
+            },
+            {
+              "accord": "amber",
+              "type": "deep resinous base",
+              "intensity": 0.85
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 81,
+          "Warmth": 60,
+          "Complexity": 77,
+          "Elegance": 95,
+          "Character": 75,
+          "Presence": 87,
+          "Comfort": 84,
+          "Uniqueness": 91,
+          "Versatility": 74,
+          "Luxury": 67,
+          "Formality": 74
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 81,
+          "Warm_vs_Cool": 60,
+          "Sweet_vs_Dry": 60,
+          "Simple_vs_Complex": 77,
+          "Soft_vs_Bold": 87,
+          "Familiar_vs_Unique": 91
+        }
+      },
+      {
+        "name": "Ani",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "sweet/warm",
+              "type": "dense gourmand",
+              "intensity": 0.9
+            },
+            {
+              "accord": "amber",
+              "type": "deep resinous base",
+              "intensity": 0.85
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 66,
+          "Warmth": 65,
+          "Complexity": 75,
+          "Elegance": 65,
+          "Character": 74,
+          "Presence": 76,
+          "Comfort": 90,
+          "Uniqueness": 70,
+          "Versatility": 93,
+          "Luxury": 81,
+          "Formality": 70
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 66,
+          "Warm_vs_Cool": 65,
+          "Sweet_vs_Dry": 65,
+          "Simple_vs_Complex": 75,
+          "Soft_vs_Bold": 76,
+          "Familiar_vs_Unique": 70
+        }
+      },
+      {
+        "name": "New Haarlem",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 84,
+          "Warmth": 25,
+          "Complexity": 87,
+          "Elegance": 86,
+          "Character": 61,
+          "Presence": 80,
+          "Comfort": 90,
+          "Uniqueness": 74,
+          "Versatility": 83,
+          "Luxury": 81,
+          "Formality": 51
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 84,
+          "Warm_vs_Cool": 25,
+          "Sweet_vs_Dry": 25,
+          "Simple_vs_Complex": 87,
+          "Soft_vs_Bold": 80,
+          "Familiar_vs_Unique": 74
+        }
+      },
+      {
+        "name": "Side Effect",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "sweet/warm",
+              "type": "dense gourmand",
+              "intensity": 0.9
+            },
+            {
+              "accord": "amber",
+              "type": "deep resinous base",
+              "intensity": 0.85
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 40,
+          "Warmth": 78,
+          "Complexity": 80,
+          "Elegance": 68,
+          "Character": 89,
+          "Presence": 79,
+          "Comfort": 62,
+          "Uniqueness": 69,
+          "Versatility": 66,
+          "Luxury": 80,
+          "Formality": 50
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 40,
+          "Warm_vs_Cool": 78,
+          "Sweet_vs_Dry": 78,
+          "Simple_vs_Complex": 80,
+          "Soft_vs_Bold": 79,
+          "Familiar_vs_Unique": 69
+        }
+      },
+      {
+        "name": "Blessed Baraka",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 65,
+          "Warmth": 80,
+          "Complexity": 61,
+          "Elegance": 69,
+          "Character": 67,
+          "Presence": 76,
+          "Comfort": 73,
+          "Uniqueness": 86,
+          "Versatility": 95,
+          "Luxury": 63,
+          "Formality": 64
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 65,
+          "Warm_vs_Cool": 80,
+          "Sweet_vs_Dry": 80,
+          "Simple_vs_Complex": 61,
+          "Soft_vs_Bold": 76,
+          "Familiar_vs_Unique": 86
+        }
+      },
+      {
+        "name": "Bleecker Street",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 74,
+          "Warmth": 78,
+          "Complexity": 66,
+          "Elegance": 61,
+          "Character": 90,
+          "Presence": 74,
+          "Comfort": 68,
+          "Uniqueness": 82,
+          "Versatility": 65,
+          "Luxury": 90,
+          "Formality": 76
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 74,
+          "Warm_vs_Cool": 78,
+          "Sweet_vs_Dry": 78,
+          "Simple_vs_Complex": 66,
+          "Soft_vs_Bold": 74,
+          "Familiar_vs_Unique": 82
+        }
+      },
+      {
+        "name": "Hacivat",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 10,
+          "Warmth": 34,
+          "Complexity": 77,
+          "Elegance": 60,
+          "Character": 85,
+          "Presence": 89,
+          "Comfort": 82,
+          "Uniqueness": 59,
+          "Versatility": 87,
+          "Luxury": 65,
+          "Formality": 75
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 10,
+          "Warm_vs_Cool": 34,
+          "Sweet_vs_Dry": 34,
+          "Simple_vs_Complex": 77,
+          "Soft_vs_Bold": 89,
+          "Familiar_vs_Unique": 59
+        }
+      },
+      {
+        "name": "Lafayette Street",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 83,
+          "Warmth": 40,
+          "Complexity": 72,
+          "Elegance": 83,
+          "Character": 94,
+          "Presence": 61,
+          "Comfort": 66,
+          "Uniqueness": 65,
+          "Versatility": 74,
+          "Luxury": 79,
+          "Formality": 61
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 83,
+          "Warm_vs_Cool": 40,
+          "Sweet_vs_Dry": 40,
+          "Simple_vs_Complex": 72,
+          "Soft_vs_Bold": 61,
+          "Familiar_vs_Unique": 65
+        }
+      },
+      {
+        "name": "Ombre Leather",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "dark",
+              "type": "leather/wood structure",
+              "intensity": 0.9
+            },
+            {
+              "accord": "spice",
+              "type": "dry aromatic depth",
+              "intensity": 0.85
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 27,
+          "Warmth": 30,
+          "Complexity": 80,
+          "Elegance": 60,
+          "Character": 70,
+          "Presence": 84,
+          "Comfort": 60,
+          "Uniqueness": 61,
+          "Versatility": 71,
+          "Luxury": 85,
+          "Formality": 78
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 27,
+          "Warm_vs_Cool": 30,
+          "Sweet_vs_Dry": 30,
+          "Simple_vs_Complex": 80,
+          "Soft_vs_Bold": 84,
+          "Familiar_vs_Unique": 61
+        }
+      },
+      {
+        "name": "Royal Oud",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "dark",
+              "type": "leather/wood structure",
+              "intensity": 0.9
+            },
+            {
+              "accord": "spice",
+              "type": "dry aromatic depth",
+              "intensity": 0.85
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 20,
+          "Warmth": 87,
+          "Complexity": 71,
+          "Elegance": 68,
+          "Character": 82,
+          "Presence": 64,
+          "Comfort": 69,
+          "Uniqueness": 81,
+          "Versatility": 81,
+          "Luxury": 73,
+          "Formality": 69
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 20,
+          "Warm_vs_Cool": 87,
+          "Sweet_vs_Dry": 87,
+          "Simple_vs_Complex": 71,
+          "Soft_vs_Bold": 64,
+          "Familiar_vs_Unique": 81
+        }
+      },
+      {
+        "name": "Reflection Man",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 47,
+          "Warmth": 76,
+          "Complexity": 78,
+          "Elegance": 71,
+          "Character": 68,
+          "Presence": 90,
+          "Comfort": 65,
+          "Uniqueness": 63,
+          "Versatility": 94,
+          "Luxury": 64,
+          "Formality": 84
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 47,
+          "Warm_vs_Cool": 76,
+          "Sweet_vs_Dry": 76,
+          "Simple_vs_Complex": 78,
+          "Soft_vs_Bold": 90,
+          "Familiar_vs_Unique": 63
+        }
+      },
+      {
+        "name": "Île Pourpre",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 44,
+          "Warmth": 74,
+          "Complexity": 87,
+          "Elegance": 83,
+          "Character": 94,
+          "Presence": 70,
+          "Comfort": 65,
+          "Uniqueness": 67,
+          "Versatility": 67,
+          "Luxury": 79,
+          "Formality": 65
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 44,
+          "Warm_vs_Cool": 74,
+          "Sweet_vs_Dry": 74,
+          "Simple_vs_Complex": 87,
+          "Soft_vs_Bold": 70,
+          "Familiar_vs_Unique": 67
+        }
+      },
+      {
+        "name": "Erba Gold",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 48,
+          "Warmth": 77,
+          "Complexity": 59,
+          "Elegance": 74,
+          "Character": 92,
+          "Presence": 87,
+          "Comfort": 74,
+          "Uniqueness": 79,
+          "Versatility": 92,
+          "Luxury": 76,
+          "Formality": 59
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 48,
+          "Warm_vs_Cool": 77,
+          "Sweet_vs_Dry": 77,
+          "Simple_vs_Complex": 59,
+          "Soft_vs_Bold": 87,
+          "Familiar_vs_Unique": 79
+        }
+      },
+      {
+        "name": "Vibrato",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 40,
+          "Warmth": 61,
+          "Complexity": 87,
+          "Elegance": 83,
+          "Character": 68,
+          "Presence": 90,
+          "Comfort": 61,
+          "Uniqueness": 64,
+          "Versatility": 80,
+          "Luxury": 94,
+          "Formality": 66
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 40,
+          "Warm_vs_Cool": 61,
+          "Sweet_vs_Dry": 61,
+          "Simple_vs_Complex": 87,
+          "Soft_vs_Bold": 90,
+          "Familiar_vs_Unique": 64
+        }
+      },
+      {
+        "name": "Montabaco Intensivo",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 59,
+          "Warmth": 74,
+          "Complexity": 83,
+          "Elegance": 82,
+          "Character": 82,
+          "Presence": 90,
+          "Comfort": 69,
+          "Uniqueness": 87,
+          "Versatility": 75,
+          "Luxury": 67,
+          "Formality": 57
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 59,
+          "Warm_vs_Cool": 74,
+          "Sweet_vs_Dry": 74,
+          "Simple_vs_Complex": 83,
+          "Soft_vs_Bold": 90,
+          "Familiar_vs_Unique": 87
+        }
+      },
+      {
+        "name": "Sedley",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 76,
+          "Warmth": 77,
+          "Complexity": 59,
+          "Elegance": 71,
+          "Character": 92,
+          "Presence": 62,
+          "Comfort": 84,
+          "Uniqueness": 74,
+          "Versatility": 62,
+          "Luxury": 62,
+          "Formality": 66
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 76,
+          "Warm_vs_Cool": 77,
+          "Sweet_vs_Dry": 77,
+          "Simple_vs_Complex": 59,
+          "Soft_vs_Bold": 62,
+          "Familiar_vs_Unique": 74
+        }
+      },
+      {
+        "name": "Mefisto",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 27,
+          "Warmth": 32,
+          "Complexity": 84,
+          "Elegance": 62,
+          "Character": 88,
+          "Presence": 74,
+          "Comfort": 77,
+          "Uniqueness": 90,
+          "Versatility": 80,
+          "Luxury": 69,
+          "Formality": 55
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 27,
+          "Warm_vs_Cool": 32,
+          "Sweet_vs_Dry": 32,
+          "Simple_vs_Complex": 84,
+          "Soft_vs_Bold": 74,
+          "Familiar_vs_Unique": 90
+        }
+      },
+      {
+        "name": "Dear Polly",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 56,
+          "Warmth": 73,
+          "Complexity": 70,
+          "Elegance": 64,
+          "Character": 72,
+          "Presence": 89,
+          "Comfort": 89,
+          "Uniqueness": 59,
+          "Versatility": 86,
+          "Luxury": 62,
+          "Formality": 90
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 56,
+          "Warm_vs_Cool": 73,
+          "Sweet_vs_Dry": 73,
+          "Simple_vs_Complex": 70,
+          "Soft_vs_Bold": 89,
+          "Familiar_vs_Unique": 59
+        }
+      },
+      {
+        "name": "Triumph Of Bacchus",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 72,
+          "Warmth": 70,
+          "Complexity": 72,
+          "Elegance": 79,
+          "Character": 78,
+          "Presence": 94,
+          "Comfort": 67,
+          "Uniqueness": 88,
+          "Versatility": 84,
+          "Luxury": 64,
+          "Formality": 51
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 72,
+          "Warm_vs_Cool": 70,
+          "Sweet_vs_Dry": 70,
+          "Simple_vs_Complex": 72,
+          "Soft_vs_Bold": 94,
+          "Familiar_vs_Unique": 88
+        }
+      },
+      {
+        "name": "Althair",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 60,
+          "Warmth": 45,
+          "Complexity": 90,
+          "Elegance": 91,
+          "Character": 60,
+          "Presence": 75,
+          "Comfort": 87,
+          "Uniqueness": 81,
+          "Versatility": 71,
+          "Luxury": 73,
+          "Formality": 53
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 60,
+          "Warm_vs_Cool": 45,
+          "Sweet_vs_Dry": 45,
+          "Simple_vs_Complex": 90,
+          "Soft_vs_Bold": 75,
+          "Familiar_vs_Unique": 81
+        }
+      },
+      {
+        "name": "Follow",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 18,
+          "Warmth": 56,
+          "Complexity": 87,
+          "Elegance": 87,
+          "Character": 74,
+          "Presence": 73,
+          "Comfort": 62,
+          "Uniqueness": 68,
+          "Versatility": 74,
+          "Luxury": 91,
+          "Formality": 63
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 18,
+          "Warm_vs_Cool": 56,
+          "Sweet_vs_Dry": 56,
+          "Simple_vs_Complex": 87,
+          "Soft_vs_Bold": 73,
+          "Familiar_vs_Unique": 68
+        }
+      },
+      {
+        "name": "The Scent of Peace for Him",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 38,
+          "Warmth": 34,
+          "Complexity": 83,
+          "Elegance": 68,
+          "Character": 91,
+          "Presence": 64,
+          "Comfort": 82,
+          "Uniqueness": 66,
+          "Versatility": 78,
+          "Luxury": 67,
+          "Formality": 76
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 38,
+          "Warm_vs_Cool": 34,
+          "Sweet_vs_Dry": 34,
+          "Simple_vs_Complex": 83,
+          "Soft_vs_Bold": 64,
+          "Familiar_vs_Unique": 66
+        }
+      },
+      {
+        "name": "Narcotic Delight",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 38,
+          "Warmth": 64,
+          "Complexity": 59,
+          "Elegance": 73,
+          "Character": 64,
+          "Presence": 96,
+          "Comfort": 67,
+          "Uniqueness": 73,
+          "Versatility": 61,
+          "Luxury": 95,
+          "Formality": 69
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 38,
+          "Warm_vs_Cool": 64,
+          "Sweet_vs_Dry": 64,
+          "Simple_vs_Complex": 59,
+          "Soft_vs_Bold": 96,
+          "Familiar_vs_Unique": 73
+        }
+      },
+      {
+        "name": "40 Knots",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 85,
+          "Warmth": 65,
+          "Complexity": 57,
+          "Elegance": 92,
+          "Character": 84,
+          "Presence": 67,
+          "Comfort": 61,
+          "Uniqueness": 58,
+          "Versatility": 79,
+          "Luxury": 73,
+          "Formality": 61
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 85,
+          "Warm_vs_Cool": 65,
+          "Sweet_vs_Dry": 65,
+          "Simple_vs_Complex": 57,
+          "Soft_vs_Bold": 67,
+          "Familiar_vs_Unique": 58
+        }
+      },
+      {
+        "name": "Original Vetiver",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 94,
+          "Warmth": 39,
+          "Complexity": 72,
+          "Elegance": 78,
+          "Character": 79,
+          "Presence": 80,
+          "Comfort": 61,
+          "Uniqueness": 91,
+          "Versatility": 89,
+          "Luxury": 62,
+          "Formality": 74
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 94,
+          "Warm_vs_Cool": 39,
+          "Sweet_vs_Dry": 39,
+          "Simple_vs_Complex": 72,
+          "Soft_vs_Bold": 80,
+          "Familiar_vs_Unique": 91
+        }
+      },
+      {
+        "name": "Prada L'Homme",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 11,
+          "Warmth": 84,
+          "Complexity": 65,
+          "Elegance": 78,
+          "Character": 75,
+          "Presence": 80,
+          "Comfort": 60,
+          "Uniqueness": 80,
+          "Versatility": 71,
+          "Luxury": 95,
+          "Formality": 83
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 11,
+          "Warm_vs_Cool": 84,
+          "Sweet_vs_Dry": 84,
+          "Simple_vs_Complex": 65,
+          "Soft_vs_Bold": 80,
+          "Familiar_vs_Unique": 80
+        }
+      },
+      {
+        "name": "Dior Homme Original",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 12,
+          "Warmth": 12,
+          "Complexity": 71,
+          "Elegance": 62,
+          "Character": 89,
+          "Presence": 96,
+          "Comfort": 62,
+          "Uniqueness": 87,
+          "Versatility": 70,
+          "Luxury": 82,
+          "Formality": 53
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 12,
+          "Warm_vs_Cool": 12,
+          "Sweet_vs_Dry": 12,
+          "Simple_vs_Complex": 71,
+          "Soft_vs_Bold": 96,
+          "Familiar_vs_Unique": 87
+        }
+      },
+      {
+        "name": "Bleu de Chanel EDP",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 11,
+          "Warmth": 85,
+          "Complexity": 67,
+          "Elegance": 73,
+          "Character": 70,
+          "Presence": 67,
+          "Comfort": 64,
+          "Uniqueness": 80,
+          "Versatility": 84,
+          "Luxury": 72,
+          "Formality": 66
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 11,
+          "Warm_vs_Cool": 85,
+          "Sweet_vs_Dry": 85,
+          "Simple_vs_Complex": 67,
+          "Soft_vs_Bold": 67,
+          "Familiar_vs_Unique": 80
+        }
+      },
+      {
+        "name": "Acqua di Gio Parfum",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 73,
+          "Warmth": 29,
+          "Complexity": 61,
+          "Elegance": 91,
+          "Character": 60,
+          "Presence": 83,
+          "Comfort": 84,
+          "Uniqueness": 68,
+          "Versatility": 78,
+          "Luxury": 73,
+          "Formality": 87
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 73,
+          "Warm_vs_Cool": 29,
+          "Sweet_vs_Dry": 29,
+          "Simple_vs_Complex": 61,
+          "Soft_vs_Bold": 83,
+          "Familiar_vs_Unique": 68
+        }
+      },
+      {
+        "name": "Sauvage EDP",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 80,
+          "Warmth": 62,
+          "Complexity": 76,
+          "Elegance": 90,
+          "Character": 68,
+          "Presence": 74,
+          "Comfort": 61,
+          "Uniqueness": 57,
+          "Versatility": 64,
+          "Luxury": 83,
+          "Formality": 53
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 80,
+          "Warm_vs_Cool": 62,
+          "Sweet_vs_Dry": 62,
+          "Simple_vs_Complex": 76,
+          "Soft_vs_Bold": 74,
+          "Familiar_vs_Unique": 57
+        }
+      },
+      {
+        "name": "Terre d'Hermès EDT",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 94,
+          "Warmth": 31,
+          "Complexity": 82,
+          "Elegance": 83,
+          "Character": 69,
+          "Presence": 80,
+          "Comfort": 68,
+          "Uniqueness": 76,
+          "Versatility": 70,
+          "Luxury": 90,
+          "Formality": 54
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 94,
+          "Warm_vs_Cool": 31,
+          "Sweet_vs_Dry": 31,
+          "Simple_vs_Complex": 82,
+          "Soft_vs_Bold": 80,
+          "Familiar_vs_Unique": 76
+        }
+      },
+      {
+        "name": "Chanel Platinum Egoiste",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 57,
+          "Warmth": 39,
+          "Complexity": 69,
+          "Elegance": 89,
+          "Character": 66,
+          "Presence": 93,
+          "Comfort": 83,
+          "Uniqueness": 68,
+          "Versatility": 86,
+          "Luxury": 60,
+          "Formality": 60
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 57,
+          "Warm_vs_Cool": 39,
+          "Sweet_vs_Dry": 39,
+          "Simple_vs_Complex": 69,
+          "Soft_vs_Bold": 93,
+          "Familiar_vs_Unique": 68
+        }
+      },
+      {
+        "name": "Valentino Uomo Intense",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 65,
+          "Warmth": 35,
+          "Complexity": 57,
+          "Elegance": 76,
+          "Character": 94,
+          "Presence": 87,
+          "Comfort": 66,
+          "Uniqueness": 79,
+          "Versatility": 61,
+          "Luxury": 63,
+          "Formality": 63
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 65,
+          "Warm_vs_Cool": 35,
+          "Sweet_vs_Dry": 35,
+          "Simple_vs_Complex": 57,
+          "Soft_vs_Bold": 87,
+          "Familiar_vs_Unique": 79
+        }
+      },
+      {
+        "name": "Givenchy Gentleman Society",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 19,
+          "Warmth": 53,
+          "Complexity": 80,
+          "Elegance": 86,
+          "Character": 83,
+          "Presence": 75,
+          "Comfort": 85,
+          "Uniqueness": 64,
+          "Versatility": 67,
+          "Luxury": 87,
+          "Formality": 56
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 19,
+          "Warm_vs_Cool": 53,
+          "Sweet_vs_Dry": 53,
+          "Simple_vs_Complex": 80,
+          "Soft_vs_Bold": 75,
+          "Familiar_vs_Unique": 64
+        }
+      },
+      {
+        "name": "Y EDP",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 53,
+          "Warmth": 72,
+          "Complexity": 64,
+          "Elegance": 62,
+          "Character": 90,
+          "Presence": 89,
+          "Comfort": 86,
+          "Uniqueness": 66,
+          "Versatility": 87,
+          "Luxury": 85,
+          "Formality": 81
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 53,
+          "Warm_vs_Cool": 72,
+          "Sweet_vs_Dry": 72,
+          "Simple_vs_Complex": 64,
+          "Soft_vs_Bold": 89,
+          "Familiar_vs_Unique": 66
+        }
+      },
+      {
+        "name": "Montblanc Explorer",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 84,
+          "Warmth": 95,
+          "Complexity": 67,
+          "Elegance": 93,
+          "Character": 66,
+          "Presence": 95,
+          "Comfort": 77,
+          "Uniqueness": 63,
+          "Versatility": 82,
+          "Luxury": 81,
+          "Formality": 80
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 84,
+          "Warm_vs_Cool": 95,
+          "Sweet_vs_Dry": 95,
+          "Simple_vs_Complex": 67,
+          "Soft_vs_Bold": 95,
+          "Familiar_vs_Unique": 63
+        }
+      },
+      {
+        "name": "Prada Luna Rossa Carbon",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 61,
+          "Warmth": 83,
+          "Complexity": 61,
+          "Elegance": 93,
+          "Character": 94,
+          "Presence": 67,
+          "Comfort": 77,
+          "Uniqueness": 66,
+          "Versatility": 80,
+          "Luxury": 74,
+          "Formality": 83
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 61,
+          "Warm_vs_Cool": 83,
+          "Sweet_vs_Dry": 83,
+          "Simple_vs_Complex": 61,
+          "Soft_vs_Bold": 67,
+          "Familiar_vs_Unique": 66
+        }
+      },
+      {
+        "name": "Allure Homme Sport",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 70,
+          "Warmth": 29,
+          "Complexity": 59,
+          "Elegance": 89,
+          "Character": 94,
+          "Presence": 95,
+          "Comfort": 72,
+          "Uniqueness": 86,
+          "Versatility": 68,
+          "Luxury": 69,
+          "Formality": 79
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 70,
+          "Warm_vs_Cool": 29,
+          "Sweet_vs_Dry": 29,
+          "Simple_vs_Complex": 59,
+          "Soft_vs_Bold": 95,
+          "Familiar_vs_Unique": 86
+        }
+      },
+      {
+        "name": "Spicebomb Extreme",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 15,
+          "Warmth": 72,
+          "Complexity": 87,
+          "Elegance": 71,
+          "Character": 80,
+          "Presence": 95,
+          "Comfort": 78,
+          "Uniqueness": 76,
+          "Versatility": 80,
+          "Luxury": 86,
+          "Formality": 69
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 15,
+          "Warm_vs_Cool": 72,
+          "Sweet_vs_Dry": 72,
+          "Simple_vs_Complex": 87,
+          "Soft_vs_Bold": 95,
+          "Familiar_vs_Unique": 76
+        }
+      },
+      {
+        "name": "Versace Eros",
+        "semantic": {
+          "primary": [
+            {
+              "accord": "fresh",
+              "type": "balanced modern freshness",
+              "intensity": 0.8
+            },
+            {
+              "accord": "base",
+              "type": "woody-musky structure",
+              "intensity": 0.75
+            }
+          ]
+        },
+        "dna_axes": {
+          "Freshness": 95,
+          "Warmth": 27,
+          "Complexity": 72,
+          "Elegance": 82,
+          "Character": 76,
+          "Presence": 69,
+          "Comfort": 87,
+          "Uniqueness": 57,
+          "Versatility": 77,
+          "Luxury": 77,
+          "Formality": 54
+        },
+        "attributes_6": {
+          "Fresh_vs_Heavy": 95,
+          "Warm_vs_Cool": 27,
+          "Sweet_vs_Dry": 27,
+          "Simple_vs_Complex": 72,
+          "Soft_vs_Bold": 69,
+          "Familiar_vs_Unique": 57
+        }
+      }
+    ]
+  }
+}
