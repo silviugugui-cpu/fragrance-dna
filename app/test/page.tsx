@@ -2,8 +2,15 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type { Fragrance, AttributeKey, AnswerRecord } from '../../lib/types';
 import fragrances from '../../lib/db.json';
+import {
+  buildSessionFromAnswers,
+  findNextUnansweredIndex,
+  loadDnaSession,
+  saveDnaSession,
+} from '@/lib/dnaSession';
 
 const attributes: { key: AttributeKey; label: string; description: string }[] = [
   { key: 'elegant', label: 'Elegant', description: 'Refines the composition with satin-smooth depth.' },
@@ -26,10 +33,12 @@ const defaultAnswers: AnswerRecord = {
 const STORAGE_KEY = 'fragranceDNA-answers';
 
 export default function TestPage() {
+  const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, AnswerRecord>>({});
 
   useEffect(() => {
+    const session = loadDnaSession();
     const stored = window.localStorage.getItem(STORAGE_KEY);
     if (stored) {
       try {
@@ -38,15 +47,27 @@ export default function TestPage() {
         setAnswers({});
       }
     }
+    if (typeof session.currentIndex === 'number') {
+      setCurrentIndex(Math.min(session.currentIndex, fragrances.length - 1));
+    }
   }, []);
 
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(answers));
   }, [answers]);
 
+  useEffect(() => {
+    const nextSession = buildSessionFromAnswers(answers, currentIndex, loadDnaSession());
+    saveDnaSession(nextSession);
+  }, [answers, currentIndex]);
+
   const currentFragrance = fragrances[currentIndex] as Fragrance;
   const answeredIds = useMemo(() => Object.keys(answers), [answers]);
   const isComplete = answeredIds.length >= fragrances.length;
+  const liveSession = useMemo(
+    () => buildSessionFromAnswers(answers, currentIndex, loadDnaSession()),
+    [answers, currentIndex]
+  );
 
   const handleSliderChange = (key: AttributeKey, value: number) => {
     setAnswers((prev) => ({
@@ -59,20 +80,27 @@ export default function TestPage() {
   };
 
   const handleNext = () => {
-    const nextUnanswered = fragrances.findIndex((item) => !answeredIds.includes(item.id));
+    const nextAnswers = {
+      ...answers,
+      [currentFragrance.id]: currentAnswers,
+    };
+
+    setAnswers(nextAnswers);
+
+    const nextUnanswered = findNextUnansweredIndex(nextAnswers, currentIndex);
     if (nextUnanswered !== -1) {
       setCurrentIndex(nextUnanswered);
       return;
     }
 
-    if (!answeredIds.includes(currentFragrance.id) && currentIndex < fragrances.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    }
+    const completedSession = buildSessionFromAnswers(nextAnswers, currentIndex, liveSession);
+    saveDnaSession(completedSession);
+    router.push('/dna');
   };
 
   const currentAnswers = answers[currentFragrance.id] ?? defaultAnswers;
   const remaining = Math.max(0, fragrances.length - answeredIds.length);
-  const progress = Math.round(((answeredIds.length + 1) / fragrances.length) * 100);
+  const progress = Math.round((answeredIds.length / fragrances.length) * 100);
 
   return (
     <main className="main-container">
@@ -145,16 +173,26 @@ export default function TestPage() {
           <div className="rounded-[28px] bg-white/5 px-6 py-5 text-sm text-[#d5c9b8]/85 shadow-[0_24px_70px_rgba(0,0,0,0.18)]">
             <p className="uppercase tracking-[0.3em] text-[#b59f70]/70">Current rhythm</p>
             <p className="mt-2">You have refined {answeredIds.length} fragrance moments so far.</p>
+            <p className="mt-3 text-xs uppercase tracking-[0.24em] text-[#b59f70]/65">
+              Live confidence {liveSession.summary?.confidenceScore ?? liveSession.snapshots.at(-1)?.confidenceScore ?? 0}%
+            </p>
           </div>
 
-          <button
-            type="button"
-            onClick={handleNext}
-            className="inline-flex items-center justify-center rounded-full bg-[#c7a86b] px-8 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-black transition duration-300 hover:bg-[#d0b478] disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={isComplete}
-          >
-            {isComplete ? 'All moments complete' : 'Continue ritual'}
-          </button>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Link
+              href="/dna"
+              className="inline-flex items-center justify-center rounded-full border border-[#c7a86b]/35 bg-white/5 px-6 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-[#e7dfd1] transition duration-300 hover:border-[#c7a86b] hover:bg-white/10"
+            >
+              View Current DNA
+            </Link>
+            <button
+              type="button"
+              onClick={handleNext}
+              className="inline-flex items-center justify-center rounded-full bg-[#c7a86b] px-8 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-black transition duration-300 hover:bg-[#d0b478]"
+            >
+              {isComplete ? 'View final DNA' : 'Continue ritual'}
+            </button>
+          </div>
         </div>
       </section>
     </main>

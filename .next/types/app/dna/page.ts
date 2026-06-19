@@ -1,4 +1,4 @@
-// File: C:\Users\Atpq\OneDrive\Documents\_Fragrantiq\app\dna\page.tsx
+// File: C:\projects\_Fragrantiq\app\dna\page.tsx
 import * as entry from '../../../../app/dna/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

@@ -1,26 +1,44 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { buildSeed } from "@/lib/engine/seedBuilder";
 import { buildUserVector } from "@/lib/engine/userVectorBuilder";
 import { scoreFragrances } from "@/lib/engine/scoringEngine";
+import { loadDnaSession } from "@/lib/dnaSession";
+import type { DNASummary } from "@/lib/types";
 import db from "@/data/FragranceDNA_USER_ATTRIBUTE_LAYER_V3.json";
 
 export default function ResultsPage() {
   const [results, setResults] = useState<any[]>([]);
+  const [summary, setSummary] = useState<DNASummary | null>(null);
 
   useEffect(() => {
+    const session = loadDnaSession();
     const grounding = JSON.parse(
       localStorage.getItem("fragrance_grounding") || "{}"
     );
 
     const seed = buildSeed(grounding);
-    const vector = buildUserVector(seed);
+    const fallbackVector = buildUserVector(seed);
+    const vector = session.summary?.finalVector ?? session.currentVector ?? fallbackVector;
     const ranked = scoreFragrances(vector, db);
 
+    setSummary(session.summary ?? null);
     setResults(ranked);
   }, []);
+
+  const topMatches = useMemo(() => {
+    if (summary?.compatibilitySnapshot?.length) {
+      return summary.compatibilitySnapshot;
+    }
+
+    return results.slice(0, 3).map((item) => ({
+      fragranceId: item.fragrance.id ?? item.fragrance.name,
+      fragranceName: item.fragrance.name,
+      score: item.score,
+    }));
+  }, [results, summary]);
 
   return (
     <main className="main-container">
@@ -38,6 +56,27 @@ export default function ResultsPage() {
             </p>
           </div>
 
+          {summary && (
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
+              <article className="rounded-[28px] bg-white/5 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.18)]">
+                <p className="text-xs uppercase tracking-[0.3em] text-[#b59f70]/70">Final confidence</p>
+                <p className="mt-3 text-3xl font-semibold text-white">{summary.confidenceScore}%</p>
+              </article>
+              <article className="rounded-[28px] bg-white/5 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.18)]">
+                <p className="text-xs uppercase tracking-[0.3em] text-[#b59f70]/70">Dominant axes</p>
+                <p className="mt-3 text-lg text-[#e7dfd1]">{summary.dominantAxes.join(" • ")}</p>
+              </article>
+              <article className="rounded-[28px] bg-white/5 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.18)]">
+                <p className="text-xs uppercase tracking-[0.3em] text-[#b59f70]/70">Tests completed</p>
+                <p className="mt-3 text-3xl font-semibold text-white">{summary.answeredCount}</p>
+              </article>
+              <article className="rounded-[28px] bg-white/5 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.18)]">
+                <p className="text-xs uppercase tracking-[0.3em] text-[#b59f70]/70">Profile state</p>
+                <p className="mt-3 text-lg text-[#e7dfd1]">Final DNA generated</p>
+              </article>
+            </div>
+          )}
+
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm uppercase tracking-[0.32em] text-[#b59f70]/80">
@@ -47,12 +86,29 @@ export default function ResultsPage() {
             </div>
 
             <Link
-              href="/test"
+              href={summary ? "/dna" : "/test"}
               className="inline-flex items-center justify-center rounded-full border border-[#c7a86b]/30 bg-white/5 px-6 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-[#e7dfd1] transition duration-300 hover:border-[#c7a86b] hover:bg-white/10"
             >
-              Continue mapping
+              {summary ? "Open DNA profile" : "Continue mapping"}
             </Link>
           </div>
+
+          {topMatches.length > 0 && (
+            <div className="rounded-[32px] bg-white/5 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.18)]">
+              <p className="text-sm uppercase tracking-[0.32em] text-[#b59f70]/80">
+                Compatibility snapshot
+              </p>
+              <div className="mt-5 grid gap-3 lg:grid-cols-3">
+                {topMatches.map((item, index) => (
+                  <div key={`${item.fragranceId}-${index}`} className="rounded-[24px] border border-white/10 bg-black/20 p-4">
+                    <p className="text-xs uppercase tracking-[0.24em] text-[#b59f70]/70">Top match {index + 1}</p>
+                    <p className="mt-2 text-lg text-white">{item.fragranceName}</p>
+                    <p className="mt-2 text-sm text-[#d5c9b8]/80">Compatibility {(item.score * 100).toFixed(0)}%</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
