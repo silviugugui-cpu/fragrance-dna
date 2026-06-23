@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import { SiteHeader } from '@/components/design-system/SiteHeader';
 
 export const metadata: Metadata = {
   title: 'Authentication | FragranceDNA',
@@ -21,9 +20,6 @@ export default function AuthLayout({
         <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-gold/3 rounded-full blur-3xl transform -translate-x-1/2 -translate-y-1/2" />
       </div>
 
-      {/* Header with navigation - wrapped in client component */}
-      <HeaderWrapper />
-
       {/* Main content wrapper */}
       <div className="relative flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-xs">
@@ -32,10 +28,4 @@ export default function AuthLayout({
       </div>
     </div>
   );
-}
-
-function HeaderWrapper() {
-  // This is a simple server component wrapper for the client SiteHeader
-  // Since SiteHeader is marked as 'use client', we can render it here
-  return <SiteHeader />;
 }
