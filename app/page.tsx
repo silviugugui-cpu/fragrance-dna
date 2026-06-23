@@ -1,5 +1,6 @@
 ﻿import Link from 'next/link';
 import FragranceLogo from './components/FragranceLogo';
+import CollectionSummaryCard from '@/components/collection/CollectionSummaryCard';
 
 export default function HomePage() {
   return (
@@ -43,6 +44,8 @@ export default function HomePage() {
             </div>
           </div>
         </article>
+
+        <CollectionSummaryCard />
       </section>
     </main>
   );
