@@ -5,6 +5,7 @@ import DnaRadar, { DNA_AXES, type DnaAxis, type DnaAxisValues } from '@/componen
 import { buildSummary, loadDnaSession } from '@/lib/dnaSession';
 import { getOrCreateUserProfile } from '@/lib/engine/userProfileManager';
 import { PageShell, SectionHeader, StatCard, PremiumButton } from '@/components/design-system';
+import { AscendGlyphIcon, DescendGlyphIcon } from '@/components/design-system/FragranceIcons';
 import { territories } from '@/lib/data/territories';
 import type { DNASessionState, OlfactoryVector, UserDNAProfile } from '@/lib/types';
 
@@ -153,6 +154,7 @@ export default function DnaPage() {
   const [dnaSession, setDnaSession] = useState<DNASessionState | null>(null);
   const [userProfile, setUserProfile] = useState<UserDNAProfile | null>(null);
   const [groundingVector, setGroundingVector] = useState<OlfactoryVector | null>(null);
+  const [refreshedAt, setRefreshedAt] = useState<number | null>(null);
 
   useEffect(() => {
     const syncFromStorage = () => {
@@ -164,6 +166,7 @@ export default function DnaPage() {
         setDnaSession(session);
         setUserProfile(profile);
         setGroundingVector(storedGroundingVector ? (JSON.parse(storedGroundingVector) as OlfactoryVector) : null);
+        setRefreshedAt(Date.now());
       } catch (error) {
         console.warn('Failed to sync DNA dashboard state:', error);
       }
@@ -237,8 +240,10 @@ export default function DnaPage() {
 
   const profileMaturity = getMaturity(finalConfidence);
   const profileEvolution = getEvolutionStrength(averageShift);
+  const evolutionStage = userProfile?.evolutionStage ?? 'early';
   const testedCount = summary?.answeredCount ?? dnaSession?.answeredOrder.length ?? 0;
   const lastUpdated = formatLastUpdated(summary?.completedAt ?? dnaSession?.lastUpdatedAt ?? userProfile?.updatedAt ?? null);
+  const lastRefreshLabel = refreshedAt ? new Date(refreshedAt).toLocaleTimeString() : '--:--:--';
   const narrative = useMemo(
     () => buildNarrative(dominantAxes, positiveChanges, negativeChanges),
     [dominantAxes, positiveChanges, negativeChanges]
@@ -249,12 +254,47 @@ export default function DnaPage() {
       {/* Hero Section */}
       <section className="py-12 md:py-16">
         <div className="main-container">
-          <p className="text-gold text-sm font-semibold uppercase mb-2">Your Identity</p>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Your Olfactory DNA</h1>
+          <p className="text-gold text-sm font-semibold uppercase mb-2">Your DNA</p>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Your DNA</h1>
           <p className="text-lg text-gray-400 max-w-3xl">
             Your final olfactory identity decoded. See how testing shifted your profile from baseline and discover the
             DNA signature that defines your fragrance preferences across 11 dimensions.
           </p>
+        </div>
+      </section>
+
+      {/* Live Snapshot */}
+      <section className="py-8 md:py-10 border-b border-black-600">
+        <div className="main-container">
+          <SectionHeader
+            label="LIVE PROFILE"
+            title="Current DNA Snapshot"
+            description="Signals imported from your profile feed into the DNA page in real time."
+            className="mb-6"
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard
+              label="Confidence"
+              value={`${finalConfidence}%`}
+              subtitle="DNA profile certainty"
+            />
+            <StatCard
+              label="Evolution Stage"
+              value={evolutionStage.charAt(0).toUpperCase() + evolutionStage.slice(1)}
+              subtitle="Profile maturity"
+            />
+            <StatCard
+              label="Tests Influence"
+              value={testedCount.toString()}
+              subtitle="Fragrance evaluations"
+            />
+            <StatCard
+              label="Last Refresh"
+              value={lastRefreshLabel}
+              subtitle="Live sync time"
+            />
+          </div>
         </div>
       </section>
 
@@ -344,7 +384,7 @@ export default function DnaPage() {
         <div className="main-container">
           <SectionHeader
             label="INSIGHTS"
-            title="DNA Profile Analysis"
+            title="Your DNA Analysis"
             description="Your most dominant axes and how testing influenced your profile."
             className="mb-8"
           />
@@ -373,7 +413,10 @@ export default function DnaPage() {
                 {positiveChanges.length > 0 ? (
                   positiveChanges.map((item) => (
                     <div key={item.axis} className="flex items-center justify-between p-3 bg-green-950 rounded-lg border border-green-900">
-                      <span className="text-green-300">↑ {item.axis}</span>
+                      <span className="flex items-center gap-2 text-green-300">
+                        <AscendGlyphIcon className="h-4 w-4 text-green-300" />
+                        <span>{item.axis}</span>
+                      </span>
                       <span className="text-green-400 font-bold">+{item.delta}</span>
                     </div>
                   ))
@@ -383,7 +426,10 @@ export default function DnaPage() {
                 {negativeChanges.length > 0 ? (
                   negativeChanges.map((item) => (
                     <div key={item.axis} className="flex items-center justify-between p-3 bg-red-950 rounded-lg border border-red-900">
-                      <span className="text-red-300">↓ {item.axis}</span>
+                      <span className="flex items-center gap-2 text-red-300">
+                        <DescendGlyphIcon className="h-4 w-4 text-red-300" />
+                        <span>{item.axis}</span>
+                      </span>
                       <span className="text-red-400 font-bold">{item.delta}</span>
                     </div>
                   ))

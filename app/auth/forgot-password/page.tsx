@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
 import { AuthForm } from '@/components/auth/AuthForm';
+import { CheckSealIcon, LockGlyphIcon, HourglassGlyphIcon } from '@/components/design-system/FragranceIcons';
 
 export default function ForgotPasswordPage() {
   const { resetPassword } = useAuth();
@@ -63,7 +64,7 @@ export default function ForgotPasswordPage() {
             {/* Success Message */}
             <div className="text-center py-8 space-y-4">
               <div className="w-16 h-16 bg-gold/10 border border-gold/30 rounded-full flex items-center justify-center mx-auto">
-                <span className="text-3xl">✓</span>
+                <CheckSealIcon className="h-7 w-7 text-[#D4AF37]" />
               </div>
               <div className="space-y-2">
                 <h2 className="text-xl font-semibold text-white">Check Your Email</h2>
@@ -110,11 +111,11 @@ export default function ForgotPasswordPage() {
       {/* Security Info */}
       <div className="border-t border-gold/10 pt-8 space-y-3 text-sm text-gray-400">
         <div className="flex gap-3">
-          <span className="text-gold font-bold">🔐</span>
+          <LockGlyphIcon className="mt-0.5 h-4 w-4 text-[#D4AF37]" />
           <p>Your account security is important to us. Password reset links expire after 1 hour.</p>
         </div>
         <div className="flex gap-3">
-          <span className="text-gold font-bold">⏱️</span>
+          <HourglassGlyphIcon className="mt-0.5 h-4 w-4 text-[#D4AF37]" />
           <p>If you did not request this reset, you can safely ignore this email.</p>
         </div>
       </div>

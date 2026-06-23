@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/lib/auth';
+import { AppleGlyphIcon, SearchLensIcon } from '@/components/design-system/FragranceIcons';
 
 export interface OAuthButtonProps {
   provider: 'google' | 'apple';
@@ -53,14 +54,14 @@ export function OAuthButton({
 
   const providerConfig = {
     google: {
-      icon: '🔍',
+      icon: <SearchLensIcon className="h-5 w-5 text-[#D4AF37]/80" />,
       label: 'Continue with Google',
-      bgGradient: 'hover:from-blue-500/10 hover:to-red-500/10',
+      bgGradient: '',
     },
     apple: {
-      icon: '🍎',
+      icon: <AppleGlyphIcon className="h-5 w-5 text-[#D4AF37]/80" />,
       label: 'Continue with Apple',
-      bgGradient: 'hover:from-gray-400/10 hover:to-black/10',
+      bgGradient: '',
     },
   };
 

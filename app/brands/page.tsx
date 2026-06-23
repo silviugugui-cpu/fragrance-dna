@@ -4,7 +4,17 @@ import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { getAllFragrances } from '@/engine/dataLoader';
 import type { Fragrance } from '@/lib/types';
-import { PageShell, SectionHeader, StatCard, PremiumCard, PremiumButton } from '@/components/design-system';
+import {
+  PageShell,
+  SectionHeader,
+  StatCard,
+  PremiumCard,
+  PremiumButton,
+  HouseSealIcon,
+  BottleOutlineIcon,
+  BarChartGlyphIcon,
+  DNAHelixIcon,
+} from '@/components/design-system';
 
 interface BrandStats {
   name: string;
@@ -51,10 +61,10 @@ export default function BrandsPage() {
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-            <StatCard label="Houses" value={brands.length.toString()} subtitle="available brands" icon="🏛️" />
-            <StatCard label="Fragrances" value={totalFragrances.toString()} subtitle="total catalog" icon="🧴" />
-            <StatCard label="Largest House" value={brands[0]?.count?.toString() ?? '0'} subtitle="fragrances in one house" icon="📊" />
-            <StatCard label="Leading Name" value={dominantHouse} subtitle="current leader" icon="✨" />
+            <StatCard label="Houses" value={brands.length.toString()} subtitle="available brands" icon={<HouseSealIcon className="h-5 w-5" />} />
+            <StatCard label="Fragrances" value={totalFragrances.toString()} subtitle="total catalog" icon={<BottleOutlineIcon className="h-5 w-5" />} />
+            <StatCard label="Largest House" value={brands[0]?.count?.toString() ?? '0'} subtitle="fragrances in one house" icon={<BarChartGlyphIcon className="h-5 w-5" />} />
+            <StatCard label="Leading Name" value={dominantHouse} subtitle="current leader" icon={<DNAHelixIcon className="h-5 w-5" />} />
           </div>
 
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">

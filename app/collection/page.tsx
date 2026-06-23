@@ -13,6 +13,14 @@ import {
   PremiumButton,
   StatCard,
   SectionHeader,
+  ArchiveCabinetIcon,
+  CheckSealIcon,
+  StarGlyphIcon,
+  TargetGlyphIcon,
+  MapMarkerIcon,
+  CompassRoseIcon,
+  SearchLensIcon,
+  BottleOutlineIcon,
 } from '@/components/design-system';
 
 function CollectionStatsSection() {
@@ -32,7 +40,7 @@ function CollectionStatsSection() {
       <div className="main-container">
         <SectionHeader
           label="YOUR LIBRARY"
-          title="Fragrance Collection"
+          title="Your Collection"
           description="Track the fragrances you own and explore your olfactory landscape."
           className="mb-8"
         />
@@ -43,19 +51,19 @@ function CollectionStatsSection() {
             label="Total Fragrances"
             value={collection.length.toString()}
             subtitle="in your collection"
-            icon="📚"
+            icon={<ArchiveCabinetIcon className="h-5 w-5" />}
           />
           <StatCard
             label="Owned"
             value={stats.owned.toString()}
             subtitle={`${Math.round((stats.owned / Math.max(collection.length, 1)) * 100)}% of collection`}
-            icon="✓"
+            icon={<CheckSealIcon className="h-5 w-5" />}
           />
           <StatCard
             label="Wishlist"
             value={stats.wishlist.toString()}
             subtitle="Items to acquire"
-            icon="⭐"
+            icon={<StarGlyphIcon className="h-5 w-5" />}
           />
           <StatCard
             label="Avg Rating"
@@ -65,7 +73,7 @@ function CollectionStatsSection() {
                 : '—'
             }
             subtitle={`${stats.rated} rated`}
-            icon="🎯"
+            icon={<TargetGlyphIcon className="h-5 w-5" />}
           />
         </div>
       </div>
@@ -132,7 +140,7 @@ function TerritoryInsightSection() {
                   </span>
                 </div>
               </div>
-              <span className="text-3xl">🗺️</span>
+              <MapMarkerIcon className="h-7 w-7 text-[#D4AF37]/75" />
             </div>
 
             {/* Coverage Bar */}
@@ -166,7 +174,11 @@ function TerritoryInsightSection() {
                   {territoryInsights.diverse ? 'Diverse Explorer' : 'Building Explorer'}
                 </h3>
               </div>
-              <span className="text-3xl">{territoryInsights.diverse ? '🧭' : '🔍'}</span>
+              {territoryInsights.diverse ? (
+                <CompassRoseIcon className="h-7 w-7 text-[#D4AF37]/75" />
+              ) : (
+                <SearchLensIcon className="h-7 w-7 text-[#D4AF37]/75" />
+              )}
             </div>
 
             <div className="space-y-3 mb-4 text-sm text-gray-400">
@@ -202,7 +214,7 @@ export default function CollectionPage() {
       <section className="py-12">
         <div className="main-container text-center">
           <p className="text-gold text-sm font-semibold uppercase mb-2">YOUR LIBRARY</p>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">My Collection</h1>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Your Collection</h1>
           <p className="text-lg text-gray-400 max-w-2xl mx-auto">
             Build and manage your fragrance library. Track ownership, rate fragrances, and discover patterns
             in your olfactory preferences.
@@ -227,7 +239,7 @@ export default function CollectionPage() {
       {collection.length === 0 && (
         <section className="py-16 text-center">
           <div className="premium-card-dark p-12 max-w-2xl mx-auto">
-            <p className="text-4xl mb-4">🧴</p>
+            <BottleOutlineIcon className="mx-auto mb-4 h-9 w-9 text-[#D4AF37]/75" />
             <h3 className="text-xl font-bold text-white mb-2">Start Your Collection</h3>
             <p className="text-gray-400 mb-6">
               Add your first fragrance to unlock collection insights, territory coverage analysis, and

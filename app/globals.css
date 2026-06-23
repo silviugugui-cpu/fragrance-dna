@@ -6,8 +6,18 @@
   color-scheme: dark;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: #d4af78;
+  --header-height: 104px;
+  --page-shell-top: 3.35rem;
+  --brand-logo-size: 174px;
   --gold-primary: #d4af78;
   --gold-highlight: #f0ca8a;
+  --ink-primary: #f2e4c3;
+  --ink-secondary: #dfcfad;
+  --ink-muted: #c9b693;
+  --ink-soft: #b39f7c;
+  --ink-faint: #9b8868;
+  --brand-offset-left: calc(2.4rem + 2cm);
+  --brand-offset-left-lg: calc(2.6rem + 2cm);
   text-rendering: optimizeLegibility;
   font-smooth: always;
 }
@@ -99,7 +109,7 @@ html {
   justify-content: center;
   gap: 1rem;
   padding: 1.75rem;
-  background: linear-gradient(90deg, rgba(8, 8, 9, 0.82) 0%, rgba(10, 10, 11, 0.56) 52%, rgba(10, 10, 11, 0) 100%);
+  background: transparent;
 }
 
 @media (min-width: 640px) {
@@ -115,15 +125,54 @@ html {
 }
 
 .luxury-image-shell {
-  position: absolute;
-  inset: 0.08rem;
+  position: relative;
+  width: 100%;
   border-radius: 26px;
   overflow: hidden;
 }
 
 .luxury-main-image {
-  object-fit: cover;
+  display: block;
+  width: 100%;
+  height: auto;
   object-position: center center;
+}
+
+.spray-scroll-anchor {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.spray-bottle-stage {
+  position: absolute;
+  left: calc(0.8rem - 3cm);
+  top: calc(1.2rem - 8cm);
+  width: 980px;
+  max-width: none;
+  z-index: 20;
+}
+
+.spray-bottle-image {
+  width: 180%;
+  height: auto;
+  opacity: 0.385;
+  transform-origin: left center;
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.34));
+}
+
+@media (min-width: 1400px) {
+  .spray-bottle-stage {
+    left: calc(1.2rem - 3cm);
+    top: calc(1.1rem - 8cm);
+    width: 1140px;
+    max-width: none;
+  }
+
+  .spray-bottle-image {
+    width: 180%;
+  }
 }
 
 .luxury-image-shell::after {
@@ -131,9 +180,7 @@ html {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background:
-    linear-gradient(180deg, rgba(4, 4, 4, 0) 62%, rgba(6, 6, 6, 0.24) 100%),
-    linear-gradient(120deg, rgba(244, 205, 133, 0.07) 0%, transparent 38%);
+  background: none;
 }
 
 .luxury-mission-plaque {
@@ -141,7 +188,7 @@ html {
   border: 1px solid rgba(206, 166, 92, 0.5);
   border-radius: 16px;
   padding: 1rem 1.1rem;
-  max-width: min(100%, 430px);
+  max-width: min(100%, calc(430px + 4cm));
   background: linear-gradient(170deg, rgba(23, 18, 12, 0.94) 0%, rgba(17, 14, 11, 0.92) 100%);
   box-shadow:
     inset 0 1px 0 rgba(255, 231, 180, 0.16),
@@ -269,7 +316,45 @@ select {
 .page-shell {
   position: relative;
   min-height: 100vh;
-  padding: 3.35rem 0 4rem;
+  padding: var(--page-shell-top) 0 4rem;
+}
+
+/* Frontpage-like editorial text palette for all app pages */
+.page-shell .text-white {
+  color: var(--ink-primary) !important;
+}
+
+.page-shell [class~='text-white'],
+.page-shell [class*=' text-white '],
+.page-shell [class^='text-white '],
+.page-shell [class$=' text-white'] {
+  color: var(--ink-primary) !important;
+}
+
+.page-shell h1,
+.page-shell h2,
+.page-shell h3,
+.page-shell h4,
+.page-shell h5,
+.page-shell h6 {
+  color: var(--ink-primary);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.22);
+}
+
+.page-shell .text-gray-300 {
+  color: rgba(223, 207, 173, 0.92) !important;
+}
+
+.page-shell .text-gray-400 {
+  color: rgba(201, 182, 147, 0.86) !important;
+}
+
+.page-shell .text-gray-500 {
+  color: rgba(179, 159, 124, 0.82) !important;
+}
+
+.page-shell .text-gray-600 {
+  color: rgba(155, 136, 104, 0.82) !important;
 }
 
 .content-layer {
@@ -339,31 +424,74 @@ select {
 }
 
 .header-inner {
+  position: relative;
   width: min(1600px, 90vw);
   margin: 0 auto;
+  transform: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
-  height: 74px;
+  height: 104px;
   padding: 0;
   border-radius: 20px;
   overflow: visible;
-  background: rgba(6, 7, 10, 0.98);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: #000000;
+  border: 1px solid rgba(212, 175, 120, 0.32);
+  border-left: none;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.55);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
+}
+
+.header-inner::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  left: calc(-2cm - 1px);
+  width: calc(2cm + 1px);
+  border: 1px solid rgba(212, 175, 120, 0.32);
+  border-right: none;
+  border-radius: 20px 0 0 20px;
+  background: #000000;
+  pointer-events: none;
+}
+
+.brand-logo-lock {
+  width: var(--brand-logo-size);
+  min-width: var(--brand-logo-size);
+  height: var(--header-height);
+  margin-left: calc(var(--brand-offset-left) * -1);
+}
+
+.brand-logo-fixed {
+  position: relative;
+  top: auto;
+  left: auto;
+}
+
+@media (min-width: 1024px) {
+  .brand-logo-lock {
+    margin-left: calc(var(--brand-offset-left-lg) * -1);
+  }
+
+  .brand-logo-fixed {
+    left: auto;
+  }
 }
 
 .site-nav {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 1.35rem;
 }
 
 .nav-link {
   color: rgba(218, 210, 188, 0.8);
-  font-size: 0.88rem;
+  font-size: 1.02rem;
   font-weight: 600;
   letter-spacing: 0.17em;
   text-transform: uppercase;
@@ -510,6 +638,8 @@ select {
   .page-shell {
     @apply relative min-h-screen flex flex-col;
     background-color: transparent;
+    padding-top: var(--page-shell-top);
+    padding-bottom: 4rem;
   }
 
   .page-content {
@@ -571,7 +701,7 @@ select {
 
   .header-inner {
     @apply flex items-center justify-between gap-8;
-    height: 74px;
+    height: 104px;
     padding-top: 0;
     padding-bottom: 0;
     border-radius: 20px;
@@ -583,10 +713,10 @@ select {
   }
 
   .site-nav {
-    @apply flex items-center gap-8;
+    @apply flex items-center gap-10;
 
     a {
-      @apply text-sm font-medium transition-all duration-300;
+      @apply text-base font-medium transition-all duration-300;
       color: rgba(218, 210, 188, 0.8);
       letter-spacing: 0.17em;
 
@@ -604,7 +734,7 @@ select {
   }
 
   .nav-link {
-    @apply relative text-sm font-medium text-gray-400 transition-all duration-300;
+    @apply relative text-base font-medium text-gray-400 transition-all duration-300;
 
     &::after {
       @apply absolute bottom-0 left-0 w-0 h-0.5 bg-gold-600 transition-all duration-300;
@@ -757,13 +887,13 @@ select {
 
     .section-title {
       @apply text-4xl font-bold;
-      color: #ffffff;
+      color: var(--ink-primary);
       max-width: 600px;
     }
 
     .section-description {
       @apply text-lg;
-      color: #999999;
+      color: rgba(200, 185, 154, 0.82);
       max-width: 700px;
     }
   }
@@ -1109,7 +1239,7 @@ select {
     gap: 4;
 
     a {
-      font-size: 0.75rem;
+      font-size: 0.9rem;
     }
   }
 }

@@ -19,7 +19,7 @@ export function InsightCard({
 }: InsightCardProps) {
   return (
     <div className={`insight-card ${className}`}>
-      {icon && <div className="insight-icon">{icon}</div>}
+      {icon && <div className="insight-icon text-[#D4AF37]/80">{icon}</div>}
       <div className="insight-title">{title}</div>
       <div className="insight-text">{text}</div>
     </div>

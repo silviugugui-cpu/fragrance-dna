@@ -21,7 +21,7 @@ export function StatCard({
 }: StatCardProps) {
   return (
     <div className={`stat-card ${className}`}>
-      {icon && <div className="text-2xl mb-2">{icon}</div>}
+      {icon && <div className="mb-2 flex h-6 w-6 items-center justify-center text-[#D4AF37]/80">{icon}</div>}
       <div className="stat-label">{label}</div>
       <div className="stat-value">{value}</div>
       {subtitle && <div className="stat-subtitle">{subtitle}</div>}

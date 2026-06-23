@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { OlfactoryVector } from '@/lib/types';
+import { InsightSparkIcon } from '@/components/design-system/FragranceIcons';
 
 const AXIS_DESCRIPTIONS: Record<string, string> = {
   freshness: 'Bright, airy, and energizing notes that spark joy',
@@ -132,9 +133,9 @@ export default function DominantAxisHighlight({
 
       {/* Profile hint */}
       <div className="rounded-lg bg-[rgba(212,175,120,0.08)] p-4 border border-[rgba(212,175,120,0.1)]">
-        <p className="text-xs text-[rgba(190,170,140,0.7)] leading-5">
-          💡 This axis shows your strongest olfactory signature. Perfect fragrances will 
-          either amplify this or introduce meaningful contrasts.
+        <p className="flex gap-2 text-xs text-[rgba(190,170,140,0.7)] leading-5">
+          <InsightSparkIcon className="mt-0.5 h-4 w-4 text-[rgba(212,175,120,0.78)]" />
+          <span>This axis shows your strongest olfactory signature. Perfect fragrances will either amplify this or introduce meaningful contrasts.</span>
         </p>
       </div>
     </div>

@@ -2,6 +2,7 @@
 import { Great_Vibes } from 'next/font/google';
 import './globals.css';
 import { SiteHeader } from '@/components/design-system/SiteHeader';
+import LuxuryAmbientParticles from '@/components/design-system/LuxuryAmbientParticles';
 import { AuthProvider } from '@/lib/auth';
 
 const greatVibes = Great_Vibes({
@@ -21,6 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning className={greatVibes.variable}>
       <body>
         <AuthProvider>
+          <LuxuryAmbientParticles />
           <div className="page-shell content-layer">
             <SiteHeader />
             {children}

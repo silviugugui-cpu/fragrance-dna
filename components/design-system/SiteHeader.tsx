@@ -9,17 +9,17 @@
 import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import SiteLogo from '@/app/components/SiteLogo';
-import { PremiumButton } from './PremiumButton';
+import LuxuryLoginButton from './LuxuryLoginButton';
 import { useAuth } from '@/lib/auth';
 
 const navLinks = [
-  { href: '/', label: 'DISCOVER', mobile: 'Home' },
-  { href: '/territories', label: 'TERRITORIES', mobile: 'Territory' },
-  { href: '/profiles', label: 'PROFILE', mobile: 'Profile' },
-  { href: '/dna', label: 'SCIENCE', mobile: 'DNA' },
+  { href: '/', label: 'Home', mobile: 'Home' },
   { href: '/grounding', label: 'GROUNDING', mobile: 'Ground' },
-  { href: '/collection', label: 'COLLECTION', mobile: 'Collect' },
+  { href: '/test', label: 'TEST', mobile: 'Test' },
+  { href: '/dna', label: 'YOUR DNA', mobile: 'DNA' },
+  { href: '/collection', label: 'YOUR COLLECTION', mobile: 'Collect' },
 ];
 
 export function SiteHeader() {
@@ -38,9 +38,25 @@ export function SiteHeader() {
     <header className="site-header">
       <div className="header-inner">
         {/* Logo */}
-        <div className="-ml-[2.4rem] flex h-full flex-shrink-0 items-center lg:-ml-[2.6rem]">
-          <div className="inline-block hover:opacity-80 transition-opacity">
-            <SiteLogo />
+        <div className="brand-logo-lock relative flex h-full flex-shrink-0 items-center">
+          <div className="brand-logo-fixed relative z-[90] inline-block hover:opacity-80 transition-opacity">
+            <div className="spray-scroll-anchor" aria-hidden="true">
+              <div className="spray-bottle-stage">
+                <Image
+                  src="/beautiful scents/Sticla parfum cu spray.png?v=20260623f"
+                  alt="Perfume bottle spray"
+                  width={420}
+                  height={700}
+                  className="spray-bottle-image"
+                  style={{ height: 'auto' }}
+                  unoptimized
+                  sizes="420px"
+                />
+              </div>
+            </div>
+            <div className="relative z-[120]" style={{ top: '10mm', left: 'calc(8mm - 2.3cm)' }}>
+              <SiteLogo />
+            </div>
           </div>
         </div>
 
@@ -55,7 +71,7 @@ export function SiteHeader() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`nav-link uppercase text-xs font-medium transition-all duration-300 ${
+                className={`nav-link uppercase text-sm font-medium transition-all duration-300 ${
                   isActive ? 'active text-gold' : 'text-gray-400 hover:text-gold'
                 }`}
               >
@@ -68,11 +84,9 @@ export function SiteHeader() {
         {/* Sign In / User Menu */}
         <div className="flex-shrink-0 relative">
           {!user ? (
-            <Link href="/auth/sign-in">
-              <PremiumButton variant="secondary" size="sm">
-                SIGN IN
-              </PremiumButton>
-            </Link>
+            <div className="mr-[1cm] origin-right scale-[1.3]">
+              <LuxuryLoginButton className="h-[38px]" />
+            </div>
           ) : (
             <div className="relative">
               <button

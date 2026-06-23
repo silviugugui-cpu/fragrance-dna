@@ -27,3 +27,5 @@ tatus --short
 
 # Local research datasets (not runtime assets)
 public/Scents/
+.vercel
+.env*

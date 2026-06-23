@@ -3,6 +3,8 @@
  * Luxury button with multiple variants for different contexts
  */
 
+import { HourglassGlyphIcon } from './FragranceIcons';
+
 interface PremiumButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost';
@@ -32,7 +34,7 @@ export function PremiumButton({
       disabled={disabled || isLoading}
       {...props}
     >
-      {isLoading && <span className="animate-spin">⌛</span>}
+      {isLoading && <HourglassGlyphIcon className="h-4 w-4 text-[#D4AF37]/80" />}
       {icon && !isLoading && <span>{icon}</span>}
       {children}
     </button>

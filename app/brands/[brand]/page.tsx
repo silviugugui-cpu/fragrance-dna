@@ -6,7 +6,16 @@ import Link from 'next/link';
 import FragranceCard from '@/components/FragranceCard';
 import { getAllFragrances } from '@/engine/dataLoader';
 import type { Fragrance } from '@/lib/types';
-import { PageShell, SectionHeader, PremiumCard, PremiumButton, StatCard } from '@/components/design-system';
+import {
+  PageShell,
+  SectionHeader,
+  PremiumCard,
+  PremiumButton,
+  StatCard,
+  BottleOutlineIcon,
+  DNAHelixIcon,
+  CrystalGlyphIcon,
+} from '@/components/design-system';
 
 export default function BrandDetailPage() {
   const params = useParams();
@@ -133,7 +142,7 @@ export default function BrandDetailPage() {
           />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <StatCard label="Portfolio" value={brandFragrances.length.toString()} subtitle="fragrances" icon="🧴" />
+            <StatCard label="Portfolio" value={brandFragrances.length.toString()} subtitle="fragrances" icon={<BottleOutlineIcon className="h-5 w-5" />} />
             <StatCard
               label="Brand Character"
               value={
@@ -146,13 +155,13 @@ export default function BrandDetailPage() {
                       : 'Balanced'
               }
               subtitle="dominant impression"
-              icon="🧬"
+              icon={<DNAHelixIcon className="h-5 w-5" />}
             />
             <StatCard
               label="Strongest Season"
               value={strongestSeason.charAt(0).toUpperCase() + strongestSeason.slice(1)}
               subtitle="highest seasonal weight"
-              icon="🍂"
+              icon={<CrystalGlyphIcon className="h-5 w-5" />}
             />
           </div>
 

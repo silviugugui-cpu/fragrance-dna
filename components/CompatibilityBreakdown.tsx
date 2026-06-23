@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { ExtendedFragrance } from '@/lib/types';
+import { CompatibilityRingIcon } from '@/components/design-system/FragranceIcons';
 
 type CompatibilityBreakdownProps = {
   fragrances: ExtendedFragrance[];
@@ -82,11 +83,20 @@ export default function CompatibilityBreakdown({
 
       <div className="border-t border-[rgba(212,175,120,0.15)] pt-4 mt-4">
         <p className="text-xs text-[rgba(190,170,140,0.55)]">
-          🟢 {scored.filter((s) => s.score > 0.7).length} highly compatible
+          <span className="inline-flex items-center gap-1.5 mr-2">
+            <CompatibilityRingIcon className="h-3.5 w-3.5 text-[rgba(212,175,120,0.9)]" />
+            {scored.filter((s) => s.score > 0.7).length} highly compatible
+          </span>
           {' · '}
-          🟡 {scored.filter((s) => s.score > 0.4 && s.score <= 0.7).length} compatible
+          <span className="inline-flex items-center gap-1.5 mr-2">
+            <CompatibilityRingIcon className="h-3.5 w-3.5 text-[rgba(212,175,120,0.68)]" />
+            {scored.filter((s) => s.score > 0.4 && s.score <= 0.7).length} compatible
+          </span>
           {' · '}
-          🟠 {scored.filter((s) => s.score <= 0.4).length} explore further
+          <span className="inline-flex items-center gap-1.5">
+            <CompatibilityRingIcon className="h-3.5 w-3.5 text-[rgba(212,175,120,0.4)]" />
+            {scored.filter((s) => s.score <= 0.4).length} explore further
+          </span>
         </p>
       </div>
     </div>

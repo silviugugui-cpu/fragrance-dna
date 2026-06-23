@@ -10,6 +10,7 @@ export { PremiumCard } from './PremiumCard';
 export { SectionHeader } from './SectionHeader';
 export { StatCard } from './StatCard';
 export { InsightCard } from './InsightCard';
+export * from './FragranceIcons';
 export { HeroSection } from './HeroSection';
 export { DNAChartCard } from './DNAChartCard';
 export { TerritoryCard } from './TerritoryCard';

@@ -6,6 +6,7 @@ import { PageShell } from '@/components/design-system/PageShell';
 import { SectionHeader } from '@/components/design-system/SectionHeader';
 import { PremiumButton } from '@/components/design-system/PremiumButton';
 import { territories, Territory } from '@/lib/data/territories';
+import { CloseGlyphIcon, ChevronRightGlyphIcon } from '@/components/design-system/FragranceIcons';
 
 interface TerritoryCardProps {
   territory: Territory;
@@ -115,7 +116,7 @@ const TerritoryDetailPanel: React.FC<TerritoryDetailProps> = ({ territory, onClo
           className="absolute top-4 right-4 z-10 p-2 rounded-lg bg-black-700 hover:bg-black-600 transition-colors"
           aria-label="Close"
         >
-          <span className="text-white text-2xl">×</span>
+          <CloseGlyphIcon className="h-5 w-5 text-white" />
         </button>
 
         {/* Header */}
@@ -169,7 +170,7 @@ const TerritoryDetailPanel: React.FC<TerritoryDetailProps> = ({ territory, onClo
             <div className="space-y-2">
               {territory.examples.map((example) => (
                 <div key={example} className="flex items-center gap-3 text-gray-300">
-                  <span className="text-gold">›</span>
+                  <ChevronRightGlyphIcon className="h-4 w-4 text-gold" />
                   {example}
                 </div>
               ))}
