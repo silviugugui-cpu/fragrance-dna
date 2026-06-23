@@ -44,9 +44,9 @@ export function SiteHeader() {
       <div className="main-container header-inner">
         {/* Logo */}
         <div className="flex-shrink-0">
-          <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
+          <div className="inline-block hover:opacity-80 transition-opacity">
             <SiteLogo />
-          </Link>
+          </div>
         </div>
 
         {/* Navigation - Desktop */}
