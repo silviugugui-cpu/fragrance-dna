@@ -1,268 +1,140 @@
 ﻿'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
-import {
-  HeroSection,
-  PremiumButton,
-  StatCard,
-  InsightCard,
-  DNAChartCard,
-  SectionHeader,
-  PageShell,
-} from '@/components/design-system';
-import FragranceLogo from './components/FragranceLogo';
+import Image from 'next/image';
+import { Inter, Playfair_Display, Cormorant_Garamond } from 'next/font/google';
+import { Fingerprint, Target, ChartColumn, Compass } from 'lucide-react';
 
-// Placeholder DNA visualization for the hero
-function HeroDNAVisualization() {
-  return (
-    <div className="relative w-full h-96 flex items-center justify-center">
-      {/* Simplified DNA helix visualization - placeholder for future hero asset */}
-      <div className="relative w-64 h-64 flex items-center justify-center">
-        {/* Outer rings */}
-        <div className="absolute inset-0 rounded-full border border-gold-600 opacity-30" />
-        <div
-          className="absolute inset-4 rounded-full border border-gold-600 opacity-20"
-          style={{ animation: 'spin 20s linear infinite' }}
-        />
-        <div className="absolute inset-8 rounded-full border border-gold-600 opacity-10" />
+const inter = Inter({ subsets: ['latin'], variable: '--font-home-body', display: 'swap' });
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-home-heading',
+  display: 'swap',
+  weight: ['400', '500', '600', '700'],
+});
+const cormorant = Cormorant_Garamond({
+  subsets: ['latin'],
+  variable: '--font-home-mission',
+  display: 'swap',
+  style: ['italic'],
+  weight: ['400', '500', '600'],
+});
 
-        {/* Center helix representation */}
-        <div className="relative z-10 flex flex-col items-center gap-3">
-          <div className="text-4xl">🧬</div>
-          <div className="text-center">
-            <p className="text-xs text-gold-600 uppercase tracking-widest">
-              Olfactory DNA
-            </p>
-            <p className="text-sm text-gray-400 mt-1">Awaiting activation</p>
-          </div>
-        </div>
-
-        {/* Decorative particles */}
-        {[...Array(6)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 rounded-full bg-gold-600"
-            style={{
-              left: `${50 + 40 * Math.cos((i * Math.PI) / 3)}%`,
-              top: `${50 + 40 * Math.sin((i * Math.PI) / 3)}%`,
-              opacity: 0.5 + Math.random() * 0.5,
-            }}
-          />
-        ))}
-      </div>
-
-      <style>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
-    </div>
-  );
-}
-
-// Right panel with DNA preview
-function DNADashboardPreview() {
-  return (
-    <div className="flex flex-col gap-6 h-full">
-      {/* Profile Maturity */}
-      <div className="stat-card">
-        <div className="stat-label">PROFILE MATURITY</div>
-        <div className="stat-value">0%</div>
-        <div className="w-full bg-black-600 rounded-full h-1 mt-2">
-          <div
-            className="h-1 rounded-full bg-gold-600"
-            style={{ width: '0%' }}
-          />
-        </div>
-      </div>
-
-      {/* Top Territories */}
-      <div className="insight-card">
-        <div className="insight-title">TOP TERRITORIES</div>
-        <div className="space-y-2">
-          <div className="text-xs">
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-gray-400">Fresh</span>
-              <span className="text-gold-600">—</span>
-            </div>
-          </div>
-          <div className="text-xs">
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-gray-400">Pending</span>
-              <span className="text-gold-600">—</span>
-            </div>
-          </div>
-          <div className="text-xs">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-400">Discovery</span>
-              <span className="text-gold-600">→</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Next Discovery */}
-      <div className="insight-card">
-        <div className="insight-title">NEXT STEP</div>
-        <div className="insight-text">
-          Begin grounding to calibrate your olfactory profile and unlock personalized discovery.
-        </div>
-      </div>
-    </div>
-  );
-}
+const featureItems = [
+  {
+    icon: Fingerprint,
+    title: 'OLFACTORY ATTRIBUTES',
+    subtitle: '68 identity markers',
+  },
+  {
+    icon: Target,
+    title: 'DIAGNOSTIC BENCHMARKS',
+    subtitle: '28 precision signals',
+  },
+  {
+    icon: ChartColumn,
+    title: 'DNA AXES',
+    subtitle: '11 scent dimensions',
+  },
+  {
+    icon: Compass,
+    title: 'TERRITORY ORIENTATION',
+    subtitle: 'Your next direction',
+  },
+];
 
 export default function HomePage() {
   return (
-    <PageShell>
-      <main className="page-content">
-        {/* Hero Section */}
-        <section className="relative py-16 lg:py-24">
-          <div className="main-container">
-            <HeroSection
-              left={
-                <div className="flex flex-col gap-6 justify-center py-8">
-                  {/* Logo */}
-                  <div className="flex items-center gap-3 -ml-3">
-                    <FragranceLogo size="small" />
-                  </div>
+    <main
+      className={`${inter.variable} ${playfair.variable} ${cormorant.variable} relative pb-10 pt-5 lg:pt-8`}
+    >
+      <div className="homepage-fixed-background" aria-hidden="true" />
 
-                  {/* Headline */}
-                  <div className="space-y-3">
-                    <h1 className="text-5xl lg:text-6xl font-light tracking-tight">
-                      Your Fragrance Identity,{' '}
-                      <span className="dna-script-font text-gold-600">Decoded.</span>
-                    </h1>
-                  </div>
-
-                  {/* Mission Statement */}
-                  <div className="space-y-3 pt-4">
-                    <h2 className="text-xl font-light text-white">
-                      Understand people first. Fragrances second.
-                    </h2>
-                    <p className="text-gray-400 max-w-md leading-relaxed">
-                      We reveal your olfactory DNA through science, data and discovery. Not
-                      recommendations. Not rankings. Only clarity.
-                    </p>
-                  </div>
-
-                  {/* CTA Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-4 pt-6">
-                    <Link href="/grounding" className="w-full sm:w-auto">
-                      <PremiumButton variant="primary" size="lg" className="w-full">
-                        START DISCOVERY →
-                      </PremiumButton>
-                    </Link>
-                    <Link href="/collection" className="w-full sm:w-auto">
-                      <PremiumButton variant="secondary" size="lg" className="w-full">
-                        VIEW COLLECTION
-                      </PremiumButton>
-                    </Link>
-                  </div>
-                </div>
-              }
-              center={<HeroDNAVisualization />}
-              right={<DNADashboardPreview />}
-              className="py-12"
-            />
-          </div>
-        </section>
-
-        {/* Stats Section */}
-        <section className="py-16 border-t border-black-600">
-          <div className="main-container">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-              <StatCard
-                icon="🧬"
-                label="OLFACTORY ATTRIBUTES"
-                value="68"
-                subtitle="Mapped to your identity"
+      <section className="relative z-10 mx-auto w-[90vw] max-w-[1600px]">
+        <div className="luxury-hero-card grid min-h-[75vh] lg:h-[80vh] lg:max-h-[85vh] grid-cols-1 overflow-hidden lg:grid-cols-[38fr_62fr]">
+          <div className="luxury-left-panel flex flex-col justify-between p-7 sm:p-10 lg:p-12">
+            <div className="space-y-7">
+              <Image
+                src="/Logo/Logo Fragrance DNA no text.png"
+                alt="Fragrance DNA logo"
+                width={74}
+                height={74}
+                priority
+                className="h-[74px] w-[74px] object-contain"
               />
-              <StatCard
-                icon="🎯"
-                label="DIAGNOSTIC BENCHMARKS"
-                value="28"
-                subtitle="Reveal your preferences"
-              />
-              <StatCard
-                icon="📊"
-                label="DNA AXES"
-                value="11"
-                subtitle="Dimensions of identity"
-              />
-              <StatCard
-                icon="∞"
-                label="POSSIBILITIES"
-                value="∞"
-                subtitle="One identity, infinite expressions"
-              />
-            </div>
-          </div>
-        </section>
 
-        {/* Territories Preview Section */}
-        <section className="py-16 border-t border-black-600">
-          <div className="main-container">
-            <SectionHeader
-              label="EXPLORE"
-              title="Olfactory Territories"
-              description="Discover the fragrance territories that define your olfactory universe"
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[
-                { name: 'Fresh Citrus', color: '#E8D966' },
-                { name: 'Green Fresh', color: '#9ACD32' },
-                { name: 'Luxury Fresh', color: '#87CEEB' },
-                { name: 'Honey Tobacco', color: '#CD853F' },
-                { name: 'Rich Gourmand', color: '#D2691E' },
-                { name: 'Leather', color: '#8B4513' },
-              ].map((territory) => (
-                <div key={territory.name} className="premium-card group cursor-pointer">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div
-                      className="w-4 h-4 rounded-full"
-                      style={{ backgroundColor: territory.color }}
-                    />
-                    <h3 className="text-white font-semibold">{territory.name}</h3>
-                  </div>
-                  <p className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
-                    Explore this territory
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-8 text-center">
-              <Link href="/territories">
-                <PremiumButton variant="secondary">VIEW ALL TERRITORIES</PremiumButton>
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="py-16 border-t border-black-600">
-          <div className="main-container">
-            <div className="premium-card-dark p-12 text-center">
-              <h2 className="text-3xl font-semibold text-white mb-4">
-                Ready to discover your olfactory identity?
-              </h2>
-              <p className="text-gray-400 max-w-2xl mx-auto mb-8">
-                Begin with grounding — our calibration experience that reveals your fragrance
-                preferences, territory affinities, and DNA signature.
+              <p className="text-[0.72rem] uppercase tracking-[0.42em] text-[#d4af78]/92 sm:text-xs">
+                OLFACTORY IDENTITY
               </p>
-              <Link href="/grounding">
-                <PremiumButton variant="primary" size="lg">
-                  START GROUNDING →
-                </PremiumButton>
-              </Link>
+
+              <h1 className="font-home-heading text-[2rem] font-semibold uppercase leading-[1.02] text-[#f3ead6] sm:text-[2.45rem] lg:text-[3.15rem]">
+                A SINGLE GATEWAY
+                <br />
+                TO YOUR SCENT DNA.
+              </h1>
+
+              <div className="max-w-[34ch] space-y-4">
+                <p className="font-home-mission text-[1.45rem] italic leading-[1.2] text-[#efe2bf] sm:text-[1.65rem]">
+                  Never again buy a perfume
+                  <br />
+                  that does not blow your mind.
+                </p>
+
+                <p className="font-home-body text-sm leading-relaxed text-[#d5d0c0] sm:text-base">
+                  FragranceDNA transforms instinct into precision by mapping your olfactory profile,
+                  decoding attraction patterns, and guiding every fragrance decision through data-backed
+                  identity insights.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-6 pt-7">
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Link href="/profiles" className="inline-flex">
+                  <span className="luxury-cta luxury-cta-primary">ENTER PROFILES</span>
+                </Link>
+                <Link href="/grounding" className="inline-flex">
+                  <span className="luxury-cta luxury-cta-secondary">START GROUNDING</span>
+                </Link>
+              </div>
+
+              <p className="font-home-mission text-[1.35rem] italic leading-tight text-[#f4e9ca]">
+                Understand people first.
+                <br />
+                Fragrances second.
+              </p>
             </div>
           </div>
-        </section>
-      </main>
-    </PageShell>
+
+          <div className="luxury-right-panel relative min-h-[340px] lg:min-h-0">
+            <Image
+              src="/Background/background carton front page.png"
+              alt="Fragrance campaign visual"
+              fill
+              priority
+              className="object-contain object-center p-2 sm:p-3 lg:p-4"
+              sizes="(min-width: 1024px) 56vw, 90vw"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section className="relative z-10 mx-auto mt-6 w-[90vw] max-w-[1600px] pb-2 lg:mt-7">
+        <div className="luxury-feature-strip grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {featureItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <article key={item.title} className="luxury-feature-item">
+                <Icon size={20} className="text-[#d4af78]" strokeWidth={1.8} />
+                <p className="mt-3 text-[0.72rem] uppercase tracking-[0.28em] text-[#efe1bc]">
+                  {item.title}
+                </p>
+                <p className="mt-2 text-sm text-[#cec8b6]">{item.subtitle}</p>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+    </main>
   );
 }

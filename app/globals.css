@@ -33,6 +33,125 @@ body {
   line-height: 1.6;
 }
 
+.font-home-heading {
+  font-family: var(--font-home-heading), 'Times New Roman', serif;
+}
+
+.font-home-body {
+  font-family: var(--font-home-body), 'Segoe UI', sans-serif;
+}
+
+.font-home-mission {
+  font-family: var(--font-home-mission), Georgia, serif;
+}
+
+.homepage-fixed-background {
+  position: fixed;
+  inset: 0;
+  z-index: -5;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 20% 16%, rgba(212, 175, 120, 0.11), transparent 46%),
+    radial-gradient(circle at 78% 68%, rgba(212, 175, 120, 0.08), transparent 48%),
+    linear-gradient(135deg, rgba(5, 6, 8, 0.92) 0%, rgba(8, 10, 14, 0.88) 100%),
+    url('/Background/new background.png');
+  background-position: center, center, center, center;
+  background-size: cover, cover, cover, cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.homepage-fixed-background::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.16;
+  background-image:
+    radial-gradient(circle, rgba(212, 175, 120, 0.42) 1px, transparent 1px),
+    repeating-linear-gradient(
+      114deg,
+      transparent 0,
+      transparent 26px,
+      rgba(212, 175, 120, 0.13) 27px,
+      transparent 28px,
+      transparent 56px
+    );
+  background-size: 38px 38px, 100% 100%;
+}
+
+.luxury-hero-card {
+  border-radius: 30px;
+  border: 1px solid rgba(212, 175, 120, 0.35);
+  background: linear-gradient(125deg, rgba(10, 11, 13, 0.88) 0%, rgba(16, 13, 9, 0.8) 100%);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 30px 65px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 236, 188, 0.12);
+}
+
+.luxury-left-panel {
+  background: linear-gradient(160deg, rgba(12, 13, 16, 0.9) 0%, rgba(18, 15, 12, 0.78) 100%);
+}
+
+.luxury-right-panel {
+  background:
+    radial-gradient(circle at 18% 50%, rgba(212, 175, 120, 0.16), transparent 44%),
+    radial-gradient(circle at 82% 20%, rgba(212, 175, 120, 0.09), transparent 40%),
+    linear-gradient(150deg, rgba(7, 8, 11, 0.88) 0%, rgba(13, 11, 9, 0.76) 100%);
+}
+
+.luxury-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 194px;
+  border-radius: 999px;
+  padding: 0.7rem 1.25rem;
+  font-family: var(--font-home-body), 'Segoe UI', sans-serif;
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.21em;
+  text-transform: uppercase;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.luxury-cta:hover {
+  transform: translateY(-1px);
+}
+
+.luxury-cta-primary {
+  border: 1px solid rgba(212, 175, 120, 0.62);
+  background: linear-gradient(145deg, rgba(212, 175, 120, 0.36) 0%, rgba(146, 112, 58, 0.32) 100%);
+  color: #fff5dd;
+  box-shadow: 0 12px 26px rgba(108, 81, 36, 0.38);
+}
+
+.luxury-cta-secondary {
+  border: 1px solid rgba(212, 175, 120, 0.42);
+  background: rgba(11, 12, 15, 0.52);
+  color: rgba(243, 231, 201, 0.95);
+}
+
+.luxury-feature-strip {
+  border-radius: 20px;
+}
+
+.luxury-feature-item {
+  border: 1px solid rgba(212, 175, 120, 0.28);
+  border-radius: 16px;
+  background: linear-gradient(140deg, rgba(12, 12, 14, 0.77) 0%, rgba(17, 14, 10, 0.64) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 1rem 1.05rem;
+  min-height: 122px;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.24);
+}
+
+@media (max-width: 1024px) {
+  .luxury-hero-card {
+    min-height: auto;
+  }
+}
+
 .app-background-layer {
   position: fixed;
   inset: 0;
