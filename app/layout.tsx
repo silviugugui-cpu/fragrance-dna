@@ -20,7 +20,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <div className="page-shell">
+        <div className="app-background-layer" aria-hidden="true" />
+        <div className="app-overlay-layer" aria-hidden="true" />
+        <div className="app-ambient-layer" aria-hidden="true" />
+        <div className="page-shell content-layer">
           <header className="site-header">
             <div className="main-container header-inner">
               <SiteLogo />

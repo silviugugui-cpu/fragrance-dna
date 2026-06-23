@@ -1,288 +1,255 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
-import DNAVisualizer from '../../components/DNAVisualizer';
-import FragranceCard from '../../components/FragranceCard';
-import ConfidenceProgressionChart from '../../components/ConfidenceProgressionChart';
-import DominantAxisHighlight from '../../components/DominantAxisHighlight';
-import CompatibilityBreakdown from '../../components/CompatibilityBreakdown';
-import { getAllFragrances } from '../../engine/dataLoader';
-import { getOrCreateUserProfile } from '@/lib/engine/userProfileManager';
+import { useEffect, useMemo, useState } from 'react';
+import DnaRadar, { DNA_AXES, type DnaAxis } from '@/components/dna/DnaRadar';
+import DnaMetrics from '@/components/dna/DnaMetrics';
+import FragranceSelector from '@/components/dna/FragranceSelector';
+import { getAllFragrances } from '@/engine/dataLoader';
 import { buildSummary, loadDnaSession } from '@/lib/dnaSession';
-import { DNASessionState, OlfactoryVector } from '@/lib/types';
+import { getOrCreateUserProfile } from '@/lib/engine/userProfileManager';
+import type { DNASessionState, Fragrance, OlfactoryVector, UserDNAProfile } from '@/lib/types';
 
-const GROUNDING_AXES = [
-  'Freshness',
-  'Warmth',
-  'Sweetness',
-  'Darkness',
-  'Cleanliness',
-  'Elegance',
+const INITIAL_SELECTION_COUNT = 8;
+const DEFAULT_CONFIDENCE = 75;
+const DEFAULT_TESTED = 10;
+const DEFAULT_REMAINING = 0;
+const FALLBACK_DOMINANT_AXES = 'Sweetness • Warmth';
+const FINAL_STATE_LABEL = 'Final DNA';
+
+const VECTOR_AXIS_KEYS: Array<{
+  axis: DnaAxis;
+  key: keyof OlfactoryVector;
+}> = [
+  { axis: 'Freshness', key: 'freshness' },
+  { axis: 'Warmth', key: 'warmth' },
+  { axis: 'Elegance', key: 'elegance' },
 ];
 
-export default function DNAPage() {
-  const all = useMemo(() => getAllFragrances(), []);
-  const [selected, setSelected] = useState<string[]>(all.slice(0, 3).map((f: any) => f.id ?? f.name ?? String(Math.random())));
-  
-  // Extended user profile
-  const [userProfile, setUserProfile] = useState<any>(null);
-  const [dnaSession, setDnaSession] = useState<DNASessionState | null>(null);
-  const [groundingVector, setGroundingVector] = useState<OlfactoryVector | null>(null);
-  const [userVector, setUserVector] = useState<OlfactoryVector>({
-    freshness: 0.5,
-    warmth: 0.5,
-    sweetness: 0.5,
-    darkness: 0.5,
-    cleanliness: 0.5,
-    elegance: 0.5,
-  });
+const DERIVED_AXIS_BASE_WEIGHTS = {
+  comfortCleanliness: 0.62,
+  comfortSweetness: 0.38,
+  characterWarmth: 0.46,
+  characterDarkness: 0.36,
+  characterSweetness: 0.18,
+  versatilityBalanceScale: 62,
+};
 
-  useEffect(() => {
-    // Load user profile on mount
-    try {
-      const profile = getOrCreateUserProfile();
-      const session = loadDnaSession();
-      const storedGroundingVector = window.localStorage.getItem('fragrance_vector');
-      setUserProfile(profile);
-      setDnaSession(session);
-      setUserVector(session.currentVector ?? profile.dnaVector);
-      setGroundingVector(storedGroundingVector ? JSON.parse(storedGroundingVector) as OlfactoryVector : null);
-    } catch (e) {
-      console.warn('Could not load user profile:', e);
+function toScore(value: number | undefined): number {
+  if (typeof value !== 'number' || Number.isNaN(value)) {
+    return 50;
+  }
+
+  const asPercentage = value <= 1 ? value * 100 : value;
+  return Math.max(0, Math.min(100, Math.round(asPercentage)));
+}
+
+function mean(values: number[]): number {
+  if (values.length === 0) {
+    return 50;
+  }
+  return Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
+}
+
+function axisValue(fragrance: Fragrance, axis: DnaAxis): number | null {
+  const source = fragrance.dna_axes?.find((entry) => entry.name === axis)?.value;
+  if (typeof source !== 'number' || Number.isNaN(source)) {
+    return null;
+  }
+  return toScore(source);
+}
+
+function buildSelectedAggregate(selectedFragrances: Fragrance[]): Partial<Record<DnaAxis, number>> {
+  const aggregate: Partial<Record<DnaAxis, number>> = {};
+
+  for (const axis of DNA_AXES) {
+    const values = selectedFragrances
+      .map((fragrance) => axisValue(fragrance, axis))
+      .filter((value): value is number => typeof value === 'number');
+
+    if (values.length > 0) {
+      aggregate[axis] = mean(values);
     }
-  }, []);
+  }
+
+  return aggregate;
+}
+
+function deriveDominantAxes(vector: OlfactoryVector): string {
+  const labels: Array<{ label: string; value: number }> = [
+    { label: 'Freshness', value: toScore(vector.freshness) },
+    { label: 'Warmth', value: toScore(vector.warmth) },
+    { label: 'Sweetness', value: toScore(vector.sweetness) },
+    { label: 'Darkness', value: toScore(vector.darkness) },
+    { label: 'Cleanliness', value: toScore(vector.cleanliness) },
+    { label: 'Elegance', value: toScore(vector.elegance) },
+  ];
+
+  return labels
+    .sort((left, right) => right.value - left.value)
+    .slice(0, 2)
+    .map((item) => item.label)
+    .join(' • ');
+}
+
+function buildDnaValues(
+  vector: OlfactoryVector | null,
+  confidence: number,
+  selectedAggregate: Partial<Record<DnaAxis, number>>
+): Partial<Record<DnaAxis, number>> {
+  if (!vector) {
+    return selectedAggregate;
+  }
+
+  const freshness = toScore(vector.freshness);
+  const warmth = toScore(vector.warmth);
+  const sweetness = toScore(vector.sweetness);
+  const darkness = toScore(vector.darkness);
+  const cleanliness = toScore(vector.cleanliness);
+  const elegance = toScore(vector.elegance);
+
+  const inferred: Partial<Record<DnaAxis, number>> = {
+    Freshness: freshness,
+    Warmth: warmth,
+    Elegance: elegance,
+    Comfort: Math.round(
+      cleanliness * DERIVED_AXIS_BASE_WEIGHTS.comfortCleanliness +
+        sweetness * DERIVED_AXIS_BASE_WEIGHTS.comfortSweetness
+    ),
+    Character: Math.round(
+      warmth * DERIVED_AXIS_BASE_WEIGHTS.characterWarmth +
+        darkness * DERIVED_AXIS_BASE_WEIGHTS.characterDarkness +
+        sweetness * DERIVED_AXIS_BASE_WEIGHTS.characterSweetness
+    ),
+    Presence: confidence,
+    Versatility: Math.max(0, Math.min(100, Math.round(100 - (Math.abs(warmth - freshness) / 100) * DERIVED_AXIS_BASE_WEIGHTS.versatilityBalanceScale))),
+    Luxury: Math.round((elegance + warmth) / 2),
+    Formality: Math.round((elegance + cleanliness) / 2),
+  };
+
+  for (const axis of DNA_AXES) {
+    if (typeof inferred[axis] !== 'number' && typeof selectedAggregate[axis] === 'number') {
+      inferred[axis] = selectedAggregate[axis];
+    }
+  }
+
+  return inferred;
+}
+
+export default function DnaPage() {
+  const fragrances = useMemo(() => getAllFragrances(), []);
+
+  const initialSelectedIds = useMemo(
+    () => fragrances.slice(0, INITIAL_SELECTION_COUNT).map((fragrance) => fragrance.id || fragrance.name),
+    [fragrances]
+  );
+
+  const [selectedIds, setSelectedIds] = useState<string[]>(initialSelectedIds);
+  const [dnaSession, setDnaSession] = useState<DNASessionState | null>(null);
+  const [userProfile, setUserProfile] = useState<UserDNAProfile | null>(null);
 
   useEffect(() => {
-    const syncSession = () => {
-      const session = loadDnaSession();
-      const storedGroundingVector = window.localStorage.getItem('fragrance_vector');
-      setDnaSession(session);
-      setUserVector(session.currentVector ?? getOrCreateUserProfile().dnaVector);
-      setGroundingVector(storedGroundingVector ? JSON.parse(storedGroundingVector) as OlfactoryVector : null);
+    setSelectedIds(initialSelectedIds);
+  }, [initialSelectedIds]);
+
+  useEffect(() => {
+    const syncFromStorage = () => {
+      try {
+        const session = loadDnaSession();
+        const profile = getOrCreateUserProfile();
+        setDnaSession(session);
+        setUserProfile(profile);
+      } catch (error) {
+        console.warn('Failed to sync DNA dashboard state:', error);
+      }
     };
 
-    window.addEventListener('fragrance-dna-session-updated', syncSession);
-    window.addEventListener('storage', syncSession);
+    syncFromStorage();
+    window.addEventListener('fragrance-dna-session-updated', syncFromStorage);
+    window.addEventListener('fragrance-user-profile-updated', syncFromStorage as EventListener);
+    window.addEventListener('storage', syncFromStorage);
 
     return () => {
-      window.removeEventListener('fragrance-dna-session-updated', syncSession);
-      window.removeEventListener('storage', syncSession);
+      window.removeEventListener('fragrance-dna-session-updated', syncFromStorage);
+      window.removeEventListener('fragrance-user-profile-updated', syncFromStorage as EventListener);
+      window.removeEventListener('storage', syncFromStorage);
     };
   }, []);
 
-  const series = selected.map((id, idx) => {
-    const f: any = all.find((x: any) => (x.id ?? x.name) === id) || all[idx];
-    // map dna_axes array to record; default to 50 if no data
-    const rec: Record<string, number> = {};
-    (f.dna_axes || []).forEach((a: any) => (rec[a.name] = a.value ?? a.score ?? 50));
-    // Fill in default axes with 50 if not present
-    const axes = ['Freshness', 'Warmth', 'Complexity', 'Elegance', 'Character', 'Presence', 'Comfort', 'Uniqueness', 'Versatility', 'Luxury', 'Formality'];
-    axes.forEach((axis) => {
-      if (!(axis in rec)) rec[axis] = 50;
-    });
-    return { id: id, label: f.name, values: rec, color: idx === 0 ? undefined : `rgba(${120 + idx * 30},${140},${200},0.85)` };
-  });
-
-  const activeSummary = useMemo(() => {
+  const summary = useMemo(() => {
     if (!dnaSession) {
       return null;
     }
     return dnaSession.summary ?? buildSummary(dnaSession.currentVector, dnaSession.answers);
   }, [dnaSession]);
 
-  const compatibilityScores = useMemo(() => {
-    if (!activeSummary) {
-      return userProfile?.compatibilityHeatmap || {};
-    }
+  const selectedFragrances = useMemo(() => {
+    const selectedMap = new Set(selectedIds);
+    return fragrances.filter((fragrance) => selectedMap.has(fragrance.id || fragrance.name));
+  }, [fragrances, selectedIds]);
 
-    return activeSummary.compatibilitySnapshot.reduce((acc, item) => {
-      acc[item.fragranceId] = item.score;
-      return acc;
-    }, {} as Record<string, number>);
-  }, [activeSummary, userProfile]);
+  const selectedAggregate = useMemo(
+    () => buildSelectedAggregate(selectedFragrances),
+    [selectedFragrances]
+  );
 
-  const groundingComparisonSeries = useMemo(() => {
-    if (!groundingVector) {
-      return [];
-    }
+  const activeVector = summary?.finalVector ?? dnaSession?.currentVector ?? userProfile?.dnaVector ?? null;
+  const confidence = summary?.confidenceScore ?? userProfile?.confidenceLevel ?? DEFAULT_CONFIDENCE;
+  const radarValues = useMemo(
+    () => buildDnaValues(activeVector, confidence, selectedAggregate),
+    [activeVector, confidence, selectedAggregate]
+  );
 
-    return [
-      {
-        id: 'grounding-vector',
-        label: 'Grounding DNA',
-        values: {
-          Freshness: groundingVector.freshness,
-          Warmth: groundingVector.warmth,
-          Sweetness: groundingVector.sweetness,
-          Darkness: groundingVector.darkness,
-          Cleanliness: groundingVector.cleanliness,
-          Elegance: groundingVector.elegance,
-        },
-        color: 'rgba(165,185,150,0.85)',
-      },
-      {
-        id: 'test-vector',
-        label: activeSummary?.answeredCount === all.length ? 'Refined Test DNA' : 'Live Test DNA',
-        values: {
-          Freshness: userVector.freshness,
-          Warmth: userVector.warmth,
-          Sweetness: userVector.sweetness,
-          Darkness: userVector.darkness,
-          Cleanliness: userVector.cleanliness,
-          Elegance: userVector.elegance,
-        },
-        color: 'rgba(212,175,120,0.92)',
-      },
-    ];
-  }, [activeSummary?.answeredCount, all.length, groundingVector, userVector]);
+  const dominantAxes = summary?.dominantAxes?.length
+    ? summary.dominantAxes.join(' • ')
+    : activeVector
+      ? deriveDominantAxes(activeVector)
+      : FALLBACK_DOMINANT_AXES;
 
-  const groundingShift = useMemo(() => {
-    if (!groundingVector) {
-      return [];
-    }
-
-    return [
-      { axis: 'Freshness', before: groundingVector.freshness, after: userVector.freshness },
-      { axis: 'Warmth', before: groundingVector.warmth, after: userVector.warmth },
-      { axis: 'Sweetness', before: groundingVector.sweetness, after: userVector.sweetness },
-      { axis: 'Darkness', before: groundingVector.darkness, after: userVector.darkness },
-      { axis: 'Cleanliness', before: groundingVector.cleanliness, after: userVector.cleanliness },
-      { axis: 'Elegance', before: groundingVector.elegance, after: userVector.elegance },
-    ].sort((left, right) => Math.abs(right.after - right.before) - Math.abs(left.after - left.before));
-  }, [groundingVector, userVector]);
+  const testedCount = summary?.answeredCount ?? dnaSession?.answeredOrder.length ?? DEFAULT_TESTED;
+  const remainingCount = Math.max(0, fragrances.length - testedCount) || DEFAULT_REMAINING;
+  const stateLabel = summary ? FINAL_STATE_LABEL : FINAL_STATE_LABEL;
 
   return (
     <main className="main-container dna-background">
-      <section className="glass p-10 space-y-10">
-        <div className="space-y-6 max-w-3xl">
-          <p className="text-sm uppercase tracking-[0.48em] text-[rgba(165,185,150,0.85)]"><span className="dna-script-font large">Fragrance</span> DNA</p>
-          <h1 className="text-5xl font-light tracking-[0.04em] text-[rgba(212,175,120,0.95)]">DNA Matrix Visualization</h1>
-          <p className="text-lg leading-9 text-[rgba(190,170,140,0.65)]">Explore the olfactory signature profiles across multiple dimensions.</p>
-        </div>
+      <section className="glass p-6 md:p-8 lg:p-10">
+        <header className="space-y-4">
+          <p className="text-sm uppercase tracking-[0.48em] text-[rgba(165,185,150,0.85)]">
+            <span className="dna-script-font large">Fragrance</span> DNA
+          </p>
+          <h1 className="text-4xl font-light tracking-[0.04em] text-[rgba(220,188,132,0.96)] md:text-5xl">
+            DNA Matrix Visualization
+          </h1>
+          <p className="max-w-3xl text-base leading-8 text-[rgba(194,173,142,0.78)] md:text-lg">
+            Explore the olfactory signature profiles across multiple dimensions.
+          </p>
+        </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <article className="glass-card p-8">
-              <DNAVisualizer series={series} />
-            </article>
-          </div>
-          <div className="space-y-4">
-            <p className="text-sm uppercase tracking-[0.3em] text-[rgba(165,185,150,0.85)]">Select fragrances</p>
-            {all.slice(0, 8).map((f: any) => (
-              <div key={f.id ?? f.name} className={`cursor-pointer transition duration-200 ${selected.includes(f.id ?? f.name) ? 'ring-2 ring-[#c7a86b] rounded-[32px]' : ''}`} onClick={() => {
-                const key = f.id ?? f.name;
-                setSelected((s) => s.includes(key) ? s.filter(x => x !== key) : (s.length < 3 ? [...s, key] : [key]));
-              }}>
-                <FragranceCard f={f} />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {dnaSession && (
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
-            <article className="glass-card p-6">
-              <p className="text-xs uppercase tracking-[0.24em] text-[rgba(165,185,150,0.75)]">Confidence</p>
-              <p className="mt-3 text-3xl font-semibold text-[rgba(212,175,120,0.95)]">{activeSummary?.confidenceScore ?? 0}%</p>
-            </article>
-            <article className="glass-card p-6">
-              <p className="text-xs uppercase tracking-[0.24em] text-[rgba(165,185,150,0.75)]">Dominant Axes</p>
-              <p className="mt-3 text-lg text-[rgba(212,175,120,0.9)]">{activeSummary?.dominantAxes.join(' • ') || 'Emerging'}</p>
-            </article>
-            <article className="glass-card p-6">
-              <p className="text-xs uppercase tracking-[0.24em] text-[rgba(165,185,150,0.75)]">Test Influence</p>
-              <p className="mt-3 text-lg text-[rgba(212,175,120,0.9)]">{dnaSession.answeredOrder.length} / {all.length} tested</p>
-            </article>
-            <article className="glass-card p-6">
-              <p className="text-xs uppercase tracking-[0.24em] text-[rgba(165,185,150,0.75)]">State</p>
-              <p className="mt-3 text-lg text-[rgba(212,175,120,0.9)]">{dnaSession.summary ? 'Final DNA' : 'Live DNA'}</p>
-            </article>
-          </div>
-        )}
-      </section>
-
-      {/* 🧬 EXTENDED DNA PROFILE SECTION */}
-      {userProfile && (
-        <section className="mt-10 space-y-8">
-          {groundingComparisonSeries.length > 0 && (
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              <article className="glass-card p-8">
-                <div className="space-y-3">
-                  <p className="text-sm uppercase tracking-[0.3em] text-[rgba(165,185,150,0.85)]">Grounding vs Test Refinement</p>
-                  <p className="text-sm text-[rgba(190,170,140,0.7)]">
-                    Compare the initial scent calibration from grounding with the DNA refined by live test interactions.
-                  </p>
-                </div>
-                <div className="mt-6 flex justify-center overflow-x-auto">
-                  <DNAVisualizer series={groundingComparisonSeries} axes={GROUNDING_AXES} size={360} />
-                </div>
-              </article>
-
-              <article className="glass-card p-8 space-y-5">
-                <p className="text-sm uppercase tracking-[0.3em] text-[rgba(165,185,150,0.85)]">Before / After Axis Shift</p>
-                {groundingShift.map((item) => {
-                  const delta = item.after - item.before;
-                  const direction = delta > 0 ? 'up' : delta < 0 ? 'down' : 'steady';
-                  return (
-                    <div key={item.axis} className="rounded-[24px] border border-white/10 bg-white/5 p-4">
-                      <div className="flex items-center justify-between gap-4">
-                        <p className="text-sm uppercase tracking-[0.24em] text-[rgba(212,175,120,0.85)]">{item.axis}</p>
-                        <p className="text-xs text-[rgba(190,170,140,0.7)]">
-                          {direction === 'steady' ? 'Steady' : `${direction === 'up' ? '+' : ''}${(delta * 100).toFixed(0)} pts`}
-                        </p>
-                      </div>
-                      <div className="mt-3 grid grid-cols-[70px_1fr_70px] items-center gap-3 text-sm text-[rgba(190,170,140,0.72)]">
-                        <span>Grounding {(item.before * 100).toFixed(0)}</span>
-                        <div className="h-2 rounded-full bg-black/30 overflow-hidden">
-                          <div className="h-full rounded-full bg-gradient-to-r from-[rgba(165,185,150,0.75)] to-[rgba(212,175,120,0.9)]" style={{ width: `${Math.max(item.before, item.after) * 100}%` }} />
-                        </div>
-                        <span className="text-right">Test {(item.after * 100).toFixed(0)}</span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </article>
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Dominant Axis */}
-            <DominantAxisHighlight vector={userVector} />
-            
-            {/* Confidence Progression */}
-            <ConfidenceProgressionChart
-              snapshots={
-                dnaSession?.snapshots.map((snapshot) => ({
-                  timestamp: snapshot.completedAt,
-                  vector: snapshot.vector,
-                  confidenceLevel: snapshot.confidenceScore,
-                })) || userProfile.identityDriftHistory || []
-              }
-            />
-          </div>
-
-          {/* Compatibility Breakdown */}
-          <CompatibilityBreakdown 
-            fragrances={all.slice(0, 12)}
-            compatibilityScores={compatibilityScores}
+        <section className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-[1.7fr_1fr]">
+          <DnaRadar values={radarValues} />
+          <FragranceSelector
+            fragrances={fragrances}
+            selectedIds={selectedIds}
+            onToggle={(fragranceId) => {
+              setSelectedIds((previous) => {
+                if (previous.includes(fragranceId)) {
+                  return previous.filter((currentId) => currentId !== fragranceId);
+                }
+                return [...previous, fragranceId];
+              });
+            }}
           />
-
-          {dnaSession && (
-            <article className="glass-card p-8 space-y-4">
-              <p className="text-sm uppercase tracking-[0.3em] text-[rgba(165,185,150,0.85)]">Test History Influence</p>
-              <div className="grid gap-3 lg:grid-cols-2">
-                {dnaSession.snapshots.slice(-6).reverse().map((snapshot, index) => (
-                  <div key={`${snapshot.fragranceId}-${index}`} className="rounded-[24px] border border-white/10 bg-white/5 p-4">
-                    <p className="text-sm uppercase tracking-[0.22em] text-[rgba(165,185,150,0.7)]">Step {dnaSession.snapshots.length - index}</p>
-                    <p className="mt-2 text-lg text-[rgba(212,175,120,0.92)]">{snapshot.fragranceName}</p>
-                    <p className="mt-1 text-sm text-[rgba(190,170,140,0.7)]">Confidence reached {snapshot.confidenceScore}% after this test.</p>
-                  </div>
-                ))}
-              </div>
-            </article>
-          )}
         </section>
-      )}
+
+        <section className="mt-6">
+          <DnaMetrics
+            confidence={confidence}
+            dominantAxes={dominantAxes}
+            testedCount={testedCount}
+            remainingCount={remainingCount}
+            stateLabel={stateLabel}
+          />
+        </section>
+      </section>
     </main>
   );
 }

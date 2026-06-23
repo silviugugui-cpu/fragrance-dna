@@ -44,14 +44,46 @@ body {
 
 body {
   background-color: #0B0D0F;
-  background-image:
-    radial-gradient(circle at top right, rgba(212,175,120,0.08), transparent 60%),
-    url('/Background/new background.png');
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: bottom center;
   color: #d4af78;
   line-height: 1.6;
+}
+
+.app-background-layer {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -30;
+  pointer-events: none;
+  background-image: url('/Background/new background.png');
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  transform: translateZ(0);
+}
+
+.app-overlay-layer {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -20;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.8) 100%);
+}
+
+.app-ambient-layer {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -10;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 10%, rgba(212, 175, 120, 0.12), transparent 42%),
+    radial-gradient(circle at 78% 22%, rgba(165, 185, 150, 0.08), transparent 46%);
+  mix-blend-mode: screen;
 }
 
 body::before {
@@ -81,6 +113,10 @@ select {
   position: relative;
   min-height: 100vh;
   padding: 3rem 0 4rem;
+}
+
+.content-layer {
+  z-index: 1;
 }
 
 .site-header {
@@ -147,7 +183,7 @@ select {
 .results-background,
 .dna-background {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .page-background::before,
@@ -156,20 +192,11 @@ select {
 .test-background::before,
 .results-background::before,
 .dna-background::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-  background-image: url('/Background/new background.png');
-  background-size: cover;
-  background-position: bottom center;
-  background-repeat: no-repeat;
-  opacity: 0.42;
-  filter: brightness(0.94) saturate(0.96) blur(0.8px);
+  content: none;
 }
 
 .hero-background::before {
-  opacity: 0.55;
+  content: none;
 }
 
 .page-background::before,
@@ -177,7 +204,7 @@ select {
 .test-background::before,
 .results-background::before,
 .dna-background::before {
-  opacity: 0.45;
+  content: none;
 }
 
 .page-background::after,
@@ -186,16 +213,11 @@ select {
 .test-background::after,
 .results-background::after,
 .dna-background::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: radial-gradient(circle at top right, rgba(212,175,120,0.06), transparent 60%);
+  content: none;
 }
 
 .hero-background::after {
-  background: linear-gradient(180deg, rgba(6, 7, 10, 0.10), rgba(6, 7, 10, 0.06) 18%, rgba(6, 7, 10, 0.00) 45%);
+  content: none;
 }
 
 .glass {
