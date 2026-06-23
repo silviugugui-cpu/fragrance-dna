@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from 'react';
 import DnaRadar, { DNA_AXES, type DnaAxis, type DnaAxisValues } from '@/components/dna/DnaRadar';
 import { buildSummary, loadDnaSession } from '@/lib/dnaSession';
 import { getOrCreateUserProfile } from '@/lib/engine/userProfileManager';
+import { PageShell, SectionHeader, StatCard, PremiumButton } from '@/components/design-system';
+import { territories } from '@/lib/data/territories';
 import type { DNASessionState, OlfactoryVector, UserDNAProfile } from '@/lib/types';
 
 const DEFAULT_CONFIDENCE = 66;
@@ -243,113 +245,220 @@ export default function DnaPage() {
   );
 
   return (
-    <main className="main-container dna-background">
-      <section className="glass p-6 md:p-8 lg:p-10">
-        <header className="space-y-4">
-          <p className="text-sm uppercase tracking-[0.48em] text-[rgba(165,185,150,0.85)]">
-            <span className="dna-script-font large">Fragrance</span> DNA
+    <PageShell showBackgroundLayers>
+      {/* Hero Section */}
+      <section className="py-12 md:py-16">
+        <div className="main-container">
+          <p className="text-gold text-sm font-semibold uppercase mb-2">Your Identity</p>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Your Olfactory DNA</h1>
+          <p className="text-lg text-gray-400 max-w-3xl">
+            Your final olfactory identity decoded. See how testing shifted your profile from baseline and discover the
+            DNA signature that defines your fragrance preferences across 11 dimensions.
           </p>
-          <h1 className="text-4xl font-light tracking-[0.04em] text-[rgba(220,188,132,0.96)] md:text-5xl">
-            DNA Matrix Visualization
-          </h1>
-          <p className="max-w-3xl text-base leading-8 text-[rgba(194,173,142,0.78)] md:text-lg">
-            Understand your final olfactory identity and how testing shifted your profile from grounding baseline.
-          </p>
-        </header>
-
-        <section className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-[1.72fr_1fr]">
-          <DnaRadar baselineValues={baselineAxisValues} finalValues={finalAxisValues} />
-
-          <aside className="glass-card p-6 md:p-7">
-            <p className="text-sm uppercase tracking-[0.3em] text-[rgba(165,185,150,0.82)]">DNA SUMMARY</p>
-
-            <div className="mt-6 space-y-5">
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-[rgba(170,187,156,0.74)]">Profile Type</p>
-                <p className="mt-2 text-xl text-[rgba(224,194,140,0.96)]">{profileType}</p>
-              </div>
-
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-[rgba(170,187,156,0.74)]">Confidence</p>
-                <p className="mt-2 text-3xl font-semibold text-[rgba(224,194,140,0.98)]">{finalConfidence}%</p>
-              </div>
-
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-[rgba(170,187,156,0.74)]">Profile Maturity</p>
-                <p className="mt-2 text-lg text-[rgba(224,194,140,0.92)]">{profileMaturity}</p>
-              </div>
-
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-[rgba(170,187,156,0.74)]">Data Coverage</p>
-                <p className="mt-2 text-lg text-[rgba(224,194,140,0.92)]">{testedCount} fragrances tested</p>
-              </div>
-
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-[rgba(170,187,156,0.74)]">Last Updated</p>
-                <p className="mt-2 text-lg text-[rgba(224,194,140,0.92)]">{lastUpdated}</p>
-              </div>
-            </div>
-
-            <div className="mt-6 space-y-4 rounded-[24px] border border-[rgba(212,175,120,0.2)] bg-[rgba(6,8,12,0.72)] p-4">
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-[rgba(170,187,156,0.74)]">Average Shift</p>
-                <p className="mt-2 text-2xl font-semibold text-[rgba(224,194,140,0.98)]">+{averageShift}%</p>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-[rgba(170,187,156,0.74)]">Profile Evolution</p>
-                <p className="mt-2 text-lg text-[rgba(224,194,140,0.92)]">{profileEvolution}</p>
-              </div>
-            </div>
-          </aside>
-        </section>
-
-        <section className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <article className="glass-card p-6 md:p-7">
-            <p className="text-sm uppercase tracking-[0.3em] text-[rgba(165,185,150,0.82)]">TOP DOMINANT AXES</p>
-            <div className="mt-5 space-y-3">
-              {dominantAxes.map((item, index) => (
-                <div key={item.axis} className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-                  <p className="text-sm text-[rgba(216,199,171,0.95)]">{index + 1}. {item.axis}</p>
-                  <p className="text-sm font-semibold text-[rgba(224,194,140,0.95)]">{item.value}</p>
-                </div>
-              ))}
-            </div>
-          </article>
-
-          <article className="glass-card p-6 md:p-7">
-            <p className="text-sm uppercase tracking-[0.3em] text-[rgba(165,185,150,0.82)]">MOST INFLUENCED BY TESTING</p>
-            <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                {positiveChanges.map((item) => (
-                  <p key={item.axis} className="rounded-2xl border border-[rgba(108,196,219,0.35)] bg-[rgba(108,196,219,0.10)] px-4 py-3 text-sm text-[rgba(188,232,244,0.96)]">
-                    ↑ {item.axis} +{item.delta}
-                  </p>
-                ))}
-                {positiveChanges.length === 0 ? (
-                  <p className="text-sm text-[rgba(190,170,140,0.72)]">No positive shifts yet.</p>
-                ) : null}
-              </div>
-              <div className="space-y-2">
-                {negativeChanges.map((item) => (
-                  <p key={item.axis} className="rounded-2xl border border-[rgba(212,175,120,0.28)] bg-[rgba(212,175,120,0.12)] px-4 py-3 text-sm text-[rgba(236,203,147,0.96)]">
-                    ↓ {item.axis} {item.delta}
-                  </p>
-                ))}
-                {negativeChanges.length === 0 ? (
-                  <p className="text-sm text-[rgba(190,170,140,0.72)]">No negative shifts yet.</p>
-                ) : null}
-              </div>
-            </div>
-          </article>
-        </section>
-
-        <section className="mt-6">
-          <article className="glass-card p-6 md:p-8">
-            <p className="text-sm uppercase tracking-[0.3em] text-[rgba(165,185,150,0.82)]">DNA NARRATIVE</p>
-            <p className="mt-4 text-base leading-8 text-[rgba(214,198,171,0.9)]">{narrative}</p>
-          </article>
-        </section>
+        </div>
       </section>
-    </main>
+
+      {/* DNA Visualization */}
+      <section className="py-12 md:py-16 border-b border-black-600">
+        <div className="main-container">
+          <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-8">
+            {/* Radar Chart */}
+            <div className="premium-card-dark p-6 md:p-8">
+              <div className="mb-6">
+                <p className="text-xs font-semibold text-gold uppercase mb-2">DNA SIGNATURE</p>
+                <h3 className="text-xl font-bold text-white">Final DNA vs Baseline</h3>
+                <p className="text-sm text-gray-400 mt-2">
+                  Scores range from 0 (low presence) to 100 (very high presence).
+                </p>
+              </div>
+              <DnaRadar baselineValues={baselineAxisValues} finalValues={finalAxisValues} />
+            </div>
+
+            {/* DNA Summary Panel */}
+            <div className="space-y-6">
+              {/* Profile Summary Card */}
+              <div className="premium-card-dark p-6">
+                <p className="text-xs font-semibold text-gold uppercase mb-4">PROFILE SUMMARY</p>
+
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase">Profile Type</p>
+                    <p className="text-lg font-bold text-gold mt-1">{profileType}</p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase mb-2">Confidence</p>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-3xl font-bold text-white">{finalConfidence}%</span>
+                      <span className="text-xs text-gray-400">High certainty</span>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-gold-900 space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-xs text-gray-500">Profile Maturity</span>
+                      <span className="text-sm font-medium text-gold">{profileMaturity}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-xs text-gray-500">Data Coverage</span>
+                      <span className="text-sm font-medium text-gold">{testedCount} fragrances</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-xs text-gray-500">Last Updated</span>
+                      <span className="text-sm font-medium text-gray-300">{lastUpdated}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Evolution Card */}
+              <div className="premium-card-dark p-6">
+                <p className="text-xs font-semibold text-gold uppercase mb-4">EVOLUTION</p>
+
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase">Average Shift</p>
+                    <p className="text-3xl font-bold text-white mt-2">+{averageShift}%</p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase mb-2">Profile Evolution</p>
+                    <p className="text-sm font-medium text-gold">{profileEvolution}</p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      {profileEvolution === 'Minimal'
+                        ? 'Your profile is highly consistent'
+                        : profileEvolution === 'Moderate'
+                        ? 'Moderate shifts across some dimensions'
+                        : 'Significant profile evolution detected'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Insights Section */}
+      <section className="py-12 md:py-16 border-b border-black-600">
+        <div className="main-container">
+          <SectionHeader
+            label="INSIGHTS"
+            title="DNA Profile Analysis"
+            description="Your most dominant axes and how testing influenced your profile."
+            className="mb-8"
+          />
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Top Axes */}
+            <div className="premium-card-dark p-6">
+              <h3 className="text-sm font-bold text-gold uppercase mb-4">Top Dominant Axes</h3>
+              <div className="space-y-3">
+                {dominantAxes.map((item, index) => (
+                  <div key={item.axis} className="flex items-center justify-between p-3 bg-black-700 rounded-lg border border-black-600 hover:border-gold transition-colors">
+                    <div className="flex items-center gap-3">
+                      <span className="text-gold font-bold text-lg">{index + 1}.</span>
+                      <span className="text-gray-300">{item.axis}</span>
+                    </div>
+                    <span className="text-gold font-bold">{item.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Influenced by Testing */}
+            <div className="premium-card-dark p-6">
+              <h3 className="text-sm font-bold text-gold uppercase mb-4">Most Influenced by Testing</h3>
+              <div className="space-y-3">
+                {positiveChanges.length > 0 ? (
+                  positiveChanges.map((item) => (
+                    <div key={item.axis} className="flex items-center justify-between p-3 bg-green-950 rounded-lg border border-green-900">
+                      <span className="text-green-300">↑ {item.axis}</span>
+                      <span className="text-green-400 font-bold">+{item.delta}</span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-400 text-sm">No positive shifts yet.</p>
+                )}
+                {negativeChanges.length > 0 ? (
+                  negativeChanges.map((item) => (
+                    <div key={item.axis} className="flex items-center justify-between p-3 bg-red-950 rounded-lg border border-red-900">
+                      <span className="text-red-300">↓ {item.axis}</span>
+                      <span className="text-red-400 font-bold">{item.delta}</span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-400 text-sm">No negative shifts yet.</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* DNA Narrative */}
+      <section className="py-12 md:py-16 border-b border-black-600">
+        <div className="main-container">
+          <div className="premium-card-dark p-8">
+            <h3 className="text-sm font-bold text-gold uppercase mb-4">DNA Narrative</h3>
+            <p className="text-base leading-7 text-gray-300">{narrative}</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Territory Affinities Section */}
+      <section className="py-12 md:py-16">
+        <div className="main-container">
+          <SectionHeader
+            label="EXPLORE"
+            title="Discover Your Territory Affinities"
+            description="Based on your DNA profile, explore fragrance territories that align with your olfactory identity."
+            className="mb-8"
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Object.values(territories).slice(0, 6).map((territory) => (
+              <div key={territory.id} className="premium-card-dark p-6 cursor-pointer hover:shadow-gold transition-all">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-4 h-4 rounded-full" style={{ backgroundColor: territory.color }} />
+                  <h4 className="font-bold text-white">{territory.name}</h4>
+                </div>
+                <p className="text-sm text-gray-400">{territory.description.slice(0, 80)}...</p>
+                <div className="mt-4 flex gap-2">
+                  {territory.dnaAxes.slice(0, 2).map((axis) => (
+                    <span key={axis} className="text-xs bg-black-700 text-gold px-2 py-1 rounded">
+                      {axis}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 text-center">
+            <a href="/territories">
+              <PremiumButton variant="secondary" size="md">
+                EXPLORE ALL TERRITORIES →
+              </PremiumButton>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-12 md:py-16 border-t border-black-600">
+        <div className="main-container text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Ready to Refine Your DNA?</h2>
+          <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
+            Test more fragrances to strengthen your profile, discover new territories, and deepen your olfactory identity.
+          </p>
+          <a href="/test">
+            <PremiumButton variant="primary" size="md">
+              CONTINUE TESTING →
+            </PremiumButton>
+          </a>
+        </div>
+      </section>
+    </PageShell>
   );
 }
