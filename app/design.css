@@ -1,303 +1,58 @@
-﻿@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/**
+ * FragranceDNA Design System CSS
+ * All component styles have been consolidated into app/globals.css
+ * This file is kept for documentation purposes
+ */
+  /* Premium base typography */
+  body {
+    @apply bg-black-800 text-white;
+    font-family: var(--font-body, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+    color: #d4af78;
+    line-height: 1.6;
+  }
 
-:root {
-  color-scheme: dark;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  color: #d4af78;
-  text-rendering: optimizeLegibility;
-  font-smooth: always;
-}
+  h1 {
+    @apply text-5xl font-bold tracking-tight;
+    font-family: var(--font-display, Georgia, serif);
+    color: #ffffff;
+  }
 
-html,
-body {
-  margin: 0;
-  min-height: 100%;
-}
+  h2 {
+    @apply text-4xl font-semibold tracking-tight;
+    font-family: var(--font-display, Georgia, serif);
+    color: #ffffff;
+  }
 
-/* DNA script font for branding — loaded via next/font/google (Great Vibes) */
-.dna-script-font {
-  font-family: var(--font-script), Georgia, serif;
-  font-style: normal;
-  font-size: 1.12em;
-  line-height: 1;
-}
-.dna-script-font.large {
-  font-size: 1.28em;
-}
+  h3 {
+    @apply text-2xl font-semibold;
+    font-family: var(--font-display, Georgia, serif);
+    color: #ffffff;
+  }
 
-body {
-  background-color: #0B0D0F;
-  color: #d4af78;
-  line-height: 1.6;
-}
+  h4,
+  h5,
+  h6 {
+    @apply font-semibold;
+    color: #d4af78;
+  }
 
-.app-background-layer {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -30;
-  pointer-events: none;
-  background-image: url('/Background/new background.png');
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-attachment: fixed;
-  transform: translateZ(0);
-}
+  /* Premium links */
+  a {
+    @apply transition-colors duration-300;
+    color: #d4af78;
 
-.app-overlay-layer {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -20;
-  pointer-events: none;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.8) 100%);
-}
+    &:hover {
+      color: #f4b860;
+      text-decoration: none;
+    }
+  }
 
-.app-ambient-layer {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -10;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 18% 10%, rgba(212, 175, 120, 0.12), transparent 42%),
-    radial-gradient(circle at 78% 22%, rgba(165, 185, 150, 0.08), transparent 46%);
-  mix-blend-mode: screen;
+  /* Premium focus state */
+  *:focus-visible {
+    outline: 2px solid #d4af78;
+    outline-offset: 2px;
+  }
 }
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: -1;
-  opacity: 0.02;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 12px 12px;
-  mix-blend-mode: overlay;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-button,
-input,
-textarea,
-select {
-  font: inherit;
-}
-
-.page-shell {
-  position: relative;
-  min-height: 100vh;
-  padding: 3rem 0 4rem;
-}
-
-.content-layer {
-  z-index: 1;
-}
-
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  width: 100%;
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  background: rgba(6, 7, 10, 0.72);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  box-shadow: none;
-  overflow: visible;
-}
-
-/* remove any leftover rectangular shadow artifacts in top-left */
-.site-header::before,
-.site-header::after {
-  display: none;
-}
-
-.header-inner {
-  width: min(1120px, calc(100% - 2rem));
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 2rem;
-  padding: 1rem 0;
-}
-
-.site-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.nav-link {
-  color: rgba(225, 214, 178, 0.88);
-  font-size: 0.88rem;
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  text-decoration: none;
-  transition: color 0.2s ease, transform 0.2s ease;
-}
-
-.nav-link:hover,
-.nav-link:focus-visible {
-  color: #fff;
-  transform: translateY(-1px);
-}
-
-.main-container {
-  width: min(1120px, calc(100% - 2rem));
-  margin: 0 auto;
-  position: relative;
-}
-
-.page-background,
-.hero-background,
-.grounding-background,
-.test-background,
-.results-background,
-.dna-background {
-  position: relative;
-  overflow: visible;
-}
-
-.page-background::before,
-.hero-background::before,
-.grounding-background::before,
-.test-background::before,
-.results-background::before,
-.dna-background::before {
-  content: none;
-}
-
-.hero-background::before {
-  content: none;
-}
-
-.page-background::before,
-.grounding-background::before,
-.test-background::before,
-.results-background::before,
-.dna-background::before {
-  content: none;
-}
-
-.page-background::after,
-.hero-background::after,
-.grounding-background::after,
-.test-background::after,
-.results-background::after,
-.dna-background::after {
-  content: none;
-}
-
-.hero-background::after {
-  content: none;
-}
-
-.glass {
-  position: relative;
-  background: rgba(20, 22, 24, 0.74);
-  border: 1px solid rgba(212, 175, 120, 0.16);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
-  border-radius: 32px;
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.22);
-  overflow: hidden;
-}
-
-.page-panel {
-  border-color: rgba(212, 175, 120, 0.12);
-  box-shadow: 0 20px 56px rgba(10, 20, 18, 0.22);
-  overflow: hidden;
-}
-
-.glass::before,
-.glass-card::before,
-.glass-card::after,
-.hero-background::before,
-.page-background::before {
-  border-radius: inherit;
-  -webkit-border-radius: inherit;
-  overflow: hidden;
-}
-
-.glass::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: radial-gradient(circle at 30% 20%, rgba(212, 175, 120, 0.10), transparent 30%);
-  filter: blur(20px);
-}
-
-.glass-card {
-  position: relative;
-  background: rgba(7, 8, 12, 0.78);
-  border: 1px solid rgba(199, 168, 107, 0.14);
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
-  border-radius: 32px;
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.22);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  overflow: hidden;
-}
-
-.glass-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: radial-gradient(circle at 70% 20%, rgba(212, 175, 120, 0.08), transparent 28%),
-    radial-gradient(circle at 20% 70%, rgba(255, 255, 255, 0.04), transparent 26%);
-  opacity: 0.68;
-  filter: blur(18px);
-}
-
-.glass-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background-image: linear-gradient(135deg, rgba(212, 175, 120, 0.02), transparent 48%, rgba(165, 185, 150, 0.015) 72%, transparent 100%);
-  mix-blend-mode: screen;
-}
-
-/* softer reusable shadow token */
-.shadow-glass-soft {
-  box-shadow: 0 12px 28px rgba(0,0,0,0.18);
-}
-
-.glass-card:hover {
-  transform: translateY(-2px);
-}
-
-.gold-text {
-  color: #c7a86b;
-}
-
-.subtle-text {
-  color: #b8ab96;
-}
-
-::selection {
-  background: rgba(212, 175, 120, 0.18);
-  color: #1a1a1a;
-}
-
-/* ============================================
-   DESIGN SYSTEM CSS - Premium Components
-   ============================================ */
 
 @layer components {
   /* ============================================
@@ -719,6 +474,91 @@ select {
   .glow-gold-lg {
     box-shadow: 0 0 48px rgba(212, 175, 120, 0.4);
   }
+
+  /* ============================================
+     ANIMATIONS
+     ============================================ */
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes glow {
+    0%,
+    100% {
+      box-shadow: 0 0 24px rgba(212, 175, 120, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 32px rgba(212, 175, 120, 0.5);
+    }
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .animate-slideUp {
+    animation: slideUp 0.4s ease-out;
+  }
+
+  .animate-slideIn {
+    animation: slideIn 0.4s ease-out;
+  }
+
+  .animate-glow {
+    animation: glow 3s ease-in-out infinite;
+  }
+
+  /* ============================================
+     RESPONSIVE UTILITIES
+     ============================================ */
+
+  @media (max-width: 768px) {
+    .hero-section {
+      flex-direction: column;
+      gap: 6;
+      min-height: auto;
+
+      .hero-right {
+        order: -1;
+      }
+    }
+
+    .site-nav {
+      gap: 4;
+
+      a {
+        font-size: 0.75rem;
+      }
+    }
+  }
 }
 
 @layer utilities {
@@ -792,90 +632,5 @@ select {
 
   .shadow-depth {
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.9);
-  }
-}
-
-/* ============================================
-   ANIMATIONS
-   ============================================ */
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes glow {
-  0%,
-  100% {
-    box-shadow: 0 0 24px rgba(212, 175, 120, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 32px rgba(212, 175, 120, 0.5);
-  }
-}
-
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-out;
-}
-
-.animate-slideUp {
-  animation: slideUp 0.4s ease-out;
-}
-
-.animate-slideIn {
-  animation: slideIn 0.4s ease-out;
-}
-
-.animate-glow {
-  animation: glow 3s ease-in-out infinite;
-}
-
-/* ============================================
-   RESPONSIVE UTILITIES
-   ============================================ */
-
-@media (max-width: 768px) {
-  .hero-section {
-    flex-direction: column;
-    gap: 6;
-    min-height: auto;
-
-    .hero-right {
-      order: -1;
-    }
-  }
-
-  .site-nav {
-    gap: 4;
-
-    a {
-      font-size: 0.75rem;
-    }
   }
 }

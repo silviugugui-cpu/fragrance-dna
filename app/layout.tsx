@@ -1,7 +1,7 @@
 ﻿import type { Metadata } from 'next';
 import { Great_Vibes } from 'next/font/google';
 import './globals.css';
-import SiteLogo from './components/SiteLogo';
+import { SiteHeader } from '@/components/design-system/SiteHeader';
 
 const greatVibes = Great_Vibes({
   weight: '400',
@@ -12,18 +12,8 @@ const greatVibes = Great_Vibes({
 
 export const metadata: Metadata = {
   title: 'FragranceDNA',
-  description: 'Olfactory intelligence MVP for fragrance profiling.',
+  description: 'Discover your olfactory identity through science, data, and discovery.',
 };
-
-const navLinks = [
-  { href: '/', label: 'Home' },
-  { href: '/collection', label: 'Collection' },
-  { href: '/profiles', label: 'Profiles' },
-  { href: '/grounding', label: 'Grounding' },
-  { href: '/test', label: 'Test' },
-  { href: '/results', label: 'Results' },
-  { href: '/dna', label: 'DNA' },
-];
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -33,18 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="app-overlay-layer" aria-hidden="true" />
         <div className="app-ambient-layer" aria-hidden="true" />
         <div className="page-shell content-layer">
-          <header className="site-header">
-            <div className="main-container header-inner">
-              <SiteLogo />
-              <nav className="site-nav" aria-label="Primary navigation">
-                {navLinks.map((link) => (
-                  <a key={link.href} href={link.href} className="nav-link">
-                    {link.label}
-                  </a>
-                ))}
-              </nav>
-            </div>
-          </header>
+          <SiteHeader />
           {children}
         </div>
       </body>
