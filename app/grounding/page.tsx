@@ -6,6 +6,7 @@ import { buildSeed } from "@/lib/engine/seedBuilder";
 import { buildUserVector } from "@/lib/engine/userVectorBuilder";
 import { mergeGroundingVectorIntoSession } from "@/lib/dnaSession";
 import { getOrCreateUserProfile, updateUserVector } from "@/lib/engine/userProfileManager";
+import { PageShell, SectionHeader, PremiumButton } from "@/components/design-system";
 
 const TOKENS = [
   "Fresh & Citrusy",
@@ -126,89 +127,246 @@ export default function GroundingPage() {
   };
 
   return (
-    <main className="main-container">
-      <section className="glass p-10 space-y-10">
-        <div className="max-w-3xl space-y-6">
-          <p className="text-sm uppercase tracking-[0.42em] text-[#b59f70]/70">
-            Olfactory Insight
-          </p>
-          <h1 className="text-5xl font-light tracking-[0.04em] text-white">
-            Your fragrance identity in soft focus
-          </h1>
-          <p className="max-w-2xl leading-8 text-[#d5c9b8]/85">
-            Place the scent moods into the spaces that feel most alive. This layer is a refined portrait of what you are attracted to, what you avoid, and what quietly influences your signature.
-          </p>
-        </div>
-
-        <div className="rounded-[28px] bg-white/5 p-8 shadow-[0_40px_120px_rgba(0,0,0,0.28)]">
-          <p className="text-sm uppercase tracking-[0.28em] text-[#b59f70]/70">
-            Persona reading
-          </p>
-          <div className="mt-6 space-y-4 text-[#e5dcc7]">
-            {personaNarrative.map((line, index) => (
-              <p key={index} className="text-base leading-8 text-[#d9d1c3]/95">
-                {line}
-              </p>
-            ))}
+    <PageShell>
+      {/* Hero Section */}
+      <section className="py-12 md:py-20 mb-4">
+        <div className="main-container">
+          <div className="max-w-3xl">
+            <p className="text-sm font-medium uppercase tracking-wider text-gold mb-4">CALIBRATE</p>
+            <h1 className="text-4xl md:text-5xl font-light mb-6 text-white">Discover Your Fragrance Foundation</h1>
+            <p className="text-lg text-gray-300 max-w-2xl leading-relaxed">
+              Shape your olfactory grounding through intuitive curation. Classify the scent moods that feel alive to you, creating a personalized foundation for your DNA discovery.
+            </p>
           </div>
         </div>
       </section>
 
-      <section className="mt-10 space-y-6">
-        <div className="grid gap-6 lg:grid-cols-3">
-          {zones.map((zone) => (
-            <div
-              key={zone}
-              onDrop={(e) => onDrop(e, zone)}
-              onDragOver={allowDrop}
-              className="glass-card p-8 transition duration-300 hover:-translate-y-1 hover:shadow-[0_40px_100px_rgba(199,168,107,0.18)]"
-            >
-              <p className="text-sm uppercase tracking-[0.35em] text-[#b59f70]/70">
-                {sectionTitle[zone]}
-              </p>
-              <p className="mt-4 text-sm leading-7 text-[#d5c9b8]/80">
-                {sectionTone[zone]}
-              </p>
+      {/* Instructions Section */}
+      <section className="py-8 md:py-12">
+        <div className="main-container">
+          <div className="premium-card-dark p-8 md:p-10">
+            <p className="text-xs uppercase tracking-wider text-gray-400 mb-3">HOW IT WORKS</p>
+            <h3 className="text-xl font-semibold text-white mb-4">Drag scent qualities into your zones</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="flex gap-4">
+                <div className="w-8 h-8 rounded-full bg-gold text-black flex items-center justify-center font-bold flex-shrink-0">1</div>
+                <div>
+                  <p className="font-semibold text-white mb-1">Attraction</p>
+                  <p className="text-sm text-gray-400">Qualities that ignite your curiosity</p>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="w-8 h-8 rounded-full bg-warm-400 text-black flex items-center justify-center font-bold flex-shrink-0">2</div>
+                <div>
+                  <p className="font-semibold text-white mb-1">Neutral</p>
+                  <p className="text-sm text-gray-400">Qualities that create balance</p>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="w-8 h-8 rounded-full bg-black-400 text-white flex items-center justify-center font-bold flex-shrink-0">3</div>
+                <div>
+                  <p className="font-semibold text-white mb-1">Avoidance</p>
+                  <p className="text-sm text-gray-400">Qualities to set aside</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-              <div className="mt-6 flex flex-wrap gap-3">
-                {groupedTokens[zone].length > 0 ? (
-                  groupedTokens[zone].map((token) => (
+      {/* Persona Narrative Section */}
+      <section className="py-12 md:py-16">
+        <div className="main-container">
+          <div className="premium-card-dark p-8 md:p-12 border-l-4 border-l-gold">
+            <p className="text-xs uppercase tracking-wider text-gray-400 mb-3">YOUR PERSONA</p>
+            <h2 className="text-2xl font-bold text-white mb-6">Fragrance Identity Portrait</h2>
+            <div className="space-y-4">
+              {personaNarrative.map((line, index) => (
+                <p key={index} className="text-base text-gray-300 leading-relaxed">
+                  {line}
+                </p>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Interactive Zones Section */}
+      <section className="py-12 md:py-16">
+        <div className="main-container">
+          <SectionHeader
+            label="CUSTOMIZE"
+            title="Classify Your Scent Qualities"
+            description="Drag each quality into the zone where it belongs. Your selections shape the foundation of your fragrance DNA."
+            className="mb-10"
+          />
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Attraction Zone */}
+            <div
+              onDrop={(e) => onDrop(e, "love")}
+              onDragOver={allowDrop}
+              className="premium-card-dark p-8 border-2 border-gold/30 hover:border-gold/60 transition-all min-h-96 cursor-drop flex flex-col"
+            >
+              <div className="mb-6">
+                <p className="text-xs uppercase tracking-wider text-gold font-bold mb-2">Attraction Patterns</p>
+                <h3 className="text-xl font-bold text-white mb-3">Love</h3>
+                <p className="text-sm text-gray-400">
+                  These accords ignite your curiosity and become the luminous heart of your fragrance story.
+                </p>
+              </div>
+
+              <div className="flex-1 space-y-2">
+                {groupedTokens.love.length > 0 ? (
+                  groupedTokens.love.map((token) => (
                     <div
                       key={token}
                       draggable
                       onDragStart={(e) => onDragStart(e, token)}
-                      className="inline-flex cursor-grab items-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-[#e8dfd1] shadow-[0_10px_30px_rgba(0,0,0,0.12)] transition duration-200 hover:bg-white/10"
+                      className="inline-flex cursor-grab items-center rounded-lg bg-gold/20 border border-gold/40 px-4 py-2 text-sm font-medium text-gold hover:bg-gold/30 hover:border-gold/60 transition-all"
                     >
                       {token}
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-[#b8ab96]">No qualities assigned yet.</p>
+                  <p className="text-sm text-gray-500 italic">Drag qualities here...</p>
                 )}
               </div>
             </div>
-          ))}
+
+            {/* Neutral Zone */}
+            <div
+              onDrop={(e) => onDrop(e, "neutral")}
+              onDragOver={allowDrop}
+              className="premium-card-dark p-8 border-2 border-warm-400/30 hover:border-warm-400/60 transition-all min-h-96 cursor-drop flex flex-col"
+            >
+              <div className="mb-6">
+                <p className="text-xs uppercase tracking-wider text-warm-300 font-bold mb-2">Neutral Affinities</p>
+                <h3 className="text-xl font-bold text-white mb-3">Balance</h3>
+                <p className="text-sm text-gray-400">
+                  These whispers add atmosphere without demanding the spotlight, creating a soft, balanced trail.
+                </p>
+              </div>
+
+              <div className="flex-1 space-y-2">
+                {groupedTokens.neutral.length > 0 ? (
+                  groupedTokens.neutral.map((token) => (
+                    <div
+                      key={token}
+                      draggable
+                      onDragStart={(e) => onDragStart(e, token)}
+                      className="inline-flex cursor-grab items-center rounded-lg bg-warm-400/20 border border-warm-400/40 px-4 py-2 text-sm font-medium text-warm-300 hover:bg-warm-400/30 hover:border-warm-400/60 transition-all"
+                    >
+                      {token}
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-500 italic">Drag qualities here...</p>
+                )}
+              </div>
+            </div>
+
+            {/* Avoidance Zone */}
+            <div
+              onDrop={(e) => onDrop(e, "hate")}
+              onDragOver={allowDrop}
+              className="premium-card-dark p-8 border-2 border-black-400/30 hover:border-black-400/60 transition-all min-h-96 cursor-drop flex flex-col"
+            >
+              <div className="mb-6">
+                <p className="text-xs uppercase tracking-wider text-black-200 font-bold mb-2">Avoidance Patterns</p>
+                <h3 className="text-xl font-bold text-white mb-3">Avoid</h3>
+                <p className="text-sm text-gray-400">
+                  These textures are best set aside to preserve clarity and warmth in your scent identity.
+                </p>
+              </div>
+
+              <div className="flex-1 space-y-2">
+                {groupedTokens.hate.length > 0 ? (
+                  groupedTokens.hate.map((token) => (
+                    <div
+                      key={token}
+                      draggable
+                      onDragStart={(e) => onDragStart(e, token)}
+                      className="inline-flex cursor-grab items-center rounded-lg bg-black-400/20 border border-black-400/40 px-4 py-2 text-sm font-medium text-black-200 hover:bg-black-400/30 hover:border-black-400/60 transition-all"
+                    >
+                      {token}
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-500 italic">Drag qualities here...</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Token Pool */}
+          <div className="mt-10">
+            <p className="text-sm uppercase tracking-wider text-gray-400 mb-4">Available Qualities</p>
+            <div className="premium-card-dark p-6 flex flex-wrap gap-3">
+              {TOKENS.map((token) => {
+                const currentZone = Object.entries(state).find(([k]) => k === token)?.[1] || "neutral";
+                const isPlaced = currentZone !== "neutral" || Object.values(state).some(z => z !== "neutral");
+                
+                if (
+                  (currentZone !== "love" && state[token] !== "love") &&
+                  (currentZone !== "hate" && state[token] !== "hate") &&
+                  (currentZone !== "neutral" || Object.values(state).filter(z => z === "neutral").length < TOKENS.length)
+                ) {
+                  return null;
+                }
+
+                // Show only unplaced tokens
+                if (state[token] === "neutral" && (loveTokens.length > 0 || hateTokens.length > 0)) {
+                  return (
+                    <div
+                      key={token}
+                      draggable
+                      onDragStart={(e) => onDragStart(e, token)}
+                      className="cursor-grab px-4 py-2 rounded-lg bg-black-600 border border-black-400 text-white text-sm hover:bg-black-500 transition-all"
+                    >
+                      {token}
+                    </div>
+                  );
+                }
+
+                if (state[token] === "neutral") {
+                  return (
+                    <div
+                      key={token}
+                      draggable
+                      onDragStart={(e) => onDragStart(e, token)}
+                      className="cursor-grab px-4 py-2 rounded-lg bg-black-600 border border-black-400 text-white text-sm hover:bg-black-500 transition-all"
+                    >
+                      {token}
+                    </div>
+                  );
+                }
+
+                return null;
+              })}
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="mt-10">
-        <div className="glass p-8 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm uppercase tracking-[0.28em] text-[#b59f70]/70">
-              Next step
+      {/* Action Section */}
+      <section className="py-12 md:py-16 mb-8">
+        <div className="main-container">
+          <div className="premium-card-dark p-8 md:p-12 text-center">
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">Ready to Begin Your Test Flow?</h2>
+            <p className="text-gray-300 mb-8 max-w-xl mx-auto">
+              Your grounding foundation is set. Step into the test flow to discover fragrances that align with your calibrated preferences.
             </p>
-            <p className="text-xl font-medium text-white">
-              Secure your grounding and step into a personalized fragrance flow.
-            </p>
+            <PremiumButton
+              onClick={finish}
+              variant="primary"
+              size="lg"
+            >
+              Continue to Test Flow
+            </PremiumButton>
           </div>
-          <button
-            onClick={finish}
-            className="rounded-full bg-[#c7a86b] px-8 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-black transition duration-300 hover:bg-[#d0b478]"
-          >
-            Continue to Test Flow
-          </button>
         </div>
       </section>
-    </main>
+    </PageShell>
   );
 }
