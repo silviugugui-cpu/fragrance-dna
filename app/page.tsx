@@ -54,33 +54,37 @@ export default function HomePage() {
         <div className="luxury-hero-card grid min-h-[75vh] lg:h-[80vh] lg:max-h-[85vh] grid-cols-1 overflow-hidden lg:grid-cols-[38fr_62fr]">
           <div className="luxury-left-panel flex flex-col justify-between p-7 sm:p-10 lg:p-12">
             <div className="space-y-7">
-              <Image
-                src="/Logo/Logo Fragrance DNA no text.png"
-                alt="Fragrance DNA logo"
-                width={74}
-                height={74}
-                priority
-                className="h-[74px] w-[74px] object-contain"
-              />
+              <div className="luxury-logo-block">
+                <Image
+                  src="/Logo/Logo Fragrance DNA no text.png"
+                  alt="Fragrance DNA logo"
+                  width={104}
+                  height={104}
+                  priority
+                  className="h-[88px] w-[88px] object-contain sm:h-[96px] sm:w-[96px]"
+                />
+              </div>
 
               <p className="text-[0.72rem] uppercase tracking-[0.42em] text-[#d4af78]/92 sm:text-xs">
                 OLFACTORY IDENTITY
               </p>
 
-              <h1 className="font-home-heading text-[2rem] font-semibold uppercase leading-[1.02] text-[#f3ead6] sm:text-[2.45rem] lg:text-[3.15rem]">
+              <h1 className="font-home-heading text-[2.3rem] font-semibold uppercase leading-[0.98] text-[#f3ead6] sm:text-[2.9rem] lg:text-[4.1rem]">
                 A SINGLE GATEWAY
                 <br />
                 TO YOUR SCENT DNA.
               </h1>
 
-              <div className="max-w-[34ch] space-y-4">
-                <p className="font-home-mission text-[1.45rem] italic leading-[1.2] text-[#efe2bf] sm:text-[1.65rem]">
-                  Never again buy a perfume
-                  <br />
-                  that does not blow your mind.
-                </p>
+              <div className="max-w-[35ch] space-y-5">
+                <div className="luxury-mission-plaque">
+                  <p className="font-home-mission text-[1.65rem] italic leading-[1.15] text-[#f3e0b3] sm:text-[1.95rem]">
+                    Never again buy a perfume
+                    <br />
+                    that does not blow your mind.
+                  </p>
+                </div>
 
-                <p className="font-home-body text-sm leading-relaxed text-[#d5d0c0] sm:text-base">
+                <p className="font-home-body text-[0.99rem] leading-relaxed text-[#d5d0c0] sm:text-[1.05rem]">
                   FragranceDNA transforms instinct into precision by mapping your olfactory profile,
                   decoding attraction patterns, and guiding every fragrance decision through data-backed
                   identity insights.
@@ -98,7 +102,7 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              <p className="font-home-mission text-[1.35rem] italic leading-tight text-[#f4e9ca]">
+              <p className="font-home-mission text-[1.45rem] italic leading-tight text-[#f4e9ca] sm:text-[1.6rem]">
                 Understand people first.
                 <br />
                 Fragrances second.
@@ -107,14 +111,16 @@ export default function HomePage() {
           </div>
 
           <div className="luxury-right-panel relative min-h-[340px] lg:min-h-0">
-            <Image
-              src="/Background/background carton front page.png"
-              alt="Fragrance campaign visual"
-              fill
-              priority
-              className="object-contain object-center p-2 sm:p-3 lg:p-4"
-              sizes="(min-width: 1024px) 56vw, 90vw"
-            />
+            <div className="luxury-image-shell relative h-full w-full">
+              <Image
+                src="/Background/background carton front page.png"
+                alt="Fragrance campaign visual"
+                fill
+                priority
+                className="object-contain object-center p-0"
+                sizes="(min-width: 1024px) 56vw, 90vw"
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -125,11 +131,11 @@ export default function HomePage() {
             const Icon = item.icon;
             return (
               <article key={item.title} className="luxury-feature-item">
-                <Icon size={20} className="text-[#d4af78]" strokeWidth={1.8} />
-                <p className="mt-3 text-[0.72rem] uppercase tracking-[0.28em] text-[#efe1bc]">
+                <Icon size={22} className="luxury-feature-icon" strokeWidth={2.1} />
+                <p className="mt-3 text-[0.76rem] uppercase tracking-[0.28em] text-[#efe1bc]">
                   {item.title}
                 </p>
-                <p className="mt-2 text-sm text-[#cec8b6]">{item.subtitle}</p>
+                <p className="mt-2 text-[0.95rem] text-[#d9d1be]">{item.subtitle}</p>
               </article>
             );
           })}

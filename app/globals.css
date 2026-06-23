@@ -51,12 +51,10 @@ body {
   z-index: -5;
   pointer-events: none;
   background:
-    radial-gradient(circle at 20% 16%, rgba(212, 175, 120, 0.11), transparent 46%),
-    radial-gradient(circle at 78% 68%, rgba(212, 175, 120, 0.08), transparent 48%),
-    linear-gradient(135deg, rgba(5, 6, 8, 0.92) 0%, rgba(8, 10, 14, 0.88) 100%),
+    linear-gradient(145deg, rgba(4, 5, 7, 0.92) 0%, rgba(9, 10, 12, 0.9) 62%, rgba(7, 7, 8, 0.93) 100%),
     url('/Background/new background.png');
-  background-position: center, center, center, center;
-  background-size: cover, cover, cover, cover;
+  background-position: center, center;
+  background-size: cover, cover;
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
@@ -65,38 +63,87 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  opacity: 0.16;
+  opacity: 0.12;
   background-image:
-    radial-gradient(circle, rgba(212, 175, 120, 0.42) 1px, transparent 1px),
+    radial-gradient(circle, rgba(212, 175, 120, 0.36) 1px, transparent 1px),
     repeating-linear-gradient(
       114deg,
       transparent 0,
-      transparent 26px,
-      rgba(212, 175, 120, 0.13) 27px,
-      transparent 28px,
-      transparent 56px
+      transparent 38px,
+      rgba(212, 175, 120, 0.11) 39px,
+      transparent 40px,
+      transparent 78px
     );
-  background-size: 38px 38px, 100% 100%;
+  background-size: 46px 46px, 100% 100%;
 }
 
 .luxury-hero-card {
+  position: relative;
   border-radius: 30px;
-  border: 1px solid rgba(212, 175, 120, 0.35);
-  background: linear-gradient(125deg, rgba(10, 11, 13, 0.88) 0%, rgba(16, 13, 9, 0.8) 100%);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  box-shadow: 0 30px 65px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 236, 188, 0.12);
+  border: 1px solid rgba(197, 160, 94, 0.5);
+  background: linear-gradient(160deg, rgba(10, 10, 11, 0.97) 0%, rgba(14, 12, 10, 0.95) 60%, rgba(9, 9, 9, 0.98) 100%);
+  box-shadow:
+    0 26px 54px rgba(0, 0, 0, 0.58),
+    inset 0 1px 0 rgba(255, 226, 162, 0.2),
+    inset 0 -1px 0 rgba(255, 235, 194, 0.08);
+}
+
+.luxury-hero-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(112deg, rgba(255, 223, 156, 0.08) 0%, transparent 24%, transparent 77%, rgba(255, 226, 176, 0.06) 100%);
 }
 
 .luxury-left-panel {
-  background: linear-gradient(160deg, rgba(12, 13, 16, 0.9) 0%, rgba(18, 15, 12, 0.78) 100%);
+  background: linear-gradient(180deg, rgba(9, 9, 10, 0.95) 0%, rgba(14, 12, 10, 0.91) 100%);
+  border-right: 1px solid rgba(205, 164, 88, 0.28);
 }
 
 .luxury-right-panel {
+  background: linear-gradient(160deg, rgba(11, 11, 11, 0.96) 0%, rgba(15, 12, 10, 0.92) 100%);
+}
+
+.luxury-image-shell {
+  position: absolute;
+  inset: 0.3rem;
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.luxury-image-shell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
   background:
-    radial-gradient(circle at 18% 50%, rgba(212, 175, 120, 0.16), transparent 44%),
-    radial-gradient(circle at 82% 20%, rgba(212, 175, 120, 0.09), transparent 40%),
-    linear-gradient(150deg, rgba(7, 8, 11, 0.88) 0%, rgba(13, 11, 9, 0.76) 100%);
+    linear-gradient(180deg, rgba(4, 4, 4, 0) 62%, rgba(6, 6, 6, 0.24) 100%),
+    linear-gradient(120deg, rgba(244, 205, 133, 0.07) 0%, transparent 38%);
+}
+
+.luxury-logo-block {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 122px;
+  height: 122px;
+  border-radius: 20px;
+  border: 1px solid rgba(210, 169, 95, 0.45);
+  background: linear-gradient(160deg, rgba(12, 11, 10, 0.94) 0%, rgba(22, 17, 12, 0.85) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 232, 182, 0.16);
+}
+
+.luxury-mission-plaque {
+  border: 1px solid rgba(206, 166, 92, 0.5);
+  border-radius: 16px;
+  padding: 1rem 1.1rem;
+  background:
+    linear-gradient(170deg, rgba(23, 18, 12, 0.94) 0%, rgba(17, 14, 11, 0.92) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 229, 174, 0.14),
+    0 10px 24px rgba(0, 0, 0, 0.36);
 }
 
 .luxury-cta {
@@ -120,9 +167,9 @@ body {
 
 .luxury-cta-primary {
   border: 1px solid rgba(212, 175, 120, 0.62);
-  background: linear-gradient(145deg, rgba(212, 175, 120, 0.36) 0%, rgba(146, 112, 58, 0.32) 100%);
+  background: linear-gradient(145deg, rgba(189, 141, 64, 0.36) 0%, rgba(131, 95, 44, 0.34) 100%);
   color: #fff5dd;
-  box-shadow: 0 12px 26px rgba(108, 81, 36, 0.38);
+  box-shadow: 0 10px 20px rgba(90, 65, 27, 0.34);
 }
 
 .luxury-cta-secondary {
@@ -136,19 +183,27 @@ body {
 }
 
 .luxury-feature-item {
-  border: 1px solid rgba(212, 175, 120, 0.28);
+  border: 1px solid rgba(212, 175, 120, 0.4);
   border-radius: 16px;
-  background: linear-gradient(140deg, rgba(12, 12, 14, 0.77) 0%, rgba(17, 14, 10, 0.64) 100%);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  padding: 1rem 1.05rem;
+  background: linear-gradient(160deg, rgba(13, 13, 13, 0.94) 0%, rgba(18, 14, 10, 0.91) 100%);
+  padding: 1.12rem 1.08rem;
   min-height: 122px;
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.24);
+  box-shadow: inset 0 1px 0 rgba(255, 233, 186, 0.11), 0 10px 24px rgba(0, 0, 0, 0.34);
+}
+
+.luxury-feature-icon {
+  color: #d8b26a;
+  filter: drop-shadow(0 2px 7px rgba(96, 71, 30, 0.35));
 }
 
 @media (max-width: 1024px) {
   .luxury-hero-card {
     min-height: auto;
+  }
+
+  .luxury-logo-block {
+    width: 108px;
+    height: 108px;
   }
 }
 
