@@ -1,6 +1,14 @@
 ﻿import type { Metadata } from 'next';
+import { Great_Vibes } from 'next/font/google';
 import './globals.css';
 import SiteLogo from './components/SiteLogo';
+
+const greatVibes = Great_Vibes({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-script',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'FragranceDNA',
@@ -9,6 +17,7 @@ export const metadata: Metadata = {
 
 const navLinks = [
   { href: '/', label: 'Home' },
+  { href: '/collection', label: 'Collection' },
   { href: '/profiles', label: 'Profiles' },
   { href: '/grounding', label: 'Grounding' },
   { href: '/test', label: 'Test' },
@@ -18,7 +27,7 @@ const navLinks = [
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={greatVibes.variable}>
       <body>
         <div className="app-background-layer" aria-hidden="true" />
         <div className="app-overlay-layer" aria-hidden="true" />

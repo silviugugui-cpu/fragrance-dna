@@ -16,20 +16,9 @@ body {
   min-height: 100%;
 }
 
-/* DNA script font for branding */
-/* Cochocib Script Latin Pro: add the actual font files to /public/fonts/ for best results. */
-@font-face {
-  font-family: 'Cochocib Script Latin Pro';
-  src: url('/fonts/CochocibScriptLatinPro.woff2') format('woff2'),
-       url('/fonts/CochocibScriptLatinPro.woff') format('woff');
-  font-weight: 400 700;
-  font-style: normal;
-  font-display: swap;
-}
-/* fallback to a similar webfont if Cochocib is not present */
-@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+/* DNA script font for branding — loaded via next/font/google (Great Vibes) */
 .dna-script-font {
-  font-family: 'Cochocib Script Latin Pro', 'Great Vibes', Georgia, serif;
+  font-family: var(--font-script), Georgia, serif;
   font-style: normal;
   font-size: 1.12em;
   line-height: 1;
@@ -37,10 +26,6 @@ body {
 .dna-script-font.large {
   font-size: 1.28em;
 }
-
-/* NOTE: To use the exact `Cochocib Script Latin Pro` font, drop the files named
-   CochocibScriptLatinPro.woff2/.woff into /public/fonts/ and they will be used.
-*/
 
 body {
   background-color: #0B0D0F;
