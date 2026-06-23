@@ -15,7 +15,7 @@ const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
   variable: '--font-home-mission',
   display: 'swap',
-  style: ['italic'],
+  style: ['normal', 'italic'],
   weight: ['400', '500', '600'],
 });
 
@@ -92,51 +92,47 @@ export default function HomePage() {
     <main
       className={`${inter.variable} ${playfair.variable} ${cormorant.variable} relative pb-10 pt-5 lg:pt-8`}
     >
-      <div className="homepage-fixed-background" aria-hidden="true" />
-
       <section className="relative z-10 mx-auto w-[90vw] max-w-[1600px]">
-        <div className="luxury-hero-card grid min-h-[75vh] lg:h-[80vh] lg:max-h-[85vh] grid-cols-1 overflow-hidden lg:grid-cols-[38fr_62fr]">
-          <div className="luxury-left-panel flex flex-col justify-between p-7 sm:p-10 lg:p-12">
-            <div className="space-y-7">
-              <div className="luxury-logo-block">
-                <Image
-                  src="/Logo/Logo Fragrance DNA no text.png"
-                  alt="Fragrance DNA logo"
-                  width={104}
-                  height={104}
-                  priority
-                  className="h-[88px] w-[88px] object-contain sm:h-[96px] sm:w-[96px]"
-                />
-              </div>
+        <div className="luxury-hero-card relative min-h-[131vh] lg:h-[139vh] overflow-hidden">
+          <div className="luxury-image-shell relative h-full w-full">
+            <Image
+              src="/Background/background carton front page.png"
+              alt="Fragrance campaign visual"
+              fill
+              priority
+              className="luxury-main-image"
+              sizes="90vw"
+            />
+          </div>
 
+          <div className="luxury-hero-overlay">
+            <div className="space-y-4">
               <p className="text-[0.72rem] uppercase tracking-[0.42em] text-[#d4af78]/92 sm:text-xs">
                 OLFACTORY IDENTITY
               </p>
 
-              <h1 className="font-home-heading text-[2.3rem] font-semibold uppercase leading-[0.98] text-[#f3ead6] sm:text-[2.9rem] lg:text-[4.1rem]">
+              <h1 className="font-home-heading text-[clamp(1.36rem,2.72vw,2.92rem)] font-semibold uppercase leading-[0.97] text-[#f3ead6]">
                 A SINGLE GATEWAY
                 <br />
-                TO YOUR SCENT DNA.
+                TO YOUR SCENT DNA
               </h1>
 
-              <div className="max-w-[35ch] space-y-5">
+              <div className="max-w-[35ch] space-y-3">
                 <div className="luxury-mission-plaque">
-                  <p className="font-home-mission text-[1.65rem] italic leading-[1.15] text-[#f3e0b3] sm:text-[1.95rem]">
+                  <p className="font-home-mission text-[clamp(1.45rem,2.3vw,2rem)] italic leading-[1.12] text-[#f3e0b3]">
                     Never again buy a perfume
                     <br />
-                    that does not blow your mind.
+                    that does not blow your mind
                   </p>
                 </div>
 
-                <p className="font-home-body text-[0.99rem] leading-relaxed text-[#d5d0c0] sm:text-[1.05rem]">
-                  FragranceDNA transforms instinct into precision by mapping your olfactory profile,
-                  decoding attraction patterns, and guiding every fragrance decision through data-backed
-                  identity insights.
+                <p className="font-home-mission text-[1.08rem] leading-relaxed text-[#d5d0c0] sm:text-[1.14rem]">
+                  FragranceDNA transforms instinct into clarity by revealing the identity behind your fragrance preferences
                 </p>
               </div>
             </div>
 
-            <div className="space-y-6 pt-7">
+            <div className="space-y-4 pt-4">
               <div className="flex flex-col gap-3 sm:flex-row">
                 <Link href="/profiles" className="inline-flex">
                   <span className="luxury-cta luxury-cta-primary">ENTER PROFILES</span>
@@ -147,23 +143,10 @@ export default function HomePage() {
               </div>
 
               <p className="font-home-mission text-[1.45rem] italic leading-tight text-[#f4e9ca] sm:text-[1.6rem]">
-                Understand people first.
+                The shortest path to your perfect fragrance
                 <br />
-                Fragrances second.
+                starts with understanding your fragrance DNA
               </p>
-            </div>
-          </div>
-
-          <div className="luxury-right-panel relative min-h-[340px] lg:min-h-0">
-            <div className="luxury-image-shell relative h-full w-full">
-              <Image
-                src="/Background/background carton front page.png"
-                alt="Fragrance campaign visual"
-                fill
-                priority
-                className="object-contain object-center p-0"
-                sizes="(min-width: 1024px) 56vw, 90vw"
-              />
             </div>
           </div>
         </div>

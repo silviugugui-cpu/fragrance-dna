@@ -36,9 +36,9 @@ export function SiteHeader() {
 
   return (
     <header className="site-header">
-      <div className="main-container header-inner">
+      <div className="header-inner">
         {/* Logo */}
-        <div className="flex-shrink-0">
+        <div className="-ml-[2.4rem] flex h-full flex-shrink-0 items-center lg:-ml-[2.6rem]">
           <div className="inline-block hover:opacity-80 transition-opacity">
             <SiteLogo />
           </div>

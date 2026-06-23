@@ -8,23 +8,21 @@ interface PageShellProps {
   children: React.ReactNode;
   className?: string;
   showBackgroundLayers?: boolean;
+  useDiscoverFrame?: boolean;
 }
 
 export function PageShell({
   children,
   className = '',
   showBackgroundLayers = true,
+  useDiscoverFrame = true,
 }: PageShellProps) {
   return (
     <div className={`page-shell ${className}`}>
-      {showBackgroundLayers && (
-        <>
-          <div className="app-background-layer" />
-          <div className="app-overlay-layer" />
-          <div className="app-ambient-layer" />
-        </>
-      )}
-      <div className="content-layer">{children}</div>
+      {/* Global background layers are mounted once in RootLayout to avoid duplicates. */}
+      <div className="content-layer">
+        <div className={useDiscoverFrame ? 'discover-page-frame' : ''}>{children}</div>
+      </div>
     </div>
   );
 }

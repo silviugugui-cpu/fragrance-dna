@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { PageShell } from '@/components/design-system/PageShell';
 import { SectionHeader } from '@/components/design-system/SectionHeader';
 import { PremiumButton } from '@/components/design-system/PremiumButton';
@@ -17,12 +18,12 @@ const TerritoryMapCard: React.FC<TerritoryCardProps> = ({ territory, isSelected,
     <button
       onClick={onClick}
       className={`
-        relative p-6 rounded-lg transition-all duration-300 cursor-pointer
+        premium-card-dark relative p-6 transition-all duration-300 cursor-pointer
         ${isSelected 
           ? 'ring-2 ring-gold shadow-gold scale-105' 
           : 'hover:shadow-gold hover:scale-102'
         }
-        bg-black-800 border border-black-600 hover:border-gold
+        border border-gold/25 hover:border-gold/55
       `}
     >
       {/* Territory Color Indicator */}
@@ -107,7 +108,7 @@ interface TerritoryDetailProps {
 const TerritoryDetailPanel: React.FC<TerritoryDetailProps> = ({ territory, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black-900 bg-opacity-90 backdrop-blur-sm p-4">
-      <div className="relative max-w-2xl w-full bg-black-800 border border-gold rounded-lg overflow-hidden max-h-[90vh] overflow-y-auto">
+      <div className="premium-card-dark relative max-w-2xl w-full border border-gold/35 rounded-[30px] overflow-hidden max-h-[90vh] overflow-y-auto">
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -242,95 +243,139 @@ export default function TerritoriesPage() {
   return (
     <PageShell showBackgroundLayers>
       {/* Hero Section */}
-      <section className="py-16 md:py-24">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <p className="text-gold text-sm font-semibold uppercase mb-2">EXPLORE</p>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Olfactory Territories
-          </h1>
-          <p className="text-lg text-gray-400 max-w-2xl mx-auto mb-8">
-            The fragrance universe organizes into distinct territories. Each represents a unique olfactory character,
-            offering different expressions of identity, mood, and occasion.
-          </p>
-          <p className="text-base text-gray-500">
-            Click any territory to explore characteristics, DNA signatures, and signature fragrances.
-          </p>
+      <section className="py-4 md:py-6">
+        <div className="main-container">
+          <div className="premium-card-dark relative overflow-hidden border-gold/20 p-0 min-h-[700px] md:min-h-[740px]">
+            <div className="absolute inset-2 md:inset-3 overflow-hidden rounded-[28px]">
+              <Image
+                src="/Teritory/Teritory.png"
+                alt="Territories background"
+                fill
+                priority
+                className="object-cover object-center"
+              />
+            </div>
+
+            <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/55 to-black/78" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(212,175,120,0.18),transparent_44%),linear-gradient(90deg,rgba(0,0,0,0.34)_0%,rgba(0,0,0,0.12)_22%,rgba(0,0,0,0.08)_78%,rgba(0,0,0,0.38)_100%)]" />
+
+            <div className="relative z-10 flex min-h-[700px] md:min-h-[740px] items-start pt-2 md:pt-3">
+              <div className="w-full max-w-5xl px-5 py-3 md:px-10 md:py-4 mx-auto text-center">
+                <div className="mx-auto max-w-4xl rounded-[28px] border border-white/10 bg-black/35 px-6 py-6 md:px-10 md:py-8 backdrop-blur-sm shadow-[0_22px_52px_rgba(0,0,0,0.35)]">
+                  <h1 className="text-3xl md:text-5xl font-bold text-[#d8c49d] leading-none drop-shadow-[0_6px_18px_rgba(0,0,0,0.55)]">
+                  Olfactory Territories
+                  </h1>
+                </div>
+
+                <div className="mt-4 grid gap-3 text-left md:grid-cols-2">
+                  <div className="rounded-[24px] border border-gold/18 bg-black/55 px-5 py-4 md:px-6 md:py-5 shadow-[0_18px_40px_rgba(0,0,0,0.35)] backdrop-blur-md">
+                    <p className="text-sm font-semibold uppercase tracking-[0.26em] text-gold mb-3">Overview</p>
+                    <p className="text-base md:text-lg text-gray-100/92 leading-relaxed">
+                      The fragrance universe organizes into distinct territories. Each represents a unique olfactory character,
+                      offering different expressions of identity, mood, and occasion.
+                    </p>
+                  </div>
+
+                  <div className="rounded-[24px] border border-gold/18 bg-black/55 px-5 py-4 md:px-6 md:py-5 shadow-[0_18px_40px_rgba(0,0,0,0.35)] backdrop-blur-md">
+                    <p className="text-sm font-semibold uppercase tracking-[0.26em] text-gold mb-3">How to use</p>
+                    <p className="text-base md:text-lg text-gray-100/92 leading-relaxed">
+                      Click any territory to explore characteristics, DNA signatures, and signature fragrances.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Filter Section */}
-      <section className="py-8 border-y border-gold-900">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="flex flex-col sm:flex-row gap-6 sm:gap-12">
-            {/* Filter by Intensity */}
-            <div>
-              <p className="text-xs font-semibold text-gold uppercase mb-3">Filter by Intensity</p>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setFilterIntensity(null)}
-                  className={`px-3 py-1 rounded text-xs font-medium transition-all ${
-                    filterIntensity === null
-                      ? 'bg-gold text-black'
-                      : 'bg-black-700 text-gold border border-gold hover:border-gold-600'
-                  }`}
-                >
-                  All
-                </button>
-                {['light', 'moderate', 'intense'].map((intensity) => (
-                  <button
-                    key={intensity}
-                    onClick={() => setFilterIntensity(intensity)}
-                    className={`px-3 py-1 rounded text-xs font-medium transition-all capitalize ${
-                      filterIntensity === intensity
-                        ? 'bg-gold text-black'
-                        : 'bg-black-700 text-gray-400 border border-black-600 hover:border-gold'
-                    }`}
-                  >
-                    {intensity}
-                  </button>
-                ))}
-              </div>
+      <section className="-mt-24 pb-4 md:-mt-32 md:pb-6">
+        <div className="main-container">
+          <div className="premium-card-dark relative overflow-hidden border-gold/20 p-0">
+            <div className="absolute inset-0">
+              <Image
+                src="/Teritory/Teritory.png"
+                alt="Territories background"
+                fill
+                aria-hidden="true"
+                className="object-cover object-center opacity-55"
+              />
             </div>
 
-            {/* Filter by Season */}
-            <div>
-              <p className="text-xs font-semibold text-gold uppercase mb-3">Filter by Season</p>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setFilterSeason(null)}
-                  className={`px-3 py-1 rounded text-xs font-medium transition-all ${
-                    filterSeason === null
-                      ? 'bg-gold text-black'
-                      : 'bg-black-700 text-gold border border-gold hover:border-gold-600'
-                  }`}
-                >
-                  All
-                </button>
-                {['spring', 'summer', 'fall', 'winter'].map((season) => (
+            <div className="absolute inset-0 bg-gradient-to-r from-black/78 via-black/72 to-black/82" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(212,175,120,0.14),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(212,175,120,0.1),transparent_36%)]" />
+
+            <div className="relative z-10 p-4 md:p-6">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 items-stretch max-w-4xl mx-auto">
+              {/* Filter by Intensity */}
+                <div className="rounded-[22px] border border-gold/16 bg-black/50 p-4 md:p-5 backdrop-blur-md shadow-[0_18px_36px_rgba(0,0,0,0.3)]">
+                <p className="text-xs font-semibold text-[#d9c299] uppercase mb-3 tracking-[0.22em]">Filter by Intensity</p>
+                <div className="flex gap-2 flex-wrap">
                   <button
-                    key={season}
-                    onClick={() => setFilterSeason(season)}
-                    className={`px-3 py-1 rounded text-xs font-medium transition-all capitalize ${
-                      filterSeason === season
+                    onClick={() => setFilterIntensity(null)}
+                    className={`px-3 py-1 rounded text-xs font-medium transition-all ${
+                      filterIntensity === null
                         ? 'bg-gold text-black'
-                        : 'bg-black-700 text-gray-400 border border-black-600 hover:border-gold'
+                        : 'bg-black/75 text-gold border border-gold/45 hover:border-gold'
                     }`}
                   >
-                    {season.slice(0, 3)}
+                    All
                   </button>
-                ))}
+                  {['light', 'moderate', 'intense'].map((intensity) => (
+                    <button
+                      key={intensity}
+                      onClick={() => setFilterIntensity(intensity)}
+                      className={`px-3 py-1 rounded text-xs font-medium transition-all capitalize ${
+                        filterIntensity === intensity
+                          ? 'bg-gold text-black'
+                          : 'bg-black/75 text-gray-100 border border-white/10 hover:border-gold'
+                      }`}
+                    >
+                      {intensity}
+                    </button>
+                  ))}
+                </div>
+                </div>
+
+              {/* Filter by Season */}
+                <div className="rounded-[22px] border border-gold/16 bg-black/50 p-4 md:p-5 backdrop-blur-md shadow-[0_18px_36px_rgba(0,0,0,0.3)]">
+                <p className="text-xs font-semibold text-[#d9c299] uppercase mb-3 tracking-[0.22em]">Filter by Season</p>
+                <div className="flex gap-2 flex-wrap">
+                  <button
+                    onClick={() => setFilterSeason(null)}
+                    className={`px-3 py-1 rounded text-xs font-medium transition-all ${
+                      filterSeason === null
+                        ? 'bg-gold text-black'
+                        : 'bg-black/75 text-gold border border-gold/45 hover:border-gold'
+                    }`}
+                  >
+                    All
+                  </button>
+                  {['spring', 'summer', 'fall', 'winter'].map((season) => (
+                    <button
+                      key={season}
+                      onClick={() => setFilterSeason(season)}
+                      className={`px-3 py-1 rounded text-xs font-medium transition-all capitalize ${
+                        filterSeason === season
+                          ? 'bg-gold text-black'
+                          : 'bg-black/75 text-gray-100 border border-white/10 hover:border-gold'
+                      }`}
+                    >
+                      {season.slice(0, 3)}
+                    </button>
+                  ))}
+                </div>
+                </div>
               </div>
             </div>
           </div>
-          <p className="text-xs text-gray-500 mt-4">
-            {filteredTerritories.length} territories found
-          </p>
         </div>
       </section>
 
       {/* Territories Grid */}
-      <section className="py-16 md:py-24">
-        <div className="max-w-6xl mx-auto px-4">
+      <section className="py-10 md:py-14">
+        <div className="main-container">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             {filteredTerritories.map((territory) => (
               <TerritoryMapCard
@@ -353,23 +398,25 @@ export default function TerritoriesPage() {
       )}
 
       {/* DNA Integration Section */}
-      <section className="py-16 md:py-24 border-t border-gold-900">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <p className="text-gold text-sm font-semibold uppercase mb-2">DNA INTEGRATION</p>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            Map Your Territory Affinity
-          </h2>
-          <p className="text-lg text-gray-400 mb-8">
-            Your Olfactory DNA signature maps naturally to territory affinities. Understanding which territories
-            resonate with your profile guides discovery of fragrances that align with your identity.
-          </p>
-          <PremiumButton
-            variant="primary"
-            size="md"
-            onClick={() => (window.location.href = '/grounding')}
-          >
-            DISCOVER YOUR TERRITORIES →
-          </PremiumButton>
+      <section className="py-10 md:py-14">
+        <div className="main-container">
+          <div className="premium-card-dark p-10 md:p-14 text-center">
+            <p className="text-gold text-sm font-semibold uppercase mb-2">DNA INTEGRATION</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+              Map Your Territory Affinity
+            </h2>
+            <p className="text-lg text-gray-400 mb-8 max-w-3xl mx-auto">
+              Your Olfactory DNA signature maps naturally to territory affinities. Understanding which territories
+              resonate with your profile guides discovery of fragrances that align with your identity.
+            </p>
+            <PremiumButton
+              variant="primary"
+              size="md"
+              onClick={() => (window.location.href = '/grounding')}
+            >
+              DISCOVER YOUR TERRITORIES →
+            </PremiumButton>
+          </div>
         </div>
       </section>
     </PageShell>

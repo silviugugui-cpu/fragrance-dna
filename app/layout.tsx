@@ -21,9 +21,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning className={greatVibes.variable}>
       <body>
         <AuthProvider>
-          <div className="app-background-layer" aria-hidden="true" />
-          <div className="app-overlay-layer" aria-hidden="true" />
-          <div className="app-ambient-layer" aria-hidden="true" />
           <div className="page-shell content-layer">
             <SiteHeader />
             {children}
