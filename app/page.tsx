@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Inter, Playfair_Display, Cormorant_Garamond } from 'next/font/google';
-import { Fingerprint, Target, ChartColumn, Compass } from 'lucide-react';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-home-body', display: 'swap' });
 const playfair = Playfair_Display({
@@ -20,24 +19,69 @@ const cormorant = Cormorant_Garamond({
   weight: ['400', '500', '600'],
 });
 
+type IconProps = { className?: string };
+
+function FingerprintIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={className} aria-hidden="true">
+      <path d="M12 4a6 6 0 0 0-6 6" />
+      <path d="M18 10a6 6 0 0 0-6-6" />
+      <path d="M8 12a4 4 0 0 1 8 0" />
+      <path d="M12 10v10" />
+      <path d="M6 14c0 4 2 6 6 6" />
+      <path d="M18 14c0 4-2 6-6 6" />
+    </svg>
+  );
+}
+
+function TargetIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={className} aria-hidden="true">
+      <circle cx="12" cy="12" r="8" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="12" cy="12" r="1.6" />
+    </svg>
+  );
+}
+
+function ChartColumnIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={className} aria-hidden="true">
+      <path d="M4 20h16" />
+      <path d="M7 20v-7" />
+      <path d="M12 20V8" />
+      <path d="M17 20v-4" />
+    </svg>
+  );
+}
+
+function CompassIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={className} aria-hidden="true">
+      <circle cx="12" cy="12" r="8" />
+      <path d="M10 10l4-2-2 4-4 2z" />
+    </svg>
+  );
+}
+
 const featureItems = [
   {
-    icon: Fingerprint,
+    icon: FingerprintIcon,
     title: 'OLFACTORY ATTRIBUTES',
     subtitle: '68 identity markers',
   },
   {
-    icon: Target,
+    icon: TargetIcon,
     title: 'DIAGNOSTIC BENCHMARKS',
     subtitle: '28 precision signals',
   },
   {
-    icon: ChartColumn,
+    icon: ChartColumnIcon,
     title: 'DNA AXES',
     subtitle: '11 scent dimensions',
   },
   {
-    icon: Compass,
+    icon: CompassIcon,
     title: 'TERRITORY ORIENTATION',
     subtitle: 'Your next direction',
   },
@@ -131,7 +175,7 @@ export default function HomePage() {
             const Icon = item.icon;
             return (
               <article key={item.title} className="luxury-feature-item">
-                <Icon size={22} className="luxury-feature-icon" strokeWidth={2.1} />
+                <Icon className="luxury-feature-icon h-6 w-6" />
                 <p className="mt-3 text-[0.76rem] uppercase tracking-[0.28em] text-[#efe1bc]">
                   {item.title}
                 </p>
