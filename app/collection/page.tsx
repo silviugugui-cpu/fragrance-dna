@@ -1,6 +1,7 @@
 'use client';
 
 import { useSyncExternalStore, useMemo } from 'react';
+import Link from 'next/link';
 import {
   loadCollection,
   subscribeToCollection,
@@ -148,11 +149,11 @@ function TerritoryInsightSection() {
 
             {/* CTA */}
             <div className="mt-6">
-              <a href="/territories">
+              <Link href="/territories">
                 <PremiumButton variant="secondary" size="sm" className="w-full">
                   EXPLORE TERRITORIES
                 </PremiumButton>
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -232,11 +233,11 @@ export default function CollectionPage() {
               Add your first fragrance to unlock collection insights, territory coverage analysis, and
               personalized discovery recommendations.
             </p>
-            <a href="/grounding">
+            <Link href="/grounding">
               <PremiumButton variant="primary" size="md">
                 DISCOVER FRAGRANCES →
               </PremiumButton>
-            </a>
+            </Link>
           </div>
         </section>
       )}

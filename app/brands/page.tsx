@@ -3,6 +3,8 @@
 import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { getAllFragrances } from '@/engine/dataLoader';
+import type { Fragrance } from '@/lib/types';
+import { PageShell, SectionHeader, StatCard, PremiumCard, PremiumButton } from '@/components/design-system';
 
 interface BrandStats {
   name: string;
@@ -15,9 +17,9 @@ export default function BrandsPage() {
   const fragrances = useMemo(() => getAllFragrances(), []);
 
   // Group fragrances by brand
-  const brandMap = new Map<string, any[]>();
-  
-  fragrances.forEach((f: any) => {
+  const brandMap = new Map<string, Fragrance[]>();
+
+  fragrances.forEach((f: Fragrance) => {
     const brand = f.brand || 'Independent';
     if (!brandMap.has(brand)) {
       brandMap.set(brand, []);
@@ -34,75 +36,62 @@ export default function BrandsPage() {
     }))
     .sort((a, b) => b.count - a.count);
 
+  const totalFragrances = fragrances.length;
+  const dominantHouse = brands[0]?.name ?? 'N/A';
+
   return (
-    <main className="main-container page-background">
-      <section className="glass p-10 space-y-10">
-        <div className="space-y-6 max-w-3xl">
-          <p className="text-sm uppercase tracking-[0.48em] text-[rgba(165,185,150,0.85)]">
-            Fragrance Houses
-          </p>
-          <h1 className="text-5xl font-light tracking-[0.04em] text-[rgba(212,175,120,0.95)]">
-            Brand Universe
-          </h1>
-          <p className="text-lg leading-9 text-[rgba(190,170,140,0.65)]">
-            Explore iconic fragrance houses and their signature collections. Discover brand DNA, 
-            seasonal patterns, and top-ranked fragrances.
-          </p>
-        </div>
+    <PageShell>
+      <section className="py-12 md:py-16">
+        <div className="main-container">
+          <SectionHeader
+            label="FRAGRANCE HOUSES"
+            title="Brand Universe"
+            description="Explore iconic fragrance houses and their signature collections through a consistent premium discovery experience."
+            className="mb-8"
+          />
 
-        <div className="grid gap-6 lg:grid-cols-3">
-          {brands.map((brand) => (
-            <Link
-              key={brand.name}
-              href={`/brands/${encodeURIComponent(brand.name)}`}
-              className="group"
-            >
-              <article className="glass-card p-8 h-full transition duration-300 hover:-translate-y-1 hover:shadow-[0_32px_90px_rgba(199,168,107,0.20)]">
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.3em] text-[rgba(165,185,150,0.7)]">
-                      Fragrance House
-                    </p>
-                    <h2 className="mt-2 text-2xl font-light text-[rgba(212,175,120,0.95)] group-hover:text-[rgba(212,175,120,1)]">
-                      {brand.name}
-                    </h2>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-[rgba(190,170,140,0.65)]">Portfolio size</span>
-                      <span className="font-semibold text-[rgba(212,175,120,0.85)]">
-                        {brand.count} fragrances
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-[rgba(190,170,140,0.65)]">Signature</span>
-                      <span className="text-[rgba(212,175,120,0.75)]">{brand.topFragrance}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 pt-4 border-t border-[rgba(212,175,120,0.15)] flex items-center justify-between">
-                  <span className="text-xs uppercase tracking-[0.2em] text-[rgba(165,185,150,0.6)]">
-                    Explore
-                  </span>
-                  <span className="text-lg text-[rgba(212,175,120,0.6)] group-hover:translate-x-1 transition">
-                    →
-                  </span>
-                </div>
-              </article>
-            </Link>
-          ))}
-        </div>
-
-        {brands.length === 0 && (
-          <div className="rounded-[28px] bg-white/5 p-12 text-center">
-            <p className="text-[rgba(190,170,140,0.65)]">
-              No brands found in the database.
-            </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+            <StatCard label="Houses" value={brands.length.toString()} subtitle="available brands" icon="🏛️" />
+            <StatCard label="Fragrances" value={totalFragrances.toString()} subtitle="total catalog" icon="🧴" />
+            <StatCard label="Largest House" value={brands[0]?.count?.toString() ?? '0'} subtitle="fragrances in one house" icon="📊" />
+            <StatCard label="Leading Name" value={dominantHouse} subtitle="current leader" icon="✨" />
           </div>
-        )}
+
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {brands.map((brand) => (
+              <PremiumCard key={brand.name} variant="dark" className="p-6 h-full flex flex-col justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-wider text-gold/70 mb-2">Fragrance House</p>
+                  <h2 className="text-2xl font-light text-white mb-4">{brand.name}</h2>
+
+                  <div className="space-y-3 text-sm">
+                    <div className="flex items-center justify-between text-gray-300">
+                      <span>Portfolio size</span>
+                      <span className="text-gold font-semibold">{brand.count}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-gray-300">
+                      <span>Signature</span>
+                      <span className="text-gold/80 text-right max-w-[60%] truncate">{brand.topFragrance}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <Link href={`/brands/${encodeURIComponent(brand.name)}`} className="mt-6">
+                  <PremiumButton variant="secondary" size="sm" className="w-full">
+                    EXPLORE HOUSE
+                  </PremiumButton>
+                </Link>
+              </PremiumCard>
+            ))}
+          </div>
+
+          {brands.length === 0 && (
+            <div className="premium-card-dark p-10 text-center mt-8">
+              <p className="text-gray-400">No brands found in the database.</p>
+            </div>
+          )}
+        </div>
       </section>
-    </main>
+    </PageShell>
   );
 }
