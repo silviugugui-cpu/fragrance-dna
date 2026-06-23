@@ -13,6 +13,7 @@ import { PremiumButton } from './PremiumButton';
 
 const navLinks = [
   { href: '/', label: 'DISCOVER', mobile: 'Home' },
+  { href: '/territories', label: 'TERRITORIES', mobile: 'Territory' },
   { href: '/profiles', label: 'PROFILE', mobile: 'Profile' },
   { href: '/dna', label: 'SCIENCE', mobile: 'DNA' },
   { href: '/grounding', label: 'GROUNDING', mobile: 'Ground' },

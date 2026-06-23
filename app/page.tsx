@@ -236,7 +236,7 @@ export default function HomePage() {
             </div>
 
             <div className="mt-8 text-center">
-              <Link href="/profiles">
+              <Link href="/territories">
                 <PremiumButton variant="secondary">VIEW ALL TERRITORIES</PremiumButton>
               </Link>
             </div>
