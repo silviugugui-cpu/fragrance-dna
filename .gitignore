@@ -24,3 +24,6 @@ Thumbs.db
 
 # Local command dump artifacts
 tatus --short
+
+# Local research datasets (not runtime assets)
+public/Scents/
