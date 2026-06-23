@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { buildSeed } from "@/lib/engine/seedBuilder";
 import { buildUserVector } from "@/lib/engine/userVectorBuilder";
+import { mergeGroundingVectorIntoSession } from "@/lib/dnaSession";
+import { getOrCreateUserProfile, updateUserVector } from "@/lib/engine/userProfileManager";
 
 const TOKENS = [
   "Fresh & Citrusy",
@@ -108,6 +110,10 @@ export default function GroundingPage() {
     localStorage.setItem("fragrance_seed", JSON.stringify(seed));
     localStorage.setItem("fragrance_vector", JSON.stringify(userVector));
     localStorage.setItem("fragrance_grounding", JSON.stringify(engineInput));
+
+    mergeGroundingVectorIntoSession(userVector);
+    const profile = getOrCreateUserProfile();
+    updateUserVector(profile, userVector, 10);
 
     router.push("/test");
   }

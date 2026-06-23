@@ -27,6 +27,7 @@ export function getOrCreateUserProfile(userId?: string): UserDNAProfile {
 export function saveUserProfile(profile: UserDNAProfile): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+    window.dispatchEvent(new CustomEvent("fragrance-user-profile-updated", { detail: profile }));
   } catch (e) {
     console.error("Failed to save user profile:", e);
   }

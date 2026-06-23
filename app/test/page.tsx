@@ -11,6 +11,7 @@ import {
   loadDnaSession,
   saveDnaSession,
 } from '@/lib/dnaSession';
+import { getOrCreateUserProfile, updateUserVector } from '@/lib/engine/userProfileManager';
 
 const attributes: { key: AttributeKey; label: string; description: string }[] = [
   { key: 'elegant', label: 'Elegant', description: 'Refines the composition with satin-smooth depth.' },
@@ -36,6 +37,7 @@ export default function TestPage() {
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, AnswerRecord>>({});
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
     const session = loadDnaSession();
@@ -46,20 +48,29 @@ export default function TestPage() {
       } catch {
         setAnswers({});
       }
+    } else if (session.answers && Object.keys(session.answers).length > 0) {
+      setAnswers(session.answers);
     }
     if (typeof session.currentIndex === 'number') {
       setCurrentIndex(Math.min(session.currentIndex, fragrances.length - 1));
     }
+    setIsHydrated(true);
   }, []);
 
   useEffect(() => {
+    if (!isHydrated) {
+      return;
+    }
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(answers));
-  }, [answers]);
+  }, [answers, isHydrated]);
 
   useEffect(() => {
+    if (!isHydrated) {
+      return;
+    }
     const nextSession = buildSessionFromAnswers(answers, currentIndex, loadDnaSession());
     saveDnaSession(nextSession);
-  }, [answers, currentIndex]);
+  }, [answers, currentIndex, isHydrated]);
 
   const currentFragrance = fragrances[currentIndex] as Fragrance;
   const answeredIds = useMemo(() => Object.keys(answers), [answers]);
@@ -87,14 +98,18 @@ export default function TestPage() {
 
     setAnswers(nextAnswers);
 
+    const nextSession = buildSessionFromAnswers(nextAnswers, currentIndex, liveSession);
+    saveDnaSession(nextSession);
+    const profile = getOrCreateUserProfile();
+    const confidence = nextSession.summary?.confidenceScore ?? nextSession.snapshots.at(-1)?.confidenceScore ?? 0;
+    updateUserVector(profile, nextSession.currentVector, confidence);
+
     const nextUnanswered = findNextUnansweredIndex(nextAnswers, currentIndex);
     if (nextUnanswered !== -1) {
       setCurrentIndex(nextUnanswered);
       return;
     }
 
-    const completedSession = buildSessionFromAnswers(nextAnswers, currentIndex, liveSession);
-    saveDnaSession(completedSession);
     router.push('/dna');
   };
 

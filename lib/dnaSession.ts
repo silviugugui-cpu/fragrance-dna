@@ -10,6 +10,7 @@ import type {
 } from "@/lib/types";
 
 const SESSION_STORAGE_KEY = "fragrance_dna_session";
+const GROUNDING_VECTOR_KEY = "fragrance_vector";
 
 const VECTOR_BASELINE: OlfactoryVector = {
   freshness: 0.5,
@@ -95,6 +96,35 @@ export function saveDnaSession(session: DNASessionState): void {
 
   window.localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
   window.dispatchEvent(new CustomEvent("fragrance-dna-session-updated", { detail: session }));
+}
+
+export function mergeGroundingVectorIntoSession(vector: OlfactoryVector): DNASessionState {
+  const current = loadDnaSession();
+  const merged: DNASessionState = {
+    ...current,
+    currentVector: vector,
+    summary: current.answeredOrder.length === fragranceList.length ? current.summary : undefined,
+    lastUpdatedAt: Date.now(),
+  };
+
+  saveDnaSession(merged);
+  return merged;
+}
+
+export function loadGroundingVector(): OlfactoryVector | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(GROUNDING_VECTOR_KEY);
+    if (!raw) {
+      return null;
+    }
+    return JSON.parse(raw) as OlfactoryVector;
+  } catch {
+    return null;
+  }
 }
 
 export function buildSessionFromAnswers(
