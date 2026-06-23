@@ -28,11 +28,6 @@ export function SiteHeader() {
   const { user, signOut, isLoading } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // Don't show header on auth pages
-  if (pathname?.startsWith('/auth')) {
-    return null;
-  }
-
   const handleSignOut = async () => {
     await signOut();
     setIsDropdownOpen(false);
