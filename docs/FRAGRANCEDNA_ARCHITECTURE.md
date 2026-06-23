@@ -93,3 +93,21 @@ Collection will later power:
 
 Design systems with these future consumers in mind.
 
+## Agent Workflow
+
+For every implementation:
+
+1. Read repository instructions.
+2. Read architecture rules.
+3. Implement feature.
+4. Restart localhost:3000.
+5. Verify locally.
+6. Run build.
+7. Fix errors.
+8. Commit.
+9. Push.
+10. Verify GitHub.
+11. Verify Vercel.
+12. Verify production.
+
+A task is not complete before all steps are finished.

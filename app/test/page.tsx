@@ -12,6 +12,7 @@ import {
   saveDnaSession,
 } from '@/lib/dnaSession';
 import { getOrCreateUserProfile, updateUserVector } from '@/lib/engine/userProfileManager';
+import { PageShell, SectionHeader, StatCard, PremiumButton } from '@/components/design-system';
 
 const attributes: { key: AttributeKey; label: string; description: string }[] = [
   { key: 'elegant', label: 'Elegant', description: 'Refines the composition with satin-smooth depth.' },
@@ -118,98 +119,172 @@ export default function TestPage() {
   const progress = Math.round((answeredIds.length / fragrances.length) * 100);
 
   return (
-    <main className="main-container">
-      <section className="glass p-10 space-y-10">
-        <header className="space-y-6">
-          <div className="space-y-3 max-w-3xl">
-            <p className="text-sm uppercase tracking-[0.45em] text-[#b59f70]/70">
-              Olfactory discovery journey
+    <PageShell>
+      {/* Hero Section */}
+      <section className="py-12 md:py-20 mb-4">
+        <div className="main-container">
+          <div className="max-w-3xl">
+            <p className="text-sm font-medium uppercase tracking-wider text-gold mb-4">DISCOVER</p>
+            <h1 className="text-4xl md:text-5xl font-light mb-6 text-white">Guided Fragrance Discovery</h1>
+            <p className="text-lg text-gray-300 max-w-2xl leading-relaxed">
+              Evaluate each fragrance through six sensory dimensions. Your preferences shape a refined DNA profile with each selection. Move at your own pace and trust your instinct.
             </p>
-            <h1 className="text-5xl font-light tracking-[0.04em] text-white">
-              Explore your scent preferences through a guided sensory ritual
-            </h1>
-            <p className="text-base leading-8 text-[#d5c9b8]/85">
-              Each moment reveals a refined fragrance mood. Move slowly, trust your instinct, and shape the personality of your next signature scent.
-            </p>
-          </div>
-
-          <div className="rounded-[32px] bg-white/5 p-6 shadow-[0_30px_90px_rgba(0,0,0,0.24)]">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-sm uppercase tracking-[0.3em] text-[#b59f70]/70">Stage</p>
-                <p className="mt-2 text-3xl font-semibold text-white">{currentIndex + 1} of {fragrances.length}</p>
-              </div>
-              <div className="flex-1">
-                <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                  <div className="h-2 rounded-full bg-gradient-to-r from-[#c7a86b] to-[#d0b478] transition-all" style={{ width: `${progress}%` }} />
-                </div>
-                <p className="mt-3 text-sm text-[#d5c9b8]/80">{progress}% through your fragrance discovery</p>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <section className="glass-card p-10 space-y-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-[#c7a86b]/80">Fragrance moment</p>
-              <h2 className="text-4xl font-light tracking-[0.04em] text-white">{currentFragrance.name}</h2>
-              <p className="mt-2 max-w-xl text-[#d5c9b8]/80">A moment curated to reveal how you feel about warmth, brightness, depth and allure. Let this scent narrative guide your preference.</p>
-            </div>
-            <div className="rounded-full bg-white/5 px-5 py-3 text-center text-sm uppercase tracking-[0.24em] text-[#e8dfd1] shadow-[inset_0_0_0_1px_rgba(199,168,107,0.08)]">
-              {remaining} moments remain
-            </div>
-          </div>
-
-          <div className="grid gap-6 lg:grid-cols-2">
-            {attributes.map((attribute) => (
-              <div key={attribute.key} className="rounded-[30px] border border-white/10 bg-[#07080c]/80 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.24)]">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-sm uppercase tracking-[0.24em] text-[#b59f70]/70">{attribute.label}</p>
-                    <h3 className="mt-2 text-xl font-medium text-white">{attribute.description}</h3>
-                  </div>
-                  <span className="text-sm text-[#d5c9b8]/80">{currentAnswers[attribute.key]}</span>
-                </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={currentAnswers[attribute.key]}
-                  onChange={(event) => handleSliderChange(attribute.key, Number(event.target.value))}
-                  className="mt-6 w-full accent-[#c7a86b]"
-                />
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="rounded-[28px] bg-white/5 px-6 py-5 text-sm text-[#d5c9b8]/85 shadow-[0_24px_70px_rgba(0,0,0,0.18)]">
-            <p className="uppercase tracking-[0.3em] text-[#b59f70]/70">Current rhythm</p>
-            <p className="mt-2">You have refined {answeredIds.length} fragrance moments so far.</p>
-            <p className="mt-3 text-xs uppercase tracking-[0.24em] text-[#b59f70]/65">
-              Live confidence {liveSession.summary?.confidenceScore ?? liveSession.snapshots.at(-1)?.confidenceScore ?? 0}%
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <Link
-              href="/dna"
-              className="inline-flex items-center justify-center rounded-full border border-[#c7a86b]/35 bg-white/5 px-6 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-[#e7dfd1] transition duration-300 hover:border-[#c7a86b] hover:bg-white/10"
-            >
-              View Current DNA
-            </Link>
-            <button
-              type="button"
-              onClick={handleNext}
-              className="inline-flex items-center justify-center rounded-full bg-[#c7a86b] px-8 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-black transition duration-300 hover:bg-[#d0b478]"
-            >
-              {isComplete ? 'View final DNA' : 'Continue ritual'}
-            </button>
           </div>
         </div>
       </section>
-    </main>
+
+      {/* Progress Section */}
+      <section className="py-8 md:py-12">
+        <div className="main-container">
+          <div className="premium-card-dark p-8">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+              <div className="flex-1">
+                <p className="text-xs uppercase tracking-wider text-gray-400 mb-3">YOUR PROGRESS</p>
+                <div className="flex items-baseline gap-3 mb-4">
+                  <h2 className="text-4xl font-bold text-white">{progress}%</h2>
+                  <span className="text-lg text-gray-400">through discovery</span>
+                </div>
+                <p className="text-sm text-gray-400 mb-4">
+                  {answeredIds.length} of {fragrances.length} fragrances evaluated • {remaining} moments remain
+                </p>
+              </div>
+              <div className="lg:flex-1">
+                <div className="h-3 bg-black-700 rounded-full overflow-hidden">
+                  <div
+                    className="h-3 rounded-full bg-gradient-to-r from-gold to-warm-400 transition-all duration-500"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Confidence Badge */}
+            <div className="mt-6 pt-6 border-t border-black-600 flex items-center justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-wider text-gray-400">Live Confidence Score</p>
+                <p className="text-2xl font-bold text-gold mt-1">
+                  {liveSession.summary?.confidenceScore ?? liveSession.snapshots.at(-1)?.confidenceScore ?? 0}%
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs uppercase tracking-wider text-gray-400">Stage</p>
+                <p className="text-3xl font-bold text-white mt-1">{currentIndex + 1}/{fragrances.length}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Fragrance Moment Section */}
+      <section className="py-12 md:py-16">
+        <div className="main-container">
+          <div className="premium-card-dark p-8 md:p-12 border-l-4 border-l-gold mb-12">
+            <p className="text-xs uppercase tracking-wider text-gray-400 mb-3">CURRENT FRAGRANCE</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">{currentFragrance.name}</h2>
+            <p className="text-base text-gray-300 max-w-2xl leading-relaxed">
+              Rate this fragrance across six sensory dimensions. Your evaluations blend with your grounding preferences to continuously refine your olfactory identity.
+            </p>
+          </div>
+
+          {/* Sensory Evaluation Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
+            {attributes.map((attribute) => (
+              <div key={attribute.key} className="premium-card-dark p-8">
+                <div className="mb-6">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <p className="text-xs uppercase tracking-wider text-gray-400 font-semibold">{attribute.label}</p>
+                      <p className="text-lg font-medium text-white mt-2">{attribute.description}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Slider */}
+                  <div>
+                    <div className="relative h-3 bg-black-700 rounded-full overflow-hidden">
+                      <div
+                        className="h-3 rounded-full bg-gradient-to-r from-gold to-warm-400 transition-all"
+                        style={{ width: `${currentAnswers[attribute.key]}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Slider Input */}
+                  <div className="flex items-center justify-between">
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={currentAnswers[attribute.key]}
+                      onChange={(event) => handleSliderChange(attribute.key, Number(event.target.value))}
+                      className="flex-1 h-2 bg-black-700 rounded-full appearance-none cursor-pointer accent-gold"
+                    />
+                    <span className="ml-4 text-lg font-semibold text-gold w-12 text-right">
+                      {currentAnswers[attribute.key]}
+                    </span>
+                  </div>
+
+                  {/* Value Labels */}
+                  <div className="flex justify-between text-xs text-gray-500 mt-2">
+                    <span>Not Present</span>
+                    <span>Very Present</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Stats Section */}
+          <section className="py-8 md:py-12">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <StatCard
+                label="Evaluated"
+                value={`${answeredIds.length}/${fragrances.length}`}
+                subtitle="fragrances rated"
+              />
+              <StatCard
+                label="Remaining"
+                value={remaining.toString()}
+                subtitle="moments to explore"
+              />
+              <StatCard
+                label="Confidence"
+                value={`${liveSession.summary?.confidenceScore ?? liveSession.snapshots.at(-1)?.confidenceScore ?? 0}%`}
+                subtitle="profile certainty"
+              />
+            </div>
+          </section>
+
+          {/* Action Section */}
+          <section className="py-12">
+            <div className="premium-card-dark p-8 md:p-12">
+              <h3 className="text-2xl font-bold text-white mb-6">
+                {isComplete ? "Your DNA Profile is Complete" : "Continue Your Journey"}
+              </h3>
+              <p className="text-gray-300 mb-8 max-w-2xl">
+                {isComplete 
+                  ? "You've completed the guided discovery. View your comprehensive DNA profile and explore your olfactory identity."
+                  : "Move to the next fragrance to continue refining your olfactory identity. Your profile evolves with each evaluation."
+                }
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link href="/dna" className="flex-1">
+                  <PremiumButton variant="secondary" size="lg" className="w-full">
+                    View Current DNA
+                  </PremiumButton>
+                </Link>
+                <button onClick={handleNext} className="flex-1">
+                  <PremiumButton variant="primary" size="lg" className="w-full">
+                    {isComplete ? 'View Final DNA' : 'Continue Ritual'}
+                  </PremiumButton>
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </PageShell>
   );
 }
