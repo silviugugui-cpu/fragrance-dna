@@ -1,12 +1,12 @@
 'use client';
 
-import { useMemo, useId } from 'react';
+import { useId, useMemo } from 'react';
 import {
+  PolarAngleAxis,
+  PolarGrid,
+  PolarRadiusAxis,
   Radar,
   RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
   ResponsiveContainer,
 } from 'recharts';
 
@@ -25,24 +25,23 @@ export const DNA_AXES = [
 ] as const;
 
 export type DnaAxis = (typeof DNA_AXES)[number];
+export type DnaAxisValues = Partial<Record<DnaAxis, number>>;
 
-type DnaValues = Partial<Record<DnaAxis, number>>;
-
-type AxisDatum = {
-  axis: DnaAxis;
-  value: number;
+const PREVIEW_BASELINE: Record<DnaAxis, number> = {
+  Freshness: 70,
+  Warmth: 62,
+  Complexity: 58,
+  Elegance: 60,
+  Character: 56,
+  Presence: 52,
+  Comfort: 61,
+  Uniqueness: 54,
+  Versatility: 64,
+  Luxury: 57,
+  Formality: 59,
 };
 
-type AxisTickProps = {
-  x?: number | string;
-  y?: number | string;
-  payload?: {
-    value?: string | number;
-  };
-  textAnchor?: string;
-};
-
-const PREVIEW_VALUES: Record<DnaAxis, number> = {
+const PREVIEW_FINAL: Record<DnaAxis, number> = {
   Freshness: 78,
   Warmth: 86,
   Complexity: 72,
@@ -64,79 +63,95 @@ function normalizeScore(value: number | undefined): number {
     return 50;
   }
 
-  const inPercentage = value <= 1 ? value * 100 : value;
-  return Math.max(MIN_DOMAIN, Math.min(MAX_DOMAIN, Math.round(inPercentage)));
+  const asPercentage = value <= 1 ? value * 100 : value;
+  return Math.max(MIN_DOMAIN, Math.min(MAX_DOMAIN, Math.round(asPercentage)));
 }
 
-function buildRadarData(values: DnaValues): {
-  data: AxisDatum[];
-  hasLiveData: boolean;
-  warningText: string | null;
-} {
-  const providedKeys = DNA_AXES.filter((axis) => typeof values[axis] === 'number');
-  const hasLiveData = providedKeys.length > 0;
+type ChartDatum = {
+  axis: DnaAxis;
+  baseline: number;
+  final: number;
+};
 
-  const data = DNA_AXES.map((axis) => ({
-    axis,
-    value: normalizeScore((values[axis] as number | undefined) ?? PREVIEW_VALUES[axis]),
-  }));
-
-  if (!hasLiveData) {
-    return {
-      data,
-      hasLiveData,
-      warningText: 'Preview DNA values are shown until live profile data is available.',
-    };
-  }
-
-  if (providedKeys.length < DNA_AXES.length) {
-    return {
-      data,
-      hasLiveData,
-      warningText: 'Partial DNA data detected. Missing axes were completed with calibrated preview values.',
-    };
-  }
-
-  return {
-    data,
-    hasLiveData,
-    warningText: null,
+type AxisTickProps = {
+  x?: number | string;
+  y?: number | string;
+  payload?: {
+    value?: string | number;
   };
+  textAnchor?: string;
+};
+
+function resolveAxisValue(
+  values: DnaAxisValues | null,
+  axis: DnaAxis,
+  preview: Record<DnaAxis, number>
+): number {
+  const source = values?.[axis];
+  return normalizeScore(typeof source === 'number' ? source : preview[axis]);
 }
 
 export default function DnaRadar({
-  values,
+  baselineValues,
+  finalValues,
 }: {
-  values: DnaValues;
+  baselineValues: DnaAxisValues | null;
+  finalValues: DnaAxisValues | null;
 }) {
   const chartId = useId().replace(/:/g, '');
-  const gradientId = `${chartId}-dna-radar-gradient`;
+  const finalGradientId = `${chartId}-final-gradient`;
 
-  const { data, warningText } = useMemo(() => buildRadarData(values), [values]);
-  const scoreByAxis = useMemo(
-    () => Object.fromEntries(data.map((item) => [item.axis, item.value])) as Record<DnaAxis, number>,
+  const baselineProvidedCount = useMemo(
+    () => DNA_AXES.filter((axis) => typeof baselineValues?.[axis] === 'number').length,
+    [baselineValues]
+  );
+
+  const finalProvidedCount = useMemo(
+    () => DNA_AXES.filter((axis) => typeof finalValues?.[axis] === 'number').length,
+    [finalValues]
+  );
+
+  const data = useMemo<ChartDatum[]>(
+    () =>
+      DNA_AXES.map((axis) => ({
+        axis,
+        baseline: resolveAxisValue(baselineValues, axis, PREVIEW_BASELINE),
+        final: resolveAxisValue(finalValues, axis, PREVIEW_FINAL),
+      })),
+    [baselineValues, finalValues]
+  );
+
+  const finalByAxis = useMemo(
+    () => Object.fromEntries(data.map((item) => [item.axis, item.final])) as Record<DnaAxis, number>,
     [data]
   );
+
+  const showWarning = baselineProvidedCount < DNA_AXES.length || finalProvidedCount < DNA_AXES.length;
 
   return (
     <article className="glass-card p-6 md:p-8">
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div className="space-y-2">
           <h2 className="text-sm uppercase tracking-[0.28em] text-[rgba(165,185,150,0.85)]">YOUR DNA SIGNATURE</h2>
-          <p className="text-sm text-[rgba(210,196,170,0.85)]">Your unique olfactory profile across 11 signature dimensions.</p>
+          <p className="text-sm text-[rgba(210,196,170,0.85)]">
+            Final DNA compared with your grounding baseline across 11 signature dimensions.
+          </p>
         </div>
-        <div className="flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-[rgba(216,188,134,0.9)]">
-          <span className="h-0.5 w-5 rounded bg-[rgba(220,182,110,0.95)]" aria-hidden />
-          <div className="flex flex-col leading-tight text-right">
-            <span>Your DNA</span>
-            <span className="text-[rgba(190,170,140,0.78)]">11-D Axis Profile</span>
+        <div className="space-y-2 text-xs uppercase tracking-[0.2em] text-[rgba(216,188,134,0.9)]">
+          <div className="flex items-center justify-end gap-2">
+            <span className="h-0.5 w-5 rounded bg-[rgba(108,196,219,0.96)]" aria-hidden />
+            <span className="text-[rgba(188,219,232,0.92)]">Grounding Baseline</span>
+          </div>
+          <div className="flex items-center justify-end gap-2">
+            <span className="h-0.5 w-5 rounded bg-[rgba(220,182,110,0.95)]" aria-hidden />
+            <span>Final DNA</span>
           </div>
         </div>
       </div>
 
-      {warningText ? (
+      {showWarning ? (
         <div className="mt-4 inline-flex items-center rounded-full border border-[rgba(225,170,95,0.4)] bg-[rgba(225,170,95,0.12)] px-3 py-1 text-xs text-[rgba(255,222,170,0.95)]">
-          {warningText}
+          Some comparison points were missing and have been estimated from calibrated DNA previews.
         </div>
       ) : null}
 
@@ -144,7 +159,7 @@ export default function DnaRadar({
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart data={data} margin={{ top: 24, right: 30, bottom: 24, left: 30 }}>
             <defs>
-              <radialGradient id={gradientId} cx="50%" cy="50%" r="65%">
+              <radialGradient id={finalGradientId} cx="50%" cy="50%" r="65%">
                 <stop offset="0%" stopColor="rgba(237,195,121,0.56)" />
                 <stop offset="65%" stopColor="rgba(215,173,99,0.32)" />
                 <stop offset="100%" stopColor="rgba(176,133,67,0.14)" />
@@ -162,7 +177,7 @@ export default function DnaRadar({
                   return null;
                 }
 
-                const score = scoreByAxis[axis];
+                const score = finalByAxis[axis];
                 return (
                   <g transform={`translate(${Number(tickProps.x ?? 0)},${Number(tickProps.y ?? 0)})`}>
                     <text
@@ -185,13 +200,23 @@ export default function DnaRadar({
               stroke="rgba(255,255,255,0.18)"
               tick={{ fill: 'rgba(201,183,149,0.58)', fontSize: 10 }}
             />
+
             <Radar
-              name="Your DNA"
-              dataKey="value"
+              name="Grounding Baseline"
+              dataKey="baseline"
+              stroke="rgba(108,196,219,0.95)"
+              fill="rgba(108,196,219,0.08)"
+              fillOpacity={0.12}
+              strokeWidth={1.3}
+              dot={{ r: 2.6, fill: 'rgba(136,212,232,0.96)', stroke: 'rgba(3,18,24,0.8)', strokeWidth: 1 }}
+            />
+            <Radar
+              name="Final DNA"
+              dataKey="final"
               stroke="rgba(236,191,113,0.98)"
-              fill={`url(#${gradientId})`}
+              fill={`url(#${finalGradientId})`}
               fillOpacity={1}
-              strokeWidth={2.2}
+              strokeWidth={2.3}
               dot={{ r: 4, fill: 'rgba(244,204,134,0.95)', stroke: 'rgba(0,0,0,0.42)', strokeWidth: 1 }}
             />
           </RadarChart>
