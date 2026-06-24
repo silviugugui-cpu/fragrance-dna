@@ -249,7 +249,7 @@ export default function TerritoriesPage() {
           <div className="premium-card-dark relative overflow-hidden border-gold/20 p-0 min-h-[700px] md:min-h-[740px]">
             <div className="absolute inset-2 md:inset-3 overflow-hidden rounded-[28px]">
               <Image
-                src="/Teritory/Teritory.png"
+                src="/Territory/Territory.png"
                 alt="Territories background"
                 fill
                 priority
@@ -296,7 +296,7 @@ export default function TerritoriesPage() {
           <div className="premium-card-dark relative overflow-hidden border-gold/20 p-0">
             <div className="absolute inset-0">
               <Image
-                src="/Teritory/Teritory.png"
+                src="/Territory/Territory.png"
                 alt="Territories background"
                 fill
                 aria-hidden="true"

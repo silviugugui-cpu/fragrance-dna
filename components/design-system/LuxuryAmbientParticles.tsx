@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 
 type ParticleType = 0 | 1 | 2; // 0=A dust, 1=B bright, 2=C hero
 
@@ -34,6 +35,21 @@ type Halo = {
   colorIndex: 0 | 1 | 2;
 };
 
+type RenderProfile = {
+  minCount: number;
+  maxCount: number;
+  typeBRatio: number;
+  typeCRatio: number;
+  maxDist: number;
+  linkAlphaBoost: number;
+  brightLineWidth: number;
+  heroLineWidth: number;
+  frameIntervalMs: number;
+  linkPairStep: number;
+  haloCount: number;
+  dprCap: number;
+};
+
 const GOLD_COLORS = ['#D4AF37', '#C9A227', '#E5C76B'] as const;
 
 function randomBetween(min: number, max: number): number {
@@ -42,6 +58,7 @@ function randomBetween(min: number, max: number): number {
 
 export default function LuxuryAmbientParticles() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -58,11 +75,58 @@ export default function LuxuryAmbientParticles() {
     let width = 0;
     let height = 0;
     let dpr = 1;
+    let lastRenderAt = -Infinity;
     let particles: Particle[] = [];
     let halos: Halo[] = [];
 
+    const getRenderProfile = (): RenderProfile => {
+      const isHomepage = pathname === '/';
+      const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+      const isNarrow = window.innerWidth < 900;
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const connection = navigator as Navigator & { connection?: { saveData?: boolean } };
+      const saveData = Boolean(connection.connection?.saveData);
+      const lowCpu = (navigator.hardwareConcurrency ?? 8) <= 4;
+      const mobileLike = coarsePointer || isNarrow;
+      const lowPower = prefersReducedMotion || saveData || lowCpu;
+
+      if (mobileLike) {
+        return {
+          minCount: isHomepage ? 10 : 8,
+          maxCount: isHomepage ? 13 : 12,
+          typeBRatio: 0.2,
+          typeCRatio: 0.07,
+          maxDist: isHomepage ? 140 : 130,
+          linkAlphaBoost: isHomepage ? 0.18 : 0.16,
+          brightLineWidth: 0.9,
+          heroLineWidth: 1.2,
+          frameIntervalMs: lowPower ? 52 : 46,
+          linkPairStep: 3,
+          haloCount: 1,
+          dprCap: lowPower ? 1 : 1.1,
+        };
+      }
+
+      return {
+        minCount: isHomepage ? 58 : 35,
+        maxCount: isHomepage ? 71 : 46,
+        typeBRatio: 0.34,
+        typeCRatio: 0.2,
+        maxDist: isHomepage ? 280 : 220,
+        linkAlphaBoost: isHomepage ? 0.42 : 0.3,
+        brightLineWidth: isHomepage ? 1.6 : 1.2,
+        heroLineWidth: isHomepage ? 2.2 : 1.7,
+        frameIntervalMs: 16,
+        linkPairStep: 1,
+        haloCount: isHomepage ? 3 : 2,
+        dprCap: 2,
+      };
+    };
+
+    let renderProfile = getRenderProfile();
+
     const buildHalos = () => {
-      halos = new Array(3).fill(null).map((_, index) => {
+      halos = new Array(renderProfile.haloCount).fill(null).map((_, index) => {
         const baseRadius = Math.min(width, height) * randomBetween(0.32, 0.48);
         return {
           x: randomBetween(width * 0.15, width * 0.85),
@@ -78,14 +142,11 @@ export default function LuxuryAmbientParticles() {
     };
 
     const buildParticles = () => {
-      const isMobile = window.innerWidth < 768;
-      const minCount = isMobile ? 24 : 48;
-      const maxCount = isMobile ? 30 : 60;
-      const totalCount = Math.round(randomBetween(minCount, maxCount));
+      const totalCount = Math.round(randomBetween(renderProfile.minCount, renderProfile.maxCount));
 
-      const typeACount = Math.floor(totalCount * 0.8);
-      const typeBCount = Math.floor(totalCount * 0.15);
-      const typeCCount = totalCount - typeACount - typeBCount;
+      const typeBCount = Math.floor(totalCount * renderProfile.typeBRatio);
+      const typeCCount = Math.floor(totalCount * renderProfile.typeCRatio);
+      const typeACount = totalCount - typeBCount - typeCCount;
 
       particles = new Array(totalCount);
 
@@ -96,15 +157,15 @@ export default function LuxuryAmbientParticles() {
           type === 0
             ? randomBetween(0.9, 2.0)
             : type === 1
-              ? randomBetween(1.7, 2.8)
-              : randomBetween(2.0, 4.0);
+              ? randomBetween(2.2, 3.8)
+              : randomBetween(3.2, 6.2);
 
         const baseAlpha =
           type === 0
             ? randomBetween(0.2, 0.38)
             : type === 1
-              ? randomBetween(0.34, 0.7)
-              : randomBetween(0.36, 0.8);
+              ? randomBetween(0.58, 0.95)
+              : randomBetween(0.68, 1);
 
         particles[i] = {
           type,
@@ -128,9 +189,10 @@ export default function LuxuryAmbientParticles() {
     };
 
     const resize = () => {
+      renderProfile = getRenderProfile();
       width = window.innerWidth;
       height = window.innerHeight;
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      dpr = Math.min(window.devicePixelRatio || 1, renderProfile.dprCap);
 
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
@@ -143,6 +205,12 @@ export default function LuxuryAmbientParticles() {
     };
 
     const draw = (timestamp: number) => {
+      if (timestamp - lastRenderAt < renderProfile.frameIntervalMs) {
+        rafId = window.requestAnimationFrame(draw);
+        return;
+      }
+      lastRenderAt = timestamp;
+
       ctx.clearRect(0, 0, width, height);
       ctx.globalCompositeOperation = 'screen';
 
@@ -180,8 +248,8 @@ export default function LuxuryAmbientParticles() {
           alpha = p.baseAlpha * (1 - p.twinkleDepth + p.twinkleDepth * twinkleBlend);
         }
 
-        // Persistent soft molecular haze so particles feel suspended, not blinking.
-        ctx.globalAlpha = alpha * (p.type === 0 ? 0.16 : 0.22);
+        // Persistent molecular haze so linked particles remain visible over rich imagery.
+        ctx.globalAlpha = alpha * (p.type === 0 ? 0.16 : 0.35);
         ctx.fillStyle = GOLD_COLORS[p.colorIndex];
         ctx.beginPath();
         ctx.arc(x, y, p.size * (p.type === 0 ? 1.9 : 2.3), 0, Math.PI * 2);
@@ -195,24 +263,24 @@ export default function LuxuryAmbientParticles() {
 
         if (p.type === 2) {
           const heroGlow = 0.65 + (Math.sin(timestamp * 0.0009 + p.twinkle + p.phaseX) + 1) * 0.175;
-          ctx.globalAlpha = alpha * 0.24 * heroGlow;
-          ctx.shadowBlur = 14;
+          ctx.globalAlpha = alpha * 0.42 * heroGlow;
+          ctx.shadowBlur = 20;
           ctx.shadowColor = GOLD_COLORS[p.colorIndex];
           ctx.beginPath();
-          ctx.arc(x, y, p.size * 2.7, 0, Math.PI * 2);
+          ctx.arc(x, y, p.size * 3.3, 0, Math.PI * 2);
           ctx.fill();
           ctx.shadowBlur = 0;
         }
       }
 
-      // Subtle molecular interactions: soft links between nearby bright/hero particles.
+      // Pronounced molecular interactions: visible links between bright/hero particles.
       ctx.lineCap = 'round';
       for (let i = 0; i < particles.length; i += 1) {
         const a = particles[i];
         if (a.type === 0) {
           continue;
         }
-        for (let j = i + 1; j < particles.length; j += 1) {
+        for (let j = i + 1; j < particles.length; j += renderProfile.linkPairStep) {
           const b = particles[j];
           if (b.type === 0) {
             continue;
@@ -221,7 +289,7 @@ export default function LuxuryAmbientParticles() {
           const dx = px[i] - px[j];
           const dy = py[i] - py[j];
           const distSq = dx * dx + dy * dy;
-          const maxDist = 170;
+          const maxDist = renderProfile.maxDist;
           const maxDistSq = maxDist * maxDist;
           if (distSq > maxDistSq) {
             continue;
@@ -229,16 +297,19 @@ export default function LuxuryAmbientParticles() {
 
           const dist = Math.sqrt(distSq);
           const proximity = 1 - dist / maxDist;
-          const pulse = 0.72 + (Math.sin(timestamp * 0.0012 + a.linkPulse + b.linkPulse) + 1) * 0.14;
-          const alpha = proximity * 0.14 * pulse;
+          const pulse = 0.92 + (Math.sin(timestamp * 0.0012 + a.linkPulse + b.linkPulse) + 1) * 0.24;
+          const alpha = proximity * renderProfile.linkAlphaBoost * pulse;
 
           ctx.globalAlpha = alpha;
           ctx.strokeStyle = GOLD_COLORS[a.type === 2 || b.type === 2 ? 2 : 1];
-          ctx.lineWidth = a.type === 2 || b.type === 2 ? 1.2 : 0.8;
+          ctx.lineWidth = a.type === 2 || b.type === 2 ? renderProfile.heroLineWidth : renderProfile.brightLineWidth;
+          ctx.shadowBlur = a.type === 2 || b.type === 2 ? 10 : 6;
+          ctx.shadowColor = GOLD_COLORS[a.type === 2 || b.type === 2 ? 2 : 1];
           ctx.beginPath();
           ctx.moveTo(px[i], py[i]);
           ctx.lineTo(px[j], py[j]);
           ctx.stroke();
+          ctx.shadowBlur = 0;
         }
       }
 
@@ -255,7 +326,7 @@ export default function LuxuryAmbientParticles() {
       window.cancelAnimationFrame(rafId);
       window.removeEventListener('resize', resize);
     };
-  }, []);
+  }, [pathname]);
 
   return (
     <canvas
@@ -268,7 +339,8 @@ export default function LuxuryAmbientParticles() {
         width: '100vw',
         height: '100vh',
         pointerEvents: 'none',
-        zIndex: 0,
+        zIndex: 6,
+        opacity: 0.57,
       }}
     />
   );

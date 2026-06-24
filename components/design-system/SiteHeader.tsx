@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState, type MouseEvent } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -15,11 +15,11 @@ import LuxuryLoginButton from './LuxuryLoginButton';
 import { useAuth } from '@/lib/auth';
 
 const navLinks = [
-  { href: '/', label: 'Home', mobile: 'Home' },
-  { href: '/grounding', label: 'GROUNDING', mobile: 'Ground' },
-  { href: '/test', label: 'TEST', mobile: 'Test' },
-  { href: '/dna', label: 'YOUR DNA', mobile: 'DNA' },
-  { href: '/collection', label: 'YOUR COLLECTION', mobile: 'Collect' },
+  { href: '/', label: 'Home', mobile: 'Home', hint: 'Start page' },
+  { href: '/grounding', label: 'GROUNDING', mobile: 'Grounding', hint: 'Explore scent basics' },
+  { href: '/test', label: 'TEST', mobile: 'Test', hint: 'Quick fragrance test' },
+  { href: '/dna', label: 'YOUR DNA', mobile: 'Your DNA', hint: 'Personal profile' },
+  { href: '/collection', label: 'YOUR COLLECTION', mobile: 'Your Collection', hint: 'Saved fragrances' },
 ];
 
 export function SiteHeader() {
@@ -27,6 +27,24 @@ export function SiteHeader() {
   const router = useRouter();
   const { user, signOut, isLoading } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSprayActive, setIsSprayActive] = useState(false);
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+    setIsDropdownOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) {
+      return;
+    }
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isMobileMenuOpen]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -34,9 +52,22 @@ export function SiteHeader() {
     router.push('/');
   };
 
+  const handleHeaderMouseMove = (event: MouseEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const relativeX = (event.clientX - rect.left) / rect.width;
+    const shouldActivate = relativeX >= 0.68;
+    setIsSprayActive((prev) => (prev === shouldActivate ? prev : shouldActivate));
+  };
+
   return (
     <header className="site-header">
-      <div className="header-inner">
+      <div
+        className="header-inner"
+        data-spray-active={isSprayActive ? 'true' : 'false'}
+        onMouseMove={handleHeaderMouseMove}
+        onMouseLeave={() => setIsSprayActive(false)}
+      >
+        <div className="header-spray-mist" aria-hidden="true" />
         {/* Logo */}
         <div className="brand-logo-lock relative flex h-full flex-shrink-0 items-center">
           <div className="brand-logo-fixed relative z-[90] inline-block hover:opacity-80 transition-opacity">
@@ -62,7 +93,7 @@ export function SiteHeader() {
 
         {/* Navigation - Desktop */}
         <nav
-          className="site-nav hidden md:flex"
+          className="site-nav relative z-[70] hidden md:flex"
           aria-label="Primary navigation"
         >
           {navLinks.map((link) => {
@@ -82,9 +113,15 @@ export function SiteHeader() {
         </nav>
 
         {/* Sign In / User Menu */}
-        <div className="flex-shrink-0 relative">
+        <div className="hidden flex-shrink-0 relative z-[70] md:block">
           {!user ? (
-            <div className="mr-[1cm] origin-right scale-[1.3]">
+            <div
+              className="signin-spray-trigger mr-[1cm] origin-right scale-[1.3]"
+              onMouseEnter={() => setIsSprayActive(true)}
+              onMouseLeave={() => setIsSprayActive(false)}
+              onFocusCapture={() => setIsSprayActive(true)}
+              onBlurCapture={() => setIsSprayActive(false)}
+            >
               <LuxuryLoginButton className="h-[38px]" />
             </div>
           ) : (
@@ -134,7 +171,68 @@ export function SiteHeader() {
             </div>
           )}
         </div>
+
+        <div className="mobile-header-actions md:hidden">
+          {!user ? (
+            <Link href="/auth/sign-in" className="mobile-login-btn" aria-label="Sign into your DNA">
+              Login
+            </Link>
+          ) : (
+            <Link href="/dna" className="mobile-login-btn" aria-label="Open DNA profile">
+              {user.name.split(' ')[0]}
+            </Link>
+          )}
+          <button
+            type="button"
+            className="mobile-menu-btn"
+            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-primary-nav"
+          >
+            {isMobileMenuOpen ? 'Close' : 'Menu'}
+          </button>
+        </div>
       </div>
+
+      {isMobileMenuOpen && (
+        <>
+          <button
+            type="button"
+            className="mobile-nav-backdrop md:hidden"
+            aria-label="Close mobile menu"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+
+          <div id="mobile-primary-nav" className="mobile-nav-panel md:hidden">
+            <nav className="mobile-nav-list" aria-label="Mobile primary navigation">
+              {navLinks.map((link) => {
+                const isActive = pathname === link.href;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`mobile-nav-link ${isActive ? 'active' : ''}`}
+                  >
+                    <span className="mobile-nav-link-title">{link.mobile}</span>
+                    <span className="mobile-nav-link-hint">{link.hint}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+
+            {user && (
+              <button
+                onClick={handleSignOut}
+                disabled={isLoading}
+                className="mobile-signout-btn"
+                type="button"
+              >
+                {isLoading ? 'Signing out...' : 'Sign out'}
+              </button>
+            )}
+          </div>
+        </>
+      )}
     </header>
   );
 }
