@@ -51,10 +51,23 @@ body {
   line-height: 1.6;
 }
 
+.homepage-shell {
+  position: relative;
+  isolation: isolate;
+}
+
 @media (max-width: 900px), (pointer: coarse) {
   body {
     background-attachment: scroll;
     background-position: center top;
+  }
+
+  .page-shell {
+    background: #000;
+  }
+
+  .content-layer {
+    background: #000;
   }
 
   .glass,
@@ -1207,6 +1220,27 @@ select {
     @apply px-8 py-4 text-lg;
   }
 
+  @media (max-width: 767px) {
+    body {
+      background-color: #000;
+      background-image: none;
+      background-attachment: scroll;
+      background-position: center top;
+    }
+
+    .page-shell {
+      background: #000;
+    }
+
+    .content-layer {
+      background: #000;
+    }
+
+    .homepage-shell {
+      overflow: hidden;
+    }
+  }
+
   /* ============================================
      SECTION HEADERS
      ============================================ */
@@ -1585,6 +1619,16 @@ select {
 
   .header-inner::before {
     display: none;
+  }
+
+  .mobile-nav-panel {
+    top: 106px;
+    max-height: calc(100vh - 126px);
+    z-index: 140;
+  }
+
+  .mobile-nav-backdrop {
+    z-index: 130;
   }
 
   .header-spray-mist {

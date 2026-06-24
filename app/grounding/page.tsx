@@ -39,23 +39,55 @@ export default function GroundingPage() {
   const movedFromNeutralCount = TOKENS.length - neutralTokens.length;
   const canContinueToTest = movedFromNeutralCount >= 2;
 
-
-  function onDragStart(e: React.DragEvent<HTMLDivElement>, token: string) {
-    e.dataTransfer.setData("token", token);
-  }
-
-  function onDrop(e: React.DragEvent<HTMLDivElement>, zone: Zone) {
-    e.preventDefault();
-    const token = e.dataTransfer.getData("token");
-
+  function setTokenZone(token: string, zone: Zone) {
     setState((prev) => ({
       ...prev,
       [token]: zone,
     }));
   }
 
-  function allowDrop(e: React.DragEvent<HTMLDivElement>) {
-    e.preventDefault();
+  function renderTokenControl(token: string, tone: "love" | "neutral" | "hate") {
+    const toneClass =
+      tone === "love"
+        ? "bg-gold/20 border-gold/40 text-gold"
+        : tone === "hate"
+          ? "bg-black-400/20 border-black-400/40 text-black-200"
+          : "bg-warm-400/20 border-warm-400/40 text-warm-300";
+
+    return (
+      <div
+        key={token}
+        className={`inline-flex items-center overflow-hidden rounded-lg border ${toneClass} transition-all`}
+      >
+        <button
+          type="button"
+          onClick={() => setTokenZone(token, "hate")}
+          className="h-full border-r border-red-400/50 bg-red-500/20 px-2 py-2 text-xs font-bold text-red-300 hover:bg-red-500/35"
+          aria-label={`Move ${token} to Avoid`}
+          title="Move to Avoid"
+        >
+          X
+        </button>
+        <button
+          type="button"
+          onClick={() => setTokenZone(token, "neutral")}
+          className="px-3 py-2 text-sm font-medium"
+          aria-label={`Move ${token} to Neutral`}
+          title="Move to Neutral"
+        >
+          {token}
+        </button>
+        <button
+          type="button"
+          onClick={() => setTokenZone(token, "love")}
+          className="h-full border-l border-emerald-400/50 bg-emerald-500/20 px-2 py-2 text-xs font-bold text-emerald-300 hover:bg-emerald-500/35"
+          aria-label={`Move ${token} to Love`}
+          title="Move to Love"
+        >
+          ✓
+        </button>
+      </div>
+    );
   }
 
   function buildEngineInput() {
@@ -104,52 +136,15 @@ export default function GroundingPage() {
         <div className="main-container">
           <SectionHeader
             title="Classify Your Scent Qualities"
-            description="Drag each quality into the zone where it belongs. Your selections shape the foundation of your fragrance DNA."
+            description="Use the controls on each quality: X (left) sends it to Avoid, V (right) sends it to Love, and tapping the word keeps it in Neutral."
             className="mb-10"
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Attraction Zone */}
-            <div
-              onDrop={(e) => onDrop(e, "love")}
-              onDragOver={allowDrop}
-              className="premium-card-dark bg-cover bg-center bg-no-repeat p-8 border-2 border-gold/30 hover:border-gold/60 transition-all min-h-96 cursor-drop flex flex-col"
-              style={{
-                backgroundImage:
-                  "linear-gradient(160deg, rgba(9, 9, 10, 0.44) 0%, rgba(13, 11, 9, 0.36) 50%, rgba(9, 9, 10, 0.44) 100%), url('/Pictures/Grounding/Attraction%20Patterns%20Love.png')",
-              }}
-            >
-              <div className="mb-6">
-                <p className="text-xs uppercase tracking-wider text-gold font-bold mb-2">Attraction Patterns</p>
-                <h3 className="text-xl font-bold text-white mb-3">Love</h3>
-                <p className="text-sm text-gray-400">
-                  These accords ignite your curiosity and become the luminous heart of your fragrance story.
-                </p>
-              </div>
-
-              <div className="flex-1 space-y-2">
-                {groupedTokens.love.length > 0 ? (
-                  groupedTokens.love.map((token) => (
-                    <div
-                      key={token}
-                      draggable
-                      onDragStart={(e) => onDragStart(e, token)}
-                      className="inline-flex cursor-grab items-center rounded-lg bg-gold/20 border border-gold/40 px-4 py-2 text-sm font-medium text-gold hover:bg-gold/30 hover:border-gold/60 transition-all"
-                    >
-                      {token}
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-gray-500 italic">Drag qualities here...</p>
-                )}
-              </div>
-            </div>
-
             {/* Neutral Zone */}
             <div
-              onDrop={(e) => onDrop(e, "neutral")}
-              onDragOver={allowDrop}
-              className="premium-card-dark bg-cover bg-center bg-no-repeat p-8 border-2 border-warm-400/30 hover:border-warm-400/60 transition-all min-h-96 cursor-drop flex flex-col"
+              data-zone="neutral"
+              className="premium-card-dark bg-cover bg-center bg-no-repeat p-8 border-2 border-warm-400/30 hover:border-warm-400/60 transition-all min-h-96 flex flex-col"
               style={{
                 backgroundImage:
                   "linear-gradient(160deg, rgba(9, 9, 10, 0.44) 0%, rgba(13, 11, 9, 0.36) 50%, rgba(9, 9, 10, 0.44) 100%), url('/Pictures/Grounding/Neutral%20Affinitie%20Balance.png')",
@@ -165,27 +160,43 @@ export default function GroundingPage() {
 
               <div className="flex-1 space-y-2">
                 {groupedTokens.neutral.length > 0 ? (
-                  groupedTokens.neutral.map((token) => (
-                    <div
-                      key={token}
-                      draggable
-                      onDragStart={(e) => onDragStart(e, token)}
-                      className="inline-flex cursor-grab items-center rounded-lg bg-warm-400/20 border border-warm-400/40 px-4 py-2 text-sm font-medium text-warm-300 hover:bg-warm-400/30 hover:border-warm-400/60 transition-all"
-                    >
-                      {token}
-                    </div>
-                  ))
+                  groupedTokens.neutral.map((token) => renderTokenControl(token, "neutral"))
                 ) : (
-                  <p className="text-sm text-gray-500 italic">Drag qualities here...</p>
+                  <p className="text-sm text-gray-500 italic">No qualities in Neutral right now...</p>
+                )}
+              </div>
+            </div>
+
+            {/* Attraction Zone */}
+            <div
+              data-zone="love"
+              className="premium-card-dark bg-cover bg-center bg-no-repeat p-8 border-2 border-emerald-400/30 hover:border-emerald-400/60 transition-all min-h-96 flex flex-col"
+              style={{
+                backgroundImage:
+                  "linear-gradient(160deg, rgba(9, 9, 10, 0.44) 0%, rgba(13, 11, 9, 0.36) 50%, rgba(9, 9, 10, 0.44) 100%), url('/Pictures/Grounding/Attraction%20Patterns%20Love.png')",
+              }}
+            >
+              <div className="mb-6">
+                <p className="text-xs uppercase tracking-wider text-gold font-bold mb-2">Attraction Patterns</p>
+                <h3 className="text-xl font-bold text-white mb-3">Love</h3>
+                <p className="text-sm text-gray-400">
+                  These accords ignite your curiosity and become the luminous heart of your fragrance story.
+                </p>
+              </div>
+
+              <div className="flex-1 space-y-2">
+                {groupedTokens.love.length > 0 ? (
+                  groupedTokens.love.map((token) => renderTokenControl(token, "love"))
+                ) : (
+                  <p className="text-sm text-gray-500 italic">No qualities in Love yet...</p>
                 )}
               </div>
             </div>
 
             {/* Avoidance Zone */}
             <div
-              onDrop={(e) => onDrop(e, "hate")}
-              onDragOver={allowDrop}
-              className="premium-card-dark bg-cover bg-center bg-no-repeat p-8 border-2 border-black-400/30 hover:border-black-400/60 transition-all min-h-96 cursor-drop flex flex-col"
+              data-zone="hate"
+              className="premium-card-dark bg-cover bg-center bg-no-repeat p-8 border-2 border-red-400/30 hover:border-red-400/60 transition-all min-h-96 flex flex-col"
               style={{
                 backgroundImage:
                   "linear-gradient(160deg, rgba(9, 9, 10, 0.44) 0%, rgba(13, 11, 9, 0.36) 50%, rgba(9, 9, 10, 0.44) 100%), url('/Pictures/Grounding/Avoidance%20Patterns%20Avoid.png')",
@@ -201,18 +212,9 @@ export default function GroundingPage() {
 
               <div className="flex-1 space-y-2">
                 {groupedTokens.hate.length > 0 ? (
-                  groupedTokens.hate.map((token) => (
-                    <div
-                      key={token}
-                      draggable
-                      onDragStart={(e) => onDragStart(e, token)}
-                      className="inline-flex cursor-grab items-center rounded-lg bg-black-400/20 border border-black-400/40 px-4 py-2 text-sm font-medium text-black-200 hover:bg-black-400/30 hover:border-black-400/60 transition-all"
-                    >
-                      {token}
-                    </div>
-                  ))
+                  groupedTokens.hate.map((token) => renderTokenControl(token, "hate"))
                 ) : (
-                  <p className="text-sm text-gray-500 italic">Drag qualities here...</p>
+                  <p className="text-sm text-gray-500 italic">No qualities in Avoid yet...</p>
                 )}
               </div>
             </div>
@@ -234,7 +236,7 @@ export default function GroundingPage() {
                 onClick={finish}
                 variant="primary"
                 size="lg"
-                className="w-full sm:w-auto sm:min-w-[360px] h-[68px] px-10 text-[1.02rem] font-bold tracking-[0.08em] uppercase border-2 border-gold/65 shadow-[0_14px_28px_rgba(212,175,120,0.24)] hover:shadow-[0_18px_34px_rgba(212,175,120,0.3)]"
+                className="w-full sm:w-auto sm:min-w-[360px] min-h-[68px] px-8 sm:px-10 py-4 sm:py-0 text-[0.92rem] sm:text-[1.02rem] font-bold leading-tight tracking-[0.06em] sm:tracking-[0.08em] uppercase text-center whitespace-normal border-2 border-gold/65 shadow-[0_14px_28px_rgba(212,175,120,0.24)] hover:shadow-[0_18px_34px_rgba(212,175,120,0.3)]"
               >
                 I'm done sorting, continue to testing
               </PremiumButton>

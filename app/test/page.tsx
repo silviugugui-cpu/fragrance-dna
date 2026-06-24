@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { Fragrance, AttributeKey, AnswerRecord } from '../../lib/types';
 import fragrances from '../../lib/db.json';
@@ -38,6 +37,7 @@ export default function TestPage() {
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, AnswerRecord>>({});
+  const [groundingSelectionCount, setGroundingSelectionCount] = useState(0);
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
@@ -55,6 +55,23 @@ export default function TestPage() {
     if (typeof session.currentIndex === 'number') {
       setCurrentIndex(Math.min(session.currentIndex, fragrances.length - 1));
     }
+
+    try {
+      const rawGrounding = window.localStorage.getItem('fragrance_grounding');
+      if (rawGrounding) {
+        const parsedGrounding = JSON.parse(rawGrounding) as {
+          love?: string[];
+          red_flag?: string[];
+        };
+        const selectedCount = (parsedGrounding.love?.length ?? 0) + (parsedGrounding.red_flag?.length ?? 0);
+        setGroundingSelectionCount(selectedCount);
+      } else {
+        setGroundingSelectionCount(0);
+      }
+    } catch {
+      setGroundingSelectionCount(0);
+    }
+
     setIsHydrated(true);
   }, []);
 
@@ -117,9 +134,35 @@ export default function TestPage() {
   const currentAnswers = answers[currentFragrance.id] ?? defaultAnswers;
   const remaining = Math.max(0, fragrances.length - answeredIds.length);
   const progress = Math.round((answeredIds.length / fragrances.length) * 100);
+  const needsGrounding = groundingSelectionCount < 2;
 
   return (
     <PageShell>
+      {needsGrounding && (
+        <section className="py-12 md:py-16">
+          <div className="main-container">
+            <div className="premium-card-dark p-8 md:p-10 border border-gold/20">
+              <p className="text-xs uppercase tracking-wider text-gold mb-3">GROUNDING REQUIRED</p>
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+                Before the test, complete Grounding
+              </h2>
+              <p className="text-gray-300 max-w-2xl leading-relaxed mb-6">
+                We need at least 2 scent qualities selected in Grounding before starting the test flow. Go back and choose the qualities that represent you most, or the ones that do not represent you at all, then return here to continue.
+              </p>
+              <PremiumButton
+                variant="primary"
+                size="lg"
+                className="min-w-[220px]"
+                type="button"
+                onClick={() => router.push('/grounding')}
+              >
+                Go to Grounding
+              </PremiumButton>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Hero Section */}
       <section className="py-12 md:py-20 mb-4">
         <div className="main-container">
@@ -270,16 +313,24 @@ export default function TestPage() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link href="/dna" className="flex-1">
-                  <PremiumButton variant="secondary" size="lg" className="w-full">
-                    View Current DNA
-                  </PremiumButton>
-                </Link>
-                <button onClick={handleNext} className="flex-1">
-                  <PremiumButton variant="primary" size="lg" className="w-full">
-                    {isComplete ? 'View Final DNA' : 'Continue Ritual'}
-                  </PremiumButton>
-                </button>
+                <PremiumButton
+                  variant="secondary"
+                  size="lg"
+                  className="flex-1 w-full"
+                  type="button"
+                  onClick={() => router.push('/dna')}
+                >
+                  View Current DNA
+                </PremiumButton>
+                <PremiumButton
+                  onClick={handleNext}
+                  variant="secondary"
+                  size="lg"
+                  className="flex-1 w-full"
+                  type="button"
+                >
+                  {isComplete ? 'View Final DNA' : 'Continue Ritual'}
+                </PremiumButton>
               </div>
             </div>
           </section>

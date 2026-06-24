@@ -22,6 +22,7 @@ export function PremiumButton({
   isLoading = false,
   className = '',
   disabled,
+  type = 'button',
   ...props
 }: PremiumButtonProps) {
   const baseClass = 'btn';
@@ -30,6 +31,7 @@ export function PremiumButton({
 
   return (
     <button
+      type={type}
       className={`${baseClass} ${variantClass} ${sizeClass} ${className}`}
       disabled={disabled || isLoading}
       {...props}

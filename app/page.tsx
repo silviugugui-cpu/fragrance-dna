@@ -1,7 +1,6 @@
 ﻿'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { Inter, Playfair_Display, Cormorant_Garamond } from 'next/font/google';
 import TerritoriesFullSection from '@/components/territories/TerritoriesFullSection';
 
@@ -23,7 +22,7 @@ const cormorant = Cormorant_Garamond({
 export default function HomePage() {
   return (
     <main
-      className={`${inter.variable} ${playfair.variable} ${cormorant.variable} relative pb-10 pt-5 lg:pt-8`}
+      className={`${inter.variable} ${playfair.variable} ${cormorant.variable} homepage-shell relative pb-10 pt-5 lg:pt-8`}
     >
       <section className="relative z-10 mx-auto w-[90vw] max-w-[1600px] pb-2">
         <article
