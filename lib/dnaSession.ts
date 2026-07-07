@@ -1,4 +1,5 @@
-import fragrances from "@/lib/db.json";
+import { resolveCanonicalAttribute } from "@/lib/intelligence/attributes";
+import { createFragranceIntelligenceService } from "@/lib/intelligence/fragranceIntelligence";
 import type {
   AnswerRecord,
   CompatibilitySnapshot,
@@ -22,36 +23,6 @@ const VECTOR_BASELINE: OlfactoryVector = {
 };
 
 type AxisWeights = Partial<Record<keyof OlfactoryVector, number>>;
-
-const ATTRIBUTE_TO_VECTOR: Record<keyof AnswerRecord, AxisWeights> = {
-  elegant: { elegance: 0.75, cleanliness: 0.25 },
-  carismatic: { warmth: 0.45, darkness: 0.25, elegance: 0.2 },
-  misterios: { darkness: 0.7, elegance: 0.2 },
-  citrice: { freshness: 0.8, cleanliness: 0.35 },
-  miere: { sweetness: 0.8, warmth: 0.35 },
-  lemn: { darkness: 0.3, warmth: 0.35, elegance: 0.25 },
-};
-
-const NOTE_TO_VECTOR: Record<string, AxisWeights> = {
-  citrus: { freshness: 0.85, cleanliness: 0.35 },
-  bergamot: { freshness: 0.8, cleanliness: 0.3 },
-  lemon: { freshness: 0.85, cleanliness: 0.2 },
-  green: { freshness: 0.6, cleanliness: 0.3 },
-  herb: { freshness: 0.35, elegance: 0.15 },
-  spice: { warmth: 0.55, darkness: 0.2 },
-  amber: { warmth: 0.7, sweetness: 0.15 },
-  honey: { sweetness: 0.8, warmth: 0.35 },
-  tobacco: { darkness: 0.65, warmth: 0.25 },
-  musk: { cleanliness: 0.45, elegance: 0.2 },
-  smoke: { darkness: 0.75, elegance: 0.15 },
-  woody: { darkness: 0.35, elegance: 0.2, warmth: 0.2 },
-  wood: { darkness: 0.35, elegance: 0.2, warmth: 0.2 },
-  oud: { darkness: 0.8, elegance: 0.25 },
-  rose: { elegance: 0.45, sweetness: 0.2 },
-  lavender: { cleanliness: 0.35, elegance: 0.15 },
-  tea: { freshness: 0.3, elegance: 0.25 },
-  water: { freshness: 0.4, cleanliness: 0.3 },
-};
 
 export function getInitialSessionState(): DNASessionState {
   return {
@@ -171,12 +142,13 @@ export function buildVectorFromAnswers(
   };
 
   for (const answer of entries) {
-    for (const [attributeKey, value] of Object.entries(answer) as Array<[
-      keyof AnswerRecord,
-      number,
-    ]>) {
+    for (const [attributeKey, value] of Object.entries(answer) as Array<[string, number]>) {
       const influence = (value - 50) / 50;
-      const weights = ATTRIBUTE_TO_VECTOR[attributeKey];
+      const weights = resolveAttributeWeights(attributeKey);
+      if (!weights) {
+        continue;
+      }
+
       for (const axis of Object.keys(weights) as Array<keyof OlfactoryVector>) {
         accumulated[axis] += influence * (weights[axis] ?? 0);
       }
@@ -296,7 +268,7 @@ function mapFragranceToVector(fragrance: Fragrance): OlfactoryVector {
   };
 
   for (const note of notes) {
-    const weights = NOTE_TO_VECTOR[note.toLowerCase()];
+    const weights = resolveAttributeWeights(note);
     if (!weights) {
       continue;
     }
@@ -339,4 +311,18 @@ function clamp01(value: number): number {
   return Math.max(0, Math.min(1, value));
 }
 
-const fragranceList = fragrances as Fragrance[];
+function resolveAttributeWeights(attributeKey: string): AxisWeights | undefined {
+  const resolved = resolveCanonicalAttribute(attributeKey);
+  if (!resolved) {
+    return undefined;
+  }
+
+  return resolved.vectorMapping;
+}
+
+const FRAGRANCE_INTELLIGENCE = createFragranceIntelligenceService();
+const fragranceList: Fragrance[] = FRAGRANCE_INTELLIGENCE.listSessionFragrances().map((item) => ({
+  id: item.fragranceId,
+  name: item.displayName,
+  notes: [...item.notes],
+}));

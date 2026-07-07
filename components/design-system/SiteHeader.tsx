@@ -20,6 +20,12 @@ const navLinks = [
   { href: '/test', label: 'TEST', mobile: 'Test', hint: 'Quick fragrance test' },
   { href: '/dna', label: 'YOUR DNA', mobile: 'Your DNA', hint: 'Personal profile' },
   { href: '/collection', label: 'YOUR COLLECTION', mobile: 'Your Collection', hint: 'Saved fragrances' },
+  {
+    href: '/articles',
+    label: 'FRAGRANCE AS A PASSION',
+    mobile: 'Fragrance as a passion',
+    hint: 'Read fragrance insights',
+  },
 ];
 
 export function SiteHeader() {

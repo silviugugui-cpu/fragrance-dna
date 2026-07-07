@@ -1,8 +1,15 @@
-node_modules
+node_modules/
 
-# Next.js build output
+# Next.js and build output
 .next/
 out/
+coverage/
+*.tsbuildinfo
+
+# Tool caches
+.turbo/
+.cache/
+.eslintcache
 
 # Logs and runtime files
 npm-debug.log*
@@ -10,22 +17,22 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Env files
+# Environment files
 .env
 .env.*
 !.env.example
 
-# OS/editor noise
+# IDE/editor noise
+.idea/
 .DS_Store
 Thumbs.db
+
+# Temporary files
+tmp/
+*.tmp
 
 # Vercel local metadata
 .vercel/
 
-# Local command dump artifacts
-tatus --short
-
 # Local research datasets (not runtime assets)
 public/Scents/
-.vercel
-.env*

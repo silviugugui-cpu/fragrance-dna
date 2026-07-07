@@ -1,0 +1,350 @@
+{
+  "objectType": "masterPerfumeObjectV1",
+  "objectVersion": "1.0.0",
+  "identity": {
+    "owner": "Builder Import Domain Owner",
+    "producerStage": "import",
+    "data": {
+      "fragranceId": "fragrance-18-21-man-made-sweet-tobacco-spirits",
+      "sourceRecordKey": "Sheet1:2",
+      "displayName": "Sweet Tobacco Spirits",
+      "slug": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      },
+      "aliases": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      }
+    }
+  },
+  "brand": {
+    "owner": "Builder Import Domain Owner",
+    "producerStage": "import",
+    "data": {
+      "brandNameRaw": "18 21 Man Made",
+      "brandNameCanonical": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      },
+      "brandId": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      },
+      "brandAliases": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      }
+    }
+  },
+  "classification": {
+    "owner": "Builder Normalize Domain Owner",
+    "producerStage": "normalize",
+    "data": {
+      "objectType": "fragrance",
+      "concentrationRaw": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      },
+      "concentrationCanonical": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      },
+      "genderRaw": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      },
+      "genderCanonical": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      }
+    }
+  },
+  "releaseInformation": {
+    "owner": "Builder Import Domain Owner",
+    "producerStage": "import",
+    "data": {
+      "launchYearRaw": "2016",
+      "launchYear": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      },
+      "releaseCountryRaw": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      },
+      "releaseCountryCanonical": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      }
+    }
+  },
+  "rawNotes": {
+    "owner": "Builder Import Domain Owner",
+    "producerStage": "import",
+    "data": {
+      "sourceValue": "[\"Citruses\", \"Saffron\", \"Tonka Bean\", \"Vanilla\", \"Exotic Fruits\", \"Red wine\", \"Musk\", \"Woodsy Notes\"]",
+      "detectedStructure": "simple-array",
+      "preservedStructure": {
+        "type": "simple-array",
+        "value": [
+          "Citruses",
+          "Saffron",
+          "Tonka Bean",
+          "Vanilla",
+          "Exotic Fruits",
+          "Red wine",
+          "Musk",
+          "Woodsy Notes"
+        ]
+      },
+      "entries": [
+        {
+          "value": "Citruses",
+          "globalIndex": 0,
+          "indexInGroup": 0,
+          "group": null
+        },
+        {
+          "value": "Saffron",
+          "globalIndex": 1,
+          "indexInGroup": 1,
+          "group": null
+        },
+        {
+          "value": "Tonka Bean",
+          "globalIndex": 2,
+          "indexInGroup": 2,
+          "group": null
+        },
+        {
+          "value": "Vanilla",
+          "globalIndex": 3,
+          "indexInGroup": 3,
+          "group": null
+        },
+        {
+          "value": "Exotic Fruits",
+          "globalIndex": 4,
+          "indexInGroup": 4,
+          "group": null
+        },
+        {
+          "value": "Red wine",
+          "globalIndex": 5,
+          "indexInGroup": 5,
+          "group": null
+        },
+        {
+          "value": "Musk",
+          "globalIndex": 6,
+          "indexInGroup": 6,
+          "group": null
+        },
+        {
+          "value": "Woodsy Notes",
+          "globalIndex": 7,
+          "indexInGroup": 7,
+          "group": null
+        }
+      ],
+      "structureVersion": "1.0.0"
+    }
+  },
+  "canonicalNotes": {
+    "owner": "Builder Knowledge Domain Owner",
+    "producerStage": "knowledge",
+    "data": {
+      "items": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      },
+      "unresolvedSourceNotes": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      }
+    }
+  },
+  "notePyramid": {
+    "owner": "Builder Translation Domain Owner",
+    "producerStage": "translation",
+    "data": {
+      "rawStructureType": "simple-array",
+      "top": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      },
+      "middle": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      },
+      "base": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      },
+      "unlayered": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      }
+    }
+  },
+  "mainAccords": {
+    "owner": "Builder Import Domain Owner",
+    "producerStage": "import",
+    "data": {
+      "sourceValue": "[\"wine\", \"vanilla\", \"sweet\", \"woody\", \"aromatic\"]",
+      "detectedStructure": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      },
+      "entries": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      }
+    }
+  },
+  "performance": {
+    "owner": "Builder Import Domain Owner",
+    "producerStage": "import",
+    "data": {
+      "longevityRaw": "[\"4\", \"0\", \"9\", \"14\", \"31\"]",
+      "sillageRaw": "[\"10\", \"19\", \"28\", \"11\"]",
+      "longevityCanonical": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      },
+      "sillageCanonical": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      }
+    }
+  },
+  "availability": {
+    "owner": "Builder Metadata Domain Owner",
+    "producerStage": "metadata",
+    "data": {
+      "status": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      },
+      "regions": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      },
+      "discontinued": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      },
+      "lastVerifiedAt": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      }
+    }
+  },
+  "relationships": {
+    "owner": "Builder Metadata Domain Owner",
+    "producerStage": "metadata",
+    "data": {
+      "flankers": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      },
+      "predecessors": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      },
+      "successors": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      },
+      "relatedVariants": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      }
+    }
+  },
+  "brandIntelligence": {
+    "owner": "Builder Brand Intelligence Domain Owner",
+    "producerStage": "brand-intelligence",
+    "data": {
+      "brandTier": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      },
+      "brandOrigin": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      },
+      "brandPortfolioTags": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      },
+      "provenance": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      }
+    }
+  },
+  "builderMetadata": {
+    "owner": "Builder Publish Domain Owner",
+    "producerStage": "publish",
+    "data": {
+      "objectVersion": "1.0.0",
+      "pipelineVersion": "0.1.0-foundation",
+      "generatedAt": "2026-07-06T18:48:54.631Z",
+      "generatedBy": "step12-master-perfume-generator",
+      "sourceArtifacts": [
+        "raw-import:D:\\-projects\\projects\\_Fragrantiq\\public\\FragranceDNA_RawPerfumeDatabase_Export.xlsx",
+        "raw-row:Sheet1:2"
+      ]
+    }
+  },
+  "governanceMetadata": {
+    "owner": "Builder Validation Domain Owner",
+    "producerStage": "validation",
+    "data": {
+      "contractStatus": "pass",
+      "validationErrors": [],
+      "validationWarnings": [
+        "Unknown values are explicit for domains not produced by implemented stages."
+      ],
+      "provenance": {
+        "source": "D:\\-projects\\projects\\_Fragrantiq\\public\\FragranceDNA_RawPerfumeDatabase_Export.xlsx",
+        "generator": "step12-master-perfume-generator",
+        "method": "single-fragrance-sample-generation",
+        "version": "1.0.0",
+        "confidence": null,
+        "timestamp": "2026-07-06T18:48:54.631Z"
+      },
+      "dataLineageHash": {
+        "state": "Unknown",
+        "reason": "Unknown: this field is not produced by currently implemented Builder stages."
+      }
+    }
+  },
+  "sampleContext": {
+    "workbookPath": "D:\\-projects\\projects\\_Fragrantiq\\public\\FragranceDNA_RawPerfumeDatabase_Export.xlsx",
+    "worksheetName": "Sheet1",
+    "worksheetRowIndex": 2,
+    "sourceRowRawRecord": {
+      "brand": "18 21 Man Made",
+      "perfume": "Sweet Tobacco Spirits",
+      "image": "o.37691.jpg",
+      "launch_year": "2016",
+      "main_accords": "[\"wine\", \"vanilla\", \"sweet\", \"woody\", \"aromatic\"]",
+      "notes": "[\"Citruses\", \"Saffron\", \"Tonka Bean\", \"Vanilla\", \"Exotic Fruits\", \"Red wine\", \"Musk\", \"Woodsy Notes\"]",
+      "longevity": "[\"4\", \"0\", \"9\", \"14\", \"31\"]",
+      "sillage": "[\"10\", \"19\", \"28\", \"11\"]"
+    },
+    "sourceRowRawValues": [
+      "18 21 Man Made",
+      "Sweet Tobacco Spirits",
+      "o.37691.jpg",
+      "2016",
+      "[\"wine\", \"vanilla\", \"sweet\", \"woody\", \"aromatic\"]",
+      "[\"Citruses\", \"Saffron\", \"Tonka Bean\", \"Vanilla\", \"Exotic Fruits\", \"Red wine\", \"Musk\", \"Woodsy Notes\"]",
+      "[\"4\", \"0\", \"9\", \"14\", \"31\"]",
+      "[\"10\", \"19\", \"28\", \"11\"]"
+    ]
+  }
+}

@@ -2,42 +2,44 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import type { Fragrance, AttributeKey, AnswerRecord } from '../../lib/types';
-import fragrances from '../../lib/db.json';
+import type { AnswerRecord } from '../../lib/types';
 import {
   buildSessionFromAnswers,
-  findNextUnansweredIndex,
   loadDnaSession,
   saveDnaSession,
 } from '@/lib/dnaSession';
 import { getOrCreateUserProfile, updateUserVector } from '@/lib/engine/userProfileManager';
-import { PageShell, SectionHeader, StatCard, PremiumButton } from '@/components/design-system';
+import { getPhase1Flags } from '@/lib/intelligence/flags/phase1Flags';
+import { createFragranceIntelligenceService } from '@/lib/intelligence/fragranceIntelligence';
+import { selectNextBestFragrance } from '@/lib/intelligence/learning';
+import { runTestDualWrite } from '@/lib/intelligence/test/testDualWrite';
+import { buildDefaultAnswers, getEvaluationQuestionsForFragrance } from '@/lib/test/adaptiveQuestions';
+import { PageShell, StatCard, PremiumButton } from '@/components/design-system';
 
-const attributes: { key: AttributeKey; label: string; description: string }[] = [
-  { key: 'elegant', label: 'Elegant', description: 'Refines the composition with satin-smooth depth.' },
-  { key: 'carismatic', label: 'Charismatic', description: 'Adds magnetic presence and a memorable aura.' },
-  { key: 'misterios', label: 'Mysterious', description: 'Lends an intriguing veil of enigma and shadow.' },
-  { key: 'citrice', label: 'Citrus', description: 'Brings sparkling brightness and fresh zest.' },
-  { key: 'miere', label: 'Honeyed', description: 'Infuses warm gourmand sweetness and glow.' },
-  { key: 'lemn', label: 'Woody', description: 'Grounds the scent with soft, smoky woods.' }
-];
-
-const defaultAnswers: AnswerRecord = {
-  elegant: 50,
-  carismatic: 50,
-  misterios: 50,
-  citrice: 50,
-  miere: 50,
-  lemn: 50
+const PHASE1_FLAGS_SSR_SAFE = {
+  eventsWriteEnabled: false,
+  eventsWriteRequired: false,
+  projectionsReadUserDna: false,
+  projectionsReadSession: false,
+  dualWriteLegacyProfile: true,
+  dualWriteLegacySession: true,
+  phase1ShadowValidation: false,
+  adaptiveTestQuestionsEnabled: true,
+  adaptiveNextFragranceEnabled: true,
+  testDualWriteEnabled: false,
+  testShadowValidationEnabled: false,
 };
 
 const STORAGE_KEY = 'fragranceDNA-answers';
+const FRAGRANCE_INTELLIGENCE = createFragranceIntelligenceService();
+const EVALUATION_FRAGRANCES = FRAGRANCE_INTELLIGENCE.listEvaluationFragrances();
 
 export default function TestPage() {
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, AnswerRecord>>({});
   const [groundingSelectionCount, setGroundingSelectionCount] = useState(0);
+  const [groundingTokens, setGroundingTokens] = useState<string[]>([]);
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
@@ -53,7 +55,7 @@ export default function TestPage() {
       setAnswers(session.answers);
     }
     if (typeof session.currentIndex === 'number') {
-      setCurrentIndex(Math.min(session.currentIndex, fragrances.length - 1));
+      setCurrentIndex(Math.min(session.currentIndex, EVALUATION_FRAGRANCES.length - 1));
     }
 
     try {
@@ -61,15 +63,23 @@ export default function TestPage() {
       if (rawGrounding) {
         const parsedGrounding = JSON.parse(rawGrounding) as {
           love?: string[];
+          neutral?: string[];
           red_flag?: string[];
         };
         const selectedCount = (parsedGrounding.love?.length ?? 0) + (parsedGrounding.red_flag?.length ?? 0);
         setGroundingSelectionCount(selectedCount);
+        setGroundingTokens([
+          ...(parsedGrounding.love ?? []),
+          ...(parsedGrounding.neutral ?? []),
+          ...(parsedGrounding.red_flag ?? []),
+        ]);
       } else {
         setGroundingSelectionCount(0);
+        setGroundingTokens([]);
       }
     } catch {
       setGroundingSelectionCount(0);
+      setGroundingTokens([]);
     }
 
     setIsHydrated(true);
@@ -90,28 +100,73 @@ export default function TestPage() {
     saveDnaSession(nextSession);
   }, [answers, currentIndex, isHydrated]);
 
-  const currentFragrance = fragrances[currentIndex] as Fragrance;
+  const phase1Flags = isHydrated ? getPhase1Flags() : PHASE1_FLAGS_SSR_SAFE;
+  const adaptiveSelection = useMemo(
+    () =>
+      selectNextBestFragrance({
+        answers,
+        groundingTokens,
+        fragranceService: FRAGRANCE_INTELLIGENCE,
+        legacySequentialEnabled: !phase1Flags.adaptiveNextFragranceEnabled,
+        previousEvaluations: Object.keys(answers),
+      }),
+    [answers, groundingTokens, phase1Flags.adaptiveNextFragranceEnabled]
+  );
+  const currentRef = useMemo(
+    () =>
+      FRAGRANCE_INTELLIGENCE.listEvaluationFragrances().find(
+        (fragrance) => fragrance.fragranceId === adaptiveSelection.fragranceId
+      ) ?? EVALUATION_FRAGRANCES[0],
+    [adaptiveSelection.fragranceId]
+  );
+  if (!currentRef) {
+    return null;
+  }
+
+  const canonicalFragrance = useMemo(
+    () => FRAGRANCE_INTELLIGENCE.getCanonicalFragrance(currentRef.fragranceId),
+    [currentRef.fragranceId]
+  );
+  const evaluationQuestions = useMemo(
+    () => {
+      if (!canonicalFragrance) {
+        return [];
+      }
+
+      return getEvaluationQuestionsForFragrance(canonicalFragrance, {
+        adaptiveEnabled: phase1Flags.adaptiveTestQuestionsEnabled,
+        allowLegacyFallback: false,
+      });
+    },
+    [canonicalFragrance, phase1Flags.adaptiveTestQuestionsEnabled]
+  );
+
+  const defaultAnswers = useMemo(
+    () => buildDefaultAnswers(evaluationQuestions),
+    [evaluationQuestions]
+  );
+
   const answeredIds = useMemo(() => Object.keys(answers), [answers]);
-  const isComplete = answeredIds.length >= fragrances.length;
+  const isComplete = answeredIds.length >= EVALUATION_FRAGRANCES.length;
   const liveSession = useMemo(
     () => buildSessionFromAnswers(answers, currentIndex, loadDnaSession()),
     [answers, currentIndex]
   );
 
-  const handleSliderChange = (key: AttributeKey, value: number) => {
+  const handleSliderChange = (key: string, value: number) => {
     setAnswers((prev) => ({
       ...prev,
-      [currentFragrance.id]: {
-        ...((prev[currentFragrance.id] as AnswerRecord) ?? defaultAnswers),
+      [currentRef.fragranceId]: {
+        ...(prev[currentRef.fragranceId] ?? defaultAnswers),
         [key]: value
       }
     }));
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     const nextAnswers = {
       ...answers,
-      [currentFragrance.id]: currentAnswers,
+      [currentRef.fragranceId]: currentAnswers,
     };
 
     setAnswers(nextAnswers);
@@ -120,20 +175,64 @@ export default function TestPage() {
     saveDnaSession(nextSession);
     const profile = getOrCreateUserProfile();
     const confidence = nextSession.summary?.confidenceScore ?? nextSession.snapshots.at(-1)?.confidenceScore ?? 0;
-    updateUserVector(profile, nextSession.currentVector, confidence);
+    const updatedProfile = updateUserVector(profile, nextSession.currentVector, confidence);
+    const isCompleteNext = Object.keys(nextAnswers).length >= EVALUATION_FRAGRANCES.length;
 
-    const nextUnanswered = findNextUnansweredIndex(nextAnswers, currentIndex);
-    if (nextUnanswered !== -1) {
-      setCurrentIndex(nextUnanswered);
-      return;
+    if (phase1Flags.eventsWriteEnabled || phase1Flags.testDualWriteEnabled) {
+      try {
+        const dualWriteResult = await runTestDualWrite({
+          userId: updatedProfile.userId,
+          fragranceId: currentRef.fragranceId,
+          answerDimensions: currentAnswers,
+          currentIndex,
+          answeredCount: Object.keys(nextAnswers).length,
+          answeredOrder: [...nextSession.answeredOrder],
+          currentVector: nextSession.currentVector as unknown as Record<string, number>,
+          confidenceEstimate: confidence,
+          flags: phase1Flags,
+        });
+
+        window.localStorage.setItem('phase1_test_dual_write_status', JSON.stringify(dualWriteResult));
+      } catch (error) {
+        window.localStorage.setItem(
+          'phase1_test_dual_write_status',
+          JSON.stringify({
+            attempted: true,
+            persisted: false,
+            published: false,
+            parityValidated: false,
+            parityMatches: false,
+            eventIds: [],
+            differences: [],
+            metrics: {
+              eventsEmitted: 0,
+              eventsPersisted: 0,
+              eventsPublished: 0,
+              eventsFailed: 0,
+              eventsRetried: 0,
+              parityPassed: 0,
+              parityFailed: 0,
+              averageWriteTime: 0,
+              averageReplayTime: 0,
+              averageParityTime: 0,
+            },
+            errors: [error instanceof Error ? error.message : 'test_dual_write_failed'],
+          })
+        );
+      }
     }
 
-    router.push('/dna');
+    setCurrentIndex(Object.keys(nextAnswers).length);
+
+    if (isCompleteNext) {
+      router.push('/dna');
+      return;
+    }
   };
 
-  const currentAnswers = answers[currentFragrance.id] ?? defaultAnswers;
-  const remaining = Math.max(0, fragrances.length - answeredIds.length);
-  const progress = Math.round((answeredIds.length / fragrances.length) * 100);
+  const currentAnswers = answers[currentRef.fragranceId] ?? defaultAnswers;
+  const remaining = Math.max(0, EVALUATION_FRAGRANCES.length - answeredIds.length);
+  const progress = Math.round((answeredIds.length / EVALUATION_FRAGRANCES.length) * 100);
   const needsGrounding = groundingSelectionCount < 2;
 
   return (
@@ -170,7 +269,7 @@ export default function TestPage() {
             <p className="text-sm font-medium uppercase tracking-wider text-gold mb-4">DISCOVER</p>
             <h1 className="text-4xl md:text-5xl font-light mb-6 text-white">Guided Fragrance Discovery</h1>
             <p className="text-lg text-gray-300 max-w-2xl leading-relaxed">
-              Evaluate each fragrance through six sensory dimensions. Your preferences shape a refined DNA profile with each selection. Move at your own pace and trust your instinct.
+              Evaluate each fragrance through its own canonical attributes. Your preferences shape a refined DNA profile with each selection. Move at your own pace and trust your instinct.
             </p>
           </div>
         </div>
@@ -188,7 +287,7 @@ export default function TestPage() {
                   <span className="text-lg text-gray-400">through discovery</span>
                 </div>
                 <p className="text-sm text-gray-400 mb-4">
-                  {answeredIds.length} of {fragrances.length} fragrances evaluated • {remaining} moments remain
+                  {answeredIds.length} of {EVALUATION_FRAGRANCES.length} fragrances evaluated • {remaining} moments remain
                 </p>
               </div>
               <div className="lg:flex-1">
@@ -211,7 +310,7 @@ export default function TestPage() {
               </div>
               <div className="text-right">
                 <p className="text-xs uppercase tracking-wider text-gray-400">Stage</p>
-                <p className="text-3xl font-bold text-white mt-1">{currentIndex + 1}/{fragrances.length}</p>
+                <p className="text-3xl font-bold text-white mt-1">{currentIndex + 1}/{EVALUATION_FRAGRANCES.length}</p>
               </div>
             </div>
           </div>
@@ -223,21 +322,24 @@ export default function TestPage() {
         <div className="main-container">
           <div className="premium-card-dark p-8 md:p-12 border-l-4 border-l-gold mb-12">
             <p className="text-xs uppercase tracking-wider text-gray-400 mb-3">CURRENT FRAGRANCE</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">{currentFragrance.name}</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">{currentRef.displayName}</h2>
             <p className="text-base text-gray-300 max-w-2xl leading-relaxed">
-              Rate this fragrance across six sensory dimensions. Your evaluations blend with your grounding preferences to continuously refine your olfactory identity.
+              Rate this fragrance across its canonical attributes. Your evaluations blend with your grounding preferences to continuously refine your olfactory identity.
+            </p>
+            <p className="mt-4 max-w-3xl text-sm leading-relaxed text-gold/90">
+              {adaptiveSelection.explanation}
             </p>
           </div>
 
           {/* Sensory Evaluation Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
-            {attributes.map((attribute) => (
-              <div key={attribute.key} className="premium-card-dark p-8">
+            {evaluationQuestions.map((attribute) => (
+              <div key={attribute.canonicalAttributeId} className="premium-card-dark p-8">
                 <div className="mb-6">
                   <div className="flex items-start justify-between mb-3">
                     <div>
-                      <p className="text-xs uppercase tracking-wider text-gray-400 font-semibold">{attribute.label}</p>
-                      <p className="text-lg font-medium text-white mt-2">{attribute.description}</p>
+                      <p className="text-xs uppercase tracking-wider text-gray-400 font-semibold">{attribute.displayName}</p>
+                      <p className="text-lg font-medium text-white mt-2">{attribute.metadata.description}</p>
                     </div>
                   </div>
                 </div>
@@ -248,7 +350,7 @@ export default function TestPage() {
                     <div className="relative h-3 bg-black-700 rounded-full overflow-hidden">
                       <div
                         className="h-3 rounded-full bg-gradient-to-r from-gold to-warm-400 transition-all"
-                        style={{ width: `${currentAnswers[attribute.key]}%` }}
+                        style={{ width: `${currentAnswers[attribute.canonicalAttributeId]}%` }}
                       />
                     </div>
                   </div>
@@ -257,21 +359,24 @@ export default function TestPage() {
                   <div className="flex items-center justify-between">
                     <input
                       type="range"
-                      min="0"
-                      max="100"
-                      value={currentAnswers[attribute.key]}
-                      onChange={(event) => handleSliderChange(attribute.key, Number(event.target.value))}
+                      min={attribute.scale.min}
+                      max={attribute.scale.max}
+                      step={attribute.scale.step}
+                      value={currentAnswers[attribute.canonicalAttributeId]}
+                      onChange={(event) =>
+                        handleSliderChange(attribute.canonicalAttributeId, Number(event.target.value))
+                      }
                       className="flex-1 h-2 bg-black-700 rounded-full appearance-none cursor-pointer accent-gold"
                     />
                     <span className="ml-4 text-lg font-semibold text-gold w-12 text-right">
-                      {currentAnswers[attribute.key]}
+                      {currentAnswers[attribute.canonicalAttributeId]}
                     </span>
                   </div>
 
                   {/* Value Labels */}
                   <div className="flex justify-between text-xs text-gray-500 mt-2">
-                    <span>Not Present</span>
-                    <span>Very Present</span>
+                    <span>{attribute.scale.minLabel}</span>
+                    <span>{attribute.scale.maxLabel}</span>
                   </div>
                 </div>
               </div>
@@ -283,7 +388,7 @@ export default function TestPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <StatCard
                 label="Evaluated"
-                value={`${answeredIds.length}/${fragrances.length}`}
+                value={`${answeredIds.length}/${EVALUATION_FRAGRANCES.length}`}
                 subtitle="fragrances rated"
               />
               <StatCard

@@ -8,13 +8,7 @@ export type Fragrance = {
   semantic_v1?: Record<string, number>;
 };
 
-export type AttributeKey =
-  | 'elegant'
-  | 'carismatic'
-  | 'misterios'
-  | 'citrice'
-  | 'miere'
-  | 'lemn';
+export type AttributeKey = string;
 
 export type AnswerRecord = Record<AttributeKey, number>;
 

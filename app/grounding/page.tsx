@@ -6,6 +6,8 @@ import { buildSeed } from "@/lib/engine/seedBuilder";
 import { buildUserVector } from "@/lib/engine/userVectorBuilder";
 import { mergeGroundingVectorIntoSession } from "@/lib/dnaSession";
 import { getOrCreateUserProfile, updateUserVector } from "@/lib/engine/userProfileManager";
+import { getPhase1Flags } from "@/lib/intelligence/flags/phase1Flags";
+import { runGroundingDualWrite } from "@/lib/intelligence/grounding/groundingDualWrite";
 import { PageShell, SectionHeader, PremiumButton } from "@/components/design-system";
 
 const TOKENS = [
@@ -107,7 +109,7 @@ export default function GroundingPage() {
     };
   }
 
-  function finish() {
+  async function finish() {
     const engineInput = buildEngineInput();
     const seed = buildSeed(engineInput);
     const userVector = buildUserVector(seed);
@@ -118,7 +120,36 @@ export default function GroundingPage() {
 
     mergeGroundingVectorIntoSession(userVector);
     const profile = getOrCreateUserProfile();
-    updateUserVector(profile, userVector, 10);
+    const updatedProfile = updateUserVector(profile, userVector, 10);
+
+    const phase1Flags = getPhase1Flags();
+    if (phase1Flags.eventsWriteEnabled || phase1Flags.phase1ShadowValidation) {
+      try {
+        const dualWriteResult = await runGroundingDualWrite({
+          userId: updatedProfile.userId,
+          engineInput,
+          seed: seed as Record<string, unknown>,
+          userVector: userVector as unknown as Record<string, number>,
+          flags: phase1Flags,
+        });
+
+        localStorage.setItem("phase1_grounding_dual_write_status", JSON.stringify(dualWriteResult));
+      } catch (error) {
+        localStorage.setItem(
+          "phase1_grounding_dual_write_status",
+          JSON.stringify({
+            attempted: true,
+            persisted: false,
+            published: false,
+            parityValidated: false,
+            parityMatches: false,
+            reusedIdempotency: false,
+            errors: [error instanceof Error ? error.message : "grounding_dual_write_failed"],
+            differences: [],
+          })
+        );
+      }
+    }
 
     router.push("/test");
   }

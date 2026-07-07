@@ -1,5 +1,28 @@
 # FragranceDNA Architecture
 
+## Canonical Freeze Notice
+
+Canonical Architecture v2 is frozen and implementation-ready.
+
+Primary canonical references are:
+
+* PRODUCT_DOCTRINE.md
+* ARCHITECTURE_PRINCIPLES.md
+* CANONICAL_ARCHITECTURE_V2.md
+* DATA_MODEL.md
+* EVENT_MODEL.md
+* USER_DNA_MODEL.md
+* FRAGRANCE_INTELLIGENCE_MODEL.md
+* TEST_ENGINE_V2.md
+* RECOMMENDATION_ENGINE_V2.md
+* ENGINE_VERSIONING.md
+* EXPLAINABILITY.md
+* IMPLEMENTATION_ROADMAP.md
+* ENGINEERING_GUIDELINES.md
+* ADR/
+
+In case of conflict, the v2 canonical references above take precedence for implementation decisions.
+
 ## Canonical Fragrance Source
 
 MasterFragrancePool is the single source of truth.

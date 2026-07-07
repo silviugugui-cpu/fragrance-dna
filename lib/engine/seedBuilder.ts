@@ -1,3 +1,5 @@
+import { resolveCanonicalAttribute } from "@/lib/intelligence/attributes";
+
 export type GroundingInput = Partial<{
   love: string[];
   red_flag: string[];
@@ -22,35 +24,14 @@ function mapTokens(tokens: unknown): string[] {
   if (!Array.isArray(tokens)) return [];
 
   return tokens.flatMap((token) => {
-    const t = String(token);
+    const raw = String(token);
+    const resolved = resolveCanonicalAttribute(raw);
+    const expanded = resolved?.metadata.groundingExpansionTokens;
 
-    switch (t) {
-      case "Fresh & Citrusy":
-        return ["citrus", "bergamot", "lemon"];
-
-      case "Sweet & Gourmand":
-        return ["honey", "vanilla", "caramel"];
-
-      case "Woody & Dry":
-        return ["wood", "cedar", "vetiver"];
-
-      case "Clean & Soapy":
-        return ["clean", "soap", "white musk"];
-
-      case "Spicy & Warm":
-        return ["spice", "cinnamon", "amber"];
-
-      case "Green & Natural":
-        return ["green", "herbal", "leaf"];
-
-      case "Dark & Smoky":
-        return ["smoke", "incense", "dark"];
-
-      case "Soft & Powdery":
-        return ["powder", "iris", "soft"];
-
-      default:
-        return [t];
+    if (expanded && expanded.length > 0) {
+      return expanded;
     }
+
+    return [raw];
   });
 }
