@@ -40,10 +40,6 @@ export const createBuilderConfig = (
     process.env.BUILDER_RUNTIME_TMP_ROOT ??
     (isReadonlyServerRuntime ? os.tmpdir() : path.join(workspaceRoot, "tmp"));
   const normalizeWritablePath = (inputPath: string): string => {
-    if (!isReadonlyServerRuntime) {
-      return inputPath;
-    }
-
     return inputPath.startsWith("/var/task/tmp")
       ? inputPath.replace("/var/task/tmp", os.tmpdir())
       : inputPath;
