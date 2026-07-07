@@ -1,10 +1,27 @@
-import { StudioModulePlaceholder } from "@/app/studio/_components/StudioModulePlaceholder";
+import { StudioBuilderControlCenter } from "@/app/studio/_components/StudioBuilderControlCenter";
+import { loadBuilderControlCenterData } from "@/lib/builder/controlCenter/builderControlCenter";
 
-export default function StudioGroundingPage() {
-  return (
-    <StudioModulePlaceholder
-      title="Grounding"
-      responsibility="Future module for source grounding contracts, entity linking confidence, and provenance integrity controls."
-    />
-  );
+export const dynamic = "force-dynamic";
+
+export default async function StudioGroundingPage() {
+  try {
+    const data = await loadBuilderControlCenterData();
+    return (
+      <StudioBuilderControlCenter
+        data={data}
+        workspaceLabel="Grounding"
+        initialSection="live-execution"
+      />
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error while loading Builder operations workspace.";
+    return (
+      <StudioBuilderControlCenter
+        data={null}
+        loadError={message}
+        workspaceLabel="Grounding"
+        initialSection="live-execution"
+      />
+    );
+  }
 }

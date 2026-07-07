@@ -3,7 +3,7 @@ import { loadMasterDatabaseWorkspaceData } from "@/lib/builder/masterDatabaseWor
 
 export const dynamic = "force-dynamic";
 
-export default function StudioMasterDatabasePage() {
+export default async function StudioMasterDatabasePage() {
   try {
     const data = loadMasterDatabaseWorkspaceData();
     return <StudioMasterDatabaseWorkspace data={data} />;

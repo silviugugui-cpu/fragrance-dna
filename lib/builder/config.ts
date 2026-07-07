@@ -1,4 +1,5 @@
 import path from "node:path";
+import os from "node:os";
 
 export interface BuilderPathConfig {
   workspaceRoot: string;
@@ -33,11 +34,27 @@ export const createBuilderConfig = (
   overrides: Partial<BuilderConfig> = {},
 ): BuilderConfig => {
   const workspaceRoot = process.env.BUILDER_WORKSPACE_ROOT ?? process.cwd();
+  const isReadonlyServerRuntime =
+    Boolean(process.env.VERCEL) || workspaceRoot.startsWith("/var/task");
+  const runtimeTmpRoot =
+    process.env.BUILDER_RUNTIME_TMP_ROOT ??
+    (isReadonlyServerRuntime ? os.tmpdir() : path.join(workspaceRoot, "tmp"));
+  const normalizeWritablePath = (inputPath: string): string => {
+    if (!isReadonlyServerRuntime) {
+      return inputPath;
+    }
+
+    return inputPath.startsWith("/var/task/tmp")
+      ? inputPath.replace("/var/task/tmp", os.tmpdir())
+      : inputPath;
+  };
+  const builderRootCandidate =
+    process.env.BUILDER_ROOT ?? path.join(runtimeTmpRoot, "builder");
   const builderRoot =
-    process.env.BUILDER_ROOT ?? path.join(workspaceRoot, "tmp", "builder");
+    normalizeWritablePath(builderRootCandidate);
   const artifactsRoot =
-    process.env.BUILDER_ARTIFACTS_ROOT ?? path.join(builderRoot, "artifacts");
-  const logsRoot = process.env.BUILDER_LOGS_ROOT ?? path.join(builderRoot, "logs");
+    normalizeWritablePath(process.env.BUILDER_ARTIFACTS_ROOT ?? path.join(builderRoot, "artifacts"));
+  const logsRoot = normalizeWritablePath(process.env.BUILDER_LOGS_ROOT ?? path.join(builderRoot, "logs"));
 
   const base: BuilderConfig = {
     pipelineVersion: process.env.BUILDER_PIPELINE_VERSION ?? "0.1.0-foundation",
@@ -64,28 +81,28 @@ export const createBuilderConfig = (
       logsRoot,
       rawImportRoot:
         process.env.BUILDER_RAW_IMPORT_ROOT ??
-        path.join(artifactsRoot, "raw-import"),
+        normalizeWritablePath(path.join(artifactsRoot, "raw-import")),
       normalizedRoot:
         process.env.BUILDER_NORMALIZED_ROOT ??
-        path.join(artifactsRoot, "normalized"),
+        normalizeWritablePath(path.join(artifactsRoot, "normalized")),
       brandRoot:
-        process.env.BUILDER_BRAND_ROOT ?? path.join(artifactsRoot, "brand"),
+        process.env.BUILDER_BRAND_ROOT ?? normalizeWritablePath(path.join(artifactsRoot, "brand")),
       knowledgeRoot:
         process.env.BUILDER_KNOWLEDGE_ROOT ??
-        path.join(artifactsRoot, "knowledge"),
+        normalizeWritablePath(path.join(artifactsRoot, "knowledge")),
       translationRoot:
         process.env.BUILDER_TRANSLATION_ROOT ??
-        path.join(artifactsRoot, "translation"),
+        normalizeWritablePath(path.join(artifactsRoot, "translation")),
       fragranceIntelligenceRoot:
         process.env.BUILDER_FRAGRANCE_INTELLIGENCE_ROOT ??
-        path.join(artifactsRoot, "fragrance-intelligence"),
+        normalizeWritablePath(path.join(artifactsRoot, "fragrance-intelligence")),
       metadataRoot:
-        process.env.BUILDER_METADATA_ROOT ?? path.join(artifactsRoot, "metadata"),
+        process.env.BUILDER_METADATA_ROOT ?? normalizeWritablePath(path.join(artifactsRoot, "metadata")),
       validationRoot:
         process.env.BUILDER_VALIDATION_ROOT ??
-        path.join(artifactsRoot, "validation"),
+        normalizeWritablePath(path.join(artifactsRoot, "validation")),
       publishRoot:
-        process.env.BUILDER_PUBLISH_ROOT ?? path.join(artifactsRoot, "publish"),
+        process.env.BUILDER_PUBLISH_ROOT ?? normalizeWritablePath(path.join(artifactsRoot, "publish")),
     },
   };
 

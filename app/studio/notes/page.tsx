@@ -1,16 +1,25 @@
-import { StudioNotesWorkspace } from "@/app/studio/_components/StudioNotesWorkspace";
-import { loadNotesWorkspaceData } from "@/lib/builder/notesWorkspace/notesWorkspace";
+import { StudioBuilderControlCenter } from "@/app/studio/_components/StudioBuilderControlCenter";
+import { loadBuilderControlCenterData } from "@/lib/builder/controlCenter/builderControlCenter";
 
-export default function StudioNotesPage() {
+export const dynamic = "force-dynamic";
+
+export default async function StudioNotesPage() {
   try {
-    const data = loadNotesWorkspaceData();
-    return <StudioNotesWorkspace data={data} />;
+    const data = await loadBuilderControlCenterData();
+    return <StudioBuilderControlCenter data={data} workspaceLabel="Notes" initialSection="review" />;
   } catch (error) {
     const message =
       error instanceof Error
         ? error.message
-        : "Unknown error while loading notes workspace.";
+        : "Unknown error while loading Builder operations workspace.";
 
-    return <StudioNotesWorkspace data={null} loadError={message} />;
+    return (
+      <StudioBuilderControlCenter
+        data={null}
+        loadError={message}
+        workspaceLabel="Notes"
+        initialSection="review"
+      />
+    );
   }
 }

@@ -1,10 +1,25 @@
-import { StudioModulePlaceholder } from "@/app/studio/_components/StudioModulePlaceholder";
+import { StudioBuilderControlCenter } from "@/app/studio/_components/StudioBuilderControlCenter";
+import { loadBuilderControlCenterData } from "@/lib/builder/controlCenter/builderControlCenter";
 
-export default function StudioFamiliesPage() {
-  return (
-    <StudioModulePlaceholder
-      title="Families"
-      responsibility="Future module for olfactory family hierarchies and lineage governance."
-    />
-  );
+export const dynamic = "force-dynamic";
+
+export default async function StudioFamiliesPage() {
+  try {
+    const data = await loadBuilderControlCenterData();
+    return <StudioBuilderControlCenter data={data} workspaceLabel="Families" initialSection="review" />;
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Unknown error while loading Builder operations workspace.";
+
+    return (
+      <StudioBuilderControlCenter
+        data={null}
+        loadError={message}
+        workspaceLabel="Families"
+        initialSection="review"
+      />
+    );
+  }
 }

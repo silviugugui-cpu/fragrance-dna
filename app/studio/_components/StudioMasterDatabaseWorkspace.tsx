@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type {
   BuilderStatus,
@@ -21,7 +22,10 @@ type SortKey =
   | "perfume"
   | "brand"
   | "launchYear"
-  | "coverage"
+  | "completion"
+  | "confidence"
+  | "missingFields"
+  | "reviewRequired"
   | "builder"
   | "validation"
   | "review"
@@ -34,7 +38,10 @@ type ColumnKey =
   | "builder"
   | "validation"
   | "review"
-  | "coverage"
+  | "completion"
+  | "confidence"
+  | "missingFields"
+  | "reviewRequired"
   | "performance";
 
 const formatNumber = (value: number): string =>
@@ -96,6 +103,17 @@ const statusStyles = {
   },
 } as const;
 
+const decisionStyles = {
+  NEW_OBJECT: "border-emerald-400/35 bg-emerald-500/10 text-emerald-200",
+  UPDATE_EXISTING: "border-cyan-400/35 bg-cyan-500/10 text-cyan-200",
+  DUPLICATE: "border-zinc-500/35 bg-zinc-800/80 text-zinc-200",
+  ALIAS: "border-indigo-400/35 bg-indigo-500/10 text-indigo-200",
+  MERGE: "border-amber-400/35 bg-amber-500/10 text-amber-200",
+  IGNORE: "border-zinc-600/35 bg-zinc-900 text-zinc-400",
+  REVIEW_REQUIRED: "border-rose-400/35 bg-rose-500/10 text-rose-200",
+  INVALID: "border-rose-400/35 bg-rose-500/10 text-rose-200",
+} as const;
+
 const rowHeight = 48;
 const viewportHeight = 560;
 const overscan = 8;
@@ -106,8 +124,11 @@ const defaultColumnWidths: Record<ColumnKey, number> = {
   launchYear: 110,
   builder: 150,
   validation: 150,
-  review: 150,
-  coverage: 120,
+  review: 130,
+  completion: 130,
+  confidence: 120,
+  missingFields: 130,
+  reviewRequired: 150,
   performance: 140,
 };
 
@@ -117,8 +138,11 @@ const minColumnWidths: Record<ColumnKey, number> = {
   launchYear: 90,
   builder: 120,
   validation: 120,
-  review: 120,
-  coverage: 95,
+  review: 110,
+  completion: 95,
+  confidence: 95,
+  missingFields: 95,
+  reviewRequired: 120,
   performance: 120,
 };
 
@@ -126,6 +150,11 @@ export function StudioMasterDatabaseWorkspace({
   data,
   loadError,
 }: StudioMasterDatabaseWorkspaceProps) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const searchParamsString = searchParams?.toString() ?? "";
+  const queryParams = useMemo(() => new URLSearchParams(searchParamsString), [searchParamsString]);
   const [searchQuery, setSearchQuery] = useState("");
   const [brandFilter, setBrandFilter] = useState("all");
   const [launchYearFilter, setLaunchYearFilter] = useState("all");
@@ -141,6 +170,21 @@ export function StudioMasterDatabaseWorkspace({
   const [scrollTop, setScrollTop] = useState(0);
   const [columnWidths, setColumnWidths] = useState<Record<ColumnKey, number>>(defaultColumnWidths);
   const resizeRef = useRef<{ key: ColumnKey; startX: number; startWidth: number } | null>(null);
+
+  useEffect(() => {
+    const q = queryParams.get("q");
+    const perfume = queryParams.get("perfume");
+    const record = queryParams.get("record");
+    if (q && q.length > 0) {
+      setSearchQuery(q);
+    } else if (perfume && perfume.length > 0) {
+      setSearchQuery(perfume);
+    }
+
+    if (record && record.length > 0) {
+      setSelectedId(record);
+    }
+  }, [queryParams]);
 
   useEffect(() => {
     const onMouseMove = (event: MouseEvent) => {
@@ -259,8 +303,14 @@ export function StudioMasterDatabaseWorkspace({
         compare = left.brand.localeCompare(right.brand);
       } else if (sortKey === "launchYear") {
         compare = Number.parseInt(left.launchYear || "0", 10) - Number.parseInt(right.launchYear || "0", 10);
-      } else if (sortKey === "coverage") {
-        compare = left.coveragePercent - right.coveragePercent;
+      } else if (sortKey === "completion") {
+        compare = left.completionPercent - right.completionPercent;
+      } else if (sortKey === "confidence") {
+        compare = left.confidence - right.confidence;
+      } else if (sortKey === "missingFields") {
+        compare = left.missingFieldsCount - right.missingFieldsCount;
+      } else if (sortKey === "reviewRequired") {
+        compare = Number(left.reviewRequired) - Number(right.reviewRequired);
       } else if (sortKey === "builder") {
         compare = builderRank[left.builderStatus] - builderRank[right.builderStatus];
       } else if (sortKey === "validation") {
@@ -309,6 +359,29 @@ export function StudioMasterDatabaseWorkspace({
   const selectedDetail = selectedRow && data ? data.detailsById[selectedRow.id] : undefined;
   const selectedContext = selectedRow ? encodeURIComponent(selectedRow.id) : "";
 
+  useEffect(() => {
+    if (!pathname) {
+      return;
+    }
+
+    const params = new URLSearchParams(searchParamsString);
+    if (searchQuery.length > 0) {
+      params.set("q", searchQuery);
+    } else {
+      params.delete("q");
+    }
+
+    if (selectedId.length > 0) {
+      params.set("record", selectedId);
+    }
+
+    const nextQuery = params.toString();
+    const currentQuery = searchParamsString;
+    if (nextQuery !== currentQuery) {
+      router.replace(nextQuery.length > 0 ? `${pathname}?${nextQuery}` : pathname);
+    }
+  }, [pathname, router, searchParamsString, searchQuery, selectedId]);
+
   const totalRows = filteredRows.length;
   const visibleCount = Math.ceil(viewportHeight / rowHeight) + overscan;
   const startIndex = Math.max(0, Math.floor(scrollTop / rowHeight) - Math.floor(overscan / 2));
@@ -342,10 +415,16 @@ export function StudioMasterDatabaseWorkspace({
           <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">
             <TopMetric label="Total Perfumes" value={formatNumber(data.totalPerfumes)} />
             <TopMetric label="Total Brands" value={formatNumber(data.totalBrands)} />
-            <TopMetric label="Total Notes" value={formatNumber(data.totalNotes)} />
-            <TopMetric label="Total Accords" value={formatNumber(data.totalAccords)} />
-            <TopMetric label="Builder Coverage" value={formatPercent(data.builderCompletionPercent)} />
-            <TopMetric label="Pending Review" value={formatNumber(data.pendingReview)} />
+            <TopMetric label="Overall Completion" value={formatPercent(data.overallCompletionPercent)} />
+            <TopMetric label="Average Confidence" value={data.averageBuilderConfidence.toFixed(2)} />
+            <TopMetric label="Pending Enrichment Jobs" value={formatNumber(data.pendingEnrichmentJobs)} />
+            <TopMetric label="Pending Review" value={formatNumber(data.decisionMetrics.reviewRequired)} />
+            <TopMetric label="Decision Accuracy" value={formatPercent(data.decisionMetrics.decisionAccuracy)} />
+            <TopMetric label="Automation %" value={formatPercent(data.decisionMetrics.automationPercent)} />
+            <TopMetric label="Review Reduction" value={formatPercent(data.decisionMetrics.reviewReduction)} />
+            <TopMetric label="Missing Images" value={formatNumber(data.missingImages)} />
+            <TopMetric label="Missing Perfumers" value={formatNumber(data.missingPerfumers)} />
+            <TopMetric label="Missing Launch Years" value={formatNumber(data.missingLaunchYears)} />
             <TopMetric label="Validation Issues" value={formatNumber(data.validationIssueCount)} />
           </div>
 
@@ -465,7 +544,10 @@ export function StudioMasterDatabaseWorkspace({
                       <option value="perfume">Sort: Perfume</option>
                       <option value="brand">Sort: Brand</option>
                       <option value="launchYear">Sort: Launch Year</option>
-                      <option value="coverage">Sort: Coverage</option>
+                      <option value="completion">Sort: Completion %</option>
+                      <option value="confidence">Sort: Confidence</option>
+                      <option value="missingFields">Sort: Missing Fields</option>
+                      <option value="reviewRequired">Sort: Review Required</option>
                       <option value="builder">Sort: Builder</option>
                       <option value="validation">Sort: Validation</option>
                       <option value="review">Sort: Review</option>
@@ -503,7 +585,10 @@ export function StudioMasterDatabaseWorkspace({
                     <col style={{ width: `${columnWidths.builder}px` }} />
                     <col style={{ width: `${columnWidths.validation}px` }} />
                     <col style={{ width: `${columnWidths.review}px` }} />
-                    <col style={{ width: `${columnWidths.coverage}px` }} />
+                    <col style={{ width: `${columnWidths.completion}px` }} />
+                    <col style={{ width: `${columnWidths.confidence}px` }} />
+                    <col style={{ width: `${columnWidths.missingFields}px` }} />
+                    <col style={{ width: `${columnWidths.reviewRequired}px` }} />
                     <col style={{ width: `${columnWidths.performance}px` }} />
                   </colgroup>
                   <thead className="sticky top-0 z-10 bg-zinc-950/95 text-zinc-400">
@@ -515,7 +600,10 @@ export function StudioMasterDatabaseWorkspace({
                         ["builder", "Builder Status"],
                         ["validation", "Validation"],
                         ["review", "Review"],
-                        ["coverage", "Coverage"],
+                        ["completion", "Completion %"],
+                        ["confidence", "Confidence"],
+                        ["missingFields", "Missing Fields"],
+                        ["reviewRequired", "Review Required"],
                         ["performance", "Performance"],
                       ].map(([key, label]) => (
                         <th key={key} className="relative border-b border-zinc-800 px-2 py-2 text-left">
@@ -533,7 +621,7 @@ export function StudioMasterDatabaseWorkspace({
                   <tbody>
                     {topSpacerHeight > 0 ? (
                       <tr>
-                        <td colSpan={8} style={{ height: `${topSpacerHeight}px` }} />
+                        <td colSpan={11} style={{ height: `${topSpacerHeight}px` }} />
                       </tr>
                     ) : null}
 
@@ -572,7 +660,19 @@ export function StudioMasterDatabaseWorkspace({
                             />
                           </td>
                           <td className="px-2 py-2">
-                            {formatPercent(row.coveragePercent)}
+                            {formatPercent(row.completionPercent)}
+                          </td>
+                          <td className="px-2 py-2">{row.confidence.toFixed(2)}</td>
+                          <td className="px-2 py-2">{formatNumber(row.missingFieldsCount)}</td>
+                          <td className="px-2 py-2">
+                            <StatusBadge
+                              styleClass={
+                                row.reviewRequired
+                                  ? "border-amber-400/35 bg-amber-500/10 text-amber-200"
+                                  : "border-emerald-400/35 bg-emerald-500/10 text-emerald-200"
+                              }
+                              label={row.reviewRequired ? "yes" : "no"}
+                            />
                           </td>
                           <td className="px-2 py-2">
                             <StatusBadge
@@ -586,7 +686,7 @@ export function StudioMasterDatabaseWorkspace({
 
                     {bottomSpacerHeight > 0 ? (
                       <tr>
-                        <td colSpan={8} style={{ height: `${bottomSpacerHeight}px` }} />
+                        <td colSpan={11} style={{ height: `${bottomSpacerHeight}px` }} />
                       </tr>
                     ) : null}
                   </tbody>
@@ -677,6 +777,225 @@ export function StudioMasterDatabaseWorkspace({
                       label="Coverage"
                       value={formatPercent(selectedDetail.builder.coveragePercent)}
                     />
+                    <PairLine
+                      label="Confidence"
+                      value={selectedDetail.builder.confidence.toFixed(2)}
+                    />
+                  </SectionCard>
+
+                  <SectionCard title="Decision Engine">
+                    <StatusBadge
+                      styleClass={decisionStyles[selectedDetail.decision.current]}
+                      label={selectedDetail.decision.current}
+                    />
+                    <PairLine label="Confidence" value={selectedDetail.decision.confidence.toFixed(2)} />
+                    <PairLine label="Source Connector" value={selectedDetail.decision.sourceConnector} />
+                    <PairLine label="Suggested Action" value={selectedDetail.decision.suggestedNextAction} />
+                    <PairLine label="Timestamp" value={selectedDetail.decision.timestamp} />
+                    <p className="mt-2 text-xs uppercase tracking-[0.1em] text-zinc-500">Triggered Rules</p>
+                    <TokenGrid tokens={selectedDetail.decision.triggeredRules} />
+                    <p className="mt-2 text-xs uppercase tracking-[0.1em] text-zinc-500">Explanation</p>
+                    <p className="text-xs text-zinc-300">{selectedDetail.decision.explanation}</p>
+                  </SectionCard>
+
+                  <SectionCard title="Master Intelligence">
+                    <PairLine
+                      label="Completion"
+                      value={formatPercent(selectedDetail.intelligence.completionPercentage)}
+                    />
+                    <PairLine
+                      label="Missing Fields"
+                      value={formatNumber(selectedDetail.intelligence.missingFields.length)}
+                    />
+                    <PairLine
+                      label="Data Quality"
+                      value={selectedDetail.intelligence.dataQualityScore.toFixed(2)}
+                    />
+                    <PairLine
+                      label="Builder Confidence"
+                      value={selectedDetail.intelligence.builderConfidence.toFixed(2)}
+                    />
+                    <PairLine
+                      label="Review Required"
+                      value={selectedDetail.intelligence.reviewRequired ? "yes" : "no"}
+                    />
+                    <PairLine
+                      label="Automatic Resolution Possible"
+                      value={selectedDetail.intelligence.automaticResolutionPossible ? "yes" : "no"}
+                    />
+                    <PairLine
+                      label="Suggested Connector"
+                      value={selectedDetail.intelligence.suggestedConnector}
+                    />
+                    <PairLine
+                      label="Provenance Completeness"
+                      value={formatPercent(selectedDetail.intelligence.provenanceCompleteness)}
+                    />
+                    <PairLine
+                      label="Validation Completeness"
+                      value={formatPercent(selectedDetail.intelligence.validationCompleteness)}
+                    />
+                    <PairLine
+                      label="Knowledge Completeness"
+                      value={formatPercent(selectedDetail.intelligence.knowledgeCompleteness)}
+                    />
+                    <p className="mt-2 text-xs uppercase tracking-[0.1em] text-zinc-500">Missing Fields</p>
+                    <TokenGrid tokens={selectedDetail.intelligence.missingFields} />
+                  </SectionCard>
+
+                  <SectionCard title="Decision Provenance">
+                    <ul className="space-y-1 text-xs text-zinc-300">
+                      {selectedDetail.decision.provenance.length > 0 ? (
+                        selectedDetail.decision.provenance.map((entry) => (
+                          <li key={`${entry.key}-${entry.source}`}>
+                            - {entry.key}: {entry.source} / {entry.method} / {entry.confidence.toFixed(2)}
+                          </li>
+                        ))
+                      ) : (
+                        <li>- No provenance entries</li>
+                      )}
+                    </ul>
+                  </SectionCard>
+
+                  <SectionCard title="Decision History">
+                    <ul className="space-y-1 text-xs text-zinc-300">
+                      {selectedDetail.decision.history.length > 0 ? (
+                        selectedDetail.decision.history.map((entry) => (
+                          <li key={`${entry.ruleId}-${entry.at}`}>
+                            - {entry.at}: {entry.ruleId} / {entry.decision} / {entry.reason}
+                          </li>
+                        ))
+                      ) : (
+                        <li>- No decision history available</li>
+                      )}
+                    </ul>
+                  </SectionCard>
+
+                  <SectionCard title="Alternative Candidates">
+                    <ul className="space-y-1 text-xs text-zinc-300">
+                      {selectedDetail.decision.alternativeCandidates.length > 0 ? (
+                        selectedDetail.decision.alternativeCandidates.map((candidate) => (
+                          <li key={candidate.id}>
+                            - {candidate.perfume}: {candidate.brand} / {candidate.launchYear} / {candidate.decision} / {candidate.reason}
+                          </li>
+                        ))
+                      ) : (
+                        <li>- No alternative candidates</li>
+                      )}
+                    </ul>
+                  </SectionCard>
+
+                  <SectionCard title="Enrichment Tasks">
+                    <ul className="space-y-1 text-xs text-zinc-300">
+                      {selectedDetail.intelligence.enrichmentTasks.length > 0 ? (
+                        selectedDetail.intelligence.enrichmentTasks.map((task) => (
+                          <li key={task.id}>
+                            - {task.field}: {task.reason} ({task.suggestedConnector}, {task.resolutionType})
+                          </li>
+                        ))
+                      ) : (
+                        <li>- No enrichment tasks</li>
+                      )}
+                    </ul>
+                  </SectionCard>
+
+                  <SectionCard title="Connector Requirements">
+                    <PairLine
+                      label="Discovery Source"
+                      value={selectedDetail.connectors.discoverySource}
+                    />
+                    <PairLine
+                      label="Pending Enrichment"
+                      value={formatNumber(selectedDetail.connectors.pendingEnrichment)}
+                    />
+                    <PairLine
+                      label="Pending Jobs"
+                      value={formatNumber(selectedDetail.connectors.pendingJobs)}
+                    />
+                    <PairLine
+                      label="Completed Jobs"
+                      value={formatNumber(selectedDetail.connectors.completedJobs)}
+                    />
+                    <PairLine
+                      label="Connector Confidence"
+                      value={selectedDetail.connectors.confidence.toFixed(2)}
+                    />
+                    <PairLine
+                      label="Last Synchronized"
+                      value={selectedDetail.connectors.lastSynchronized}
+                    />
+                    <PairLine
+                      label="Conflict Status"
+                      value={selectedDetail.connectors.conflictStatus}
+                    />
+                    <PairLine
+                      label="Pending Synchronizations"
+                      value={formatNumber(selectedDetail.connectors.pendingSynchronizations)}
+                    />
+                    <PairLine
+                      label="Completed Synchronizations"
+                      value={formatNumber(selectedDetail.connectors.completedSynchronizations)}
+                    />
+                    <p className="mt-2 text-xs uppercase tracking-[0.1em] text-zinc-500">Missing Fields</p>
+                    <TokenGrid tokens={selectedDetail.connectors.missingFields} />
+                    <p className="mt-2 text-xs uppercase tracking-[0.1em] text-zinc-500">Required Connectors</p>
+                    <TokenGrid tokens={selectedDetail.connectors.requiredConnectors} />
+                    <p className="mt-2 text-xs uppercase tracking-[0.1em] text-zinc-500">Imported Sources</p>
+                    <TokenGrid tokens={selectedDetail.connectors.importedSources} />
+                    <p className="mt-2 text-xs uppercase tracking-[0.1em] text-zinc-500">Connector Status</p>
+                    <ul className="mt-1 space-y-1 text-xs text-zinc-300">
+                      {selectedDetail.connectors.connectorStatus.length > 0 ? (
+                        selectedDetail.connectors.connectorStatus.map((connector) => (
+                          <li key={`${connector.connector}-${connector.lastRun}`}>
+                            - {connector.connector}: {connector.status} (pending {formatNumber(connector.pendingJobs)}, failed {formatNumber(connector.failedJobs)})
+                          </li>
+                        ))
+                      ) : (
+                        <li>- No connector requirements</li>
+                      )}
+                    </ul>
+                  </SectionCard>
+
+                  <SectionCard title="Connector History">
+                    <ul className="space-y-1 text-xs text-zinc-300">
+                      {selectedDetail.connectors.connectorHistory.length > 0 ? (
+                        selectedDetail.connectors.connectorHistory.map((entry) => (
+                          <li key={`${entry.at}-${entry.connector}-${entry.workflow}`}>
+                            - {entry.at}: {entry.connector} / {entry.workflow} / {entry.status} / {entry.result ?? "none"} / {entry.confidence.toFixed(2)}
+                          </li>
+                        ))
+                      ) : (
+                        <li>- No connector history for this perfume</li>
+                      )}
+                    </ul>
+                  </SectionCard>
+
+                  <SectionCard title="Enrichment History">
+                    <ul className="space-y-1 text-xs text-zinc-300">
+                      {selectedDetail.connectors.enrichmentHistory.length > 0 ? (
+                        selectedDetail.connectors.enrichmentHistory.map((entry) => (
+                          <li key={entry.jobId}>
+                            - {entry.at}: {entry.connector} / {entry.field} / {entry.status}
+                          </li>
+                        ))
+                      ) : (
+                        <li>- No connector history for this perfume</li>
+                      )}
+                    </ul>
+                  </SectionCard>
+
+                  <SectionCard title="Synchronization History">
+                    <ul className="space-y-1 text-xs text-zinc-300">
+                      {selectedDetail.connectors.synchronizationHistory.length > 0 ? (
+                        selectedDetail.connectors.synchronizationHistory.map((entry) => (
+                          <li key={`${entry.at}-${entry.connector}-${entry.source}`}>
+                            - {entry.at}: {entry.connector} / {entry.source} / {entry.confidence.toFixed(2)} / fields {formatNumber(entry.fields.length)}
+                          </li>
+                        ))
+                      ) : (
+                        <li>- No synchronization history for this perfume</li>
+                      )}
+                    </ul>
                   </SectionCard>
 
                   <SectionCard title="Review Information">

@@ -1,10 +1,27 @@
-import { StudioModulePlaceholder } from "@/app/studio/_components/StudioModulePlaceholder";
+import { StudioBuilderControlCenter } from "@/app/studio/_components/StudioBuilderControlCenter";
+import { loadBuilderControlCenterData } from "@/lib/builder/controlCenter/builderControlCenter";
 
-export default function StudioRawImportPage() {
-  return (
-    <StudioModulePlaceholder
-      title="Raw Import"
-      responsibility="Future module for managing source intake contracts, workbook visibility, and import operational controls."
-    />
-  );
+export const dynamic = "force-dynamic";
+
+export default async function StudioRawImportPage() {
+  try {
+    const data = await loadBuilderControlCenterData();
+    return (
+      <StudioBuilderControlCenter
+        data={data}
+        workspaceLabel="Raw Import"
+        initialSection="mission-control"
+      />
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error while loading Builder operations workspace.";
+    return (
+      <StudioBuilderControlCenter
+        data={null}
+        loadError={message}
+        workspaceLabel="Raw Import"
+        initialSection="mission-control"
+      />
+    );
+  }
 }

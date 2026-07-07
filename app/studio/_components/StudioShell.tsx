@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { readStudioHistoryState, writeStudioHistoryState } from "@/app/studio/_components/StudioIntegrationClient";
 import { studioNavItems } from "@/app/studio/_components/studioNav";
 
 interface StudioShellProps {
@@ -16,12 +17,65 @@ const segmentToLabel = (segment: string): string =>
     .join(" ");
 
 export function StudioShell({ children }: StudioShellProps) {
+  const router = useRouter();
   const pathname = usePathname() ?? "/studio";
+  const [backCount, setBackCount] = useState(0);
+  const [forwardCount, setForwardCount] = useState(0);
+
+  useEffect(() => {
+    const state = readStudioHistoryState();
+    setBackCount(state.back.length);
+    setForwardCount(state.forward.length);
+  }, [pathname]);
+
+  const currentSection = useMemo(() => {
+    const match = studioNavItems.find((item) => pathname.startsWith(item.href));
+    return match?.label ?? "Studio";
+  }, [pathname]);
+
   const crumbs = pathname
     .split("/")
     .filter(Boolean)
     .slice(0)
     .map(segmentToLabel);
+
+  const onBack = () => {
+    const state = readStudioHistoryState();
+    if (state.back.length === 0) {
+      return;
+    }
+
+    const target = state.back[state.back.length - 1];
+    const next = {
+      back: state.back.slice(0, -1),
+      forward: [state.current, ...state.forward].slice(0, 50),
+      current: target,
+    };
+
+    writeStudioHistoryState(next);
+    setBackCount(next.back.length);
+    setForwardCount(next.forward.length);
+    router.push(target);
+  };
+
+  const onForward = () => {
+    const state = readStudioHistoryState();
+    if (state.forward.length === 0) {
+      return;
+    }
+
+    const target = state.forward[0];
+    const next = {
+      back: [...state.back, state.current].slice(-50),
+      forward: state.forward.slice(1),
+      current: target,
+    };
+
+    writeStudioHistoryState(next);
+    setBackCount(next.back.length);
+    setForwardCount(next.forward.length);
+    router.push(target);
+  };
 
   return (
     <div className="relative mx-auto min-h-[calc(100vh-120px)] w-full max-w-[1700px] rounded-2xl border border-amber-200/10 bg-zinc-950/75 shadow-[0_20px_70px_rgba(0,0,0,0.55)] backdrop-blur-sm">
@@ -72,8 +126,26 @@ export function StudioShell({ children }: StudioShellProps) {
                 </div>
               </div>
 
-              <div className="rounded-full border border-amber-200/20 bg-zinc-900/75 px-3 py-1.5 text-xs font-medium text-zinc-300">
-                Studio Shell v0
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={onBack}
+                  disabled={backCount === 0}
+                  className="rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-xs text-zinc-300 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Back
+                </button>
+                <button
+                  type="button"
+                  onClick={onForward}
+                  disabled={forwardCount === 0}
+                  className="rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-xs text-zinc-300 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Forward
+                </button>
+                <div className="rounded-full border border-amber-200/20 bg-zinc-900/75 px-3 py-1.5 text-xs font-medium text-zinc-300">
+                  Studio Shell v1
+                </div>
               </div>
             </div>
           </header>
@@ -83,7 +155,12 @@ export function StudioShell({ children }: StudioShellProps) {
           </main>
 
           <footer className="border-t border-amber-200/10 bg-zinc-950/90 px-5 py-3 text-xs text-zinc-500 lg:px-7">
-            Status Bar Placeholder: Builder pipeline telemetry and publication state will appear here.
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span>Section: {currentSection}</span>
+              <span>
+                History: {backCount} back / {forwardCount} forward
+              </span>
+            </div>
           </footer>
         </div>
       </div>

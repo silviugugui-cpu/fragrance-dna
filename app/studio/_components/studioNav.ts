@@ -26,6 +26,11 @@ export const studioNavItems: StudioNavItem[] = [
     description: "Source workbook intake and import contracts.",
   },
   {
+    label: "Sources",
+    href: "/studio/sources",
+    description: "Connector operations, synchronization and enrichment job control.",
+  },
+  {
     label: "Master Database",
     href: "/studio/master-database",
     description: "Canonical fragrance object publication surface.",

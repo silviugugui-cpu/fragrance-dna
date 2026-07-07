@@ -1,10 +1,27 @@
-import { StudioModulePlaceholder } from "@/app/studio/_components/StudioModulePlaceholder";
+import { StudioBuilderControlCenter } from "@/app/studio/_components/StudioBuilderControlCenter";
+import { loadBuilderControlCenterData } from "@/lib/builder/controlCenter/builderControlCenter";
 
-export default function StudioKnowledgeBasePage() {
-  return (
-    <StudioModulePlaceholder
-      title="Knowledge Base"
-      responsibility="Future module for cross-domain knowledge entity operations and quality controls."
-    />
-  );
+export const dynamic = "force-dynamic";
+
+export default async function StudioKnowledgeBasePage() {
+  try {
+    const data = await loadBuilderControlCenterData();
+    return (
+      <StudioBuilderControlCenter
+        data={data}
+        workspaceLabel="Knowledge Base"
+        initialSection="mission-control"
+      />
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error while loading Builder operations workspace.";
+    return (
+      <StudioBuilderControlCenter
+        data={null}
+        loadError={message}
+        workspaceLabel="Knowledge Base"
+        initialSection="mission-control"
+      />
+    );
+  }
 }

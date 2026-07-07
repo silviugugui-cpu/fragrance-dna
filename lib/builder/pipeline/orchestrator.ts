@@ -23,6 +23,18 @@ export interface RunBuilderPipelineOptions {
   config?: Partial<BuilderConfig>;
   initialArtifact?: AnyBuilderArtifact;
   source?: string;
+  shouldCancel?: () => boolean | Promise<boolean>;
+  onStageStart?: (input: {
+    stage: StageName;
+    stageRunIndex: number;
+    totalStages: number;
+  }) => void | Promise<void>;
+  onStageComplete?: (input: {
+    stage: StageName;
+    stageRunIndex: number;
+    totalStages: number;
+    durationMs: number | null;
+  }) => void | Promise<void>;
 }
 
 export interface RunBuilderPipelineResult {
@@ -121,7 +133,20 @@ export const runBuilderPipeline = async (
   for (let index = 0; index < executionPlan.length; index += 1) {
     const stage = executionPlan[index];
     const stageModule = builderStages[stage];
+
+    if (options.shouldCancel && (await options.shouldCancel())) {
+      throw new Error(`Builder pipeline cancelled before stage ${stage}`);
+    }
+
     logger.startStage(stage);
+
+    if (options.onStageStart) {
+      await options.onStageStart({
+        stage,
+        stageRunIndex: index + 1,
+        totalStages: executionPlan.length,
+      });
+    }
 
     const context: StageExecutionContext = {
       runId,
@@ -175,6 +200,19 @@ export const runBuilderPipeline = async (
       artifactType: output.artifactType,
       artifactVersion: output.artifactVersion,
     });
+
+    if (options.onStageComplete) {
+      const stageLog = logger.getLogs().find((entry) =>
+        entry.stage === stage && entry.status !== "running",
+      );
+
+      await options.onStageComplete({
+        stage,
+        stageRunIndex: index + 1,
+        totalStages: executionPlan.length,
+        durationMs: stageLog?.durationMs ?? null,
+      });
+    }
 
     artifacts.push(output);
     previousArtifact = output;

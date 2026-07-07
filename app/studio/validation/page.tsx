@@ -1,16 +1,31 @@
-import { StudioValidationWorkspace } from "@/app/studio/_components/StudioValidationWorkspace";
-import { runSprint1ValidationPack } from "@/lib/builder/validationPack/sprint1ValidationPack";
+import { StudioBuilderControlCenter } from "@/app/studio/_components/StudioBuilderControlCenter";
+import { loadBuilderControlCenterData } from "@/lib/builder/controlCenter/builderControlCenter";
+
+export const dynamic = "force-dynamic";
 
 export default async function StudioValidationPage() {
   try {
-    const result = await runSprint1ValidationPack();
-    return <StudioValidationWorkspace result={result} />;
+    const data = await loadBuilderControlCenterData();
+    return (
+      <StudioBuilderControlCenter
+        data={data}
+        workspaceLabel="Validation"
+        initialSection="logs"
+      />
+    );
   } catch (error) {
     const message =
       error instanceof Error
         ? error.message
-        : "Unknown error while loading validation pack results.";
+        : "Unknown error while loading Builder control center.";
 
-    return <StudioValidationWorkspace result={null} loadError={message} />;
+    return (
+      <StudioBuilderControlCenter
+        data={null}
+        loadError={message}
+        workspaceLabel="Validation"
+        initialSection="logs"
+      />
+    );
   }
 }
