@@ -29,6 +29,11 @@ body {
   overflow-x: clip;
 }
 
+html {
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
 /* DNA script font for branding — loaded via next/font/google (Great Vibes) */
 .dna-script-font {
   font-family: var(--font-script), Georgia, serif;

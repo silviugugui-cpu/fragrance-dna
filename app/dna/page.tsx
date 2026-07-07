@@ -7,6 +7,7 @@ import { getOrCreateUserProfile } from '@/lib/engine/userProfileManager';
 import { PageShell, SectionHeader, StatCard, PremiumButton } from '@/components/design-system';
 import { AscendGlyphIcon, DescendGlyphIcon } from '@/components/design-system/FragranceIcons';
 import { territories } from '@/lib/data/territories';
+import { perfumers, type PerfumerDnaKey } from '@/lib/data/perfumers';
 import type { DNASessionState, OlfactoryVector, UserDNAProfile } from '@/lib/types';
 
 const DEFAULT_CONFIDENCE = 66;
@@ -27,6 +28,26 @@ const PROFILE_WORDS: Record<DnaAxis, string> = {
   Versatility: 'Modern',
   Luxury: 'Luxurious',
   Formality: 'Polished',
+};
+
+type PerfumerAxisDiff = {
+  axis: PerfumerDnaKey;
+  diff: number;
+};
+
+type PerfumerMatch = {
+  name: string;
+  score: number;
+  reason: string;
+  cluster: string;
+};
+
+const PERFUMER_AXIS_REASON: Record<PerfumerDnaKey, string> = {
+  Freshness: 'freshness alignment',
+  Complexity: 'complexity structure match',
+  Elegance: 'elegance structure match',
+  Presence: 'presence resonance',
+  Luxury: 'luxury resonance',
 };
 
 const PREVIEW_VECTOR: OlfactoryVector = {
@@ -128,6 +149,41 @@ function formatLastUpdated(timestamp: number | null): string {
 
 function toAxisRows(values: DnaAxisValues): Array<{ axis: DnaAxis; value: number }> {
   return DNA_AXES.map((axis) => ({ axis, value: toScore(values[axis]) }));
+}
+
+function clampScore(value: number): number {
+  return Math.max(0, Math.min(100, value));
+}
+
+function buildPerfumerReason(axisDiffs: PerfumerAxisDiff[]): string {
+  const best = axisDiffs[0];
+  const secondBest = axisDiffs[1];
+
+  if (!best || !secondBest) {
+    return 'Balanced olfactory profile alignment';
+  }
+
+  return `High ${PERFUMER_AXIS_REASON[best.axis]} + ${PERFUMER_AXIS_REASON[secondBest.axis]}`;
+}
+
+function computePerfumerMatchScore(
+  userDna: Record<PerfumerDnaKey, number>,
+  perfumerDna: Record<PerfumerDnaKey, number>
+): { score: number; axisDiffs: PerfumerAxisDiff[] } {
+  const axes: PerfumerDnaKey[] = ['Freshness', 'Complexity', 'Elegance', 'Presence', 'Luxury'];
+
+  const axisDiffs = axes
+    .map((axis) => ({
+      axis,
+      diff: Math.abs(userDna[axis] - perfumerDna[axis]),
+    }))
+    .sort((left, right) => left.diff - right.diff);
+
+  const totalDistance = axisDiffs.reduce((sum, item) => sum + item.diff, 0);
+  const normalizedDistance = (totalDistance / (axes.length * 100)) * 100;
+  const score = clampScore(Math.round(100 - normalizedDistance));
+
+  return { score, axisDiffs };
 }
 
 function buildNarrative(
@@ -249,6 +305,35 @@ export default function DnaPage() {
     [dominantAxes, positiveChanges, negativeChanges]
   );
 
+  const perfumerMatches = useMemo<PerfumerMatch[]>(() => {
+    const userPerfumerAxes: Record<PerfumerDnaKey, number> = {
+      Freshness: toScore(finalAxisValues.Freshness),
+      Complexity: toScore(finalAxisValues.Complexity),
+      Elegance: toScore(finalAxisValues.Elegance),
+      Presence: toScore(finalAxisValues.Presence),
+      Luxury: toScore(finalAxisValues.Luxury),
+    };
+
+    return perfumers
+      .map((perfumer) => {
+        const { score, axisDiffs } = computePerfumerMatchScore(userPerfumerAxes, perfumer.dna);
+        return {
+          name: perfumer.name,
+          score,
+          reason: buildPerfumerReason(axisDiffs),
+          cluster: perfumer.cluster,
+        };
+      })
+      .sort((left, right) => {
+        if (right.score !== left.score) {
+          return right.score - left.score;
+        }
+
+        return left.name.localeCompare(right.name);
+      })
+      .slice(0, 3);
+  }, [finalAxisValues]);
+
   return (
     <PageShell showBackgroundLayers>
       {/* Hero Section */}
@@ -294,6 +379,32 @@ export default function DnaPage() {
               value={lastRefreshLabel}
               subtitle="Live sync time"
             />
+          </div>
+        </div>
+      </section>
+
+      {/* Perfumer Affinity */}
+      <section className="py-12 md:py-16 border-b border-black-600">
+        <div className="main-container">
+          <SectionHeader
+            label="PERFUMER AFFINITY"
+            title="Your Perfumer Matches"
+            description="Perfume creators whose olfactory DNA aligns with your identity"
+            className="mb-8"
+          />
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            {perfumerMatches.map((match) => (
+              <article key={match.name} className="premium-card-dark p-6">
+                <p className="text-xs uppercase tracking-[0.22em] text-gold/80">{match.cluster}</p>
+                <h3 className="mt-3 text-2xl font-bold text-white">{match.name}</h3>
+                <div className="mt-5 flex items-end gap-2">
+                  <span className="text-4xl font-bold text-gold">{match.score}%</span>
+                  <span className="pb-1 text-xs uppercase tracking-[0.18em] text-gray-400">Match</span>
+                </div>
+                <p className="mt-4 text-sm leading-relaxed text-gray-300">{match.reason}</p>
+              </article>
+            ))}
           </div>
         </div>
       </section>

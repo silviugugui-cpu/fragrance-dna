@@ -1,10 +1,18 @@
-import { StudioModulePlaceholder } from "@/app/studio/_components/StudioModulePlaceholder";
+import { StudioMasterDatabaseWorkspace } from "@/app/studio/_components/StudioMasterDatabaseWorkspace";
+import { loadMasterDatabaseWorkspaceData } from "@/lib/builder/masterDatabaseWorkspace/masterDatabaseWorkspace";
+
+export const dynamic = "force-dynamic";
 
 export default function StudioMasterDatabasePage() {
-  return (
-    <StudioModulePlaceholder
-      title="Master Database"
-      responsibility="Future module for reviewing and publishing canonical Master Perfume Objects."
-    />
-  );
+  try {
+    const data = loadMasterDatabaseWorkspaceData();
+    return <StudioMasterDatabaseWorkspace data={data} />;
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Unknown error while loading master database workspace.";
+
+    return <StudioMasterDatabaseWorkspace data={null} loadError={message} />;
+  }
 }

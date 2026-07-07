@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { Inter, Playfair_Display } from 'next/font/google';
 
@@ -26,8 +28,6 @@ type ArticleSection = {
   intro: string;
   articles: Article[];
 };
-
-type SubmenuId = 'need-to-know';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-articles-body', display: 'swap' });
 const playfair = Playfair_Display({
@@ -322,15 +322,20 @@ const articleSections: ArticleSection[] = [
 ];
 
 export default function ArticlesPage() {
-  const [selectedSubmenu, setSelectedSubmenu] = useState<SubmenuId>('need-to-know');
+  const pathname = usePathname();
   const [selectedSection, setSelectedSection] = useState<SectionId>('scent-fundamentals');
   const [railScrollOffset, setRailScrollOffset] = useState(0);
 
-  const submenuItems: { id: SubmenuId; label: string; hint: string }[] = [
+  const submenuItems: { href: string; label: string; hint: string }[] = [
     {
-      id: 'need-to-know',
+      href: '/articles',
       label: 'Need to Know',
       hint: 'Essential fragrance knowledge',
+    },
+    {
+      href: '/articles/perfumers',
+      label: 'Perfume Creators',
+      hint: 'Perfumer DNA and signature styles',
     },
   ];
 
@@ -417,18 +422,17 @@ export default function ArticlesPage() {
                 </div>
                 <div className="mt-6 flex flex-col gap-3">
                   {submenuItems.map((item) => {
-                    const isActive = selectedSubmenu === item.id;
+                    const isActive = pathname === item.href;
                     return (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => setSelectedSubmenu(item.id)}
+                      <Link
+                        key={item.href}
+                        href={item.href}
                         data-active={isActive ? 'true' : 'false'}
                         className="articles-rail-button w-full rounded-2xl border px-4 py-4 text-left transition-all duration-300"
                       >
                         <p className="font-articles-heading text-[1.12rem] leading-tight text-[#f4ddb2]">{item.label}</p>
                         <p className="mt-2 font-articles-body text-[10px] uppercase tracking-[0.2em] text-[#bb9660]">{item.hint}</p>
-                      </button>
+                      </Link>
                     );
                   })}
                 </div>
@@ -436,8 +440,7 @@ export default function ArticlesPage() {
             </aside>
 
             <div className="articles-content-column space-y-6">
-              {selectedSubmenu === 'need-to-know' && (
-                <>
+              <>
                   <section className="relative z-10 grid w-full gap-4 xl:grid-cols-2 2xl:grid-cols-3">
                     {articleSections.map((section) => {
                       const isActive = activeSection.id === section.id;
@@ -522,8 +525,7 @@ export default function ArticlesPage() {
                       </div>
                     </div>
                   </section>
-                </>
-              )}
+              </>
             </div>
           </div>
         </div>

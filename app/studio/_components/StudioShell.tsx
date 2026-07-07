@@ -78,7 +78,9 @@ export function StudioShell({ children }: StudioShellProps) {
             </div>
           </header>
 
-          <main className="flex-1 overflow-auto px-4 py-4 lg:px-7 lg:py-6">{children}</main>
+          <main className="flex-1 overflow-x-hidden overflow-y-scroll px-4 py-4 [scrollbar-gutter:stable] lg:px-7 lg:py-6">
+            <div className="mx-auto w-full">{children}</div>
+          </main>
 
           <footer className="border-t border-amber-200/10 bg-zinc-950/90 px-5 py-3 text-xs text-zinc-500 lg:px-7">
             Status Bar Placeholder: Builder pipeline telemetry and publication state will appear here.

@@ -16,6 +16,11 @@ export const studioNavItems: StudioNavItem[] = [
     description: "Knowledge review queue for extracted unknown entities.",
   },
   {
+    label: "Grounding",
+    href: "/studio/grounding",
+    description: "Canonical grounding workspace for source-to-entity validation.",
+  },
+  {
     label: "Raw Import",
     href: "/studio/raw-import",
     description: "Source workbook intake and import contracts.",
@@ -54,6 +59,11 @@ export const studioNavItems: StudioNavItem[] = [
     label: "Translation Rules",
     href: "/studio/translation-rules",
     description: "Translation contract governance workspace.",
+  },
+  {
+    label: "Translation",
+    href: "/studio/translation",
+    description: "Translation execution workspace and operational status.",
   },
   {
     label: "Knowledge Base",
