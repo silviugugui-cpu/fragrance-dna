@@ -1,36 +1,55 @@
-import { findFragranceById, getFragranceCatalog } from '@/lib/collection/catalog';
+import { getFragranceCatalog } from '@/lib/collection/catalog';
 import type { CollectionFragrance, CollectionSeedOptions } from '@/lib/collection/types';
+import { getBrowserUserId, getUserScopedStorageKey } from '@/lib/auth/userScope';
+import { persistUserProfilePatch } from '@/lib/auth/persistentProfile';
 
 const STORAGE_KEY = 'fragrance_collection_v1';
 const COLLECTION_UPDATED_EVENT = 'fragrance-collection-updated';
 let memoryCache: CollectionFragrance[] | null = null;
+let memoryCacheUserId: string | null = null;
+
+export const EMPTY_COLLECTION: CollectionFragrance[] = [];
 
 function createId(): string {
   return `collection_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
 function readStorage(): CollectionFragrance[] {
-  if (memoryCache) {
-    return memoryCache;
+  if (typeof window === 'undefined') {
+    return EMPTY_COLLECTION;
   }
 
-  if (typeof window === 'undefined') {
-    memoryCache = [];
-    return memoryCache;
-  }
+  const userId = getBrowserUserId();
+  if (memoryCache && memoryCacheUserId === userId) return memoryCache;
 
   try {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
+    const scopedKey = getUserScopedStorageKey(STORAGE_KEY, userId);
+    const stored = window.localStorage.getItem(scopedKey);
     if (!stored) {
-      memoryCache = [];
+      if (userId.startsWith('anonymous_')) {
+        const legacyStored = window.localStorage.getItem(STORAGE_KEY);
+        if (legacyStored) {
+          const legacyCollection = JSON.parse(legacyStored) as CollectionFragrance[];
+          if (Array.isArray(legacyCollection)) {
+            window.localStorage.setItem(scopedKey, JSON.stringify(legacyCollection));
+            memoryCache = legacyCollection;
+            memoryCacheUserId = userId;
+            return legacyCollection;
+          }
+        }
+      }
+      memoryCache = EMPTY_COLLECTION;
+      memoryCacheUserId = userId;
       return memoryCache;
     }
 
     const parsed = JSON.parse(stored) as CollectionFragrance[];
     memoryCache = Array.isArray(parsed) ? parsed : [];
+    memoryCacheUserId = userId;
     return memoryCache;
   } catch {
-    memoryCache = [];
+    memoryCache = EMPTY_COLLECTION;
+    memoryCacheUserId = userId;
     return memoryCache;
   }
 }
@@ -40,8 +59,30 @@ function writeStorage(items: CollectionFragrance[]): void {
     return;
   }
 
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  window.localStorage.setItem(getUserScopedStorageKey(STORAGE_KEY), JSON.stringify(items));
   window.dispatchEvent(new CustomEvent(COLLECTION_UPDATED_EVENT, { detail: items }));
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('fragrancedna-user-profile-loaded', (event) => {
+    const detail = (event as CustomEvent<{ userId?: string; profileResetAt?: string }>).detail;
+    const currentUserId = getBrowserUserId();
+    if (detail?.userId !== currentUserId) return;
+
+    if (detail.profileResetAt) {
+      memoryCache = EMPTY_COLLECTION;
+    } else {
+      try {
+        const stored = window.localStorage.getItem(getUserScopedStorageKey(STORAGE_KEY, currentUserId));
+        const parsed = stored ? JSON.parse(stored) as CollectionFragrance[] : EMPTY_COLLECTION;
+        memoryCache = Array.isArray(parsed) ? parsed : EMPTY_COLLECTION;
+      } catch {
+        memoryCache = EMPTY_COLLECTION;
+      }
+    }
+    memoryCacheUserId = currentUserId;
+    window.dispatchEvent(new CustomEvent(COLLECTION_UPDATED_EVENT, { detail: memoryCache }));
+  });
 }
 
 export function loadCollection(): CollectionFragrance[] {
@@ -58,31 +99,34 @@ export function saveCollection(items: CollectionFragrance[]): CollectionFragranc
   }));
 
   memoryCache = normalized;
+  memoryCacheUserId = getBrowserUserId();
   writeStorage(normalized);
+  persistUserProfilePatch({ collection: normalized });
   return normalized;
 }
 
 export function addCollectionFragrance(payload: {
   fragranceId: string;
+  name?: string;
+  brand?: string;
+  image?: string;
   owned?: boolean;
   wishlist?: boolean;
   personalRating?: number;
   notes?: string;
   purchaseDate?: string;
 }): { added: boolean; duplicate: boolean; collection: CollectionFragrance[]; item?: CollectionFragrance } {
-  const catalogItem = findFragranceById(payload.fragranceId);
+  const fragranceId = payload.fragranceId.trim();
   const collection = loadCollection();
-  const duplicate = collection.some((item) => item.fragranceId === payload.fragranceId);
+  const duplicate = collection.some((item) => item.fragranceId === fragranceId);
 
-  if (duplicate || !catalogItem) {
+  if (duplicate || !fragranceId) {
     return { added: false, duplicate, collection };
   }
 
   const item: CollectionFragrance = {
     id: createId(),
-    fragranceId: catalogItem.id,
-    name: catalogItem.name,
-    brand: catalogItem.brand ?? 'Independent',
+    fragranceId,
     personalRating: typeof payload.personalRating === 'number' ? clampRating(payload.personalRating) : undefined,
     owned: payload.owned ?? true,
     wishlist: payload.wishlist ?? false,

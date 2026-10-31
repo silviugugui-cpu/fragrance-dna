@@ -1,18 +1,17 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useAuth } from '@/lib/auth';
 import DnaRadar, { DNA_AXES, type DnaAxis, type DnaAxisValues } from '@/components/dna/DnaRadar';
-import { buildSummary, loadDnaSession } from '@/lib/dnaSession';
+import { buildSummary, DNA_CONFIDENCE_BADGES, getDnaConfidenceBadge, loadDnaSession, loadGroundingVector } from '@/lib/dnaSession';
 import { getOrCreateUserProfile } from '@/lib/engine/userProfileManager';
 import { PageShell, SectionHeader, StatCard, PremiumButton } from '@/components/design-system';
 import { AscendGlyphIcon, DescendGlyphIcon } from '@/components/design-system/FragranceIcons';
-import { territories } from '@/lib/data/territories';
+import { calculateTerritoryAffinities } from '@/lib/engine/territoryAffinities';
 import { perfumers, type PerfumerDnaKey } from '@/lib/data/perfumers';
 import type { DNASessionState, OlfactoryVector, UserDNAProfile } from '@/lib/types';
+import { RecommendationsClient } from '@/app/results/RecommendationsClient';
 
-const DEFAULT_CONFIDENCE = 66;
-const LOW_MATURITY_THRESHOLD = 45;
-const MID_MATURITY_THRESHOLD = 72;
 const SHIFT_MINIMAL_THRESHOLD = 8;
 const SHIFT_MODERATE_THRESHOLD = 16;
 
@@ -108,16 +107,6 @@ function buildAxisValues(vector: OlfactoryVector | null, confidence: number): Dn
   };
 }
 
-function getMaturity(confidence: number): 'Emerging' | 'Developing' | 'Mature' {
-  if (confidence < LOW_MATURITY_THRESHOLD) {
-    return 'Emerging';
-  }
-  if (confidence < MID_MATURITY_THRESHOLD) {
-    return 'Developing';
-  }
-  return 'Mature';
-}
-
 function getEvolutionStrength(averageShift: number): 'Minimal' | 'Moderate' | 'Strong' {
   if (averageShift < SHIFT_MINIMAL_THRESHOLD) {
     return 'Minimal';
@@ -207,6 +196,7 @@ function buildNarrative(
 }
 
 export default function DnaPage() {
+  const { user, isLoading: isAuthLoading } = useAuth();
   const [dnaSession, setDnaSession] = useState<DNASessionState | null>(null);
   const [userProfile, setUserProfile] = useState<UserDNAProfile | null>(null);
   const [groundingVector, setGroundingVector] = useState<OlfactoryVector | null>(null);
@@ -214,14 +204,15 @@ export default function DnaPage() {
 
   useEffect(() => {
     const syncFromStorage = () => {
+      if (isAuthLoading) return;
       try {
-        const session = loadDnaSession();
-        const profile = getOrCreateUserProfile();
-        const storedGroundingVector = window.localStorage.getItem('fragrance_vector');
+        const session = loadDnaSession(user?.id);
+        const profile = getOrCreateUserProfile(user?.id);
+        const storedGroundingVector = loadGroundingVector(user?.id);
 
         setDnaSession(session);
         setUserProfile(profile);
-        setGroundingVector(storedGroundingVector ? (JSON.parse(storedGroundingVector) as OlfactoryVector) : null);
+        setGroundingVector(storedGroundingVector);
         setRefreshedAt(Date.now());
       } catch (error) {
         console.warn('Failed to sync DNA dashboard state:', error);
@@ -232,27 +223,56 @@ export default function DnaPage() {
     window.addEventListener('fragrance-dna-session-updated', syncFromStorage);
     window.addEventListener('fragrance-user-profile-updated', syncFromStorage as EventListener);
     window.addEventListener('storage', syncFromStorage);
+    window.addEventListener('fragrancedna-user-profile-loaded', syncFromStorage);
 
     return () => {
       window.removeEventListener('fragrance-dna-session-updated', syncFromStorage);
       window.removeEventListener('fragrance-user-profile-updated', syncFromStorage as EventListener);
       window.removeEventListener('storage', syncFromStorage);
+      window.removeEventListener('fragrancedna-user-profile-loaded', syncFromStorage);
     };
-  }, []);
+  }, [isAuthLoading, user?.id]);
 
   const summary = useMemo(() => {
     if (!dnaSession) {
       return null;
     }
-    return dnaSession.summary ?? buildSummary(dnaSession.currentVector, dnaSession.answers);
+    return dnaSession.summary ?? buildSummary(
+      dnaSession.currentVector,
+      dnaSession.answers,
+      undefined,
+      undefined,
+      undefined,
+      dnaSession.answeredOrder,
+    );
   }, [dnaSession]);
 
-  const finalVector = summary?.finalVector ?? dnaSession?.currentVector ?? userProfile?.dnaVector ?? null;
-  const finalConfidence = summary?.confidenceScore ?? userProfile?.confidenceLevel ?? DEFAULT_CONFIDENCE;
+  const hasTestEvidence = (dnaSession?.answeredOrder.length ?? 0) > 0;
+  const hasProfileEvidence = (userProfile?.totalInteractions ?? 0) > 0;
+  const finalVector = hasTestEvidence
+    ? summary?.finalVector ?? dnaSession?.currentVector ?? null
+    : hasProfileEvidence ? userProfile?.dnaVector ?? groundingVector : groundingVector;
+  const finalConfidence = summary?.confidenceScore ?? userProfile?.confidenceLevel ?? 0;
+  const currentBadge = getDnaConfidenceBadge(finalConfidence);
+  const badgeIndex = DNA_CONFIDENCE_BADGES.findIndex((badge) => badge.id === currentBadge.id);
+  const nextBadge = DNA_CONFIDENCE_BADGES[badgeIndex + 1] ?? null;
+  const badgeProgress = nextBadge
+    ? clampScore(((finalConfidence - currentBadge.minimum) / (nextBadge.minimum - currentBadge.minimum)) * 100)
+    : 100;
   const baselineConfidence = Math.max(35, Math.round(finalConfidence * 0.7));
 
   const finalAxisValues = useMemo(() => buildAxisValues(finalVector, finalConfidence), [finalVector, finalConfidence]);
   const baselineAxisValues = useMemo(() => buildAxisValues(groundingVector, baselineConfidence), [groundingVector, baselineConfidence]);
+  const territoryAffinities = useMemo(
+    () => calculateTerritoryAffinities(finalVector ? finalAxisValues : null),
+    [finalVector, finalAxisValues],
+  );
+
+  useEffect(() => {
+    if (dnaSession && window.location.hash === '#olfactory-territories') {
+      document.getElementById('olfactory-territories')?.scrollIntoView();
+    }
+  }, [dnaSession, isAuthLoading, finalVector]);
 
   const finalRows = useMemo(() => toAxisRows(finalAxisValues), [finalAxisValues]);
   const deltas = useMemo(
@@ -294,10 +314,7 @@ export default function DnaPage() {
     [dominantAxes]
   );
 
-  const profileMaturity = getMaturity(finalConfidence);
   const profileEvolution = getEvolutionStrength(averageShift);
-  const evolutionStage = userProfile?.evolutionStage ?? 'early';
-  const testedCount = summary?.answeredCount ?? dnaSession?.answeredOrder.length ?? 0;
   const lastUpdated = formatLastUpdated(summary?.completedAt ?? dnaSession?.lastUpdatedAt ?? userProfile?.updatedAt ?? null);
   const lastRefreshLabel = refreshedAt ? new Date(refreshedAt).toLocaleTimeString() : '--:--:--';
   const narrative = useMemo(
@@ -334,6 +351,40 @@ export default function DnaPage() {
       .slice(0, 3);
   }, [finalAxisValues]);
 
+  if (isAuthLoading || !dnaSession) {
+    return <PageShell><div className="main-container py-16 text-sm text-gray-300">Loading your DNA profile...</div></PageShell>;
+  }
+
+  if (finalVector === null) {
+    return (
+      <PageShell>
+        <section className="py-16">
+          <div className="main-container">
+            <div id="olfactory-territories" className="premium-card-dark mx-auto max-w-2xl scroll-mt-32 border border-gold/20 p-8 md:p-10">
+              <p className="mb-3 text-xs uppercase tracking-wider text-gold">DNA PROFILE IN PROGRESS</p>
+              <h1 className="mb-4 text-2xl font-bold text-white">Your DNA is still taking shape</h1>
+              <p className="mb-6 leading-relaxed text-gray-300">
+                Start with Grounding to create your initial profile. You can request recommendations immediately, then refine the profile through adaptive fragrance evaluations.
+              </p>
+              <p className="mb-6 text-sm text-gray-400">Your Olfactory Territories will be calculated here once your profile has real preference signals.</p>
+              <PremiumButton
+                variant="primary"
+                size="lg"
+                type="button"
+                onClick={() => window.location.assign('/grounding')}
+              >
+                Begin Grounding
+              </PremiumButton>
+            </div>
+            <div className="mt-12">
+              <RecommendationsClient embedded />
+            </div>
+          </div>
+        </section>
+      </PageShell>
+    );
+  }
+
   return (
     <PageShell showBackgroundLayers>
       {/* Hero Section */}
@@ -358,22 +409,34 @@ export default function DnaPage() {
             className="mb-6"
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <StatCard
-              label="Confidence"
+              label="DNA Confidence Level"
               value={`${finalConfidence}%`}
-              subtitle="DNA profile certainty"
+              subtitle="Evidence-based profile confidence"
             />
-            <StatCard
-              label="Evolution Stage"
-              value={evolutionStage.charAt(0).toUpperCase() + evolutionStage.slice(1)}
-              subtitle="Profile maturity"
-            />
-            <StatCard
-              label="Tests Influence"
-              value={testedCount.toString()}
-              subtitle="Fragrance evaluations"
-            />
+            <article className="premium-card-dark p-5">
+              <p className="text-xs uppercase tracking-wider text-gray-400">Current Badge</p>
+              <div className="mt-2 flex items-center gap-2">
+                <span className={`h-3 w-3 rounded-full ${currentBadge.colorClass}`} aria-hidden="true" />
+                <p className="text-lg font-semibold text-white">{currentBadge.label}</p>
+              </div>
+              {nextBadge ? (
+                <>
+                  <p className="mt-3 text-xs text-gray-400">Progress toward {nextBadge.label}</p>
+                  <div
+                    role="progressbar"
+                    aria-label={`Progress toward ${nextBadge.label}`}
+                    aria-valuemin={currentBadge.minimum}
+                    aria-valuemax={nextBadge.minimum}
+                    aria-valuenow={finalConfidence}
+                    className="mt-2 h-2 overflow-hidden rounded-full bg-black-700"
+                  >
+                    <div className={`h-full ${nextBadge.colorClass}`} style={{ width: `${badgeProgress}%` }} />
+                  </div>
+                </>
+              ) : <p className="mt-3 text-xs text-gray-400">Highest confidence badge reached.</p>}
+            </article>
             <StatCard
               label="Last Refresh"
               value={lastRefreshLabel}
@@ -433,27 +496,11 @@ export default function DnaPage() {
 
                 <div className="space-y-4">
                   <div>
-                    <p className="text-xs text-gray-500 uppercase">Profile Type</p>
-                    <p className="text-lg font-bold text-gold mt-1">{profileType}</p>
-                  </div>
-
-                  <div>
-                    <p className="text-xs text-gray-500 uppercase mb-2">Confidence</p>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-3xl font-bold text-white">{finalConfidence}%</span>
-                      <span className="text-xs text-gray-400">High certainty</span>
-                    </div>
+                    <p className="text-xs text-gray-500 uppercase">Profile Signature</p>
+                    <p className="text-lg font-bold text-gold mt-1">{profileType || 'Emerging'}</p>
                   </div>
 
                   <div className="pt-4 border-t border-gold-900 space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-xs text-gray-500">Profile Maturity</span>
-                      <span className="text-sm font-medium text-gold">{profileMaturity}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-xs text-gray-500">Data Coverage</span>
-                      <span className="text-sm font-medium text-gold">{testedCount} fragrances</span>
-                    </div>
                     <div className="flex justify-between">
                       <span className="text-xs text-gray-500">Last Updated</span>
                       <span className="text-sm font-medium text-gray-300">{lastUpdated}</span>
@@ -564,27 +611,32 @@ export default function DnaPage() {
       </section>
 
       {/* Territory Affinities Section */}
-      <section className="py-12 md:py-16">
+      <section id="olfactory-territories" className="scroll-mt-32 py-12 md:py-16" aria-labelledby="olfactory-territories-title">
         <div className="main-container">
-          <SectionHeader
-            label="EXPLORE"
-            title="Discover Your Territory Affinities"
-            description="Based on your DNA profile, explore fragrance territories that align with your olfactory identity."
-            className="mb-8"
-          />
+          <p className="mb-2 text-xs uppercase tracking-wider text-gold">DNA TERRITORY AFFINITY</p>
+          <h2 id="olfactory-territories-title" className="mb-3 text-3xl font-semibold">Your Olfactory Territories</h2>
+          <p className="mb-3 max-w-3xl text-sm text-gray-300">
+            Ranked from your current DNA. Each affinity is the average of the displayed DNA axes,
+            not a probability or a percentage of your identity. Scores do not need to total 100.
+          </p>
+          <p className="mb-8 text-xs text-gray-400">
+            Exploratory interpretation · profile confidence {finalConfidence}%.
+            Territory refinement maps to Elegance and sensuality to Comfort; confidence is not used as a preference.
+          </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Object.values(territories).slice(0, 6).map((territory) => (
-              <div key={territory.id} className="premium-card-dark p-6 cursor-pointer hover:shadow-gold transition-all">
+            {territoryAffinities.map(({ territory, score, contributions }, index) => (
+              <div key={territory.id} className="premium-card-dark p-6">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-4 h-4 rounded-full" style={{ backgroundColor: territory.color }} />
                   <h4 className="font-bold text-white">{territory.name}</h4>
                 </div>
+                <p className="mb-3 text-lg font-semibold text-gold">{score}/100 affinity <span className="text-xs text-gray-400">· Rank {index + 1}</span></p>
                 <p className="text-sm text-gray-400">{territory.description.slice(0, 80)}...</p>
                 <div className="mt-4 flex gap-2">
-                  {territory.dnaAxes.slice(0, 2).map((axis) => (
+                  {contributions.map(({ axis, score: axisScore }) => (
                     <span key={axis} className="text-xs bg-black-700 text-gold px-2 py-1 rounded">
-                      {axis}
+                      {axis} {axisScore}
                     </span>
                   ))}
                 </div>
@@ -602,6 +654,8 @@ export default function DnaPage() {
         </div>
       </section>
 
+      <RecommendationsClient embedded />
+
       {/* CTA Section */}
       <section className="py-12 md:py-16 border-t border-black-600">
         <div className="main-container text-center">
@@ -609,11 +663,18 @@ export default function DnaPage() {
           <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
             Test more fragrances to strengthen your profile, discover new territories, and deepen your olfactory identity.
           </p>
-          <a href="/test">
-            <PremiumButton variant="primary" size="md">
-              CONTINUE TESTING →
-            </PremiumButton>
-          </a>
+          <div className="flex flex-wrap justify-center gap-3">
+            <a href="/results">
+              <PremiumButton variant="secondary" size="md">
+                VIEW PERSONALIZED RECOMMENDATIONS
+              </PremiumButton>
+            </a>
+            <a href="/test">
+              <PremiumButton variant="primary" size="md">
+                CONTINUE TESTING →
+              </PremiumButton>
+            </a>
+          </div>
         </div>
       </section>
     </PageShell>

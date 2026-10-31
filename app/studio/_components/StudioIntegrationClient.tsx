@@ -60,6 +60,13 @@ export function StudioIntegrationClient({ children }: StudioIntegrationClientPro
   }, [paramsString, pathname]);
 
   useEffect(() => {
+    document.body.classList.add("studio-plain-workspace");
+    return () => {
+      document.body.classList.remove("studio-plain-workspace");
+    };
+  }, []);
+
+  useEffect(() => {
     if (initialized.current) {
       return;
     }

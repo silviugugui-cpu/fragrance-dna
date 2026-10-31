@@ -1,0 +1,19 @@
+{
+  "sites": [
+    {
+      "brand": "Dior",
+      "domain": "www.dior.com",
+      "sitemapPath": "/sitemap.xml"
+    },
+    {
+      "brand": "Chanel",
+      "domain": "www.chanel.com",
+      "sitemapPath": "/sitemap.xml"
+    },
+    {
+      "brand": "Tom Ford",
+      "domain": "www.tomfordbeauty.com",
+      "sitemapPath": "/sitemap.xml"
+    }
+  ]
+}

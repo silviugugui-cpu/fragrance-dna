@@ -91,12 +91,12 @@ const byFrequency = (map: Map<string, number>, limit: number): ReviewCountItem[]
     .slice(0, limit)
     .map(([label, count]) => ({ label, count }));
 
-export const loadUnresolvedNoteReviewItems = (
+export const loadUnresolvedNoteReviewItems = async (
   limit: number = 20,
-): UnresolvedNotesReviewResult => {
+): Promise<UnresolvedNotesReviewResult> => {
   const normalizedLimit = Number.isFinite(limit) && limit > 0 ? Math.floor(limit) : 20;
   const config = createBuilderConfig();
-  const intelligence = runCanonicalBuilderIntelligence();
+  const intelligence = await runCanonicalBuilderIntelligence();
 
   const unresolved = intelligence.unresolvedEntities;
   const totalOccurrences = unresolved.length;

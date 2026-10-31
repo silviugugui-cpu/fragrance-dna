@@ -1,43 +1,41 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { saveMasterDatabaseRecordAction } from "@/app/studio/_actions/masterDatabaseActions";
+import { resolvePerfumeImageSrc } from "@/lib/design/perfumeImage";
 import type {
+  BrandType,
   BuilderStatus,
   KnowledgeStatus,
   MasterDatabaseDetailPanel,
   MasterDatabaseWorkspaceResult,
   PerformanceStatus,
-  ReviewStatus,
-  ValidationStatus,
 } from "@/lib/builder/masterDatabaseWorkspace/masterDatabaseWorkspace";
 
 interface StudioMasterDatabaseWorkspaceProps {
   data: MasterDatabaseWorkspaceResult | null;
   loadError?: string;
+  readOnly?: boolean;
 }
 
 type SortKey =
   | "perfume"
   | "brand"
+  | "brandType"
   | "launchYear"
   | "completion"
   | "confidence"
   | "missingFields"
   | "reviewRequired"
-  | "builder"
-  | "validation"
-  | "review"
   | "performance";
 
 type ColumnKey =
   | "brand"
+  | "brandType"
   | "perfume"
   | "launchYear"
-  | "builder"
-  | "validation"
-  | "review"
   | "completion"
   | "confidence"
   | "missingFields"
@@ -48,23 +46,8 @@ const formatNumber = (value: number): string =>
   new Intl.NumberFormat("en-US").format(value);
 
 const formatPercent = (value: number): string => `${value.toFixed(2)}%`;
-
-const builderRank: Record<BuilderStatus, number> = {
-  complete: 3,
-  partial: 2,
-  "missing-core": 1,
-};
-
-const validationRank: Record<ValidationStatus, number> = {
-  passed: 3,
-  warning: 2,
-  failed: 1,
-};
-
-const reviewRank: Record<ReviewStatus, number> = {
-  approved: 2,
-  "pending-review": 1,
-};
+const serializeScoreMap = (scores?: Record<string, number>): string =>
+  Object.entries(scores ?? {}).map(([name, value]) => `${name}: ${value}`).join("\n");
 
 const knowledgeRank: Record<KnowledgeStatus, number> = {
   mapped: 3,
@@ -78,20 +61,6 @@ const performanceRank: Record<PerformanceStatus, number> = {
 };
 
 const statusStyles = {
-  builder: {
-    complete: "border-emerald-400/35 bg-emerald-500/10 text-emerald-200",
-    partial: "border-amber-400/35 bg-amber-500/10 text-amber-200",
-    "missing-core": "border-rose-400/35 bg-rose-500/10 text-rose-200",
-  },
-  validation: {
-    passed: "border-emerald-400/35 bg-emerald-500/10 text-emerald-200",
-    warning: "border-amber-400/35 bg-amber-500/10 text-amber-200",
-    failed: "border-rose-400/35 bg-rose-500/10 text-rose-200",
-  },
-  review: {
-    approved: "border-emerald-400/35 bg-emerald-500/10 text-emerald-200",
-    "pending-review": "border-amber-400/35 bg-amber-500/10 text-amber-200",
-  },
   knowledge: {
     mapped: "border-emerald-400/35 bg-emerald-500/10 text-emerald-200",
     partial: "border-amber-400/35 bg-amber-500/10 text-amber-200",
@@ -115,61 +84,68 @@ const decisionStyles = {
 } as const;
 
 const rowHeight = 48;
-const viewportHeight = 560;
+const minViewportHeight = 360;
 const overscan = 8;
 
 const defaultColumnWidths: Record<ColumnKey, number> = {
-  brand: 210,
-  perfume: 260,
-  launchYear: 110,
-  builder: 150,
-  validation: 150,
-  review: 130,
-  completion: 130,
-  confidence: 120,
-  missingFields: 130,
-  reviewRequired: 150,
-  performance: 140,
+  brand: 150,
+  brandType: 145,
+  perfume: 200,
+  launchYear: 90,
+  completion: 105,
+  confidence: 95,
+  missingFields: 100,
+  reviewRequired: 105,
+  performance: 105,
 };
 
 const minColumnWidths: Record<ColumnKey, number> = {
-  brand: 150,
-  perfume: 180,
-  launchYear: 90,
-  builder: 120,
-  validation: 120,
-  review: 110,
-  completion: 95,
-  confidence: 95,
-  missingFields: 95,
-  reviewRequired: 120,
-  performance: 120,
+  brand: 110,
+  brandType: 120,
+  perfume: 140,
+  launchYear: 75,
+  completion: 80,
+  confidence: 80,
+  missingFields: 80,
+  reviewRequired: 90,
+  performance: 90,
 };
 
 export function StudioMasterDatabaseWorkspace({
   data,
   loadError,
+  readOnly = false,
 }: StudioMasterDatabaseWorkspaceProps) {
   const pathname = usePathname();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const searchParamsString = searchParams?.toString() ?? "";
   const queryParams = useMemo(() => new URLSearchParams(searchParamsString), [searchParamsString]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [userDnaPoolOnly, setUserDnaPoolOnly] = useState(queryParams.get("pool") === "user-dna");
+  const [requestedUserDnaProfileId, setRequestedUserDnaProfileId] = useState("");
   const [brandFilter, setBrandFilter] = useState("all");
+  const [brandTypeFilter, setBrandTypeFilter] = useState<"all" | BrandType>("all");
   const [launchYearFilter, setLaunchYearFilter] = useState("all");
   const [builderFilter, setBuilderFilter] = useState<"all" | BuilderStatus>("all");
-  const [validationFilter, setValidationFilter] = useState<"all" | ValidationStatus>("all");
-  const [reviewFilter, setReviewFilter] = useState<"all" | ReviewStatus>("all");
   const [performanceFilter, setPerformanceFilter] = useState<"all" | PerformanceStatus>("all");
+  const [missingFieldsFilter, setMissingFieldsFilter] = useState("all");
   const [hasNotesFilter, setHasNotesFilter] = useState<"all" | "yes" | "no">("all");
-  const [hasAccordsFilter, setHasAccordsFilter] = useState<"all" | "yes" | "no">("all");
   const [sortKey, setSortKey] = useState<SortKey>("perfume");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [selectedId, setSelectedId] = useState<string>(data?.rows[0]?.id ?? "");
+  const [selectedId, setSelectedId] = useState<string>(() => {
+    const requestedRecord = queryParams.get("record");
+    if (requestedRecord) return requestedRecord;
+    if (queryParams.get("pool") === "user-dna") {
+      return data?.rows.find((row) => row.userDnaTestEnabled)?.id ?? "";
+    }
+    return data?.rows[0]?.id ?? "";
+  });
+  const [isCreatingNew, setIsCreatingNew] = useState(false);
   const [scrollTop, setScrollTop] = useState(0);
+  const [viewportHeight, setViewportHeight] = useState(minViewportHeight);
   const [columnWidths, setColumnWidths] = useState<Record<ColumnKey, number>>(defaultColumnWidths);
   const resizeRef = useRef<{ key: ColumnKey; startX: number; startWidth: number } | null>(null);
+  const tableViewportRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const q = queryParams.get("q");
@@ -216,6 +192,26 @@ export function StudioMasterDatabaseWorkspace({
     };
   }, []);
 
+  useEffect(() => {
+    const recalcViewportHeight = () => {
+      const container = tableViewportRef.current;
+      if (!container) {
+        return;
+      }
+
+      const rect = container.getBoundingClientRect();
+      const available = window.innerHeight - rect.top - 20;
+      const targetByScreen = Math.floor(window.innerHeight * 0.62);
+      setViewportHeight(Math.max(minViewportHeight, Math.max(Math.floor(available), targetByScreen)));
+    };
+
+    recalcViewportHeight();
+    window.addEventListener("resize", recalcViewportHeight);
+    return () => {
+      window.removeEventListener("resize", recalcViewportHeight);
+    };
+  }, []);
+
   const startResize = (key: ColumnKey, clientX: number) => {
     resizeRef.current = {
       key,
@@ -226,29 +222,64 @@ export function StudioMasterDatabaseWorkspace({
     document.body.style.userSelect = "none";
   };
 
+  const rows = data?.rows ?? [];
+
   const availableBrands = useMemo(() => {
-    if (!data) {
+    if (rows.length === 0) {
       return [];
     }
 
-    return Array.from(new Set(data.rows.map((row) => row.brand))).sort((left, right) =>
+    return Array.from(new Set(rows.map((row) => row.brand))).sort((left, right) =>
       left.localeCompare(right),
     );
-  }, [data]);
+  }, [rows]);
+
+  const brandTypeCounts = useMemo(
+    () =>
+      rows.reduce(
+        (counts, row) => {
+          counts[row.brandType] += 1;
+          return counts;
+        },
+        { "N/A": 0, Designer: 0, Niche: 0, "Dupe/Middle Eastern": 0 },
+      ),
+    [rows],
+  );
 
   const availableLaunchYears = useMemo(() => {
-    if (!data) {
+    if (rows.length === 0) {
       return [];
     }
 
     return Array.from(
       new Set(
-        data.rows
+        rows
           .map((row) => row.launchYear.trim())
           .filter((year) => year.length > 0),
       ),
     ).sort((left, right) => Number.parseInt(right, 10) - Number.parseInt(left, 10));
-  }, [data]);
+  }, [rows]);
+
+  const availableMissingFieldCounts = useMemo(() => {
+    const counts = new Map<number, number>();
+    for (const row of rows) {
+      counts.set(row.missingFieldsCount, (counts.get(row.missingFieldsCount) ?? 0) + 1);
+    }
+
+    return Array.from(counts.entries()).sort(([left], [right]) => left - right);
+  }, [rows]);
+
+  const photoCounts = useMemo(
+    () =>
+      rows.reduce(
+        (counts, row) => {
+          counts[row.performanceStatus] += 1;
+          return counts;
+        },
+        { available: 0, missing: 0 },
+      ),
+    [rows],
+  );
 
   const filteredRows = useMemo(() => {
     if (!data) {
@@ -256,17 +287,18 @@ export function StudioMasterDatabaseWorkspace({
     }
 
     const normalizedSearch = searchQuery.trim().toLowerCase();
+    const hyphenatedSearch = normalizedSearch.replace(/\s+/g, "-");
     const rows = data.rows.filter((row) => {
+      if (userDnaPoolOnly && !row.userDnaTestEnabled) {
+        return false;
+      }
       if (builderFilter !== "all" && row.builderStatus !== builderFilter) {
         return false;
       }
-      if (validationFilter !== "all" && row.validationStatus !== validationFilter) {
-        return false;
-      }
-      if (reviewFilter !== "all" && row.reviewStatus !== reviewFilter) {
-        return false;
-      }
       if (brandFilter !== "all" && row.brand !== brandFilter) {
+        return false;
+      }
+      if (brandTypeFilter !== "all" && row.brandType !== brandTypeFilter) {
         return false;
       }
       if (launchYearFilter !== "all" && row.launchYear !== launchYearFilter) {
@@ -275,24 +307,20 @@ export function StudioMasterDatabaseWorkspace({
       if (performanceFilter !== "all" && row.performanceStatus !== performanceFilter) {
         return false;
       }
+      if (missingFieldsFilter !== "all" && row.missingFieldsCount !== Number(missingFieldsFilter)) {
+        return false;
+      }
       if (hasNotesFilter === "yes" && row.notesCount === 0) {
         return false;
       }
       if (hasNotesFilter === "no" && row.notesCount > 0) {
         return false;
       }
-      if (hasAccordsFilter === "yes" && row.accordsCount === 0) {
-        return false;
-      }
-      if (hasAccordsFilter === "no" && row.accordsCount > 0) {
-        return false;
-      }
-
       if (normalizedSearch.length === 0) {
         return true;
       }
 
-      return row.searchText.includes(normalizedSearch);
+      return row.searchText.includes(normalizedSearch) || row.searchText.includes(hyphenatedSearch);
     });
 
     rows.sort((left, right) => {
@@ -301,6 +329,8 @@ export function StudioMasterDatabaseWorkspace({
         compare = left.perfume.localeCompare(right.perfume);
       } else if (sortKey === "brand") {
         compare = left.brand.localeCompare(right.brand);
+      } else if (sortKey === "brandType") {
+        compare = left.brandType.localeCompare(right.brandType);
       } else if (sortKey === "launchYear") {
         compare = Number.parseInt(left.launchYear || "0", 10) - Number.parseInt(right.launchYear || "0", 10);
       } else if (sortKey === "completion") {
@@ -311,12 +341,6 @@ export function StudioMasterDatabaseWorkspace({
         compare = left.missingFieldsCount - right.missingFieldsCount;
       } else if (sortKey === "reviewRequired") {
         compare = Number(left.reviewRequired) - Number(right.reviewRequired);
-      } else if (sortKey === "builder") {
-        compare = builderRank[left.builderStatus] - builderRank[right.builderStatus];
-      } else if (sortKey === "validation") {
-        compare = validationRank[left.validationStatus] - validationRank[right.validationStatus];
-      } else if (sortKey === "review") {
-        compare = reviewRank[left.reviewStatus] - reviewRank[right.reviewStatus];
       } else if (sortKey === "performance") {
         compare = performanceRank[left.performanceStatus] - performanceRank[right.performanceStatus];
       }
@@ -331,17 +355,17 @@ export function StudioMasterDatabaseWorkspace({
     return rows;
   }, [
     brandFilter,
+    brandTypeFilter,
     builderFilter,
     data,
-    hasAccordsFilter,
     hasNotesFilter,
     launchYearFilter,
+    missingFieldsFilter,
     performanceFilter,
-    reviewFilter,
     searchQuery,
     sortDirection,
     sortKey,
-    validationFilter,
+    userDnaPoolOnly,
   ]);
 
   useEffect(() => {
@@ -356,8 +380,61 @@ export function StudioMasterDatabaseWorkspace({
   }, [filteredRows, selectedId]);
 
   const selectedRow = filteredRows.find((row) => row.id === selectedId) ?? filteredRows[0];
-  const selectedDetail = selectedRow && data ? data.detailsById[selectedRow.id] : undefined;
+  const findDetailForRow = (row: MasterDatabaseWorkspaceResult["rows"][number]): MasterDatabaseDetailPanel | null => {
+    if (!data) {
+      return null;
+    }
+
+    const exact = data.detailsById[row.id];
+    if (exact) {
+      return exact;
+    }
+
+    const normalizedMatch = Object.values(data.detailsById).find(
+      (detail) =>
+        detail.perfume === row.perfume &&
+        detail.brand === row.brand &&
+        detail.launchYear === row.launchYear,
+    );
+
+    return normalizedMatch ?? null;
+  };
+
+  const selectedDetail = selectedRow ? findDetailForRow(selectedRow) : null;
+  const selectedUserDnaProfiles = selectedDetail?.userDnaProfiles ?? [];
+  const selectedUserDnaProfileId = requestedUserDnaProfileId === "new"
+    ? "new"
+    : selectedUserDnaProfiles.some((profile) => profile.testProfileId === requestedUserDnaProfileId)
+      ? requestedUserDnaProfileId
+      : selectedUserDnaProfiles[0]?.testProfileId ?? "new";
+  const selectedUserDnaProfile = selectedUserDnaProfiles.find(
+    (profile) => profile.testProfileId === selectedUserDnaProfileId,
+  );
+
+  const selectedImage = resolvePerfumeImageSrc(
+    selectedDetail?.localImagePath,
+    selectedDetail?.imageUrl,
+    selectedRow?.localImagePath,
+    selectedRow?.imageUrl,
+  );
   const selectedContext = selectedRow ? encodeURIComponent(selectedRow.id) : "";
+  const editingFormRecord = selectedRow
+    ? {
+        id: selectedRow.id,
+        perfume: selectedRow.perfume,
+        brand: selectedRow.brand,
+        launchYear: selectedRow.launchYear,
+        source: selectedRow.worksheet,
+        status: selectedRow.validationStatus,
+        perfumer: selectedDetail?.perfumer ?? "",
+        gender: selectedDetail?.gender ?? "",
+        description: selectedDetail?.description ?? "",
+        imageUrl: selectedDetail?.imageUrl ?? selectedRow?.imageUrl ?? "",
+        localImagePath: selectedDetail?.localImagePath ?? selectedRow?.localImagePath ?? "",
+        notes: selectedDetail?.notes ?? [],
+        mainAccords: selectedDetail?.mainAccords ?? [],
+      }
+    : null;
 
   useEffect(() => {
     if (!pathname) {
@@ -375,14 +452,29 @@ export function StudioMasterDatabaseWorkspace({
       params.set("record", selectedId);
     }
 
+    if (userDnaPoolOnly) {
+      params.set("pool", "user-dna");
+    } else {
+      params.delete("pool");
+    }
+
+    const edit = queryParams.get("edit");
+    if (edit && edit.length > 0) {
+      params.set("edit", edit);
+    } else {
+      params.delete("edit");
+    }
+
     const nextQuery = params.toString();
     const currentQuery = searchParamsString;
     if (nextQuery !== currentQuery) {
-      router.replace(nextQuery.length > 0 ? `${pathname}?${nextQuery}` : pathname);
+      window.history.replaceState(null, "", nextQuery.length > 0 ? `${pathname}?${nextQuery}` : pathname);
     }
-  }, [pathname, router, searchParamsString, searchQuery, selectedId]);
+  }, [pathname, searchParamsString, searchQuery, selectedId, userDnaPoolOnly]);
 
   const totalRows = filteredRows.length;
+  const completeRows = rows.filter((row) => row.builderStatus === "complete").length;
+  const partialRows = rows.filter((row) => row.builderStatus === "partial").length;
   const visibleCount = Math.ceil(viewportHeight / rowHeight) + overscan;
   const startIndex = Math.max(0, Math.floor(scrollTop / rowHeight) - Math.floor(overscan / 2));
   const endIndex = Math.min(totalRows, startIndex + visibleCount);
@@ -391,19 +483,87 @@ export function StudioMasterDatabaseWorkspace({
   const bottomSpacerHeight = Math.max(0, (totalRows - endIndex) * rowHeight);
 
   return (
-    <section className="overflow-hidden rounded-xl border border-amber-200/15 bg-zinc-950/80 shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
-      <header className="border-b border-amber-200/10 bg-zinc-950/90 px-4 py-3 lg:px-5">
-        <h1 className="text-xl font-semibold tracking-tight text-amber-100">
-          Master Perfume Database Workspace v1
-        </h1>
-        <p className="mt-1 text-sm text-zinc-400">
-          Read-only Builder surface for canonical perfume records and operational status.
-        </p>
+    <section className="min-h-[calc(100vh-150px)] overflow-hidden border border-zinc-800/70 bg-zinc-950/60">
+      <header className="border-b border-zinc-800/70 px-3 py-3 lg:px-4">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-xl font-semibold tracking-tight text-amber-100">
+              Master Perfume Database Manager
+            </h1>
+            <p className="mt-1 text-sm text-zinc-400">
+              Search, filter, inspect, and edit canonical perfume records directly in the database.
+            </p>
+            {readOnly ? (
+              <p className="mt-2 text-xs text-amber-200/80">
+                Production database is read-only. Edit the local SQLite database and redeploy to publish changes.
+              </p>
+            ) : null}
+          </div>
+
+          <div className="flex flex-wrap items-stretch gap-2 xl:max-w-[760px] xl:justify-end">
+            <SummaryButton
+              label="DB Total"
+              value={formatNumber(data?.totalPerfumes ?? 0)}
+              onClick={() => {
+                setUserDnaPoolOnly(false);
+                setBrandFilter("all");
+                setBrandTypeFilter("all");
+                setLaunchYearFilter("all");
+                setBuilderFilter("all");
+                setPerformanceFilter("all");
+                setMissingFieldsFilter("all");
+                setHasNotesFilter("all");
+                setSearchQuery("");
+              }}
+            />
+            <SummaryButton
+              label="DB User DNA"
+              value={formatNumber(data?.userDnaProfileCount ?? 0)}
+              onClick={() => {
+                setUserDnaPoolOnly(true);
+                setBrandFilter("all");
+                setBrandTypeFilter("all");
+                setLaunchYearFilter("all");
+                setBuilderFilter("all");
+                setPerformanceFilter("all");
+                setMissingFieldsFilter("all");
+                setHasNotesFilter("all");
+                setSearchQuery("");
+              }}
+              active={userDnaPoolOnly}
+            />
+            <SummaryButton
+              label="Complete"
+              value={formatNumber(completeRows)}
+              onClick={() => setBuilderFilter("complete")}
+              active={builderFilter === "complete"}
+            />
+            <SummaryButton
+              label="Partial"
+              value={formatNumber(partialRows)}
+              onClick={() => setBuilderFilter("partial")}
+              active={builderFilter === "partial"}
+            />
+            <button
+              type="button"
+              onClick={() => setIsCreatingNew((value) => !value)}
+              disabled={readOnly}
+              className={`min-w-[150px] flex-1 rounded border p-2 text-left transition-colors ${
+                isCreatingNew
+                  ? "border-emerald-300/50 bg-emerald-500/10"
+                  : "border-zinc-800 bg-zinc-900/55 hover:border-emerald-300/35"
+              }`}
+            >
+              <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">Add / New</p>
+              <p className="mt-1 text-sm font-semibold text-emerald-100">Create Record</p>
+            </button>
+          </div>
+        </div>
       </header>
 
       {loadError ? (
-        <div className="p-4">
-          <article className="rounded-lg border border-rose-300/25 bg-rose-950/20 p-3">
+        <div className="p-3">
+          <article className="border border-rose-300/25 bg-rose-950/20 p-3">
             <p className="text-xs uppercase tracking-[0.14em] text-rose-200">Load Error</p>
             <p className="mt-1 text-sm text-rose-100">{loadError}</p>
           </article>
@@ -411,226 +571,176 @@ export function StudioMasterDatabaseWorkspace({
       ) : null}
 
       {!loadError && data ? (
-        <div className="space-y-4 p-4">
-          <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">
-            <TopMetric label="Total Perfumes" value={formatNumber(data.totalPerfumes)} />
-            <TopMetric label="Total Brands" value={formatNumber(data.totalBrands)} />
-            <TopMetric label="Overall Completion" value={formatPercent(data.overallCompletionPercent)} />
-            <TopMetric label="Average Confidence" value={data.averageBuilderConfidence.toFixed(2)} />
-            <TopMetric label="Pending Enrichment Jobs" value={formatNumber(data.pendingEnrichmentJobs)} />
-            <TopMetric label="Pending Review" value={formatNumber(data.decisionMetrics.reviewRequired)} />
-            <TopMetric label="Decision Accuracy" value={formatPercent(data.decisionMetrics.decisionAccuracy)} />
-            <TopMetric label="Automation %" value={formatPercent(data.decisionMetrics.automationPercent)} />
-            <TopMetric label="Review Reduction" value={formatPercent(data.decisionMetrics.reviewReduction)} />
-            <TopMetric label="Missing Images" value={formatNumber(data.missingImages)} />
-            <TopMetric label="Missing Perfumers" value={formatNumber(data.missingPerfumers)} />
-            <TopMetric label="Missing Launch Years" value={formatNumber(data.missingLaunchYears)} />
-            <TopMetric label="Validation Issues" value={formatNumber(data.validationIssueCount)} />
-          </div>
+        <div className="grid min-h-[calc(100vh-190px)] grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_320px]">
+          <article className="min-w-0 border-r-0 border-zinc-800/70 bg-transparent xl:border-r">
+            <div className="space-y-2 border-b border-zinc-800/70 px-3 py-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <input
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Global search: perfume, brand, notes, accords"
+                  className="min-w-[260px] flex-1 rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-amber-300/40 focus:outline-none"
+                />
 
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
-            <article className="rounded-lg border border-zinc-800 bg-zinc-900/45">
-              <div className="space-y-3 border-b border-zinc-800 px-3 py-3">
-                <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-5">
-                  <input
-                    value={searchQuery}
-                    onChange={(event) => setSearchQuery(event.target.value)}
-                    placeholder="Global search: perfume, brand, notes, accords"
-                    className="rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-amber-300/40 focus:outline-none"
-                  />
+                <select
+                  value={brandFilter}
+                  onChange={(event) => setBrandFilter(event.target.value)}
+                  className="min-w-[150px] flex-1 rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100 focus:border-amber-300/40 focus:outline-none"
+                >
+                  <option value="all">Brand: All</option>
+                  {availableBrands.map((brand) => (
+                    <option key={brand} value={brand}>
+                      {brand}
+                    </option>
+                  ))}
+                </select>
 
-                  <select
-                    value={brandFilter}
-                    onChange={(event) => setBrandFilter(event.target.value)}
-                    className="rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100 focus:border-amber-300/40 focus:outline-none"
-                  >
-                    <option value="all">Brand: All</option>
-                    {availableBrands.map((brand) => (
-                      <option key={brand} value={brand}>
-                        {brand}
-                      </option>
-                    ))}
-                  </select>
+                <select
+                  value={brandTypeFilter}
+                  onChange={(event) => setBrandTypeFilter(event.target.value as "all" | BrandType)}
+                  className="min-w-[170px] flex-1 rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100 focus:border-amber-300/40 focus:outline-none"
+                >
+                  <option value="all">Brand Type: All</option>
+                  <option value="N/A">N/A ({formatNumber(brandTypeCounts["N/A"])})</option>
+                  <option value="Designer">Designer ({formatNumber(brandTypeCounts.Designer)})</option>
+                  <option value="Niche">Niche ({formatNumber(brandTypeCounts.Niche)})</option>
+                  <option value="Dupe/Middle Eastern">
+                    Dupe/Middle Eastern ({formatNumber(brandTypeCounts["Dupe/Middle Eastern"])})
+                  </option>
+                </select>
 
-                  <select
-                    value={launchYearFilter}
-                    onChange={(event) => setLaunchYearFilter(event.target.value)}
-                    className="rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100 focus:border-amber-300/40 focus:outline-none"
-                  >
-                    <option value="all">Launch Year: All</option>
-                    {availableLaunchYears.map((year) => (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    ))}
-                  </select>
+                <select
+                  value={launchYearFilter}
+                  onChange={(event) => setLaunchYearFilter(event.target.value)}
+                  className="min-w-[150px] flex-1 rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100 focus:border-amber-300/40 focus:outline-none"
+                >
+                  <option value="all">Launch Year: All</option>
+                  {availableLaunchYears.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
 
-                  <select
-                    value={builderFilter}
-                    onChange={(event) => setBuilderFilter(event.target.value as "all" | BuilderStatus)}
-                    className="rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100 focus:border-amber-300/40 focus:outline-none"
-                  >
-                    <option value="all">Builder: All</option>
-                    <option value="complete">Builder: Complete</option>
-                    <option value="partial">Builder: Partial</option>
-                    <option value="missing-core">Builder: Missing Core</option>
-                  </select>
+                <select
+                  value={hasNotesFilter}
+                  onChange={(event) =>
+                    setHasNotesFilter(event.target.value as "all" | "yes" | "no")
+                  }
+                  className="min-w-[150px] flex-1 rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100 focus:border-amber-300/40 focus:outline-none"
+                >
+                  <option value="all">Has Notes: All</option>
+                  <option value="yes">Has Notes: Yes</option>
+                  <option value="no">Has Notes: No</option>
+                </select>
 
-                  <select
-                    value={validationFilter}
-                    onChange={(event) =>
-                      setValidationFilter(event.target.value as "all" | ValidationStatus)
-                    }
-                    className="rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100 focus:border-amber-300/40 focus:outline-none"
-                  >
-                    <option value="all">Validation: All</option>
-                    <option value="passed">Validation: Passed</option>
-                    <option value="warning">Validation: Warning</option>
-                    <option value="failed">Validation: Failed</option>
-                  </select>
+                <select
+                  value={missingFieldsFilter}
+                  onChange={(event) => setMissingFieldsFilter(event.target.value)}
+                  className="min-w-[180px] flex-1 rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100 focus:border-amber-300/40 focus:outline-none"
+                >
+                  <option value="all">Missing Fields: All</option>
+                  {availableMissingFieldCounts.map(([count, recordCount]) => (
+                    <option key={count} value={count}>
+                      {count} missing ({formatNumber(recordCount)})
+                    </option>
+                  ))}
+                </select>
 
-                  <select
-                    value={reviewFilter}
-                    onChange={(event) => setReviewFilter(event.target.value as "all" | ReviewStatus)}
-                    className="rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100 focus:border-amber-300/40 focus:outline-none"
-                  >
-                    <option value="all">Review: All</option>
-                    <option value="approved">Review: Approved</option>
-                    <option value="pending-review">Review: Pending Review</option>
-                  </select>
-
-                  <select
-                    value={performanceFilter}
-                    onChange={(event) =>
-                      setPerformanceFilter(event.target.value as "all" | PerformanceStatus)
-                    }
-                    className="rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100 focus:border-amber-300/40 focus:outline-none"
-                  >
-                    <option value="all">Performance: All</option>
-                    <option value="available">Performance: Available</option>
-                    <option value="missing">Performance: Missing</option>
-                  </select>
-
-                  <select
-                    value={hasNotesFilter}
-                    onChange={(event) =>
-                      setHasNotesFilter(event.target.value as "all" | "yes" | "no")
-                    }
-                    className="rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100 focus:border-amber-300/40 focus:outline-none"
-                  >
-                    <option value="all">Has Notes: All</option>
-                    <option value="yes">Has Notes: Yes</option>
-                    <option value="no">Has Notes: No</option>
-                  </select>
-
-                  <select
-                    value={hasAccordsFilter}
-                    onChange={(event) =>
-                      setHasAccordsFilter(event.target.value as "all" | "yes" | "no")
-                    }
-                    className="rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100 focus:border-amber-300/40 focus:outline-none"
-                  >
-                    <option value="all">Has Accords: All</option>
-                    <option value="yes">Has Accords: Yes</option>
-                    <option value="no">Has Accords: No</option>
-                  </select>
-
-                  <div className="col-span-1 grid grid-cols-2 gap-2 xl:col-span-2">
-                    <select
-                      value={sortKey}
-                      onChange={(event) => setSortKey(event.target.value as SortKey)}
-                      className="rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100 focus:border-amber-300/40 focus:outline-none"
-                    >
-                      <option value="perfume">Sort: Perfume</option>
-                      <option value="brand">Sort: Brand</option>
-                      <option value="launchYear">Sort: Launch Year</option>
-                      <option value="completion">Sort: Completion %</option>
-                      <option value="confidence">Sort: Confidence</option>
-                      <option value="missingFields">Sort: Missing Fields</option>
-                      <option value="reviewRequired">Sort: Review Required</option>
-                      <option value="builder">Sort: Builder</option>
-                      <option value="validation">Sort: Validation</option>
-                      <option value="review">Sort: Review</option>
-                      <option value="performance">Sort: Performance</option>
-                    </select>
-
-                    <select
-                      value={sortDirection}
-                      onChange={(event) =>
-                        setSortDirection(event.target.value as "asc" | "desc")
-                      }
-                      className="rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100 focus:border-amber-300/40 focus:outline-none"
-                    >
-                      <option value="asc">Ascending</option>
-                      <option value="desc">Descending</option>
-                    </select>
-                  </div>
-                </div>
-
-                <p className="text-xs text-zinc-500">
-                  Displayed records: {formatNumber(totalRows)} / {formatNumber(data.totalPerfumes)}
-                </p>
+                <select
+                  value={performanceFilter}
+                  onChange={(event) =>
+                    setPerformanceFilter(event.target.value as "all" | PerformanceStatus)
+                  }
+                  className="min-w-[150px] flex-1 rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100 focus:border-amber-300/40 focus:outline-none"
+                >
+                  <option value="all">Photo: All</option>
+                  <option value="available">With Photo ({formatNumber(photoCounts.available)})</option>
+                  <option value="missing">Without Photo ({formatNumber(photoCounts.missing)})</option>
+                </select>
               </div>
+            </div>
 
-              <div
-                className="overflow-y-auto"
-                style={{ height: `${viewportHeight}px` }}
-                onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
-              >
-                <table className="w-full border-collapse text-xs table-fixed">
-                  <colgroup>
-                    <col style={{ width: `${columnWidths.brand}px` }} />
-                    <col style={{ width: `${columnWidths.perfume}px` }} />
-                    <col style={{ width: `${columnWidths.launchYear}px` }} />
-                    <col style={{ width: `${columnWidths.builder}px` }} />
-                    <col style={{ width: `${columnWidths.validation}px` }} />
-                    <col style={{ width: `${columnWidths.review}px` }} />
-                    <col style={{ width: `${columnWidths.completion}px` }} />
-                    <col style={{ width: `${columnWidths.confidence}px` }} />
-                    <col style={{ width: `${columnWidths.missingFields}px` }} />
-                    <col style={{ width: `${columnWidths.reviewRequired}px` }} />
-                    <col style={{ width: `${columnWidths.performance}px` }} />
-                  </colgroup>
-                  <thead className="sticky top-0 z-10 bg-zinc-950/95 text-zinc-400">
+            <div
+              ref={tableViewportRef}
+              className="overflow-y-auto"
+              style={{ height: `${viewportHeight}px` }}
+              onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
+            >
+              <table className="w-full border-collapse table-fixed text-xs">
+                <colgroup>
+                  <col style={{ width: `${columnWidths.brand}px` }} />
+                  <col style={{ width: `${columnWidths.brandType}px` }} />
+                  <col style={{ width: `${columnWidths.perfume}px` }} />
+                  <col style={{ width: `${columnWidths.launchYear}px` }} />
+                  <col style={{ width: `${columnWidths.completion}px` }} />
+                  <col style={{ width: `${columnWidths.confidence}px` }} />
+                  <col style={{ width: `${columnWidths.missingFields}px` }} />
+                  <col style={{ width: `${columnWidths.reviewRequired}px` }} />
+                  <col style={{ width: `${columnWidths.performance}px` }} />
+                </colgroup>
+                <thead className="sticky top-0 z-10 bg-zinc-950/95 text-zinc-400">
                     <tr>
                       {[
                         ["brand", "Brand"],
+                        ["brandType", "Brand Type"],
                         ["perfume", "Perfume"],
                         ["launchYear", "Launch Year"],
-                        ["builder", "Builder Status"],
-                        ["validation", "Validation"],
-                        ["review", "Review"],
                         ["completion", "Completion %"],
                         ["confidence", "Confidence"],
                         ["missingFields", "Missing Fields"],
                         ["reviewRequired", "Review Required"],
                         ["performance", "Performance"],
-                      ].map(([key, label]) => (
-                        <th key={key} className="relative border-b border-zinc-800 px-2 py-2 text-left">
-                          <span>{label}</span>
-                          <button
-                            type="button"
-                            aria-label={`Resize ${label} column`}
-                            onMouseDown={(event) => startResize(key as ColumnKey, event.clientX)}
-                            className="absolute right-0 top-0 h-full w-2 cursor-col-resize bg-transparent"
-                          />
-                        </th>
-                      ))}
+                      ].map(([key, label]) => {
+                        const columnKey = key as SortKey;
+                        const isActive = sortKey === columnKey;
+                        const arrow = isActive ? (sortDirection === "asc" ? "↑" : "↓") : "↕";
+
+                        return (
+                          <th key={key} className="relative border-b border-zinc-800 px-2 py-2 text-left">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (sortKey === columnKey) {
+                                  setSortDirection((current) => (current === "asc" ? "desc" : "asc"));
+                                  return;
+                                }
+                                setSortKey(columnKey);
+                                setSortDirection("asc");
+                              }}
+                              className={`flex w-full items-center justify-between gap-2 rounded px-1 py-0.5 text-left transition-colors ${
+                                isActive ? "bg-amber-500/10 text-amber-100" : "text-zinc-400 hover:bg-zinc-900/80 hover:text-zinc-200"
+                              }`}
+                            >
+                              <span>{label}</span>
+                              <span className="text-[10px] font-semibold">{arrow}</span>
+                            </button>
+                            <button
+                              type="button"
+                              aria-label={`Resize ${label} column`}
+                              onMouseDown={(event) => startResize(key as ColumnKey, event.clientX)}
+                              className="absolute right-0 top-0 h-full w-2 cursor-col-resize bg-transparent"
+                            />
+                          </th>
+                        );
+                      })}
                     </tr>
                   </thead>
                   <tbody>
                     {topSpacerHeight > 0 ? (
                       <tr>
-                        <td colSpan={11} style={{ height: `${topSpacerHeight}px` }} />
+                        <td colSpan={9} style={{ height: `${topSpacerHeight}px` }} />
                       </tr>
                     ) : null}
 
-                    {visibleRows.map((row) => {
+                  {visibleRows.map((row) => {
                       const selected = row.id === selectedRow?.id;
                       return (
                         <tr
-                          key={row.id}
-                          onClick={() => setSelectedId(row.id)}
+                          key={`${row.id}:${row.rowIndex}`}
+                          onClick={() => {
+                            setSelectedId(row.id);
+                          }}
                           className={`cursor-pointer border-b border-zinc-900 transition-colors ${
                             selected
                               ? "bg-amber-300/10"
@@ -639,26 +749,9 @@ export function StudioMasterDatabaseWorkspace({
                           style={{ height: `${rowHeight}px` }}
                         >
                           <td className="px-2 py-2 text-zinc-300">{row.brand}</td>
+                          <td className="px-2 py-2 text-zinc-300">{row.brandType}</td>
                           <td className="px-2 py-2 text-zinc-100">{row.perfume}</td>
                           <td className="px-2 py-2 text-zinc-300">{row.launchYear || "n/a"}</td>
-                          <td className="px-2 py-2">
-                            <StatusBadge
-                              styleClass={statusStyles.builder[row.builderStatus]}
-                              label={row.builderStatus}
-                            />
-                          </td>
-                          <td className="px-2 py-2">
-                            <StatusBadge
-                              styleClass={statusStyles.validation[row.validationStatus]}
-                              label={row.validationStatus}
-                            />
-                          </td>
-                          <td className="px-2 py-2">
-                            <StatusBadge
-                              styleClass={statusStyles.review[row.reviewStatus]}
-                              label={row.reviewStatus}
-                            />
-                          </td>
                           <td className="px-2 py-2">
                             {formatPercent(row.completionPercent)}
                           </td>
@@ -684,402 +777,207 @@ export function StudioMasterDatabaseWorkspace({
                       );
                     })}
 
-                    {bottomSpacerHeight > 0 ? (
+                  {bottomSpacerHeight > 0 ? (
                       <tr>
-                        <td colSpan={11} style={{ height: `${bottomSpacerHeight}px` }} />
+                        <td colSpan={9} style={{ height: `${bottomSpacerHeight}px` }} />
                       </tr>
                     ) : null}
                   </tbody>
                 </table>
+            </div>
+          </article>
+
+          <aside className="min-w-0 border-t border-zinc-800/70 bg-zinc-950/40 xl:border-l xl:border-t-0">
+            <div className="border-b border-zinc-800/70 px-3 py-3">
+              <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-zinc-300">Selected Record</h2>
+              <p className="mt-1 text-[11px] uppercase tracking-[0.1em] text-zinc-500">
+                Edit the selected perfume directly and save back to the combined DB.
+              </p>
+            </div>
+
+            {selectedRow && editingFormRecord ? (
+              <div className="max-h-[calc(100vh-240px)] space-y-3 overflow-y-auto p-3">
+                <SectionCard title="Image">
+                  <div className="overflow-hidden rounded border border-zinc-800 bg-zinc-900/70">
+                    <img
+                      src={selectedImage.src}
+                      alt={`${selectedRow.perfume} image`}
+                      className="h-44 w-full object-contain p-3"
+                      loading="lazy"
+                    />
+                  </div>
+                  <p className="mt-3 text-sm font-semibold text-amber-100">{selectedRow.perfume}</p>
+                  <p className="mt-1 text-xs text-zinc-400">{selectedRow.brand} · {selectedRow.launchYear || "n/a"}</p>
+                  <p className="mt-1 text-xs text-zinc-500">Worksheet: {selectedRow.worksheet} · Status: {selectedRow.validationStatus}</p>
+                </SectionCard>
+
+                <SectionCard title="Editor">
+                  <form key={selectedRow.id} id="studio-master-record-form" action={saveMasterDatabaseRecordAction} className="space-y-3">
+                    <input type="hidden" name="recordId" value={editingFormRecord.id} />
+
+                    <fieldset disabled={readOnly} className="space-y-3">
+                      <div className="grid grid-cols-1 gap-2">
+                        <FieldInput name="perfume" label="Perfume" defaultValue={editingFormRecord.perfume} />
+                        <FieldInput name="brand" label="Brand" defaultValue={editingFormRecord.brand} />
+                        <FieldInput name="launchYear" label="Launch Year" defaultValue={editingFormRecord.launchYear} />
+                        <FieldInput name="source" label="Source" defaultValue={editingFormRecord.source} />
+                        <FieldInput name="status" label="Status" defaultValue={editingFormRecord.status} />
+                        <FieldInput name="perfumer" label="Perfumer" defaultValue={editingFormRecord.perfumer} />
+                        <FieldInput name="gender" label="Gender" defaultValue={editingFormRecord.gender} />
+                        <FieldInput name="imageUrl" label="Image URL" defaultValue={editingFormRecord.imageUrl} />
+                        <FieldInput name="localImagePath" label="Local Image Path" defaultValue={editingFormRecord.localImagePath} />
+                      </div>
+
+                      <FieldTextArea
+                        name="description"
+                        label="Description"
+                        defaultValue={editingFormRecord.description}
+                        rows={3}
+                      />
+                      <FieldTextArea
+                        name="notes"
+                        label="Notes"
+                        defaultValue={editingFormRecord.notes.join("\n")}
+                        rows={3}
+                      />
+                      <FieldTextArea
+                        name="mainAccords"
+                        label="Main Accords"
+                        defaultValue={editingFormRecord.mainAccords.join("\n")}
+                        rows={3}
+                      />
+
+                      <label className="flex items-center gap-2 rounded border border-amber-300/20 bg-amber-300/5 px-2 py-2 text-xs text-amber-100">
+                        <input
+                          type="checkbox"
+                          name="userDnaTestEnabled"
+                          defaultChecked={selectedDetail?.userDnaTestEnabled ?? false}
+                          className="accent-amber-300"
+                        />
+                        Include in User DNA Test DB
+                      </label>
+
+                      <div key={selectedUserDnaProfileId} className="space-y-2 rounded border border-zinc-800 bg-zinc-950/50 p-2">
+                        <label className="block space-y-1 text-xs uppercase tracking-[0.1em] text-zinc-500">
+                          <span>User DNA Profile</span>
+                          <select
+                            name="userDnaProfileId"
+                            value={selectedUserDnaProfileId}
+                            onChange={(event) => setRequestedUserDnaProfileId(event.target.value)}
+                            className="w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm normal-case tracking-normal text-zinc-100 focus:border-amber-300/40 focus:outline-none"
+                          >
+                            <option value="new">New DNA profile</option>
+                            {selectedUserDnaProfiles.map((profile) => (
+                              <option key={profile.testProfileId} value={profile.testProfileId}>
+                                {profile.name ?? profile.testProfileId}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        <FieldInput
+                          name="userDnaProfileName"
+                          label="Profile Name"
+                          defaultValue={selectedUserDnaProfile?.name ?? selectedRow.perfume}
+                        />
+                        <FieldInput
+                          name="userDnaProfileType"
+                          label="Profile Type"
+                          defaultValue={selectedUserDnaProfile?.type ?? "unknown"}
+                        />
+                        <FieldTextArea
+                          name="userDnaAxes"
+                          label="DNA Axes (name: score)"
+                          defaultValue={serializeScoreMap(selectedUserDnaProfile?.dna_axes)}
+                          rows={5}
+                        />
+                        <FieldTextArea
+                          name="userDnaSemantic"
+                          label="Semantic V1 (name: score)"
+                          defaultValue={serializeScoreMap(selectedUserDnaProfile?.semantic_v1)}
+                          rows={5}
+                        />
+                        <FieldTextArea
+                          name="userDnaAbstractAttributes"
+                          label="User Attributes Abstract"
+                          defaultValue={selectedUserDnaProfile?.user_attributes_v3?.abstract?.join("\n") ?? ""}
+                          rows={3}
+                        />
+                        <FieldTextArea
+                          name="userDnaConcreteAttributes"
+                          label="User Attributes Concrete"
+                          defaultValue={selectedUserDnaProfile?.user_attributes_v3?.concrete?.join("\n") ?? ""}
+                          rows={3}
+                        />
+                      </div>
+
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="submit"
+                          className="rounded border border-emerald-400/40 bg-emerald-500/10 px-3 py-1.5 text-xs uppercase tracking-[0.1em] text-emerald-100 hover:bg-emerald-500/20"
+                        >
+                          Save Changes
+                        </button>
+                      </div>
+                    </fieldset>
+                  </form>
+                </SectionCard>
+
+                <SectionCard title="Fields">
+                  <PairLine label="Brand Type" value={selectedRow.brandType} />
+                  <PairLine label="Perfumer" value={selectedDetail?.perfumer || "n/a"} />
+                  <PairLine label="Gender" value={selectedDetail?.gender || "n/a"} />
+                  <PairLine label="Confidence" value={selectedRow.confidence.toFixed(2)} />
+                  <PairLine label="Completion" value={formatPercent(selectedRow.completionPercent)} />
+                  <PairLine label="Validation" value={selectedRow.validationStatus} />
+                  <PairLine label="Review" value={selectedRow.reviewStatus} />
+                </SectionCard>
+
+                <SectionCard title="Description">
+                  <p className="text-xs leading-6 text-zinc-300">{selectedDetail?.description || "No description available."}</p>
+                </SectionCard>
+
+                <SectionCard title="Notes">
+                  <TokenGrid tokens={selectedDetail?.notes ?? []} />
+                </SectionCard>
+
+                <SectionCard title="Accords">
+                  <TokenGrid tokens={selectedDetail?.mainAccords ?? []} />
+                </SectionCard>
               </div>
-            </article>
-
-            <aside className="rounded-lg border border-zinc-800 bg-zinc-900/45">
-              <div className="border-b border-zinc-800 px-4 py-3">
-                <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-zinc-300">
-                  Detail Panel
-                </h2>
-              </div>
-
-              {selectedDetail ? (
-                <div className="space-y-3 px-4 py-3">
-                  <SectionCard title="Selected Perfume">
-                    <p className="text-sm font-semibold text-amber-100">{selectedDetail.perfume}</p>
-                    <p className="mt-1 text-xs text-zinc-400">Worksheet row ID: {selectedDetail.id}</p>
-                  </SectionCard>
-
-                  <SectionCard title="Identity">
-                    <PairLine label="Perfume" value={selectedDetail.perfume} />
-                    <PairLine label="Brand" value={selectedDetail.brand} />
-                    <PairLine label="Launch Year" value={selectedDetail.launchYear || "n/a"} />
-                  </SectionCard>
-
-                  <SectionCard title="Brand">
-                    <Link
-                      href={`/studio/brands?brand=${encodeURIComponent(selectedDetail.brand)}&context=${selectedContext}`}
-                      className="text-sm text-amber-200 hover:text-amber-100"
-                    >
-                      {selectedDetail.brand}
-                    </Link>
-                    <p className="mt-1 text-xs text-zinc-400">Launch Year: {selectedDetail.launchYear || "n/a"}</p>
-                  </SectionCard>
-
-                  <SectionCard title="Notes">
-                    <TokenGrid
-                      tokens={selectedDetail.notes}
-                      linkBuilder={(token) =>
-                        `/studio/notes?note=${encodeURIComponent(token)}&context=${selectedContext}`
-                      }
-                    />
-                  </SectionCard>
-
-                  <SectionCard title="Main Accords">
-                    <TokenGrid
-                      tokens={selectedDetail.mainAccords}
-                      linkBuilder={(token) =>
-                        `/studio/accords?accord=${encodeURIComponent(token)}&context=${selectedContext}`
-                      }
-                    />
-                  </SectionCard>
-
-                  <SectionCard title="Performance">
-                    <PairLine
-                      label="Longevity Votes"
-                      value={formatNumber(Object.values(selectedDetail.longevityVotes).reduce((sum, value) => sum + value, 0))}
-                    />
-                    <PairLine
-                      label="Sillage Votes"
-                      value={formatNumber(Object.values(selectedDetail.sillageVotes).reduce((sum, value) => sum + value, 0))}
-                    />
-                    <PairLine
-                      label="Status"
-                      value={selectedRow?.performanceStatus ?? "missing"}
-                    />
-                  </SectionCard>
-
-                  <SectionCard title="Validation">
-                    <StatusBadge
-                      styleClass={statusStyles.validation[selectedDetail.validation.status]}
-                      label={selectedDetail.validation.status}
-                    />
-                    <ul className="mt-2 space-y-1 text-xs text-zinc-300">
-                      {selectedDetail.validation.issues.length > 0 ? (
-                        selectedDetail.validation.issues.map((issue) => <li key={issue}>- {issue}</li>)
-                      ) : (
-                        <li>- No validation issues</li>
-                      )}
-                    </ul>
-                  </SectionCard>
-
-                  <SectionCard title="Builder">
-                    <PairLine label="Status" value={selectedDetail.builder.status} />
-                    <PairLine
-                      label="Coverage"
-                      value={formatPercent(selectedDetail.builder.coveragePercent)}
-                    />
-                    <PairLine
-                      label="Confidence"
-                      value={selectedDetail.builder.confidence.toFixed(2)}
-                    />
-                  </SectionCard>
-
-                  <SectionCard title="Decision Engine">
-                    <StatusBadge
-                      styleClass={decisionStyles[selectedDetail.decision.current]}
-                      label={selectedDetail.decision.current}
-                    />
-                    <PairLine label="Confidence" value={selectedDetail.decision.confidence.toFixed(2)} />
-                    <PairLine label="Source Connector" value={selectedDetail.decision.sourceConnector} />
-                    <PairLine label="Suggested Action" value={selectedDetail.decision.suggestedNextAction} />
-                    <PairLine label="Timestamp" value={selectedDetail.decision.timestamp} />
-                    <p className="mt-2 text-xs uppercase tracking-[0.1em] text-zinc-500">Triggered Rules</p>
-                    <TokenGrid tokens={selectedDetail.decision.triggeredRules} />
-                    <p className="mt-2 text-xs uppercase tracking-[0.1em] text-zinc-500">Explanation</p>
-                    <p className="text-xs text-zinc-300">{selectedDetail.decision.explanation}</p>
-                  </SectionCard>
-
-                  <SectionCard title="Master Intelligence">
-                    <PairLine
-                      label="Completion"
-                      value={formatPercent(selectedDetail.intelligence.completionPercentage)}
-                    />
-                    <PairLine
-                      label="Missing Fields"
-                      value={formatNumber(selectedDetail.intelligence.missingFields.length)}
-                    />
-                    <PairLine
-                      label="Data Quality"
-                      value={selectedDetail.intelligence.dataQualityScore.toFixed(2)}
-                    />
-                    <PairLine
-                      label="Builder Confidence"
-                      value={selectedDetail.intelligence.builderConfidence.toFixed(2)}
-                    />
-                    <PairLine
-                      label="Review Required"
-                      value={selectedDetail.intelligence.reviewRequired ? "yes" : "no"}
-                    />
-                    <PairLine
-                      label="Automatic Resolution Possible"
-                      value={selectedDetail.intelligence.automaticResolutionPossible ? "yes" : "no"}
-                    />
-                    <PairLine
-                      label="Suggested Connector"
-                      value={selectedDetail.intelligence.suggestedConnector}
-                    />
-                    <PairLine
-                      label="Provenance Completeness"
-                      value={formatPercent(selectedDetail.intelligence.provenanceCompleteness)}
-                    />
-                    <PairLine
-                      label="Validation Completeness"
-                      value={formatPercent(selectedDetail.intelligence.validationCompleteness)}
-                    />
-                    <PairLine
-                      label="Knowledge Completeness"
-                      value={formatPercent(selectedDetail.intelligence.knowledgeCompleteness)}
-                    />
-                    <p className="mt-2 text-xs uppercase tracking-[0.1em] text-zinc-500">Missing Fields</p>
-                    <TokenGrid tokens={selectedDetail.intelligence.missingFields} />
-                  </SectionCard>
-
-                  <SectionCard title="Decision Provenance">
-                    <ul className="space-y-1 text-xs text-zinc-300">
-                      {selectedDetail.decision.provenance.length > 0 ? (
-                        selectedDetail.decision.provenance.map((entry) => (
-                          <li key={`${entry.key}-${entry.source}`}>
-                            - {entry.key}: {entry.source} / {entry.method} / {entry.confidence.toFixed(2)}
-                          </li>
-                        ))
-                      ) : (
-                        <li>- No provenance entries</li>
-                      )}
-                    </ul>
-                  </SectionCard>
-
-                  <SectionCard title="Decision History">
-                    <ul className="space-y-1 text-xs text-zinc-300">
-                      {selectedDetail.decision.history.length > 0 ? (
-                        selectedDetail.decision.history.map((entry) => (
-                          <li key={`${entry.ruleId}-${entry.at}`}>
-                            - {entry.at}: {entry.ruleId} / {entry.decision} / {entry.reason}
-                          </li>
-                        ))
-                      ) : (
-                        <li>- No decision history available</li>
-                      )}
-                    </ul>
-                  </SectionCard>
-
-                  <SectionCard title="Alternative Candidates">
-                    <ul className="space-y-1 text-xs text-zinc-300">
-                      {selectedDetail.decision.alternativeCandidates.length > 0 ? (
-                        selectedDetail.decision.alternativeCandidates.map((candidate) => (
-                          <li key={candidate.id}>
-                            - {candidate.perfume}: {candidate.brand} / {candidate.launchYear} / {candidate.decision} / {candidate.reason}
-                          </li>
-                        ))
-                      ) : (
-                        <li>- No alternative candidates</li>
-                      )}
-                    </ul>
-                  </SectionCard>
-
-                  <SectionCard title="Enrichment Tasks">
-                    <ul className="space-y-1 text-xs text-zinc-300">
-                      {selectedDetail.intelligence.enrichmentTasks.length > 0 ? (
-                        selectedDetail.intelligence.enrichmentTasks.map((task) => (
-                          <li key={task.id}>
-                            - {task.field}: {task.reason} ({task.suggestedConnector}, {task.resolutionType})
-                          </li>
-                        ))
-                      ) : (
-                        <li>- No enrichment tasks</li>
-                      )}
-                    </ul>
-                  </SectionCard>
-
-                  <SectionCard title="Connector Requirements">
-                    <PairLine
-                      label="Discovery Source"
-                      value={selectedDetail.connectors.discoverySource}
-                    />
-                    <PairLine
-                      label="Pending Enrichment"
-                      value={formatNumber(selectedDetail.connectors.pendingEnrichment)}
-                    />
-                    <PairLine
-                      label="Pending Jobs"
-                      value={formatNumber(selectedDetail.connectors.pendingJobs)}
-                    />
-                    <PairLine
-                      label="Completed Jobs"
-                      value={formatNumber(selectedDetail.connectors.completedJobs)}
-                    />
-                    <PairLine
-                      label="Connector Confidence"
-                      value={selectedDetail.connectors.confidence.toFixed(2)}
-                    />
-                    <PairLine
-                      label="Last Synchronized"
-                      value={selectedDetail.connectors.lastSynchronized}
-                    />
-                    <PairLine
-                      label="Conflict Status"
-                      value={selectedDetail.connectors.conflictStatus}
-                    />
-                    <PairLine
-                      label="Pending Synchronizations"
-                      value={formatNumber(selectedDetail.connectors.pendingSynchronizations)}
-                    />
-                    <PairLine
-                      label="Completed Synchronizations"
-                      value={formatNumber(selectedDetail.connectors.completedSynchronizations)}
-                    />
-                    <p className="mt-2 text-xs uppercase tracking-[0.1em] text-zinc-500">Missing Fields</p>
-                    <TokenGrid tokens={selectedDetail.connectors.missingFields} />
-                    <p className="mt-2 text-xs uppercase tracking-[0.1em] text-zinc-500">Required Connectors</p>
-                    <TokenGrid tokens={selectedDetail.connectors.requiredConnectors} />
-                    <p className="mt-2 text-xs uppercase tracking-[0.1em] text-zinc-500">Imported Sources</p>
-                    <TokenGrid tokens={selectedDetail.connectors.importedSources} />
-                    <p className="mt-2 text-xs uppercase tracking-[0.1em] text-zinc-500">Connector Status</p>
-                    <ul className="mt-1 space-y-1 text-xs text-zinc-300">
-                      {selectedDetail.connectors.connectorStatus.length > 0 ? (
-                        selectedDetail.connectors.connectorStatus.map((connector) => (
-                          <li key={`${connector.connector}-${connector.lastRun}`}>
-                            - {connector.connector}: {connector.status} (pending {formatNumber(connector.pendingJobs)}, failed {formatNumber(connector.failedJobs)})
-                          </li>
-                        ))
-                      ) : (
-                        <li>- No connector requirements</li>
-                      )}
-                    </ul>
-                  </SectionCard>
-
-                  <SectionCard title="Connector History">
-                    <ul className="space-y-1 text-xs text-zinc-300">
-                      {selectedDetail.connectors.connectorHistory.length > 0 ? (
-                        selectedDetail.connectors.connectorHistory.map((entry) => (
-                          <li key={`${entry.at}-${entry.connector}-${entry.workflow}`}>
-                            - {entry.at}: {entry.connector} / {entry.workflow} / {entry.status} / {entry.result ?? "none"} / {entry.confidence.toFixed(2)}
-                          </li>
-                        ))
-                      ) : (
-                        <li>- No connector history for this perfume</li>
-                      )}
-                    </ul>
-                  </SectionCard>
-
-                  <SectionCard title="Enrichment History">
-                    <ul className="space-y-1 text-xs text-zinc-300">
-                      {selectedDetail.connectors.enrichmentHistory.length > 0 ? (
-                        selectedDetail.connectors.enrichmentHistory.map((entry) => (
-                          <li key={entry.jobId}>
-                            - {entry.at}: {entry.connector} / {entry.field} / {entry.status}
-                          </li>
-                        ))
-                      ) : (
-                        <li>- No connector history for this perfume</li>
-                      )}
-                    </ul>
-                  </SectionCard>
-
-                  <SectionCard title="Synchronization History">
-                    <ul className="space-y-1 text-xs text-zinc-300">
-                      {selectedDetail.connectors.synchronizationHistory.length > 0 ? (
-                        selectedDetail.connectors.synchronizationHistory.map((entry) => (
-                          <li key={`${entry.at}-${entry.connector}-${entry.source}`}>
-                            - {entry.at}: {entry.connector} / {entry.source} / {entry.confidence.toFixed(2)} / fields {formatNumber(entry.fields.length)}
-                          </li>
-                        ))
-                      ) : (
-                        <li>- No synchronization history for this perfume</li>
-                      )}
-                    </ul>
-                  </SectionCard>
-
-                  <SectionCard title="Review Information">
-                    <StatusBadge
-                      styleClass={statusStyles.review[selectedDetail.review.status]}
-                      label={selectedDetail.review.status}
-                    />
-                    <ul className="mt-2 space-y-1 text-xs text-zinc-300">
-                      {selectedDetail.review.reasons.length > 0 ? (
-                        selectedDetail.review.reasons.map((reason) => <li key={reason}>- {reason}</li>)
-                      ) : (
-                        <li>- No review blockers</li>
-                      )}
-                    </ul>
-                  </SectionCard>
-
-                  <SectionCard title="Knowledge Coverage">
-                    <PairLine label="Status" value={selectedDetail.knowledge.status} />
-                    <PairLine
-                      label="Mapped Notes"
-                      value={formatNumber(selectedDetail.knowledge.mappedCount)}
-                    />
-                    <PairLine
-                      label="Unresolved Notes"
-                      value={formatNumber(selectedDetail.knowledge.unresolvedCount)}
-                    />
-                  </SectionCard>
-
-                  <SectionCard title="Relationships">
-                    <p className="text-xs uppercase tracking-[0.1em] text-zinc-500">Same Brand</p>
-                    <ul className="mt-1 space-y-1 text-xs text-zinc-300">
-                      {selectedDetail.relationships.sameBrandPerfumes.length > 0 ? (
-                        selectedDetail.relationships.sameBrandPerfumes.map((name) => (
-                          <li key={name}>- {name}</li>
-                        ))
-                      ) : (
-                        <li>- No same-brand relationships</li>
-                      )}
-                    </ul>
-                    <p className="mt-2 text-xs uppercase tracking-[0.1em] text-zinc-500">Common Notes</p>
-                    <ul className="mt-1 space-y-1 text-xs text-zinc-300">
-                      {selectedDetail.relationships.commonNotes.length > 0 ? (
-                        selectedDetail.relationships.commonNotes.map((item) => (
-                          <li key={item.note}>- {item.note}: {formatNumber(item.count)}</li>
-                        ))
-                      ) : (
-                        <li>- No common-note relationships</li>
-                      )}
-                    </ul>
-                  </SectionCard>
-
-                  <SectionCard title="Translation">
-                    <PairLine label="Status" value={selectedDetail.translation.status} />
-                    <p className="mt-2 text-xs uppercase tracking-[0.1em] text-zinc-500">
-                      Unresolved Tokens
-                    </p>
-                    <ul className="mt-1 space-y-1 text-xs text-zinc-300">
-                      {selectedDetail.translation.unresolvedTokens.length > 0 ? (
-                        selectedDetail.translation.unresolvedTokens.map((token) => (
-                          <li key={token}>- {token}</li>
-                        ))
-                      ) : (
-                        <li>- None</li>
-                      )}
-                    </ul>
-                  </SectionCard>
-                </div>
-              ) : (
-                <div className="p-4 text-sm text-zinc-400">No selected perfume.</div>
-              )}
-            </aside>
-          </div>
+            ) : (
+              <div className="p-3 text-sm text-zinc-400">No selected perfume.</div>
+            )}
+          </aside>
         </div>
       ) : null}
     </section>
   );
 }
 
-function TopMetric({ label, value }: { label: string; value: string }) {
+function SummaryButton({
+  label,
+  value,
+  onClick,
+  active = false,
+}: {
+  label: string;
+  value: string;
+  onClick?: () => void;
+  active?: boolean;
+}) {
   return (
-    <div className="rounded border border-zinc-800 bg-zinc-900/55 p-2">
+    <button
+      type="button"
+      onClick={onClick}
+      className={`min-w-[150px] flex-1 rounded border p-2 text-left transition-colors ${
+        active
+          ? "border-amber-300/50 bg-amber-500/10"
+          : "border-zinc-800 bg-zinc-900/55 hover:border-amber-300/35"
+      }`}
+    >
       <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">{label}</p>
       <p className="mt-1 text-sm font-semibold text-zinc-100">{value}</p>
-    </div>
+    </button>
   );
 }
 
@@ -1141,5 +1039,50 @@ function TokenGrid({
         ),
       )}
     </div>
+  );
+}
+
+function FieldInput({
+  name,
+  label,
+  defaultValue,
+}: {
+  name: string;
+  label: string;
+  defaultValue: string;
+}) {
+  return (
+    <label className="space-y-1 text-xs uppercase tracking-[0.1em] text-zinc-500">
+      <span>{label}</span>
+      <input
+        name={name}
+        defaultValue={defaultValue}
+        className="w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-amber-300/40 focus:outline-none"
+      />
+    </label>
+  );
+}
+
+function FieldTextArea({
+  name,
+  label,
+  defaultValue,
+  rows,
+}: {
+  name: string;
+  label: string;
+  defaultValue: string;
+  rows: number;
+}) {
+  return (
+    <label className="space-y-1 text-xs uppercase tracking-[0.1em] text-zinc-500">
+      <span>{label}</span>
+      <textarea
+        name={name}
+        defaultValue={defaultValue}
+        rows={rows}
+        className="w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-sm leading-6 text-zinc-100 placeholder:text-zinc-500 focus:border-amber-300/40 focus:outline-none"
+      />
+    </label>
   );
 }

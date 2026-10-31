@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import ArticlesRail from './ArticlesRail';
 import { usePathname } from 'next/navigation';
-import { useEffect, useMemo, useState, type CSSProperties } from 'react';
-import { Inter, Playfair_Display } from 'next/font/google';
+import { useMemo, useState } from 'react';
 
 type Article = {
   title: string;
@@ -28,14 +28,6 @@ type ArticleSection = {
   intro: string;
   articles: Article[];
 };
-
-const inter = Inter({ subsets: ['latin'], variable: '--font-articles-body', display: 'swap' });
-const playfair = Playfair_Display({
-  subsets: ['latin'],
-  variable: '--font-articles-heading',
-  display: 'swap',
-  weight: ['500', '600', '700'],
-});
 
 const articleSections: ArticleSection[] = [
   {
@@ -324,7 +316,6 @@ const articleSections: ArticleSection[] = [
 export default function ArticlesPage() {
   const pathname = usePathname();
   const [selectedSection, setSelectedSection] = useState<SectionId>('scent-fundamentals');
-  const [railScrollOffset, setRailScrollOffset] = useState(0);
 
   const submenuItems: { href: string; label: string; hint: string }[] = [
     {
@@ -344,49 +335,9 @@ export default function ArticlesPage() {
     [selectedSection],
   );
 
-  useEffect(() => {
-    const root = document.documentElement;
-
-    const toPx = (value: string): number => {
-      const trimmed = value.trim();
-      if (!trimmed) {
-        return 0;
-      }
-      if (trimmed.endsWith('px')) {
-        return Number.parseFloat(trimmed) || 0;
-      }
-      if (trimmed.endsWith('rem')) {
-        const rem = Number.parseFloat(trimmed) || 0;
-        const rootFont = Number.parseFloat(getComputedStyle(root).fontSize || '16') || 16;
-        return rem * rootFont;
-      }
-      return Number.parseFloat(trimmed) || 0;
-    };
-
-    const pageShellTopPx = toPx(getComputedStyle(root).getPropertyValue('--page-shell-top'));
-
-    const updateRailOffset = () => {
-      const scrollY = window.scrollY || 0;
-      setRailScrollOffset(Math.max(0, pageShellTopPx - scrollY));
-    };
-
-    updateRailOffset();
-    window.addEventListener('scroll', updateRailOffset, { passive: true });
-    window.addEventListener('resize', updateRailOffset);
-
-    return () => {
-      window.removeEventListener('scroll', updateRailOffset);
-      window.removeEventListener('resize', updateRailOffset);
-    };
-  }, []);
-
-  const railStyle: CSSProperties & { '--articles-rail-scroll-offset': string } = {
-    '--articles-rail-scroll-offset': `${railScrollOffset}px`,
-  };
-
   return (
-    <main className={`${inter.variable} ${playfair.variable} relative pb-16 pt-8 lg:pt-10`}>
-      <section className="articles-intro-wrap relative z-10 mx-auto w-[92vw] max-w-[1540px]">
+    <main className="relative pb-16 pt-8 lg:pt-10">
+      <section className="articles-intro-wrap relative z-10 mx-auto w-[90vw] max-w-[1600px]">
         <div
           className="rounded-[28px] border border-[#9f7b44]/45 p-6 sm:p-8 lg:p-10"
           style={{
@@ -406,18 +357,14 @@ export default function ArticlesPage() {
         </div>
       </section>
 
-      <section className="relative z-10 mx-auto mt-4 grid w-[92vw] max-w-[1540px] gap-4 lg:grid-cols-3">
+      <section className="relative z-10 mx-auto mt-4 grid w-[90vw] max-w-[1600px] gap-4 lg:grid-cols-3">
         <div className="w-full lg:col-span-3">
           <div className="grid gap-5 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-start lg:gap-0">
             <aside className="articles-brand-rail-shell">
-              <div
-                className="articles-brand-rail relative overflow-hidden p-4 sm:p-5 lg:min-h-[66vh]"
-                style={railStyle}
-              >
-                <div className="articles-rail-static-link" aria-hidden="true" />
+              <ArticlesRail>
                 <div className="articles-rail-dynamic-mist" aria-hidden="true" />
 
-                <div className="mt-[1cm]">
+                <div>
                   <p className="font-articles-body text-center text-[10px] uppercase tracking-[0.28em] text-[#d5b97f]">Passion Menu</p>
                 </div>
                 <div className="mt-6 flex flex-col gap-3">
@@ -436,7 +383,7 @@ export default function ArticlesPage() {
                     );
                   })}
                 </div>
-              </div>
+              </ArticlesRail>
             </aside>
 
             <div className="articles-content-column space-y-6">

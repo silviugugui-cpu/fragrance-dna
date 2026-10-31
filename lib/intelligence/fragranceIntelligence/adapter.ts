@@ -1,5 +1,5 @@
-import evaluationCatalog from "@/lib/db.json";
 import canonicalRaw from "@/data/FragranceDNA_USER_ATTRIBUTE_LAYER_V3.json";
+import type { UserDnaProfileRecord } from "@/lib/database/masterFragranceDatabase";
 import { resolveCanonicalAttribute } from "@/lib/intelligence/attributes";
 import type {
   CanonicalFragranceAttribute,
@@ -9,14 +9,22 @@ import type {
   SessionFragranceRef,
 } from "@/lib/intelligence/fragranceIntelligence/types";
 
-type EvaluationCatalogItem = {
+type EvaluationProfile = {
   id: string;
   name: string;
   notes?: string[];
 };
 
 type CanonicalLayer = {
+  testProfileId?: string;
+  canonicalFragranceId?: string;
+  canonicalBrand?: string;
+  canonicalPerfume?: string;
+  canonicalImageUrl?: string;
+  canonicalLocalImagePath?: string;
   name?: string;
+  type?: string;
+  dna_axes?: Record<string, number>;
   semantic_v1?: Record<string, number>;
   user_attributes_v3?: {
     abstract?: string[];
@@ -27,27 +35,31 @@ type CanonicalLayer = {
 class AdapterBackedFragranceIntelligenceService implements FragranceIntelligenceService {
   private readonly refs: EvaluationFragranceRef[];
   private readonly sessionRefs: SessionFragranceRef[];
-  private readonly byId: Map<string, EvaluationCatalogItem>;
-  private readonly layersByName: Map<string, CanonicalLayer>;
+  private readonly profilesById: Map<string, CanonicalLayer>;
 
-  constructor() {
-    const catalog = (evaluationCatalog as EvaluationCatalogItem[]) ?? [];
+  constructor(sourceProfiles?: UserDnaProfileRecord[]) {
+    const profiles = sourceProfiles
+      ? sourceProfiles as CanonicalLayer[]
+      : getUniqueCanonicalProfiles();
+    const ids = buildUniqueProfileIds(profiles);
 
-    this.refs = catalog.map((item) => ({
-      fragranceId: item.id,
-      displayName: item.name,
+    this.refs = profiles.map((profile, index) => ({
+      fragranceId: ids[index],
+      displayName: String(profile.canonicalPerfume ?? profile.name ?? "").trim(),
+      brand: String(profile.canonicalBrand ?? "").trim(),
+      canonicalFragranceId: String(profile.canonicalFragranceId ?? "").trim(),
+      imageUrl: String(profile.canonicalImageUrl ?? "").trim(),
+      localImagePath: String(profile.canonicalLocalImagePath ?? "").trim(),
     }));
 
-    this.sessionRefs = catalog.map((item) => ({
-      fragranceId: item.id,
-      displayName: item.name,
-      notes: [...(item.notes ?? [])],
+    this.sessionRefs = profiles.map((profile, index) => ({
+      fragranceId: ids[index],
+      displayName: String(profile.canonicalPerfume ?? profile.name ?? "").trim(),
+      brand: String(profile.canonicalBrand ?? "").trim(),
+      notes: [...(profile.user_attributes_v3?.concrete ?? [])],
     }));
 
-    this.byId = new Map(catalog.map((item) => [item.id, item]));
-    this.layersByName = new Map(
-      getCanonicalLayers().map((layer) => [normalizeForName(layer.name ?? ""), layer])
-    );
+    this.profilesById = new Map(profiles.map((profile, index) => [ids[index], profile]));
   }
 
   listEvaluationFragrances(): EvaluationFragranceRef[] {
@@ -63,12 +75,16 @@ class AdapterBackedFragranceIntelligenceService implements FragranceIntelligence
   }
 
   getCanonicalFragrance(fragranceId: string): CanonicalFragranceModel | null {
-    const item = this.byId.get(fragranceId);
-    if (!item) {
+    const layer = this.profilesById.get(fragranceId);
+    if (!layer) {
       return null;
     }
 
-    const layer = this.layersByName.get(normalizeForName(item.name));
+    const item: EvaluationProfile = {
+      id: fragranceId,
+      name: String(layer.canonicalPerfume ?? layer.name ?? "").trim(),
+      notes: [...(layer.user_attributes_v3?.concrete ?? [])],
+    };
     const coreAttributes = buildCoreAttributes(item, layer);
     const supportingAttributes = buildSupportingAttributes(layer);
 
@@ -81,12 +97,14 @@ class AdapterBackedFragranceIntelligenceService implements FragranceIntelligence
   }
 }
 
-export function createFragranceIntelligenceService(): FragranceIntelligenceService {
-  return new AdapterBackedFragranceIntelligenceService();
+export function createFragranceIntelligenceService(
+  profiles?: UserDnaProfileRecord[],
+): FragranceIntelligenceService {
+  return new AdapterBackedFragranceIntelligenceService(profiles);
 }
 
 function buildCoreAttributes(
-  item: EvaluationCatalogItem,
+  item: EvaluationProfile,
   layer: CanonicalLayer | undefined
 ): CanonicalFragranceAttribute[] {
   const attributes = new Map<string, CanonicalFragranceAttribute>();
@@ -180,8 +198,45 @@ function getCanonicalLayers(): CanonicalLayer[] {
   return root.FragranceDNA_USER_ATTRIBUTE_LAYER_v3?.layers ?? root.layers ?? [];
 }
 
-function normalizeForName(value: string): string {
-  return value.trim().toLowerCase().replace(/\s+/g, " ");
+function getUniqueCanonicalProfiles(): CanonicalLayer[] {
+  const profilesByName = new Map<string, CanonicalLayer>();
+  for (const profile of getCanonicalLayers()) {
+    const name = String(profile.name ?? "").trim();
+    const key = normalizeProfileName(name);
+    if (!name || !key) continue;
+
+    const existing = profilesByName.get(key);
+    if (!existing || profileCompleteness(profile) > profileCompleteness(existing)) {
+      profilesByName.set(key, profile);
+    }
+  }
+  return [...profilesByName.values()];
+}
+
+function profileCompleteness(profile: CanonicalLayer): number {
+  return Object.keys(profile.dna_axes ?? {}).length * 100
+    + Object.keys(profile.semantic_v1 ?? {}).length * 10
+    + (profile.user_attributes_v3?.abstract?.length ?? 0)
+    + (profile.user_attributes_v3?.concrete?.length ?? 0);
+}
+
+function buildUniqueProfileIds(profiles: CanonicalLayer[]): string[] {
+  const used = new Set<string>();
+  return profiles.map((profile) => {
+    const base = normalizeProfileName(String(profile.name ?? "")) || "fragrance";
+    let id = String(profile.testProfileId ?? "").trim() || base;
+    let suffix = 2;
+    while (used.has(id)) {
+      id = `${base}-${suffix}`;
+      suffix += 1;
+    }
+    used.add(id);
+    return id;
+  });
+}
+
+function normalizeProfileName(value: string): string {
+  return value.trim().toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
 
 function normalizeConfidence(score: number): number {

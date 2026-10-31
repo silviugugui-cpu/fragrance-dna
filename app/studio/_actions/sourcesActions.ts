@@ -1,16 +1,24 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { requireAdminSession } from "@/lib/auth/serverSession";
 import {
   cancelConnectorExecution,
+  clearStaleFragranticaQueue,
   previewConnectorChanges,
   reviewDiscoveryCandidate,
   retryFailedConnectorJobs,
   runAllConnectors,
+  runFragranticaSmokeTest,
   runConnector,
   generateDiscoveryJobsFromConnectors,
+  runCompleteDatabaseSynchronization,
   updateConnectorConfiguration,
 } from "@/lib/builder/connectors/sourcesWorkspace";
+import {
+  downloadApprovedEnrichedImages,
+  runGoogleCseEnrichment,
+} from "@/lib/builder/connectors/googleCseEnrichment";
 import type { ConnectorType } from "@/lib/builder/connectors/connectorState";
 
 const revalidateSources = (): void => {
@@ -48,6 +56,7 @@ const parseDiscoveryAction = (value: FormDataEntryValue | null): "approve" | "re
 };
 
 export const runConnectorAction = async (formData: FormData): Promise<void> => {
+  await requireAdminSession();
   const connector = parseConnector(formData.get("connector"));
   const mode = formData.get("mode") === "dry-run" ? "dry-run" : "run";
   if (!connector) {
@@ -59,37 +68,74 @@ export const runConnectorAction = async (formData: FormData): Promise<void> => {
 };
 
 export const runAllConnectorsAction = async (): Promise<void> => {
+  await requireAdminSession();
   await runAllConnectors("run");
   revalidateSources();
 };
 
+export const runCompleteDatabaseSyncAction = async (): Promise<void> => {
+  await requireAdminSession();
+  await runCompleteDatabaseSynchronization();
+  revalidateSources();
+};
+
+export const clearStaleFragranticaQueueAction = async (): Promise<void> => {
+  await requireAdminSession();
+  await clearStaleFragranticaQueue();
+  revalidateSources();
+};
+
+export const runFragranticaSmokeTestAction = async (): Promise<void> => {
+  await requireAdminSession();
+  await runFragranticaSmokeTest();
+  revalidateSources();
+};
+
+export const runGoogleCseEnrichmentAction = async (): Promise<void> => {
+  await requireAdminSession();
+  await runGoogleCseEnrichment();
+  revalidateSources();
+};
+
+export const downloadApprovedGoogleImagesAction = async (): Promise<void> => {
+  await requireAdminSession();
+  await downloadApprovedEnrichedImages();
+  revalidateSources();
+};
+
 export const dryRunAllConnectorsAction = async (): Promise<void> => {
+  await requireAdminSession();
   await runAllConnectors("dry-run");
   revalidateSources();
 };
 
 export const previewConnectorsAction = async (): Promise<void> => {
+  await requireAdminSession();
   await previewConnectorChanges();
   revalidateSources();
 };
 
 export const refreshDiscoveryQueueAction = async (): Promise<void> => {
+  await requireAdminSession();
   await generateDiscoveryJobsFromConnectors();
   revalidateSources();
 };
 
 export const cancelConnectorsAction = async (): Promise<void> => {
+  await requireAdminSession();
   await cancelConnectorExecution();
   revalidateSources();
 };
 
 export const retryFailedConnectorJobsAction = async (formData: FormData): Promise<void> => {
+  await requireAdminSession();
   const connector = parseConnector(formData.get("connector"));
   await retryFailedConnectorJobs(connector ?? "all");
   revalidateSources();
 };
 
 export const updateConnectorConfigAction = async (formData: FormData): Promise<void> => {
+  await requireAdminSession();
   const connector = parseConnector(formData.get("connector"));
   if (!connector) {
     return;
@@ -113,6 +159,7 @@ export const updateConnectorConfigAction = async (formData: FormData): Promise<v
 };
 
 export const reviewDiscoveryCandidateAction = async (formData: FormData): Promise<void> => {
+  await requireAdminSession();
   const candidateId = formData.get("candidateId");
   const action = parseDiscoveryAction(formData.get("action"));
 

@@ -21,11 +21,16 @@ export type CanonicalFragranceModel = {
 export type EvaluationFragranceRef = {
   fragranceId: string;
   displayName: string;
+  brand?: string;
+  canonicalFragranceId?: string;
+  imageUrl?: string;
+  localImagePath?: string;
 };
 
 export type SessionFragranceRef = {
   fragranceId: string;
   displayName: string;
+  brand?: string;
   notes: string[];
 };
 

@@ -1,0 +1,511 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "export-user-dna-db-excel",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"scripts/export-user-dna-db-to-excel.mjs"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "save-user-dna-excel-to-desktop",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"$source = 'D:\\-projects\\projects\\_Fragrantiq\\data\\generated\\user-dna-test-database.xlsx'; $desktopDir = 'C:\\Users\\silvi\\OneDrive\\Desktop'; if (!(Test-Path $source)) { throw \"Source file not found: $source\" }; if (!(Test-Path $desktopDir)) { $desktopDir = [Environment]::GetFolderPath('Desktop') }; $target = Join-Path $desktopDir 'user-dna-test-database.xlsx'; Copy-Item -Path $source -Destination $target -Force; Get-Item $target | Select-Object FullName,Length,LastWriteTime | Format-List"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "copy-user-dna-excel-to-desktop",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"-e",
+				"const fs=require('fs');const path=require('path');const os=require('os');const src='D:/-projects/projects/_Fragrantiq/data/generated/user-dna-test-database.xlsx';if(!fs.existsSync(src)){throw new Error('Source file not found: '+src);}let desktop=path.join(os.homedir(),'OneDrive','Desktop');if(!fs.existsSync(desktop)){desktop=path.join(os.homedir(),'Desktop');}const dst=path.join(desktop,'user-dna-test-database.xlsx');fs.copyFileSync(src,dst);const s=fs.statSync(dst);console.log(JSON.stringify({savedTo:dst,sizeBytes:s.size},null,2));"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "copy-user-dna-excel-to-desktop-v2",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"scripts/copy-user-dna-excel-to-desktop.mjs"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "check-python-version",
+			"type": "shell",
+			"command": "python",
+			"args": [
+				"--version"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "healthcheck-localhost-3000",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"$ErrorActionPreference='Stop';$root=(Invoke-WebRequest -UseBasicParsing -Uri 'http://localhost:3000' -TimeoutSec 20).StatusCode;$studio=(Invoke-WebRequest -UseBasicParsing -Uri 'http://localhost:3000/studio/user-dna-database' -TimeoutSec 20).StatusCode;Write-Output ('root='+$root);Write-Output ('studioUserDna='+$studio)"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "healthcheck-localhost-node",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"scripts/healthcheck-localhost.mjs"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "build-production-verify",
+			"type": "shell",
+			"command": "C:\\Program Files\\nodejs\\npm.cmd",
+			"args": [
+				"run",
+				"build"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "tsc-noemit-verify",
+			"type": "shell",
+			"command": "C:\\Program Files\\nodejs\\npx.cmd",
+			"args": [
+				"tsc",
+				"--noEmit"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "tsc-noemit-verify-8gb",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"$env:NODE_OPTIONS='--max-old-space-size=8192'; & 'C:\\Program Files\\nodejs\\npx.cmd' tsc --noEmit"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "git-status-short-after-hf-import",
+			"type": "shell",
+			"command": "git",
+			"args": [
+				"status",
+				"--short"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "check-imported-image-url",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"scripts/check-single-image-url.mjs",
+				"http://localhost:3000/images/master-db/fragrantica-47798-a-n-other-or-18.jpg"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "inspect-record-another-or18",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"scripts/inspect-complete-db-record.mjs",
+				"another::or18"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "check-api-selected-record-detail",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"scripts/check-single-image-url.mjs",
+				"http://localhost:3000/api/studio/master-database/record?recordId=another%3A%3Aor18"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "inspect-api-record-response",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"scripts/inspect-url-response.mjs",
+				"http://localhost:3000/api/studio/master-database/record?recordId=another%3A%3Aor18"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "inspect-api-error-message",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"scripts/inspect-api-error-message.mjs",
+				"http://localhost:3000/api/studio/master-database/record?recordId=another%3A%3Aor18"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "inspect-studio-snapshot-image",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"scripts/inspect-snapshot-image-section.mjs",
+				"c:\\Users\\silvi\\AppData\\Roaming\\Code\\User\\workspaceStorage\\eec01eecb2b56ec220cdef4a046db291\\GitHub.copilot-chat\\chat-session-resources\\cb17309c-40d3-4358-852a-d435daece837\\call_5w5jmIj2USCqw0JYjtZP4rMI__vscode-1792130948805\\content.txt"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "inspect-studio-snapshot-image-after-search",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"scripts/inspect-snapshot-image-section.mjs",
+				"c:\\Users\\silvi\\AppData\\Roaming\\Code\\User\\workspaceStorage\\eec01eecb2b56ec220cdef4a046db291\\GitHub.copilot-chat\\chat-session-resources\\cb17309c-40d3-4358-852a-d435daece837\\call_nHK7YlPpjl1oGjJJ83pAreUO__vscode-1792130948813\\content.txt"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "find-port-3000-pid",
+			"type": "shell",
+			"command": "cmd",
+			"args": [
+				"/c",
+				"netstat -ano | findstr :3000"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "kill-port-3000-process",
+			"type": "shell",
+			"command": "taskkill",
+			"args": [
+				"/PID",
+				"17904",
+				"/F"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "check-api-record-after-restart",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"scripts/inspect-url-response.mjs",
+				"http://localhost:3000/api/studio/master-database/record?recordId=another%3A%3Aor18"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "inspect-snapshot-after-fix-restart",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"scripts/inspect-snapshot-image-section.mjs",
+				"c:\\Users\\silvi\\AppData\\Roaming\\Code\\User\\workspaceStorage\\eec01eecb2b56ec220cdef4a046db291\\GitHub.copilot-chat\\chat-session-resources\\cb17309c-40d3-4358-852a-d435daece837\\call_Ue2QBqlKxlbWzksJDviReiKw__vscode-1792130948822\\content.txt"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "healthcheck-after-image-fix",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"scripts/healthcheck-localhost.mjs"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "verify-image-editor-order-in-snapshot",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"$p='c:\\Users\\silvi\\AppData\\Roaming\\Code\\User\\workspaceStorage\\eec01eecb2b56ec220cdef4a046db291\\GitHub.copilot-chat\\chat-session-resources\\cb17309c-40d3-4358-852a-d435daece837\\call_zqFEaScBdYJYeFwFkLWGPF1B__vscode-1792130948829\\content.txt'; Select-String -Path $p -Pattern 'Selected Record|Image|Editor' | Select-Object -First 30 | ForEach-Object { \"{0}: {1}\" -f $_.LineNumber, $_.Line }"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "healthcheck-after-global-fallback",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"scripts/healthcheck-localhost.mjs"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "healthcheck-after-table-height-adjust",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"scripts/healthcheck-localhost.mjs"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "healthcheck-after-table-height-revert-tuning",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"scripts/healthcheck-localhost.mjs"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "tmp-write-test",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"-e",
+				"require('fs').writeFileSync('tmp/task-test.txt','ok-'+new Date().toISOString()); console.log('done')"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "tmp-write-test-2",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"-e",
+				"require(\"fs\").writeFileSync(\"tmp/task-test.txt\",\"ok-\"+new Date().toISOString()); console.log(\"done\")"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "tmp-run-test-script",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"tmp/task-test.mjs"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "verify-build-cmd",
+			"type": "shell",
+			"command": "cmd",
+			"args": [
+				"/c",
+				"cd /d \"d:\\-projects\\projects\\_Fragrantiq\" && npm.cmd run build"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "start-local-dev-studio",
+			"type": "shell",
+			"command": "npm.cmd run dev",
+			"args": [],
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "find-port-3000-process",
+			"type": "shell",
+			"command": "cmd /c \"netstat -ano | findstr :3000\"",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "inspect-port-3000-pid",
+			"type": "shell",
+			"command": "cmd /c \"tasklist /FI \\\"PID eq 16008\\\" /FO LIST\"",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "list-node-processes",
+			"type": "shell",
+			"command": "cmd /c \"tasklist | findstr node\"",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "kill-port-3000-conflict",
+			"type": "shell",
+			"command": "cmd /c \"taskkill /PID 16008 /F\"",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "restart-studio-on-3000",
+			"type": "shell",
+			"command": "npm.cmd run dev",
+			"args": [],
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "start-next-dev",
+			"type": "shell",
+			"command": "npm.cmd",
+			"args": [
+				"run",
+				"dev"
+			],
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "inspect-node-processes",
+			"type": "shell",
+			"command": "tasklist /FI \"IMAGENAME eq node.exe\" /FO LIST",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "inspect-node-processes",
+			"type": "shell",
+			"command": "tasklist /FO LIST | findstr /I node",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "inspect-node-processes",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"Get-Process node -ErrorAction SilentlyContinue | Format-List Id,ProcessName,Path,StartInfo"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "inspect-node-2",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"Get-NetTCPConnection -LocalPort 3000 | Select-Object -ExpandProperty OwningProcess -Unique"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "kill-3000-pid-6852",
+			"type": "shell",
+			"command": "taskkill /PID 6852 /F",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "start-next-dev-3000",
+			"type": "shell",
+			"command": "npm.cmd",
+			"args": [
+				"run",
+				"dev",
+				"--",
+				"--port",
+				"3000"
+			],
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "start-next-dev-3000",
+			"type": "shell",
+			"command": "npm.cmd",
+			"args": [
+				"run",
+				"dev",
+				"--",
+				"--port",
+				"3000"
+			],
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "kill-stale-3000",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"tmp/kill-port-3000.mjs"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "kill-33468",
+			"type": "shell",
+			"command": "taskkill /PID 33468 /F",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "start-next-dev-3000",
+			"type": "shell",
+			"command": "npm.cmd",
+			"args": [
+				"run",
+				"dev",
+				"--",
+				"--port",
+				"3000"
+			],
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "start-next-dev-3000",
+			"type": "shell",
+			"command": "npm.cmd",
+			"args": [
+				"run",
+				"dev",
+				"--",
+				"--port",
+				"3000"
+			],
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "reset-studio-runtime",
+			"type": "shell",
+			"command": "cmd",
+			"args": [
+				"/c",
+				"taskkill /PID 16020 /F 2>nul & if exist .next rmdir /s /q .next & npm.cmd run dev"
+			],
+			"isBackground": true
+		}
+	]
+}

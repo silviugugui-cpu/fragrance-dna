@@ -1,5 +1,13 @@
 import "server-only";
 import { runCanonicalBuilderIntelligence, type CanonicalMasterPerfumeObject } from "@/lib/builder/intelligence/canonicalBuilderIntelligence";
+import { readConnectorState } from "@/lib/builder/connectors/connectorState";
+import {
+  evaluateMergeTrustForPerfume,
+  type MergeConflictCandidate,
+  type MergeFieldDecision,
+  type MergeFieldProvenanceEntry,
+  type MergeOutcome,
+} from "@/lib/builder/decisionEngine/mergeTrustEngine";
 
 export type BuilderDecisionType =
   | "NEW_OBJECT"
@@ -35,6 +43,29 @@ export interface BuilderDecisionAlternativeCandidate {
   reason: string;
 }
 
+export interface BuilderMergeConflictReviewItem {
+  field: string;
+  competingValues: string[];
+  sources: string[];
+  sourceTrust: Array<{ source: string; trust: number }>;
+  confidence: number;
+  status: "open" | "resolved";
+  recommendedResolution: string;
+  decisionExplanation: string;
+}
+
+export interface BuilderMergeTrustSummary {
+  automaticMergeCount: number;
+  manualMergeCount: number;
+  conflictCount: number;
+  averageDecisionConfidence: number;
+  outcomes: Array<{ outcome: MergeOutcome; count: number }>;
+  topConflictingFields: Array<{ field: string; count: number }>;
+  topConflictingSources: Array<{ source: string; count: number }>;
+  provenance: MergeFieldProvenanceEntry[];
+  unresolvedConflicts: BuilderMergeConflictReviewItem[];
+}
+
 export interface BuilderDecisionReport {
   id: string;
   perfume: string;
@@ -51,6 +82,7 @@ export interface BuilderDecisionReport {
   decisionHistory: BuilderDecisionHistoryEntry[];
   provenance: BuilderDecisionProvenanceEntry[];
   alternativeCandidates: BuilderDecisionAlternativeCandidate[];
+  mergeTrust: BuilderMergeTrustSummary;
 }
 
 export interface BuilderDecisionWorkspaceResult {
@@ -63,6 +95,14 @@ export interface BuilderDecisionWorkspaceResult {
   reviewReduction: number;
   automationPercent: number;
   decisionDistribution: Array<{ decision: BuilderDecisionType; count: number }>;
+  automaticMerges: number;
+  manualMerges: number;
+  conflictCount: number;
+  autoResolutionRate: number;
+  averageDecisionConfidence: number;
+  topConflictingFields: Array<{ field: string; count: number }>;
+  topConflictingSources: Array<{ source: string; count: number }>;
+  mergeOutcomeDistribution: Array<{ outcome: MergeOutcome; count: number }>;
   reports: BuilderDecisionReport[];
   reviewQueue: BuilderDecisionReport[];
 }
@@ -100,7 +140,7 @@ const safeAverage = (values: number[]): number => {
 
 const toSourceConnector = (object: CanonicalMasterPerfumeObject): string => {
   const sources = Object.values(object.provenance).map((entry) => entry.source.toLowerCase());
-  if (sources.some((source) => source.includes("fragrantica"))) {
+  if (sources.some((source) => source.includes("fragrantica") || source.includes("fragdb"))) {
     return "Fragrantica Connector";
   }
   if (sources.some((source) => source.includes("parfumo"))) {
@@ -189,7 +229,68 @@ const buildAlternativeCandidates = (
     .slice(0, 5);
 };
 
-const evaluateDecision = (context: DecisionContext): BuilderDecisionReport => {
+const summarizeMergeTrust = (input: {
+  fieldDecisions: MergeFieldDecision[];
+  provenance: MergeFieldProvenanceEntry[];
+  conflicts: MergeConflictCandidate[];
+  automaticMergeCount: number;
+  manualMergeCount: number;
+  conflictCount: number;
+  averageDecisionConfidence: number;
+}): BuilderMergeTrustSummary => {
+  const outcomeCounts = new Map<MergeOutcome, number>();
+  const fieldConflictCounts = new Map<string, number>();
+  const sourceConflictCounts = new Map<string, number>();
+
+  for (const decision of input.fieldDecisions) {
+    outcomeCounts.set(decision.outcome, (outcomeCounts.get(decision.outcome) ?? 0) + 1);
+  }
+
+  for (const conflict of input.conflicts) {
+    fieldConflictCounts.set(conflict.field, (fieldConflictCounts.get(conflict.field) ?? 0) + 1);
+    for (const source of conflict.sources) {
+      sourceConflictCounts.set(source, (sourceConflictCounts.get(source) ?? 0) + 1);
+    }
+  }
+
+  const unresolvedConflicts = input.conflicts
+    .filter((conflict) => conflict.status === "open")
+    .map((conflict) => ({
+      field: conflict.field,
+      competingValues: conflict.competingValues,
+      sources: conflict.sources,
+      sourceTrust: conflict.sourceTrust,
+      confidence: conflict.confidence,
+      status: conflict.status,
+      recommendedResolution: conflict.recommendedResolution,
+      decisionExplanation: conflict.decisionExplanation,
+    }))
+    .slice(0, 8);
+
+  const provenance = input.provenance.slice(0, 6);
+
+  return {
+    automaticMergeCount: input.automaticMergeCount,
+    manualMergeCount: input.manualMergeCount,
+    conflictCount: input.conflictCount,
+    averageDecisionConfidence: input.averageDecisionConfidence,
+    outcomes: Array.from(outcomeCounts.entries())
+      .map(([outcome, count]) => ({ outcome, count }))
+      .sort((left, right) => right.count - left.count || left.outcome.localeCompare(right.outcome)),
+    topConflictingFields: Array.from(fieldConflictCounts.entries())
+      .map(([field, count]) => ({ field, count }))
+      .sort((left, right) => right.count - left.count || left.field.localeCompare(right.field))
+      .slice(0, 8),
+    topConflictingSources: Array.from(sourceConflictCounts.entries())
+      .map(([source, count]) => ({ source, count }))
+      .sort((left, right) => right.count - left.count || left.source.localeCompare(right.source))
+      .slice(0, 8),
+    provenance,
+    unresolvedConflicts,
+  };
+};
+
+const evaluateDecision = (context: DecisionContext): Omit<BuilderDecisionReport, "mergeTrust"> => {
   const { object } = context;
   const brand = object.canonicalBrand.value ?? object.rawBrand;
   const sourceConnector = toSourceConnector(object);
@@ -340,8 +441,9 @@ const evaluateDecision = (context: DecisionContext): BuilderDecisionReport => {
   };
 };
 
-export const loadBuilderDecisionWorkspaceData = (): BuilderDecisionWorkspaceResult => {
-  const intelligence = runCanonicalBuilderIntelligence();
+export const loadBuilderDecisionWorkspaceData = async (): Promise<BuilderDecisionWorkspaceResult> => {
+  const intelligence = await runCanonicalBuilderIntelligence();
+  const connectorState = readConnectorState();
   const objects = intelligence.objects.slice().sort((left, right) => left.rowIndex - right.rowIndex);
 
   const exactGroups = new Map<string, CanonicalMasterPerfumeObject[]>();
@@ -367,6 +469,22 @@ export const loadBuilderDecisionWorkspaceData = (): BuilderDecisionWorkspaceResu
   const reports: BuilderDecisionReport[] = objects.map((object) => {
     const identity = buildIdentity(object);
     const provenanceScore = safeAverage(Object.values(object.provenance).map((entry) => entry.confidence));
+    const synchronizedFields = connectorState.jobs
+      .filter(
+        (job) =>
+          job.perfumeId === object.id &&
+          Array.isArray(job.synchronizedFields) &&
+          job.synchronizedFields.length > 0,
+      )
+      .flatMap((job) => job.synchronizedFields ?? []);
+    const connectorConflicts = connectorState.conflicts.filter((conflict) => conflict.perfumeId === object.id);
+    const mergeTrust = evaluateMergeTrustForPerfume({
+      object,
+      synchronizedFields,
+      conflicts: connectorConflicts,
+    });
+    const mergeTrustSummary = summarizeMergeTrust(mergeTrust);
+
     const context: DecisionContext = {
       object,
       provenanceScore,
@@ -375,7 +493,11 @@ export const loadBuilderDecisionWorkspaceData = (): BuilderDecisionWorkspaceResu
       perfumeGroup: perfumeGroups.get(normalizeIdentity(object.perfume)) ?? [object],
     };
 
-    return evaluateDecision(context);
+    const report = evaluateDecision(context);
+    return {
+      ...report,
+      mergeTrust: mergeTrustSummary,
+    };
   });
 
   const counts: Record<BuilderDecisionType, number> = {
@@ -409,6 +531,48 @@ export const loadBuilderDecisionWorkspaceData = (): BuilderDecisionWorkspaceResu
     count: counts[decision],
   }));
 
+  const automaticMerges = reports.reduce((sum, report) => sum + report.mergeTrust.automaticMergeCount, 0);
+  const manualMerges = reports.reduce((sum, report) => sum + report.mergeTrust.manualMergeCount, 0);
+  const conflictCount = reports.reduce((sum, report) => sum + report.mergeTrust.conflictCount, 0);
+  const autoResolutionRate = automaticMerges + manualMerges > 0
+    ? Number(((automaticMerges / (automaticMerges + manualMerges)) * 100).toFixed(2))
+    : 0;
+  const averageDecisionConfidence = Number(
+    safeAverage(reports.map((report) => report.mergeTrust.averageDecisionConfidence)).toFixed(2),
+  );
+
+  const topFieldCounts = new Map<string, number>();
+  const topSourceCounts = new Map<string, number>();
+  const mergeOutcomeCounts = new Map<MergeOutcome, number>();
+
+  for (const report of reports) {
+    for (const entry of report.mergeTrust.topConflictingFields) {
+      topFieldCounts.set(entry.field, (topFieldCounts.get(entry.field) ?? 0) + entry.count);
+    }
+    for (const entry of report.mergeTrust.topConflictingSources) {
+      topSourceCounts.set(entry.source, (topSourceCounts.get(entry.source) ?? 0) + entry.count);
+    }
+    for (const entry of report.mergeTrust.outcomes) {
+      mergeOutcomeCounts.set(entry.outcome, (mergeOutcomeCounts.get(entry.outcome) ?? 0) + entry.count);
+    }
+  }
+
+  const topConflictingFields = Array.from(topFieldCounts.entries())
+    .map(([field, count]) => ({ field, count }))
+    .sort((left, right) => right.count - left.count || left.field.localeCompare(right.field))
+    .slice(0, 8);
+
+  const topConflictingSources = Array.from(topSourceCounts.entries())
+    .map(([source, count]) => ({ source, count }))
+    .sort((left, right) => right.count - left.count || left.source.localeCompare(right.source))
+    .slice(0, 8);
+
+  const mergeOutcomeDistribution = Array.from(mergeOutcomeCounts.entries())
+    .map(([outcome, count]) => ({ outcome, count }))
+    .sort((left, right) => right.count - left.count || left.outcome.localeCompare(right.outcome));
+
+  const reviewQueue = reports.filter((report) => report.mergeTrust.unresolvedConflicts.length > 0);
+
   return {
     generatedAt: intelligence.generatedAt,
     totalDecisions,
@@ -419,7 +583,15 @@ export const loadBuilderDecisionWorkspaceData = (): BuilderDecisionWorkspaceResu
     reviewReduction,
     automationPercent,
     decisionDistribution,
+    automaticMerges,
+    manualMerges,
+    conflictCount,
+    autoResolutionRate,
+    averageDecisionConfidence,
+    topConflictingFields,
+    topConflictingSources,
+    mergeOutcomeDistribution,
     reports,
-    reviewQueue: reports.filter((report) => report.currentDecision === "REVIEW_REQUIRED"),
+    reviewQueue,
   };
 };

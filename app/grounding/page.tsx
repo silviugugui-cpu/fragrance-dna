@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState, type DragEvent } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth";
+import { getUserScopedStorageKey } from "@/lib/auth/userScope";
+import { persistUserProfilePatch } from "@/lib/auth/persistentProfile";
 import { buildSeed } from "@/lib/engine/seedBuilder";
 import { buildUserVector } from "@/lib/engine/userVectorBuilder";
 import { mergeGroundingVectorIntoSession } from "@/lib/dnaSession";
@@ -25,9 +28,30 @@ type Zone = "love" | "neutral" | "hate";
 
 export default function GroundingPage() {
   const router = useRouter();
+  const { user, isLoading } = useAuth();
+  const [isGroundingReady, setIsGroundingReady] = useState(false);
+  const draggedTokenRef = useRef<string | null>(null);
   const [state, setState] = useState<Record<string, Zone>>(
     Object.fromEntries(TOKENS.map((token) => [token, "neutral"]))
   );
+
+  useEffect(() => {
+    if (isLoading) return;
+    try {
+      const stored = localStorage.getItem(getUserScopedStorageKey("fragrance_grounding", user?.id));
+      if (stored) {
+        const parsed = JSON.parse(stored) as { love?: string[]; neutral?: string[]; red_flag?: string[] };
+        const nextState: Record<string, Zone> = Object.fromEntries(TOKENS.map((token) => [token, "neutral"]));
+        parsed.love?.forEach((token) => { if (TOKENS.includes(token)) nextState[token] = "love"; });
+        parsed.neutral?.forEach((token) => { if (TOKENS.includes(token)) nextState[token] = "neutral"; });
+        parsed.red_flag?.forEach((token) => { if (TOKENS.includes(token)) nextState[token] = "hate"; });
+        setState(nextState);
+      }
+    } catch {
+      setState(Object.fromEntries(TOKENS.map((token) => [token, "neutral"])));
+    }
+    setIsGroundingReady(true);
+  }, [isLoading, user?.id]);
 
   const loveTokens = Object.entries(state)
     .filter(([, zone]) => zone === "love")
@@ -48,6 +72,21 @@ export default function GroundingPage() {
     }));
   }
 
+  function handleTokenDrop(event: DragEvent<HTMLDivElement>, zone: Zone) {
+    event.preventDefault();
+    const token = event.dataTransfer.getData("text/plain") || draggedTokenRef.current;
+    if (token && TOKENS.includes(token)) {
+      setTokenZone(token, zone);
+    }
+    draggedTokenRef.current = null;
+  }
+
+  function handleTokenDragStart(event: DragEvent<HTMLDivElement>, token: string) {
+    draggedTokenRef.current = token;
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", token);
+  }
+
   function renderTokenControl(token: string, tone: "love" | "neutral" | "hate") {
     const toneClass =
       tone === "love"
@@ -59,6 +98,9 @@ export default function GroundingPage() {
     return (
       <div
         key={token}
+        draggable
+        onDragStart={(event) => handleTokenDragStart(event, token)}
+        onDragEnd={() => { draggedTokenRef.current = null; }}
         className={`inline-flex items-center overflow-hidden rounded-lg border ${toneClass} transition-all`}
       >
         <button
@@ -114,13 +156,18 @@ export default function GroundingPage() {
     const seed = buildSeed(engineInput);
     const userVector = buildUserVector(seed);
 
-    localStorage.setItem("fragrance_seed", JSON.stringify(seed));
-    localStorage.setItem("fragrance_vector", JSON.stringify(userVector));
-    localStorage.setItem("fragrance_grounding", JSON.stringify(engineInput));
+    localStorage.setItem(getUserScopedStorageKey("fragrance_seed", user?.id), JSON.stringify(seed));
+    localStorage.setItem(getUserScopedStorageKey("fragrance_vector", user?.id), JSON.stringify(userVector));
+    localStorage.setItem(getUserScopedStorageKey("fragrance_grounding", user?.id), JSON.stringify(engineInput));
+    persistUserProfilePatch({ grounding: engineInput, seed, groundingVector: userVector });
 
-    mergeGroundingVectorIntoSession(userVector);
-    const profile = getOrCreateUserProfile();
-    const updatedProfile = updateUserVector(profile, userVector, 10);
+    const groundingSession = mergeGroundingVectorIntoSession(userVector, user?.id, {
+      love: engineInput.love,
+      neutral: engineInput.neutral,
+      redFlag: engineInput.red_flag,
+    });
+    const profile = getOrCreateUserProfile(user?.id);
+    const updatedProfile = updateUserVector(profile, groundingSession.currentVector, groundingSession.summary?.confidenceScore ?? 0);
 
     const phase1Flags = getPhase1Flags();
     if (phase1Flags.eventsWriteEnabled || phase1Flags.phase1ShadowValidation) {
@@ -160,6 +207,10 @@ export default function GroundingPage() {
     hate: hateTokens,
   };
 
+  if (isLoading || !isGroundingReady) {
+    return <PageShell><div className="main-container py-16 text-sm text-gray-300">Loading your scent preferences...</div></PageShell>;
+  }
+
   return (
     <PageShell>
       {/* Interactive Zones Section */}
@@ -167,7 +218,7 @@ export default function GroundingPage() {
         <div className="main-container">
           <SectionHeader
             title="Classify Your Scent Qualities"
-            description="Use the controls on each quality: X (left) sends it to Avoid, V (right) sends it to Love, and tapping the word keeps it in Neutral."
+            description="Drag a quality into Love, Neutral, or Avoid, or use X, ✓, and the quality button to place it."
             className="mb-10"
           />
 
@@ -175,6 +226,8 @@ export default function GroundingPage() {
             {/* Neutral Zone */}
             <div
               data-zone="neutral"
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={(event) => handleTokenDrop(event, "neutral")}
               className="premium-card-dark bg-cover bg-center bg-no-repeat p-8 border-2 border-warm-400/30 hover:border-warm-400/60 transition-all min-h-96 flex flex-col"
               style={{
                 backgroundImage:
@@ -201,6 +254,8 @@ export default function GroundingPage() {
             {/* Attraction Zone */}
             <div
               data-zone="love"
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={(event) => handleTokenDrop(event, "love")}
               className="premium-card-dark bg-cover bg-center bg-no-repeat p-8 border-2 border-emerald-400/30 hover:border-emerald-400/60 transition-all min-h-96 flex flex-col"
               style={{
                 backgroundImage:
@@ -227,6 +282,8 @@ export default function GroundingPage() {
             {/* Avoidance Zone */}
             <div
               data-zone="hate"
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={(event) => handleTokenDrop(event, "hate")}
               className="premium-card-dark bg-cover bg-center bg-no-repeat p-8 border-2 border-red-400/30 hover:border-red-400/60 transition-all min-h-96 flex flex-col"
               style={{
                 backgroundImage:

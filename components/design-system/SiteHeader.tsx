@@ -13,6 +13,8 @@ import Image from 'next/image';
 import SiteLogo from '@/app/components/SiteLogo';
 import LuxuryLoginButton from './LuxuryLoginButton';
 import { useAuth } from '@/lib/auth';
+import { isAdminUser } from '@/lib/auth/adminAccess';
+import { getDnaConfidenceBadge, loadDnaSession } from '@/lib/dnaSession';
 
 const navLinks = [
   { href: '/', label: 'Home', mobile: 'Home', hint: 'Start page' },
@@ -20,9 +22,10 @@ const navLinks = [
   { href: '/test', label: 'TEST', mobile: 'Test', hint: 'Quick fragrance test' },
   { href: '/dna', label: 'YOUR DNA', mobile: 'Your DNA', hint: 'Personal profile' },
   { href: '/collection', label: 'YOUR COLLECTION', mobile: 'Your Collection', hint: 'Saved fragrances' },
+  { href: '/faq', label: 'FAQ', mobile: 'DNA & badges FAQ', hint: 'How confidence and badges work' },
   {
     href: '/articles',
-    label: 'FRAGRANCE AS A PASSION',
+    label: 'ARTICLES',
     mobile: 'Fragrance as a passion',
     hint: 'Read fragrance insights',
   },
@@ -35,6 +38,22 @@ export function SiteHeader() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSprayActive, setIsSprayActive] = useState(false);
+  const [confidence, setConfidence] = useState(0);
+  const userBadge = getDnaConfidenceBadge(confidence);
+
+  useEffect(() => {
+    const syncConfidence = () => {
+      setConfidence(user ? loadDnaSession(user.id).summary?.confidenceScore ?? 0 : 0);
+    };
+
+    syncConfidence();
+    window.addEventListener('fragrance-dna-session-updated', syncConfidence);
+    window.addEventListener('storage', syncConfidence);
+    return () => {
+      window.removeEventListener('fragrance-dna-session-updated', syncConfidence);
+      window.removeEventListener('storage', syncConfidence);
+    };
+  }, [user?.id]);
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -91,8 +110,8 @@ export function SiteHeader() {
                 />
               </div>
             </div>
-            <div className="relative z-[120]" style={{ top: '10mm', left: 'calc(8mm - 2.3cm)' }}>
-              <SiteLogo />
+            <div className="relative z-[120]" style={{ top: '10mm' }}>
+              <SiteLogo href={!isLoading && isAdminUser(user) ? '/studio' : '/'} />
             </div>
           </div>
         </div>
@@ -131,12 +150,16 @@ export function SiteHeader() {
               <LuxuryLoginButton className="h-[38px]" />
             </div>
           ) : (
-            <div className="relative">
+            <div className="relative mr-5 lg:mr-8">
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                aria-label={`${user.name}, ${userBadge.label} DNA badge`}
+                title={`${userBadge.label} DNA badge`}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg bg-black/40 hover:bg-black/60 border border-gold/30 hover:border-gold text-gold transition-all duration-300"
               >
-                <span className="text-sm font-medium">{user.name}</span>
+                <span className="max-w-[150px] truncate text-sm font-medium">{user.name}</span>
+                <Image src={userBadge.imageSrc} alt="" width={28} height={28} className="h-7 w-7 shrink-0 object-contain" />
+                <span className="text-[10px] font-semibold uppercase text-gold/80">{userBadge.label}</span>
                 <span className={`text-xs transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}>▼</span>
               </button>
 
@@ -163,6 +186,13 @@ export function SiteHeader() {
                     >
                       My Collection
                     </Link>
+                    <Link
+                      href="/faq"
+                      className="block px-4 py-2 text-sm text-gray-300 hover:bg-gold/10 hover:text-gold transition-colors"
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
+                      DNA Badges & FAQ
+                    </Link>
                   </div>
 
                   <button
@@ -184,8 +214,9 @@ export function SiteHeader() {
               Login
             </Link>
           ) : (
-            <Link href="/dna" className="mobile-login-btn" aria-label="Open DNA profile">
+            <Link href="/dna" className="mobile-login-btn inline-flex items-center gap-1.5" aria-label={`Open DNA profile, ${userBadge.label} badge`}>
               {user.name.split(' ')[0]}
+              <Image src={userBadge.imageSrc} alt="" width={24} height={24} className="h-6 w-6 shrink-0 object-contain" />
             </Link>
           )}
           <button

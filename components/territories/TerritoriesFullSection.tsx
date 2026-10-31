@@ -242,45 +242,33 @@ export default function TerritoriesFullSection() {
         >
           <div className="absolute inset-0 overflow-hidden rounded-[30px]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/Territory/Territory.png" alt="Territories background" className="absolute inset-0 h-full w-full object-cover object-center" />
+            <img src="/Territory/Territory.png" alt="Territories background" className="absolute inset-0 h-full w-full object-cover object-[center_65%]" />
           </div>
 
-          <div className="absolute inset-0 bg-gradient-to-b from-black/24 via-black/58 to-black/82" />
+          <div
+            className="absolute inset-0"
+            style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0.78), rgba(0,0,0,0.58), rgba(0,0,0,0.7))' }}
+          />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(212,175,120,0.16),transparent_42%),linear-gradient(90deg,rgba(0,0,0,0.36)_0%,rgba(0,0,0,0.14)_24%,rgba(0,0,0,0.1)_76%,rgba(0,0,0,0.4)_100%)]" />
 
           <div className="relative z-10 px-5 py-6 text-center md:px-8 md:py-8 lg:px-10 lg:py-10">
-            <div className="mx-auto max-w-5xl rounded-[28px] border border-[rgba(197,160,94,0.22)] bg-black/35 px-6 py-6 shadow-[0_22px_52px_rgba(0,0,0,0.35)] backdrop-blur-sm md:px-10 md:py-8">
-              <h2 className="text-4xl font-bold leading-none text-[#d8c49d] drop-shadow-[0_6px_18px_rgba(0,0,0,0.55)] md:text-6xl">
-                Olfactory Territories
+            <div className="mx-auto max-w-3xl py-4 md:py-8">
+              <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-gold">Olfactory Territories</p>
+              <h2 className="text-3xl font-semibold leading-tight text-[#d8c49d] drop-shadow-[0_6px_18px_rgba(0,0,0,0.55)] md:text-5xl">
+                Explore the world of scent
               </h2>
-              <p className="mt-3 text-base font-medium leading-snug text-[#f0e0bd] md:mt-4 md:text-2xl">
-                DNA integration maps your territory affinity and helps you get recommendations that you will love
+              <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-[#f0e0bd] md:text-lg">
+                Find the scent worlds that speak to you.
               </p>
             </div>
 
-            <div className="mx-auto mt-6 grid max-w-[1500px] gap-5 text-left md:grid-cols-2 md:gap-8 lg:gap-10">
-              <div className="rounded-[24px] border border-[rgba(197,160,94,0.22)] bg-black/55 px-5 py-4 shadow-[0_18px_40px_rgba(0,0,0,0.35)] backdrop-blur-md md:px-6 md:py-5">
-                <p className="mb-3 text-sm font-semibold uppercase tracking-[0.26em] text-gold">Overview</p>
-                <p className="text-base leading-relaxed text-gray-100/92 md:text-lg">
-                  The fragrance universe organizes into distinct territories. Each represents a unique olfactory character,
-                  offering different expressions of identity, mood, and occasion.
-                </p>
-              </div>
-
-              <div className="rounded-[24px] border border-[rgba(197,160,94,0.22)] bg-black/55 px-5 py-4 shadow-[0_18px_40px_rgba(0,0,0,0.35)] backdrop-blur-md md:px-6 md:py-5">
-                <p className="mb-3 text-sm font-semibold uppercase tracking-[0.26em] text-gold">How to use</p>
-                <p className="text-base leading-relaxed text-gray-100/92 md:text-lg">
-                  Click any territory to explore characteristics, DNA signatures, and signature fragrances.
-                </p>
-              </div>
-            </div>
-
-            <div className="mx-auto mt-8 grid w-full max-w-[1480px] grid-cols-1 items-stretch gap-5 md:grid-cols-2 md:gap-8 lg:gap-10">
-              <div className="rounded-[22px] border border-[rgba(197,160,94,0.2)] bg-black/50 p-4 shadow-[0_18px_36px_rgba(0,0,0,0.3)] backdrop-blur-md md:p-5">
+            <div className="mx-auto mt-8 flex flex-wrap items-start justify-center gap-5 md:gap-8 lg:gap-10">
+              <div className="w-fit max-w-full rounded-[22px] border border-[rgba(197,160,94,0.2)] bg-black/50 p-4 shadow-[0_18px_36px_rgba(0,0,0,0.3)] backdrop-blur-md md:p-5">
                 <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#d9c299]">Filter by Intensity</p>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap justify-center gap-2 [&>button]:min-h-[44px]">
                   <button
                     onClick={() => setFilterIntensity(null)}
+                    aria-pressed={filterIntensity === null}
                     className={`rounded px-3 py-1 text-xs font-medium transition-all ${
                       filterIntensity === null ? 'bg-gold text-black' : 'border border-[rgba(197,160,94,0.45)] bg-black/75 text-gold hover:border-[rgba(197,160,94,0.72)]'
                     }`}
@@ -291,6 +279,7 @@ export default function TerritoriesFullSection() {
                     <button
                       key={intensity}
                       onClick={() => setFilterIntensity(intensity)}
+                      aria-pressed={filterIntensity === intensity}
                       className={`rounded px-3 py-1 text-xs font-medium capitalize transition-all ${
                         filterIntensity === intensity
                           ? 'bg-gold text-black'
@@ -303,11 +292,12 @@ export default function TerritoriesFullSection() {
                 </div>
               </div>
 
-              <div className="rounded-[22px] border border-[rgba(197,160,94,0.2)] bg-black/50 p-4 shadow-[0_18px_36px_rgba(0,0,0,0.3)] backdrop-blur-md md:p-5">
+              <div className="w-fit max-w-full rounded-[22px] border border-[rgba(197,160,94,0.2)] bg-black/50 p-4 shadow-[0_18px_36px_rgba(0,0,0,0.3)] backdrop-blur-md md:p-5">
                 <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#d9c299]">Filter by Season</p>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap justify-center gap-2 [&>button]:min-h-[44px]">
                   <button
                     onClick={() => setFilterSeason(null)}
+                    aria-pressed={filterSeason === null}
                     className={`rounded px-3 py-1 text-xs font-medium transition-all ${
                       filterSeason === null ? 'bg-gold text-black' : 'border border-[rgba(197,160,94,0.45)] bg-black/75 text-gold hover:border-[rgba(197,160,94,0.72)]'
                     }`}
@@ -318,6 +308,7 @@ export default function TerritoriesFullSection() {
                     <button
                       key={season}
                       onClick={() => setFilterSeason(season)}
+                      aria-pressed={filterSeason === season}
                       className={`rounded px-3 py-1 text-xs font-medium capitalize transition-all ${
                         filterSeason === season
                           ? 'bg-gold text-black'

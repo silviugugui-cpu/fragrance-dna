@@ -6,6 +6,7 @@ import {
   previewConnectorsAction,
   refreshDiscoveryQueueAction,
   retryFailedConnectorJobsAction,
+  runCompleteDatabaseSyncAction,
   runAllConnectorsAction,
   runConnectorAction,
   reviewDiscoveryCandidateAction,
@@ -23,14 +24,23 @@ const formatPercent = (value: number): string => `${value.toFixed(2)}%`;
 const formatDiscoveryStatus = (value: string): string => value.replace(/-/g, " ");
 
 export function StudioSourcesWorkspace({ data, loadError }: StudioSourcesWorkspaceProps) {
+  const fragranticaStatusLabel: Record<NonNullable<SourcesWorkspaceData["fragrantica"]["status"]>, string> = {
+    idle: "Idle",
+    running: "Running",
+    "needs-review": "Needs Review",
+    complete: "Complete",
+  };
+
   return (
     <section className="overflow-hidden rounded-xl border border-amber-200/15 bg-zinc-950/80 shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
       <header className="border-b border-amber-200/10 bg-zinc-950/90 px-4 py-3 lg:px-5">
-        <h1 className="text-xl font-semibold tracking-tight text-amber-100">
-          Sources & Connectors Workspace
+        <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">Studio / Fragrance Database</p>
+        <h1 className="mt-1 text-xl font-semibold tracking-tight text-amber-100">
+          Fragrance Database Manager
         </h1>
-        <p className="mt-1 text-sm text-zinc-400">
-          Operational center for connector execution, enrichment queues, synchronization health and configuration.
+        <p className="mt-1 max-w-4xl text-sm text-zinc-400">
+          One button scans Fragrantica, updates existing perfumes, adds missing entries automatically, and flags the
+          crawl as complete when the current discovery pass has no unresolved items left.
         </p>
       </header>
 
@@ -45,48 +55,69 @@ export function StudioSourcesWorkspace({ data, loadError }: StudioSourcesWorkspa
 
       {!loadError && data ? (
         <div className="space-y-4 p-4">
-          <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-5">
-            <Metric label="Connector Health" value={formatPercent(data.connectorHealth)} />
-            <Metric label="Connector Coverage" value={formatPercent(data.connectorCoverage)} />
+          {data.fragrantica.status === "complete" ? (
+            <article className="rounded border border-emerald-400/25 bg-emerald-500/10 p-4 text-emerald-50">
+              <p className="text-xs uppercase tracking-[0.14em] text-emerald-200">Fragrantica Complete</p>
+              <p className="mt-1 text-sm">{data.fragrantica.message}</p>
+            </article>
+          ) : null}
+
+          <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">
+            <Metric label="Sync State" value={fragranticaStatusLabel[data.fragrantica.status]} />
+            <Metric label="Discovery Progress" value={formatPercent(data.fragrantica.completionPercent)} />
+            <Metric label="Pending Review" value={formatNumber(data.fragrantica.pendingReviewCount)} />
+            <Metric label="Imported" value={formatNumber(data.fragrantica.importedCount)} />
+            <Metric label="Merged" value={formatNumber(data.fragrantica.mergedCount)} />
+            <Metric label="Tracked Brands" value={formatNumber(data.fragrantica.trackedBrands)} />
             <Metric label="Pending Connector Jobs" value={formatNumber(data.pendingConnectorJobs)} />
             <Metric label="Discovery Queue" value={formatNumber(data.discoveryQueue)} />
             <Metric label="Enrichment Queue" value={formatNumber(data.enrichmentQueue)} />
-            <Metric label="Image Coverage" value={formatPercent(data.imageCoverage)} />
-            <Metric label="New Perfumes Found" value={formatNumber(data.newPerfumesFound)} />
-            <Metric label="Automatic Enrichment" value={formatNumber(data.automaticEnrichment)} />
-            <Metric label="Last Synchronization" value={data.lastSynchronization} />
+            <Metric label="Last Full Sweep" value={data.fragrantica.lastFullDiscoveryAt ?? "not yet completed"} />
+            <Metric label="Last Sync" value={data.lastSynchronization} />
             <Metric label="Synchronization" value={data.synchronizationStatus} />
           </div>
 
-          <article className="rounded border border-zinc-800 bg-zinc-900/55 p-3">
-            <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-zinc-300">Operations</h2>
-            <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">
-              <form action={runAllConnectorsAction}>
-                <button type="submit" className="w-full rounded border border-emerald-400/40 bg-emerald-500/10 px-3 py-2 text-xs uppercase tracking-[0.1em] text-emerald-200 hover:bg-emerald-500/20">
-                  Run All Connectors
+          <article className="rounded border border-zinc-800 bg-zinc-900/55 p-4">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-zinc-300">Primary Flow</h2>
+                <p className="mt-1 max-w-3xl text-sm text-zinc-400">
+                  This flow searches Fragrantica, extracts the fields used for DNA compatibility, updates existing
+                  perfumes, and inserts new perfumes that are not yet in the master database.
+                </p>
+              </div>
+              <div className="rounded border border-zinc-800 bg-zinc-950/60 px-3 py-2 text-xs text-zinc-400">
+                <p>Cursor: {data.fragrantica.discoveryCursor}</p>
+                <p>Sync cursor: {data.fragrantica.syncCursor}</p>
+              </div>
+            </div>
+
+            <div className="mt-3 flex flex-wrap gap-2">
+              <form action={runCompleteDatabaseSyncAction}>
+                <button type="submit" className="rounded border border-fuchsia-400/40 bg-fuchsia-500/10 px-4 py-2 text-xs uppercase tracking-[0.1em] text-fuchsia-100 hover:bg-fuchsia-500/20">
+                  Scan Fragrantica & Update DB
+                </button>
+              </form>
+              <form action={refreshDiscoveryQueueAction}>
+                <button type="submit" className="rounded border border-amber-300/40 bg-amber-300/10 px-4 py-2 text-xs uppercase tracking-[0.1em] text-amber-100 hover:bg-amber-300/20">
+                  Refresh Discovery Queue
                 </button>
               </form>
               <form action={dryRunAllConnectorsAction}>
-                <button type="submit" className="w-full rounded border border-cyan-400/40 bg-cyan-500/10 px-3 py-2 text-xs uppercase tracking-[0.1em] text-cyan-200 hover:bg-cyan-500/20">
+                <button type="submit" className="rounded border border-cyan-400/40 bg-cyan-500/10 px-4 py-2 text-xs uppercase tracking-[0.1em] text-cyan-200 hover:bg-cyan-500/20">
                   Dry Run
                 </button>
               </form>
               <form action={previewConnectorsAction}>
-                <button type="submit" className="w-full rounded border border-amber-300/40 bg-amber-300/10 px-3 py-2 text-xs uppercase tracking-[0.1em] text-amber-100 hover:bg-amber-300/20">
-                  Preview Changes
+                <button type="submit" className="rounded border border-zinc-700 bg-zinc-900 px-4 py-2 text-xs uppercase tracking-[0.1em] text-zinc-200 hover:border-amber-300/40">
+                  Preview Queue Impact
                 </button>
               </form>
-              <form action={cancelConnectorsAction}>
-                <button type="submit" className="w-full rounded border border-rose-400/40 bg-rose-500/10 px-3 py-2 text-xs uppercase tracking-[0.1em] text-rose-200 hover:bg-rose-500/20">
-                  Cancel Execution
-                </button>
-              </form>
-              <form action={retryFailedConnectorJobsAction}>
-                <input type="hidden" name="connector" value="all" />
-                <button type="submit" className="w-full rounded border border-zinc-700 bg-zinc-900 px-3 py-2 text-xs uppercase tracking-[0.1em] text-zinc-200 hover:border-amber-300/40">
-                  Retry Failed Jobs
-                </button>
-              </form>
+            </div>
+
+            <div className="mt-3 rounded border border-zinc-800 bg-zinc-950/50 p-3 text-sm text-zinc-300">
+              <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Current status</p>
+              <p className="mt-1">{data.fragrantica.message}</p>
             </div>
           </article>
 

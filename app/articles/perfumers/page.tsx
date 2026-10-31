@@ -1,17 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import ArticlesRail from '../ArticlesRail';
 import { usePathname } from 'next/navigation';
-import { Inter, Playfair_Display } from 'next/font/google';
 import { perfumers, type PerfumerDnaKey } from '@/lib/data/perfumers';
-
-const inter = Inter({ subsets: ['latin'], variable: '--font-articles-body', display: 'swap' });
-const playfair = Playfair_Display({
-  subsets: ['latin'],
-  variable: '--font-articles-heading',
-  display: 'swap',
-  weight: ['500', '600', '700'],
-});
 
 
 const menuItems = [
@@ -31,8 +23,8 @@ export default function PerfumersPage() {
   const pathname = usePathname();
 
   return (
-    <main className={`${inter.variable} ${playfair.variable} relative pb-16 pt-8 lg:pt-10`}>
-      <section className="articles-intro-wrap relative z-10 mx-auto w-[92vw] max-w-[1540px]">
+    <main className="relative pb-16 pt-8 lg:pt-10">
+      <section className="articles-intro-wrap relative z-10 mx-auto w-[90vw] max-w-[1600px]">
         <div
           className="rounded-[28px] border border-[#9f7b44]/45 p-6 sm:p-8 lg:p-10"
           style={{
@@ -51,15 +43,14 @@ export default function PerfumersPage() {
         </div>
       </section>
 
-      <section className="relative z-10 mx-auto mt-4 grid w-[92vw] max-w-[1540px] gap-4 lg:grid-cols-3">
+      <section className="relative z-10 mx-auto mt-4 grid w-[90vw] max-w-[1600px] gap-4 lg:grid-cols-3">
         <div className="w-full lg:col-span-3">
           <div className="grid gap-5 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-start lg:gap-0">
             <aside className="articles-brand-rail-shell">
-              <div className="articles-brand-rail relative overflow-hidden p-4 sm:p-5 lg:min-h-[66vh]">
-                <div className="articles-rail-static-link" aria-hidden="true" />
+              <ArticlesRail>
                 <div className="articles-rail-dynamic-mist" aria-hidden="true" />
 
-                <div className="mt-[1cm]">
+                <div>
                   <p className="font-articles-body text-center text-[10px] uppercase tracking-[0.28em] text-[#d5b97f]">Passion Menu</p>
                 </div>
                 <div className="mt-6 flex flex-col gap-3">
@@ -78,10 +69,10 @@ export default function PerfumersPage() {
                     );
                   })}
                 </div>
-              </div>
+              </ArticlesRail>
             </aside>
 
-            <section className="articles-content-column relative z-10 grid w-full gap-4 xl:grid-cols-2">
+            <section className="articles-content-column relative z-10 grid min-w-0 gap-4 xl:grid-cols-2">
               {perfumers.map((perfumer) => (
                 <article
                   key={perfumer.name}

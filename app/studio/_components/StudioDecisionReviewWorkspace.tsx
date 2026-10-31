@@ -18,6 +18,7 @@ export function StudioDecisionReviewWorkspace({ data, loadError }: StudioDecisio
 
   const reviewItems = data?.reviewQueue ?? [];
   const selectedItem = reviewItems[selectedIndex] ?? null;
+  const selectedConflicts = selectedItem?.mergeTrust.unresolvedConflicts ?? [];
 
   const decisionRows = useMemo(() => {
     return reviewItems.map((item, index) => ({
@@ -32,7 +33,7 @@ export function StudioDecisionReviewWorkspace({ data, loadError }: StudioDecisio
       <header className="border-b border-amber-200/10 bg-zinc-950/90 px-4 py-3 lg:px-5">
         <h1 className="text-xl font-semibold tracking-tight text-amber-100">Builder Decision Review Workspace</h1>
         <p className="mt-1 text-sm text-zinc-400">
-          Review-only queue for deterministic Builder decisions that still require human resolution.
+          Review-only queue for unresolved merge conflicts with competing evidence.
         </p>
       </header>
 
@@ -49,11 +50,11 @@ export function StudioDecisionReviewWorkspace({ data, loadError }: StudioDecisio
         <div className="space-y-4 p-4">
           <div className="grid grid-cols-2 gap-2 md:grid-cols-4 xl:grid-cols-6">
             <TopMetric label="Review Required" value={formatNumber(data.reviewRequired)} />
-            <TopMetric label="Automatic Decisions" value={formatNumber(data.automaticDecisions)} />
-            <TopMetric label="Manual Decisions" value={formatNumber(data.manualDecisions)} />
-            <TopMetric label="Automation %" value={formatPercent(data.automationPercent)} />
-            <TopMetric label="Decision Accuracy" value={formatPercent(data.decisionAccuracy)} />
-            <TopMetric label="Review Reduction" value={formatPercent(data.reviewReduction)} />
+            <TopMetric label="Automatic Merges" value={formatNumber(data.automaticMerges)} />
+            <TopMetric label="Manual Merges" value={formatNumber(data.manualMerges)} />
+            <TopMetric label="Conflict Count" value={formatNumber(data.conflictCount)} />
+            <TopMetric label="Auto-Resolution Rate" value={formatPercent(data.autoResolutionRate)} />
+            <TopMetric label="Avg Merge Confidence" value={formatPercent(data.averageDecisionConfidence)} />
           </div>
 
           <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_400px]">
@@ -62,19 +63,19 @@ export function StudioDecisionReviewWorkspace({ data, loadError }: StudioDecisio
                 <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-zinc-300">
                   Review Queue
                 </h2>
-                <p className="mt-1 text-xs text-zinc-500">Only REVIEW_REQUIRED decisions are listed here.</p>
+                <p className="mt-1 text-xs text-zinc-500">Only unresolved conflicts are listed here.</p>
               </div>
 
               {reviewItems.length === 0 ? (
-                <div className="px-3 py-4 text-sm text-zinc-400">No review-required decisions were generated.</div>
+                <div className="px-3 py-4 text-sm text-zinc-400">No unresolved conflicts were generated.</div>
               ) : (
                 <div className="divide-y divide-zinc-800">
-                  <div className="grid grid-cols-[1.4fr_1fr_130px_110px_1.2fr] border-b border-zinc-800 px-3 py-2 text-[11px] uppercase tracking-[0.12em] text-zinc-500">
+                  <div className="grid grid-cols-[1.3fr_1fr_110px_130px_110px] border-b border-zinc-800 px-3 py-2 text-[11px] uppercase tracking-[0.12em] text-zinc-500">
                     <span>Perfume</span>
                     <span>Brand</span>
-                    <span>Confidence</span>
-                    <span>Source</span>
-                    <span>Triggered Rules</span>
+                    <span>Conflicts</span>
+                    <span>Merge Confidence</span>
+                    <span>Decision</span>
                   </div>
 
                   {decisionRows.map(({ item, index, selected }) => (
@@ -82,15 +83,15 @@ export function StudioDecisionReviewWorkspace({ data, loadError }: StudioDecisio
                       key={item.id}
                       type="button"
                       onClick={() => setSelectedIndex(index)}
-                      className={`grid w-full grid-cols-[1.4fr_1fr_130px_110px_1.2fr] items-center px-3 py-3 text-left text-sm transition-colors ${
+                      className={`grid w-full grid-cols-[1.3fr_1fr_110px_130px_110px] items-center px-3 py-3 text-left text-sm transition-colors ${
                         selected ? "bg-amber-300/10 text-amber-100" : "bg-transparent text-zinc-200 hover:bg-zinc-800/35"
                       }`}
                     >
                       <span className="truncate pr-3">{item.perfume}</span>
                       <span className="truncate pr-3">{item.brand}</span>
-                      <span>{item.confidence.toFixed(2)}</span>
-                      <span className="truncate pr-3">{item.sourceConnector}</span>
-                      <span className="truncate pr-3">{item.triggeredRules.join(", ") || "none"}</span>
+                      <span>{item.mergeTrust.unresolvedConflicts.length}</span>
+                      <span>{item.mergeTrust.averageDecisionConfidence.toFixed(2)}%</span>
+                      <span className="truncate pr-3">{item.currentDecision}</span>
                     </button>
                   ))}
                 </div>
@@ -120,6 +121,41 @@ export function StudioDecisionReviewWorkspace({ data, loadError }: StudioDecisio
                     <PillGrid values={selectedItem.triggeredRules} />
                   </SectionCard>
 
+                  <SectionCard title="Unresolved Conflicts">
+                    {selectedConflicts.length > 0 ? (
+                      <ul className="space-y-2 text-xs text-zinc-300">
+                        {selectedConflicts.map((conflict) => (
+                          <li key={`${conflict.field}-${conflict.competingValues.join("|")}`} className="rounded border border-zinc-800 bg-zinc-900/55 p-2">
+                            <p className="text-zinc-100">{conflict.field}</p>
+                            <p className="mt-1 text-zinc-400">Competing values: {conflict.competingValues.join(" | ") || "n/a"}</p>
+                            <p className="mt-1 text-zinc-400">Sources: {conflict.sources.join(", ") || "n/a"}</p>
+                            <p className="mt-1 text-zinc-400">Recommended: {conflict.recommendedResolution}</p>
+                            <p className="mt-1 text-zinc-500">{conflict.decisionExplanation}</p>
+                            <p className="mt-1 text-zinc-500">Confidence {conflict.confidence.toFixed(2)}%</p>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-zinc-400">No unresolved conflicts for this record.</p>
+                    )}
+                  </SectionCard>
+
+                  <SectionCard title="Source Trust">
+                    <ul className="space-y-1 text-xs text-zinc-300">
+                      {selectedConflicts.length > 0 ? (
+                        selectedConflicts.flatMap((conflict) =>
+                          conflict.sourceTrust.map((entry) => (
+                            <li key={`${conflict.field}-${entry.source}`}>
+                              - {conflict.field}: {entry.source} / trust {entry.trust.toFixed(2)}
+                            </li>
+                          )),
+                        )
+                      ) : (
+                        <li>- No source trust entries</li>
+                      )}
+                    </ul>
+                  </SectionCard>
+
                   <SectionCard title="Alternative Candidates">
                     {selectedItem.alternativeCandidates.length > 0 ? (
                       <ul className="space-y-2 text-xs text-zinc-300">
@@ -140,10 +176,10 @@ export function StudioDecisionReviewWorkspace({ data, loadError }: StudioDecisio
 
                   <SectionCard title="Provenance">
                     <ul className="space-y-1 text-xs text-zinc-300">
-                      {selectedItem.provenance.length > 0 ? (
-                        selectedItem.provenance.map((entry) => (
-                          <li key={`${entry.key}-${entry.source}`}>
-                            - {entry.key}: {entry.source} / {entry.method} / {entry.confidence.toFixed(2)}
+                      {selectedItem.mergeTrust.provenance.length > 0 ? (
+                        selectedItem.mergeTrust.provenance.map((entry) => (
+                          <li key={`${entry.field}-${entry.source}-${entry.connector}`}>
+                            - {entry.field}: {entry.source} / {entry.connector} / trust {entry.trustScore.toFixed(2)} / confidence {entry.decisionConfidence.toFixed(2)}
                           </li>
                         ))
                       ) : (

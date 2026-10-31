@@ -185,6 +185,76 @@ const resolveReadableWorkbookPath = (configuredPath: string): string => {
   return configuredAbsolute;
 };
 
+const LOCAL_IMAGE_ROOT = path.resolve(process.cwd(), "public", "builder-images", "master-database");
+
+const ensureLocalImageRoot = (): void => {
+  fs.mkdirSync(LOCAL_IMAGE_ROOT, { recursive: true });
+};
+
+const slugify = (value: string): string =>
+  value
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80) || "image";
+
+const guessImageExtension = (contentType: string | null, sourceUrl: string): string => {
+  const type = contentType?.toLowerCase() ?? "";
+  if (type.includes("image/png")) return ".png";
+  if (type.includes("image/webp")) return ".webp";
+  if (type.includes("image/gif")) return ".gif";
+  if (type.includes("image/jpeg") || type.includes("image/jpg")) return ".jpg";
+
+  try {
+    const parsed = new URL(sourceUrl);
+    const ext = path.extname(parsed.pathname).toLowerCase();
+    if ([".png", ".webp", ".gif", ".jpg", ".jpeg"].includes(ext)) {
+      return ext === ".jpeg" ? ".jpg" : ext;
+    }
+  } catch {
+    // Fall back to a stable default.
+  }
+
+  return ".jpg";
+};
+
+const downloadImageToLocalPath = async (
+  sourceUrl: string,
+  localBaseName: string,
+  timeoutMs: number,
+): Promise<string> => {
+  ensureLocalImageRoot();
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(sourceUrl, {
+      signal: controller.signal,
+      headers: {
+        "user-agent": "FragranceDNA-Builder/1.0",
+        accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
+      },
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Image fetch failed ${response.status} for ${sourceUrl}`);
+    }
+
+    const extension = guessImageExtension(response.headers.get("content-type"), sourceUrl);
+    const fileName = `${localBaseName}${extension}`;
+    const absoluteFilePath = path.join(LOCAL_IMAGE_ROOT, fileName);
+    const buffer = Buffer.from(await response.arrayBuffer());
+    fs.writeFileSync(absoluteFilePath, buffer);
+
+    return `/builder-images/master-database/${fileName}`;
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
 const pickText = (record: Record<string, unknown>, keys: string[]): string => {
   for (const key of keys) {
     const value = record[key];
@@ -657,7 +727,9 @@ const resolveCanonicalAccord = (rawAccord: string): CanonicalResolution<string> 
   };
 };
 
-export const runCanonicalBuilderIntelligence = (): CanonicalBuilderIntelligenceResult => {
+export const runCanonicalBuilderIntelligence = async (
+  options?: { maxPerfumes?: number },
+): Promise<CanonicalBuilderIntelligenceResult> => {
   const config = createBuilderConfig();
   const reader = createDefaultRawImportReader();
   const payload = reader.read({
@@ -678,8 +750,14 @@ export const runCanonicalBuilderIntelligence = (): CanonicalBuilderIntelligenceR
   let notesResolved = 0;
   let confidenceAccumulator = 0;
 
+  const envLimit = Number.parseInt(process.env.BUILDER_PROCESS_LIMIT ?? "", 10);
+  const configuredLimit = options?.maxPerfumes ?? (Number.isFinite(envLimit) && envLimit > 0 ? envLimit : null);
+
   for (const worksheet of payload.rawDatabase.worksheets) {
     for (const row of worksheet.rows) {
+      if (configuredLimit && objects.length >= configuredLimit) {
+        break;
+      }
       const id = `${worksheet.worksheetName}:${row.rowIndex}`;
       const perfume =
         pickText(row.rawRecord, ["perfume", "name", "fragrance"]) || `Unnamed #${row.rowIndex}`;
@@ -693,8 +771,11 @@ export const runCanonicalBuilderIntelligence = (): CanonicalBuilderIntelligenceR
         "creator",
         "creators",
       ]);
-      const imageUrl =
+      const imageSource =
         pickText(row.rawRecord, ["image", "image_url", "imageUrl", "picture", "photo"]) || null;
+      const imageUrl = imageSource
+        ? await downloadImageToLocalPath(imageSource, slugify(`${worksheet.worksheetName}-${row.rowIndex}-${perfume}`), 30000).catch(() => null)
+        : null;
 
       const canonicalBrand = resolveCanonicalBrand(rawBrand);
 
@@ -900,6 +981,10 @@ export const runCanonicalBuilderIntelligence = (): CanonicalBuilderIntelligenceR
       };
 
       objects.push(object);
+    }
+
+    if (configuredLimit && objects.length >= configuredLimit) {
+      break;
     }
   }
 

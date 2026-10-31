@@ -47,7 +47,7 @@ Extension pattern:
 ### 1.3 Modules that are not changed now but marked for later deprecation
 - lib/dnaSession.ts as localStorage-canonical session authority.
 - lib/engine/userProfileManager.ts as localStorage-canonical user profile authority.
-- direct dependence on lib/db.json for test sequencing in app/test/page.tsx.
+- guided-test sequencing from unique profiles in data/FragranceDNA_USER_ATTRIBUTE_LAYER_V3.json; test evaluation is capped at ten adaptive picks.
 
 ### 1.4 Modules that become adapters in Phase 1
 - Legacy Session Adapter inside lib/dnaSession.ts:
@@ -68,7 +68,7 @@ Grounding page
 -> route push test
 
 Test page
--> lib/db.json static list
+-> unique User DNA profile pool
 -> dnaSession localStorage read and write
 -> userProfileManager localStorage write
 

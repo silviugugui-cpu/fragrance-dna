@@ -55,14 +55,8 @@ Current intelligence substructures present today:
 
 These are considered correct and remain canonical.
 
-### B. Evaluation Catalog Layer (Current)
-Current evaluation catalog (`lib/db.json`) provides operational identity anchors used in current runtime services:
-1. id
-2. name
-3. brand
-4. notes
-
-This layer currently provides practical identity and note context but not full canonical metadata coverage.
+### B. Test Candidate Pool (Current)
+The guided test uses unique profiles from `data/FragranceDNA_USER_ATTRIBUTE_LAYER_V3.json` as its only evaluation source. Stable IDs are derived from profile names; DNA axes, semantics, and user-facing attributes are read from the same profile records. The adaptive test ranks this pool using grounding preferences and prior answers, then stops after ten evaluations.
 
 ### C. Attribute Taxonomy Layer (Current)
 Current canonical attribute library (`FragranceDNA_AttributeLibrary_v1.json`) provides grouped attribute taxonomy under:

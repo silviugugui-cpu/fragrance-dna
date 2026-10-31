@@ -3,13 +3,15 @@
 import Link from 'next/link';
 import { useSyncExternalStore } from 'react';
 import { buildCollectionSummary } from '@/lib/collection';
-import { loadCollection, subscribeToCollection } from '@/lib/collection/storage';
+import { EMPTY_COLLECTION, loadCollection, subscribeToCollection } from '@/lib/collection/storage';
+import { useResolvedCollection } from '@/lib/collection/useResolvedCollection';
 
 const EMPTY_LABEL = '—';
 
 export default function CollectionSummaryCard() {
-  const collection = useSyncExternalStore(subscribeToCollection, loadCollection, () => []);
-  const summary = buildCollectionSummary(collection);
+  const collection = useSyncExternalStore(subscribeToCollection, loadCollection, () => EMPTY_COLLECTION);
+  const resolvedCollection = useResolvedCollection(collection);
+  const summary = buildCollectionSummary(resolvedCollection);
   const isEmpty = summary.size === 0;
 
   return (

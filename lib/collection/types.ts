@@ -3,14 +3,27 @@ import type { Fragrance } from '@/lib/types';
 export type CollectionFragrance = {
   id: string;
   fragranceId: string;
-  name: string;
-  brand: string;
+  name?: string;
+  brand?: string;
   image?: string;
   personalRating?: number;
   owned: boolean;
   wishlist?: boolean;
   purchaseDate?: string;
   notes?: string;
+};
+
+export type CollectionFragranceView = CollectionFragrance & {
+  name: string;
+  brand: string;
+  image?: string;
+  launchYear?: string;
+  brandType?: string;
+  canonicalNotes: string[];
+  mainAccords: string[];
+  perfumer?: string;
+  description?: string;
+  confidence?: number;
 };
 
 export type CollectionFilter = 'all' | 'owned' | 'wishlist';

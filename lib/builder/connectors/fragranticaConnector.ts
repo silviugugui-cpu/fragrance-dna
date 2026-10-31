@@ -1,4 +1,7 @@
 import "server-only";
+import fs from "node:fs";
+import path from "node:path";
+import { parse } from "csv-parse/sync";
 
 export interface FragranticaSnapshot {
   externalId: string;
@@ -20,300 +23,313 @@ export interface FragranticaSnapshot {
   source: string;
 }
 
-const FRAGRANTICA_BASE = "https://www.fragrantica.com";
+interface FragDbFragranceRow extends Record<string, string> {
+  pid: string;
+  url: string;
+  brand: string;
+  name: string;
+  year: string;
+  gender: string;
+  main_photo: string;
+  accords: string;
+  notes_pyramid: string;
+  perfumers: string;
+  rating: string;
+}
+
+interface FragDbRecord {
+  pid: string;
+  url: string;
+  brand: string;
+  name: string;
+  year: string;
+  gender: string;
+  imageUrl: string;
+  accords: string[];
+  notes: string[];
+  perfumers: string[];
+  rating: string;
+  voteCount: string;
+}
+
+interface FragDbCache {
+  loadedAt: number;
+  mode: "local" | "remote-full" | "sample";
+  records: FragDbRecord[];
+}
+
+const FRAGDB_REMOTE_FULL_CSV = "https://raw.githubusercontent.com/FragDB/fragrance-database/main/fragrances.csv";
+const FRAGDB_REMOTE_SAMPLE_CSV = "https://raw.githubusercontent.com/FragDB/fragrance-database/main/samples/fragrances.csv";
+const FRAGDB_LOCAL_DIR =
+  process.env.FRAGDB_LOCAL_DIR ?? path.join(process.cwd(), "data", "fragdb");
+const FRAGDB_CACHE_TTL_MS = 5 * 60 * 1000;
+const MAX_FETCH_RETRIES = 3;
+
+let cache: FragDbCache | null = null;
 
 const normalize = (value: string): string =>
   value.trim().toLowerCase().replace(/\s+/g, " ");
 
-const decodeHtml = (value: string): string =>
-  value
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">");
-
-const stripTags = (value: string): string =>
-  decodeHtml(value.replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
-
-const safeJsonParse = <T,>(value: string): T | null => {
-  try {
-    return JSON.parse(value) as T;
-  } catch {
-    return null;
-  }
+const wait = async (ms: number): Promise<void> => {
+  await new Promise((resolve) => setTimeout(resolve, ms));
 };
 
-const absoluteUrl = (href: string): string =>
-  href.startsWith("http") ? href : `${FRAGRANTICA_BASE}${href.startsWith("/") ? href : `/${href}`}`;
+const fetchText = async (url: string, timeoutMs: number): Promise<string> => {
+  let lastError: Error | null = null;
 
-const fetchHtml = async (url: string, timeoutMs: number): Promise<string> => {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  for (let attempt = 0; attempt < MAX_FETCH_RETRIES; attempt += 1) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
 
-  try {
-    const response = await fetch(url, {
-      signal: controller.signal,
-      headers: {
-        "user-agent": "FragranceDNA-Connector/1.0",
-        accept: "text/html,application/xhtml+xml",
-      },
-      cache: "no-store",
-    });
+    try {
+      const response = await fetch(url, {
+        signal: controller.signal,
+        cache: "no-store",
+        headers: {
+          "user-agent": "FragranceDNA-FragDB-Connector/1.0",
+          accept: "text/csv,text/plain;q=0.9,*/*;q=0.8",
+        },
+      });
 
-    if (!response.ok) {
-      throw new Error(`Fragrantica fetch failed ${response.status} for ${url}`);
-    }
-
-    return await response.text();
-  } finally {
-    clearTimeout(timer);
-  }
-};
-
-const extractLinks = (html: string): Array<{ href: string; title: string }> => {
-  const matches = html.matchAll(/<a[^>]*href="([^"]*\/perfume\/[^"]+)"[^>]*>(.*?)<\/a>/gi);
-  const links: Array<{ href: string; title: string }> = [];
-  const seen = new Set<string>();
-
-  for (const match of matches) {
-    const href = match[1]?.trim();
-    if (!href) {
-      continue;
-    }
-
-    const full = absoluteUrl(href.split("#")[0]);
-    if (seen.has(full)) {
-      continue;
-    }
-
-    seen.add(full);
-    links.push({
-      href: full,
-      title: stripTags(match[2] ?? ""),
-    });
-  }
-
-  return links;
-};
-
-const extractJsonLd = (html: string): Array<Record<string, unknown>> => {
-  const scripts = html.matchAll(
-    /<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi,
-  );
-
-  const payloads: Array<Record<string, unknown>> = [];
-  for (const script of scripts) {
-    const raw = script[1]?.trim();
-    if (!raw) {
-      continue;
-    }
-
-    const parsed = safeJsonParse<unknown>(raw);
-    if (!parsed) {
-      continue;
-    }
-
-    if (Array.isArray(parsed)) {
-      for (const item of parsed) {
-        if (item && typeof item === "object") {
-          payloads.push(item as Record<string, unknown>);
-        }
+      if (!response.ok) {
+        throw new Error(`FragDB fetch failed ${response.status} for ${url}`);
       }
-      continue;
-    }
 
-    if (parsed && typeof parsed === "object") {
-      payloads.push(parsed as Record<string, unknown>);
-    }
-  }
-
-  return payloads;
-};
-
-const readString = (value: unknown): string => (typeof value === "string" ? value.trim() : "");
-
-const extractFirst = (html: string, regexes: RegExp[]): string => {
-  for (const regex of regexes) {
-    const match = html.match(regex);
-    const raw = match?.[1];
-    if (!raw) {
-      continue;
-    }
-
-    const cleaned = stripTags(raw);
-    if (cleaned.length > 0) {
-      return cleaned;
+      return await response.text();
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error("Unknown FragDB fetch error");
+      if (attempt < MAX_FETCH_RETRIES - 1) {
+        await wait(300 * Math.pow(2, attempt));
+      }
+    } finally {
+      clearTimeout(timer);
     }
   }
 
-  return "";
+  throw lastError ?? new Error(`FragDB fetch failed for ${url}`);
 };
 
-const splitTokens = (value: string): string[] =>
+const parsePipeCsv = <T extends Record<string, string>>(content: string): T[] =>
+  parse(content, {
+    columns: true,
+    delimiter: "|",
+    quote: '"',
+    relax_quotes: true,
+    skip_empty_lines: true,
+    bom: true,
+  }) as T[];
+
+const parseBrandName = (brandField: string): string => {
+  const [name] = brandField.split(";");
+  return name?.trim() ?? "";
+};
+
+const parsePerfumers = (value: string): string[] =>
   value
-    .split(/[|,;/]/g)
-    .map((item) => stripTags(item))
-    .filter((item) => item.length > 0)
-    .slice(0, 24);
+    .split(";")
+    .map((token) => token.trim())
+    .filter((token) => token.length > 0 && !/^p\d+$/i.test(token));
 
-const extractList = (html: string, pattern: RegExp): string[] => {
-  const list: string[] = [];
-  const matches = html.matchAll(pattern);
-  for (const match of matches) {
-    const value = stripTags(match[1] ?? "");
-    if (value.length > 0 && !list.includes(value)) {
-      list.push(value);
-    }
-  }
-  return list;
+const parseAccords = (value: string): string[] =>
+  value
+    .split(";")
+    .map((token) => token.split(":")[0]?.trim() ?? "")
+    .filter((token) => token.length > 0);
+
+const parseNotes = (value: string): string[] => {
+  const ids = value.match(/n\d+/gi) ?? [];
+  return Array.from(new Set(ids.map((item) => item.toLowerCase())));
 };
 
-const detectGender = (html: string): string => {
-  const text = html.toLowerCase();
-  if (text.includes("for women and men") || text.includes("unisex")) {
+const parseRating = (value: string): { rating: string; voteCount: string } => {
+  const [rating, votes] = value.split(";");
+  return {
+    rating: (rating ?? "").trim(),
+    voteCount: (votes ?? "").trim(),
+  };
+};
+
+const mapGender = (value: string): string => {
+  const normalized = normalize(value);
+  if (normalized.includes("women_and_men") || normalized.includes("unisex")) {
     return "unisex";
   }
-  if (text.includes("for women")) {
+  if (normalized.includes("for_women") || normalized.includes("female") || normalized.includes("women")) {
     return "feminine";
   }
-  if (text.includes("for men")) {
+  if (normalized.includes("for_men") || normalized.includes("male") || normalized.includes("men")) {
     return "masculine";
   }
   return "unknown";
 };
 
-const computeConfidence = (input: {
-  perfume: string;
-  brand: string;
-  accords: number;
-  notes: number;
-  rating: string;
-  launchYear: string;
-}): number => {
-  let score = 0.45;
-  if (input.perfume.length > 0) score += 0.15;
-  if (input.brand.length > 0) score += 0.15;
-  if (input.launchYear.length === 4) score += 0.08;
-  if (input.accords > 0) score += 0.07;
-  if (input.notes > 0) score += 0.06;
-  if (input.rating.length > 0) score += 0.04;
+const computeConfidence = (record: FragDbRecord): number => {
+  let score = 0.55;
+  if (record.name.length > 0) score += 0.1;
+  if (record.brand.length > 0) score += 0.1;
+  if (/^\d{4}$/.test(record.year)) score += 0.06;
+  if (record.accords.length > 0) score += 0.06;
+  if (record.notes.length > 0) score += 0.06;
+  if (record.rating.length > 0) score += 0.04;
   return Number(Math.min(0.98, score).toFixed(2));
+};
+
+const toSnapshot = (record: FragDbRecord): FragranticaSnapshot => ({
+  externalId: `fragdb-${record.pid}`,
+  externalUrl: record.url,
+  perfumeName: record.name,
+  brand: record.brand,
+  launchYear: record.year,
+  perfumer: record.perfumers.join(", "),
+  gender: mapGender(record.gender),
+  mainAccords: record.accords,
+  notes: record.notes,
+  imageUrl: record.imageUrl,
+  rating: record.rating,
+  voteCount: record.voteCount,
+  releaseStatus: "active",
+  availability: "available",
+  confidence: computeConfidence(record),
+  fetchedAt: new Date().toISOString(),
+  source: "FragDB",
+});
+
+const loadFragDbData = async (timeoutMs: number): Promise<FragDbRecord[]> => {
+  const now = Date.now();
+  if (cache && now - cache.loadedAt < FRAGDB_CACHE_TTL_MS) {
+    return cache.records;
+  }
+
+  let fragrancesCsv: string;
+  let mode: "local" | "remote-full" | "sample" = "sample";
+
+  const localFragrancesPath = path.join(FRAGDB_LOCAL_DIR, "fragrances.csv");
+  if (fs.existsSync(localFragrancesPath)) {
+    fragrancesCsv = fs.readFileSync(localFragrancesPath, "utf-8");
+    mode = "local";
+  } else {
+    try {
+      fragrancesCsv = await fetchText(FRAGDB_REMOTE_FULL_CSV, timeoutMs);
+      mode = "remote-full";
+    } catch {
+      fragrancesCsv = await fetchText(FRAGDB_REMOTE_SAMPLE_CSV, timeoutMs);
+      mode = "sample";
+    }
+  }
+
+  const parsed = parsePipeCsv<FragDbFragranceRow>(fragrancesCsv);
+  const records: FragDbRecord[] = parsed
+    .map((row) => {
+      const rating = parseRating(row.rating ?? "");
+      return {
+        pid: (row.pid ?? "").trim(),
+        url: (row.url ?? "").trim(),
+        brand: parseBrandName(row.brand ?? ""),
+        name: (row.name ?? "").trim(),
+        year: (row.year ?? "").trim(),
+        gender: (row.gender ?? "").trim(),
+        imageUrl: (row.main_photo ?? "").trim(),
+        accords: parseAccords(row.accords ?? ""),
+        notes: parseNotes(row.notes_pyramid ?? ""),
+        perfumers: parsePerfumers(row.perfumers ?? ""),
+        rating: rating.rating,
+        voteCount: rating.voteCount,
+      };
+    })
+    .filter((row) => row.pid.length > 0 && row.name.length > 0 && row.brand.length > 0);
+
+  cache = {
+    loadedAt: now,
+    mode,
+    records,
+  };
+
+  return records;
+};
+
+export const getFragranticaDatasetStats = async (
+  timeoutMs: number,
+): Promise<{ totalRecords: number; mode: "local" | "remote-full" | "sample" }> => {
+  const records = await loadFragDbData(timeoutMs);
+  return {
+    totalRecords: records.length,
+    mode: cache?.mode ?? "sample",
+  };
+};
+
+export const getCachedFragranticaDatasetStats = (): {
+  totalRecords: number;
+  mode: "local" | "remote-full" | "sample";
+} | null => {
+  if (!cache) {
+    return null;
+  }
+
+  return {
+    totalRecords: cache.records.length,
+    mode: cache.mode,
+  };
+};
+
+export const listFragranticaSnapshots = async (
+  cursor: number,
+  limit: number,
+  timeoutMs: number,
+): Promise<{
+  items: FragranticaSnapshot[];
+  nextCursor: number;
+  totalRecords: number;
+  wrapped: boolean;
+  mode: "local" | "remote-full" | "sample";
+}> => {
+  const records = await loadFragDbData(timeoutMs);
+  const totalRecords = records.length;
+  if (totalRecords === 0) {
+    return {
+      items: [],
+      nextCursor: 0,
+      totalRecords: 0,
+      wrapped: false,
+      mode: cache?.mode ?? "sample",
+    };
+  }
+
+  const safeLimit = Math.max(1, Math.min(limit, totalRecords));
+  const start = ((cursor % totalRecords) + totalRecords) % totalRecords;
+  const items: FragranticaSnapshot[] = [];
+  for (let offset = 0; offset < safeLimit; offset += 1) {
+    items.push(toSnapshot(records[(start + offset) % totalRecords]));
+  }
+
+  const nextCursor = (start + safeLimit) % totalRecords;
+  return {
+    items,
+    nextCursor,
+    totalRecords,
+    wrapped: nextCursor <= start,
+    mode: cache?.mode ?? "sample",
+  };
+};
+
+export const getAllFragranticaSnapshots = async (
+  timeoutMs: number,
+): Promise<{ items: FragranticaSnapshot[]; mode: "local" | "remote-full" | "sample" }> => {
+  const records = await loadFragDbData(timeoutMs);
+  return {
+    items: records.map((record) => toSnapshot(record)),
+    mode: cache?.mode ?? "sample",
+  };
 };
 
 export const fetchFragranticaSnapshot = async (
   pageUrl: string,
   timeoutMs: number,
 ): Promise<FragranticaSnapshot | null> => {
-  const html = await fetchHtml(pageUrl, timeoutMs);
-  const payloads = extractJsonLd(html);
+  const records = await loadFragDbData(timeoutMs);
+  const normalizedUrl = normalize(pageUrl);
 
-  const productLike = payloads.find((item) => {
-    const type = readString(item["@type"]);
-    if (type === "Product") {
-      return true;
-    }
-
-    if (Array.isArray(item["@type"])) {
-      return (item["@type"] as unknown[]).some((entry) => readString(entry) === "Product");
-    }
-
-    return false;
-  }) ?? {};
-
-  const brandObj = productLike["brand"] as { name?: string } | undefined;
-  const aggregate = productLike["aggregateRating"] as
-    | { ratingValue?: string | number; ratingCount?: string | number }
-    | undefined;
-
-  const perfumeName = readString(productLike["name"]) || extractFirst(html, [
-    /<h1[^>]*>([\s\S]*?)<\/h1>/i,
-  ]);
-
-  const brand = readString(brandObj?.name) || extractFirst(html, [
-    /Brand\s*:\s*<a[^>]*>([\s\S]*?)<\/a>/i,
-    /"brand"\s*:\s*"([^"]+)"/i,
-  ]);
-
-  const launchYear = extractFirst(html, [
-    /(?:launched|released|from)\s*(?:in\s*)?(\d{4})/i,
-    /(?:release\s*year|launch\s*year)\s*[:\-]\s*(\d{4})/i,
-  ]);
-
-  const perfumer = extractFirst(html, [
-    /(?:perfumer|nose)\s*[:\-]\s*<a[^>]*>([\s\S]*?)<\/a>/i,
-    /(?:perfumer|nose)\s*[:\-]\s*([^<\n]+)/i,
-  ]);
-
-  const imageUrl = readString(productLike["image"]);
-  const rating = aggregate?.ratingValue !== undefined ? String(aggregate.ratingValue) : "";
-  const voteCount = aggregate?.ratingCount !== undefined ? String(aggregate.ratingCount) : "";
-
-  const accords = extractList(
-    html,
-    /class="[^\"]*accord-box[^\"]*"[^>]*>\s*<a[^>]*>([\s\S]*?)<\/a>/gi,
-  );
-
-  const noteCandidates = extractList(
-    html,
-    /class="[^\"]*notes-box[^\"]*"[^>]*>\s*<a[^>]*>([\s\S]*?)<\/a>/gi,
-  );
-
-  const notes = noteCandidates.length > 0
-    ? noteCandidates
-    : splitTokens(
-        extractFirst(html, [
-          /(?:top notes|heart notes|base notes)[\s\S]{0,320}/i,
-          /Notes\s*[:\-]\s*([^<\n]+)/i,
-        ]),
-      );
-
-  const lower = html.toLowerCase();
-  const releaseStatus = lower.includes("discontinued") ? "discontinued" : "active";
-  const availability = lower.includes("not available")
-    ? "unavailable"
-    : releaseStatus === "discontinued"
-      ? "discontinued"
-      : "available";
-
-  if (perfumeName.length === 0 && brand.length === 0) {
-    return null;
-  }
-
-  const confidence = computeConfidence({
-    perfume: perfumeName,
-    brand,
-    accords: accords.length,
-    notes: notes.length,
-    rating,
-    launchYear,
-  });
-
-  const externalId = pageUrl
-    .split("/")
-    .filter((part) => part.length > 0)
-    .slice(-1)[0]
-    ?.replace(/\.html$/i, "") ?? "";
-
-  return {
-    externalId,
-    externalUrl: pageUrl,
-    perfumeName,
-    brand,
-    launchYear,
-    perfumer,
-    gender: detectGender(html),
-    mainAccords: accords,
-    notes,
-    imageUrl,
-    rating,
-    voteCount,
-    releaseStatus,
-    availability,
-    confidence,
-    fetchedAt: new Date().toISOString(),
-    source: "Fragrantica",
-  };
+  const match = records.find((record) => normalize(record.url) === normalizedUrl);
+  return match ? toSnapshot(match) : null;
 };
 
 export const searchFragranticaFragrances = async (
@@ -321,30 +337,40 @@ export const searchFragranticaFragrances = async (
   limit: number,
   timeoutMs: number,
 ): Promise<FragranticaSnapshot[]> => {
-  const searchUrl = `${FRAGRANTICA_BASE}/search/?q=${encodeURIComponent(query)}`;
-  const html = await fetchHtml(searchUrl, timeoutMs);
-  const links = extractLinks(html).slice(0, Math.max(1, limit));
+  const records = await loadFragDbData(timeoutMs);
+  const max = Math.max(1, limit);
+  const normalizedQuery = normalize(query);
+  const tokens = normalizedQuery.split(" ").filter((token) => token.length > 0);
 
-  const results: FragranticaSnapshot[] = [];
-  for (const link of links) {
-    try {
-      const snapshot = await fetchFragranticaSnapshot(link.href, timeoutMs);
-      if (!snapshot) {
-        continue;
+  const scored = records
+    .map((record) => {
+      const normalizedName = normalize(record.name);
+      const normalizedBrand = normalize(record.brand);
+      const haystack = `${normalizedName} ${normalizedBrand}`;
+
+      if (tokens.length === 0) {
+        return { record, score: 1 };
       }
-      results.push(snapshot);
-    } catch {
-      continue;
-    }
-  }
 
-  const dedupe = new Map<string, FragranticaSnapshot>();
-  for (const item of results) {
-    const key = `${normalize(item.brand)}::${normalize(item.perfumeName)}`;
-    if (!dedupe.has(key) || (dedupe.get(key)?.confidence ?? 0) < item.confidence) {
-      dedupe.set(key, item);
-    }
-  }
+      let score = 0;
+      if (normalizedName.includes(normalizedQuery)) score += 6;
+      if (normalizedBrand.includes(normalizedQuery)) score += 4;
 
-  return Array.from(dedupe.values());
+      for (const token of tokens) {
+        if (normalizedName.includes(token)) score += 2;
+        if (normalizedBrand.includes(token)) score += 1;
+        if (haystack.includes(token)) score += 0.2;
+      }
+
+      const ratingValue = Number(record.rating || "0");
+      if (Number.isFinite(ratingValue) && ratingValue > 0) {
+        score += Math.min(1.5, ratingValue / 4);
+      }
+
+      return { record, score };
+    })
+    .filter((item) => item.score > 0)
+    .sort((left, right) => right.score - left.score);
+
+  return scored.slice(0, max).map((item) => toSnapshot(item.record));
 };

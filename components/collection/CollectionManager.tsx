@@ -1,17 +1,70 @@
 'use client';
 
 import Image from 'next/image';
-import { useMemo, useState, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type ChangeEvent } from 'react';
+import { resolvePerfumeImageSrc } from '@/lib/design/perfumeImage';
 import {
   addCollectionFragrance,
   buildCollectionSummary,
   loadCollection,
   removeCollectionFragrance,
-  searchFragrances,
   subscribeToCollection,
   updateCollectionFragrance,
 } from '@/lib/collection';
-import type { CollectionFilter, CollectionFragrance, CollectionSortKey } from '@/lib/collection';
+import { EMPTY_COLLECTION } from '@/lib/collection/storage';
+import { useResolvedCollection } from '@/lib/collection/useResolvedCollection';
+import type { CollectionFilter, CollectionFragrance, CollectionFragranceView, CollectionSortKey } from '@/lib/collection';
+import type { MasterFragranceRecord } from '@/lib/database/masterFragranceDatabase';
+
+type CollectionCatalogResult = {
+  fragrance: {
+    id: string;
+    name: string;
+    brand: string;
+    year?: string;
+    notes: string[];
+    image?: string;
+    canonicalRecord: MasterFragranceRecord;
+  };
+  existing: boolean;
+};
+
+type CollectionImportResponse = {
+  totalRows: number;
+  matched: Array<{
+    sourceFile: string;
+    rowNumber: number;
+    fragranceId: string;
+    owned: boolean;
+    wishlist: boolean;
+    personalRating?: number;
+    purchaseDate?: string;
+    personalNotes?: string;
+    alreadyInCollection: boolean;
+    canonicalRecord: MasterFragranceRecord;
+  }>;
+  unmatched: Array<{ sourceFile: string; rowNumber: number; brand: string; perfume: string; reason: string }>;
+  duplicateRows: number;
+};
+
+const toCollectionCatalogResult = (
+  record: MasterFragranceRecord,
+  collection: CollectionFragrance[],
+): CollectionCatalogResult => {
+  const id = String(record.id ?? record.canonicalKey ?? '').trim();
+  return {
+    fragrance: {
+      id,
+      name: String(record.perfume ?? record.name ?? ''),
+      brand: String(record.brand ?? 'Independent'),
+      year: String(record.launchYear ?? '') || undefined,
+      notes: [...(record.notes ?? []), ...(record.mainAccords ?? [])],
+      image: String(record.localImagePath ?? record.imageUrl ?? '') || undefined,
+      canonicalRecord: record,
+    },
+    existing: collection.some((item) => item.fragranceId === id),
+  };
+};
 
 type ModalState =
   | { mode: 'add' }
@@ -32,26 +85,89 @@ const SORTS: Array<{ label: string; value: CollectionSortKey }> = [
 ];
 
 export default function CollectionManager() {
-  const collection = useSyncExternalStore(subscribeToCollection, loadCollection, () => []);
+  const collection = useSyncExternalStore(subscribeToCollection, loadCollection, () => EMPTY_COLLECTION);
+  const resolvedCollection = useResolvedCollection(collection);
   const [query, setQuery] = useState('');
+  const [databaseQuery, setDatabaseQuery] = useState('');
+  const [databaseRecords, setDatabaseRecords] = useState<MasterFragranceRecord[]>([]);
+  const [addRecords, setAddRecords] = useState<MasterFragranceRecord[]>([]);
   const [filter, setFilter] = useState<CollectionFilter>('all');
   const [brandFilter, setBrandFilter] = useState('all');
   const [sortBy, setSortBy] = useState<CollectionSortKey>('rating');
   const [modal, setModal] = useState<ModalState>(null);
   const [addQuery, setAddQuery] = useState('');
   const [notification, setNotification] = useState<string | null>(null);
+  const [importSummary, setImportSummary] = useState<string | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
+  const importInputRef = useRef<HTMLInputElement | null>(null);
 
-  const summary = useMemo(() => buildCollectionSummary(collection), [collection]);
+  const summary = useMemo(() => buildCollectionSummary(resolvedCollection), [resolvedCollection]);
+
+  useEffect(() => {
+    const normalizedQuery = databaseQuery.trim();
+    if (!normalizedQuery) {
+      setDatabaseRecords([]);
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeout = window.setTimeout(async () => {
+      try {
+        const params = new URLSearchParams({ q: normalizedQuery, limit: '20' });
+        const response = await fetch(`/api/collection/catalog?${params.toString()}`, { signal: controller.signal });
+        if (!response.ok) throw new Error('Unable to search the Fragrance DB.');
+        const payload = await response.json() as { results?: MasterFragranceRecord[] };
+        setDatabaseRecords(payload.results ?? []);
+      } catch (error) {
+        if (!controller.signal.aborted) showMessage(error instanceof Error ? error.message : 'Collection search failed.');
+      }
+    }, 180);
+
+    return () => {
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [databaseQuery]);
+
+  useEffect(() => {
+    if (modal?.mode !== 'add' || !addQuery.trim()) {
+      setAddRecords([]);
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeout = window.setTimeout(async () => {
+      try {
+        const params = new URLSearchParams({ q: addQuery.trim(), limit: '20' });
+        const response = await fetch(`/api/collection/catalog?${params.toString()}`, { signal: controller.signal });
+        if (!response.ok) throw new Error('Unable to search the Fragrance DB.');
+        const payload = await response.json() as { results?: MasterFragranceRecord[] };
+        setAddRecords(payload.results ?? []);
+      } catch (error) {
+        if (!controller.signal.aborted) showMessage(error instanceof Error ? error.message : 'Collection search failed.');
+      }
+    }, 180);
+
+    return () => {
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [addQuery, modal?.mode]);
+
+  const databaseSearchResults = useMemo(
+    () => databaseRecords.map((record) => toCollectionCatalogResult(record, collection)),
+    [collection, databaseRecords],
+  );
 
   const brands = useMemo(() => {
-    const items = Array.from(new Set(collection.map((item) => item.brand).filter(Boolean)));
+    const items = Array.from(new Set(resolvedCollection.map((item) => item.brand).filter(Boolean)));
     return items.sort((left, right) => left.localeCompare(right));
-  }, [collection]);
+  }, [resolvedCollection]);
 
   const filteredCollection = useMemo(() => {
     const normalizedQuery = query.toLowerCase().trim();
 
-    return [...collection]
+    return [...resolvedCollection]
       .filter((item) => {
         if (filter === 'owned' && !item.owned) return false;
         if (filter === 'wishlist' && !item.wishlist) return false;
@@ -69,18 +185,14 @@ export default function CollectionManager() {
         const rightRating = right.personalRating ?? -1;
         return rightRating - leftRating || left.name.localeCompare(right.name);
       });
-  }, [collection, filter, brandFilter, query, sortBy]);
+  }, [resolvedCollection, filter, brandFilter, query, sortBy]);
 
   const addSearchResults = useMemo(() => {
-    const results = searchFragrances(addQuery);
-    return results.map((fragrance) => ({
-      fragrance,
-      existing: collection.some((item) => item.fragranceId === fragrance.id),
-    }));
-  }, [addQuery, collection]);
+    return addRecords.map((record) => toCollectionCatalogResult(record, collection));
+  }, [addRecords, collection]);
 
-  const activeEditItem = modal?.mode === 'edit' ? collection.find((item) => item.id === modal.itemId) ?? null : null;
-  const activeRemoveItem = modal?.mode === 'remove' ? collection.find((item) => item.id === modal.itemId) ?? null : null;
+  const activeEditItem = modal?.mode === 'edit' ? resolvedCollection.find((item) => item.id === modal.itemId) ?? null : null;
+  const activeRemoveItem = modal?.mode === 'remove' ? resolvedCollection.find((item) => item.id === modal.itemId) ?? null : null;
 
   function showMessage(message: string): void {
     setNotification(message);
@@ -92,15 +204,76 @@ export default function CollectionManager() {
     setModal({ mode: 'add' });
   }
 
-  function handleAddFragrance(fragranceId: string): void {
-    const result = addCollectionFragrance({ fragranceId, owned: true, wishlist: false });
+  function handleAddFragrance(
+    fragrance: CollectionCatalogResult['fragrance'],
+    options: { owned: boolean; wishlist: boolean } = { owned: true, wishlist: false },
+  ): void {
+    const result = addCollectionFragrance({
+      fragranceId: fragrance.id,
+      owned: options.owned,
+      wishlist: options.wishlist,
+    });
     if (!result.added) {
       showMessage('This fragrance is already in your collection.');
       return;
     }
 
-    showMessage('Fragrance added to your collection.');
+    showMessage(options.wishlist ? 'Fragrance saved to your wishlist.' : 'Fragrance added to your collection.');
     setModal(null);
+  }
+
+  function handleAddFromSearch(fragrance: CollectionCatalogResult['fragrance'], wishlist = false): void {
+    handleAddFragrance(fragrance, { owned: !wishlist, wishlist });
+  }
+
+  async function handleImportFiles(event: ChangeEvent<HTMLInputElement>): Promise<void> {
+    const input = event.currentTarget;
+    const files = Array.from(input.files ?? []);
+    if (files.length === 0) return;
+
+    setIsImporting(true);
+    setImportSummary(null);
+    const formData = new FormData();
+    files.forEach((file) => formData.append('files', file));
+    formData.set('existingIds', JSON.stringify(collection.map((item) => item.fragranceId)));
+
+    try {
+      const response = await fetch('/api/collection/import', { method: 'POST', body: formData });
+      const payload = await response.json() as CollectionImportResponse & { error?: string };
+      if (!response.ok) throw new Error(payload.error ?? 'Unable to import collection workbook.');
+
+      let added = 0;
+      let existing = 0;
+      for (const match of payload.matched) {
+        if (match.alreadyInCollection) {
+          existing += 1;
+          continue;
+        }
+        const result = addCollectionFragrance({
+          fragranceId: match.fragranceId,
+          owned: match.owned,
+          wishlist: match.wishlist,
+          personalRating: match.personalRating,
+          purchaseDate: match.purchaseDate,
+          notes: match.personalNotes,
+        });
+        if (result.added) added += 1;
+        else if (result.duplicate) existing += 1;
+      }
+
+      setImportSummary(
+        `Added ${added}; already in collection ${existing}; unmatched ${payload.unmatched.length}; duplicate rows ${payload.duplicateRows}.`,
+      );
+      if (payload.unmatched.length > 0) {
+        setNotification(`${payload.unmatched.length} row(s) did not match the Fragrance DB. See import summary.`);
+        window.setTimeout(() => setNotification(null), 5000);
+      }
+    } catch (error) {
+      setImportSummary(error instanceof Error ? error.message : 'Collection import failed.');
+    } finally {
+      setIsImporting(false);
+      input.value = '';
+    }
   }
 
   function handleSaveEdit(formData: FormData): void {
@@ -162,7 +335,99 @@ export default function CollectionManager() {
         </article>
       </div>
 
+      <section className="glass-card p-8 space-y-6">
+        <div className="space-y-3 max-w-3xl">
+          <p className="text-xs uppercase tracking-[0.24em] text-[rgba(165,185,150,0.7)]">Database Search</p>
+          <h2 className="text-3xl font-light text-[rgba(242,229,199,0.95)]">Search the fragrance database</h2>
+          <p className="text-sm leading-7 text-[rgba(190,170,140,0.65)]">
+            Find fragrances from the catalog and save them directly into your collection or wishlist.
+          </p>
+        </div>
+
+        <label className="glass-card flex items-center gap-4 px-5 py-4">
+          <span className="text-xs uppercase tracking-[0.2em] text-[rgba(165,185,150,0.7)]">Search</span>
+          <input
+            value={databaseQuery}
+            onChange={(event) => setDatabaseQuery(event.target.value)}
+            placeholder="Search by fragrance, brand, or note..."
+            className="w-full bg-transparent text-sm text-[rgba(242,229,199,0.95)] outline-none placeholder:text-[rgba(190,170,140,0.38)]"
+          />
+        </label>
+
+        {databaseQuery.trim().length === 0 ? (
+          <div className="rounded-[28px] border border-[rgba(212,175,120,0.12)] bg-black/20 p-8 text-sm text-[rgba(190,170,140,0.65)]">
+            Start typing to search the fragrance database and add results to your collection.
+          </div>
+        ) : databaseSearchResults.length === 0 ? (
+          <div className="rounded-[28px] border border-[rgba(212,175,120,0.12)] bg-black/20 p-8 text-sm text-[rgba(190,170,140,0.65)]">
+            No fragrances matched your search.
+          </div>
+        ) : (
+          <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+            {databaseSearchResults.map(({ fragrance, existing }) => (
+              <article
+                key={fragrance.id}
+                className={`rounded-[26px] border p-5 transition duration-200 ${
+                  existing
+                    ? 'border-[rgba(212,175,120,0.08)] bg-white/5'
+                    : 'border-[rgba(212,175,120,0.12)] bg-black/20 hover:-translate-y-0.5 hover:border-[rgba(212,175,120,0.24)] hover:bg-white/5'
+                }`}
+              >
+                <p className="text-xs uppercase tracking-[0.22em] text-[rgba(165,185,150,0.68)]">
+                  {fragrance.brand ?? 'Independent'}
+                </p>
+                <h3 className="mt-2 text-xl font-light text-[rgba(242,229,199,0.95)]">{fragrance.name}</h3>
+                <p className="mt-2 text-xs uppercase tracking-[0.18em] text-[rgba(212,175,120,0.75)]">
+                  {fragrance.year ?? 'Year n/a'}
+                </p>
+                {fragrance.notes?.length ? (
+                  <p className="mt-3 line-clamp-2 text-sm leading-7 text-[rgba(190,170,140,0.65)]">
+                    {fragrance.notes.join(' · ')}
+                  </p>
+                ) : null}
+
+                <div className="mt-5 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    disabled={existing}
+                    onClick={() => handleAddFromSearch(fragrance, false)}
+                    className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition duration-200 ${
+                      existing
+                        ? 'cursor-not-allowed border border-[rgba(212,175,120,0.08)] bg-white/5 text-[rgba(190,170,140,0.42)]'
+                        : 'border border-[rgba(212,175,120,0.14)] bg-[rgba(212,175,120,0.92)] text-[#111111] hover:brightness-110'
+                    }`}
+                  >
+                    {existing ? 'Already added' : 'Add to collection'}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={existing}
+                    onClick={() => handleAddFromSearch(fragrance, true)}
+                    className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition duration-200 ${
+                      existing
+                        ? 'cursor-not-allowed border border-[rgba(212,175,120,0.08)] bg-white/5 text-[rgba(190,170,140,0.42)]'
+                        : 'border border-[rgba(212,175,120,0.14)] bg-white/5 text-[rgba(212,175,120,0.88)] hover:bg-white/10'
+                    }`}
+                  >
+                    {existing ? 'In collection' : 'Save to wishlist'}
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
       <div className="flex flex-wrap items-center gap-3">
+        <input
+          ref={importInputRef}
+          type="file"
+          accept=".xlsx,.xls"
+          multiple
+          onChange={(event) => void handleImportFiles(event)}
+          className="sr-only"
+          aria-label="Select collection Excel files"
+        />
         <button
           type="button"
           onClick={openAddModal}
@@ -172,12 +437,14 @@ export default function CollectionManager() {
         </button>
         <button
           type="button"
-          disabled
-          className="inline-flex cursor-not-allowed items-center justify-center rounded-full border border-[rgba(212,175,120,0.12)] bg-white/5 px-8 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-[rgba(212,175,120,0.48)] opacity-70"
+          disabled={isImporting}
+          onClick={() => importInputRef.current?.click()}
+          className="inline-flex items-center justify-center rounded-full border border-[rgba(212,175,120,0.18)] bg-white/5 px-8 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-[rgba(212,175,120,0.9)] transition duration-200 hover:bg-white/10 disabled:cursor-wait disabled:opacity-60"
         >
-          Import Collection
+          {isImporting ? 'Importing...' : 'Import Collection'}
         </button>
         {notification ? <p className="text-sm text-[rgba(212,175,120,0.9)]">{notification}</p> : null}
+        {importSummary ? <p role="status" className="w-full text-sm text-[rgba(165,185,150,0.9)]">{importSummary}</p> : null}
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr_0.6fr]">
@@ -296,7 +563,7 @@ export default function CollectionManager() {
                     key={fragrance.id}
                     type="button"
                     disabled={existing}
-                    onClick={() => handleAddFragrance(fragrance.id)}
+                    onClick={() => handleAddFragrance(fragrance)}
                     className={`flex w-full items-center justify-between rounded-[22px] border px-5 py-4 text-left transition duration-200 ${
                       existing
                         ? 'cursor-not-allowed border-[rgba(212,175,120,0.08)] bg-white/5 text-[rgba(190,170,140,0.45)]'
@@ -437,22 +704,14 @@ function CollectionCard({
   onEdit: () => void;
   onRemove: () => void;
 }): JSX.Element {
+  const cardImage = resolvePerfumeImageSrc(item.image);
+
   return (
     <article className="glass-card overflow-hidden p-6 transition duration-300 hover:-translate-y-1 hover:shadow-[0_32px_90px_rgba(199,168,107,0.20)]">
       <div className="space-y-5">
         <div className="overflow-hidden rounded-[26px] border border-[rgba(212,175,120,0.12)] bg-[radial-gradient(circle_at_20%_20%,rgba(212,175,120,0.18),transparent_24%),radial-gradient(circle_at_80%_20%,rgba(165,185,150,0.14),transparent_20%),linear-gradient(135deg,rgba(24,26,28,0.95),rgba(12,14,16,0.95))]">
           <div className="flex aspect-[1.55] items-center justify-center p-6">
-            {item.image ? (
-              <Image src={item.image} alt={item.name} width={360} height={230} className="h-full w-full object-cover" />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center">
-                <div className="flex h-28 w-28 items-center justify-center rounded-full border border-[rgba(212,175,120,0.18)] bg-black/20 text-center">
-                  <span className="text-xs uppercase tracking-[0.24em] text-[rgba(212,175,120,0.9)]">
-                    {item.brand.slice(0, 2)}
-                  </span>
-                </div>
-              </div>
-            )}
+            <Image src={cardImage.src} alt={item.name ?? item.fragranceId} width={360} height={230} className="h-full w-full object-cover" />
           </div>
         </div>
 

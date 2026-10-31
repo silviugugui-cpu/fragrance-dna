@@ -30,11 +30,14 @@ Thumbs.db
 # Temporary files
 tmp/
 *.tmp
-data/generated/*.sqlite-wal
-data/generated/*.sqlite-shm
-data/generated/*.sqlite.before-*.bak
-data/generated/user-profiles.json
-data/generated/auth-users.json
+# Bulk/intermediate generated data (regenerable; only runtime assets are tracked)
+data/generated/*
+!data/generated/fragrancedna.sqlite
+!data/generated/manufacturer-sites.json
+!data/generated/sampleMasterPerfumeObject.json
+
+# Local research datasets (not runtime assets)
+public/niche-perfumes-without-images.sqlite
 
 # Vercel local metadata
 .vercel/

@@ -55,9 +55,8 @@ Contains descriptive and governance metadata used for:
 ## Current Canonical Fragrance Model (Diagnostic Library Audit)
 
 ### Audit Scope
-Audit performed on current canonical assets without modifications:
+Audit performed on current canonical assets:
 1. data/FragranceDNA_USER_ATTRIBUTE_LAYER_V3.json
-2. lib/db.json
 3. _Fragrance DNA/_GPT/FragranceDNA_AttributeLibrary_v1.json
 4. _Fragrance DNA/_GPT/MasterFragrancePool_v2_FINAL.json
 5. runtime canonical fragrance adapter contract
@@ -71,10 +70,9 @@ Audit performed on current canonical assets without modifications:
 | FragranceDNA_USER_ATTRIBUTE_LAYER_v3.layers[].semantic_v1 | Canonical semantic intelligence layer | Yes | No | No | No | Fragrance Intelligence (existing) |
 | FragranceDNA_USER_ATTRIBUTE_LAYER_v3.layers[].user_attributes_v3.abstract | Canonical abstract user-facing intelligence descriptors | Yes | No | No | No | Fragrance Intelligence (existing) |
 | FragranceDNA_USER_ATTRIBUTE_LAYER_v3.layers[].user_attributes_v3.concrete | Canonical concrete user-facing intelligence descriptors | Yes | No | No | No | Fragrance Intelligence (existing) |
-| lib/db.json[].id | Runtime evaluation identity key | Yes | No | No | No | Identity |
-| lib/db.json[].name | Runtime display name for evaluation catalog | Yes | No | No | No | Identity |
-| lib/db.json[].brand | Runtime brand label used by current surfaces | Yes | No | No | No | Identity |
-| lib/db.json[].notes | Runtime note hints used by current adapter | Yes | No | Potentially represented as signature notes metadata in future | No | Explainability Metadata |
+| FragranceDNA_USER_ATTRIBUTE_LAYER_v3.layers[].name | Stable guided-test display identity; runtime ID is derived from normalized name | Yes | No | No | No | Identity |
+| FragranceDNA_USER_ATTRIBUTE_LAYER_v3.layers[].dna_axes | Adaptive evaluation profile source | Yes | No | No | No | Fragrance Intelligence |
+| FragranceDNA_USER_ATTRIBUTE_LAYER_v3.layers[].user_attributes_v3 | Grounding-aware evaluation attributes | Yes | No | No | No | Fragrance Intelligence |
 | FragranceDNA_AttributeLibrary_v1.categories.RecognizableSmells | Canonical attribute taxonomy group | Yes | No | No | No | Fragrance Intelligence (existing taxonomy support) |
 | FragranceDNA_AttributeLibrary_v1.categories.SensoryImpressions | Canonical attribute taxonomy group | Yes | No | No | No | Fragrance Intelligence (existing taxonomy support) |
 | FragranceDNA_AttributeLibrary_v1.categories.IdentitySignals | Canonical attribute taxonomy group | Yes | No | No | No | Fragrance Intelligence (existing taxonomy support) |

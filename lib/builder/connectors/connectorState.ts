@@ -170,6 +170,15 @@ export interface ConnectorState {
         }
       >;
     };
+    parfumo: {
+      discoveryCursor: number;
+      syncCursor: number;
+      lastFullDiscoveryAt: string | null;
+    };
+    manufacturer: {
+      discoveryCursor: number;
+      lastFullDiscoveryAt: string | null;
+    };
   };
   history: ConnectorHistoryItem[];
   lastUpdatedAt: string;
@@ -224,19 +233,19 @@ const defaultRegistryByConnector: Record<ConnectorType, ConnectorRegistryItem> =
   },
   fragrantica: {
     connector: "fragrantica",
-    label: "Fragrantica",
+    label: "FragDB",
     supportsDiscovery: true,
     supportsEnrichment: true,
     skeleton: true,
-    description: "Discovery-first operational skeleton with lifecycle and queue integration.",
+    description: "FragDB CSV discovery and enrichment connector with lifecycle and queue integration.",
   },
   parfumo: {
     connector: "parfumo",
     label: "Parfumo",
-    supportsDiscovery: false,
+    supportsDiscovery: true,
     supportsEnrichment: true,
-    skeleton: true,
-    description: "Enrichment operational skeleton for missing perfumer and metadata fields.",
+    skeleton: false,
+    description: "Discovery and enrichment synchronization connector for Parfumo.",
   },
   notino: {
     connector: "notino",
@@ -272,11 +281,11 @@ const defaultRegistryByConnector: Record<ConnectorType, ConnectorRegistryItem> =
   },
   custom: {
     connector: "custom",
-    label: "Custom Connectors",
+    label: "Manufacturer Sites",
     supportsDiscovery: true,
     supportsEnrichment: true,
-    skeleton: true,
-    description: "Custom integration connector slot for external providers.",
+    skeleton: false,
+    description: "Official manufacturer website discovery and metadata refresh connector.",
   },
 };
 
@@ -316,6 +325,15 @@ const defaultState = (): ConnectorState => ({
       lastFullDiscoveryAt: null,
       syncIndex: {},
     },
+    parfumo: {
+      discoveryCursor: 0,
+      syncCursor: 0,
+      lastFullDiscoveryAt: null,
+    },
+    manufacturer: {
+      discoveryCursor: 0,
+      lastFullDiscoveryAt: null,
+    },
   },
   history: [],
   lastUpdatedAt: new Date().toISOString(),
@@ -348,6 +366,8 @@ export const readConnectorState = (): ConnectorState => {
         acc[connector] = {
           ...defaultRegistryByConnector[connector],
           ...(maybe ?? {}),
+          label: defaultRegistryByConnector[connector].label,
+          description: defaultRegistryByConnector[connector].description,
         };
         return acc;
       },
@@ -393,6 +413,14 @@ export const readConnectorState = (): ConnectorState => {
             ...(parsed.connectorMemory?.fragrantica?.syncIndex ?? {}),
           },
         },
+        parfumo: {
+          ...fallback.connectorMemory.parfumo,
+          ...(parsed.connectorMemory?.parfumo ?? {}),
+        },
+        manufacturer: {
+          ...fallback.connectorMemory.manufacturer,
+          ...(parsed.connectorMemory?.manufacturer ?? {}),
+        },
       },
       history: Array.isArray(parsed.history) ? parsed.history : [],
       lastUpdatedAt: parsed.lastUpdatedAt ?? fallback.lastUpdatedAt,
@@ -418,13 +446,13 @@ export const writeConnectorState = (state: ConnectorState): void => {
 export const connectorLabel = (connector: ConnectorType): string => {
   const map: Record<ConnectorType, string> = {
     "local-excel": "Local Excel",
-    fragrantica: "Fragrantica",
+    fragrantica: "FragDB",
     parfumo: "Parfumo",
     notino: "Notino",
     parfimo: "Parfimo",
     miraj: "Miraj",
     images: "Images",
-    custom: "Custom Connectors",
+    custom: "Manufacturer Sites",
   };
 
   return map[connector];

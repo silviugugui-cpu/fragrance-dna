@@ -7,6 +7,8 @@ import {
   subscribeToCollection,
   buildCollectionSummary,
 } from '@/lib/collection';
+import { EMPTY_COLLECTION } from '@/lib/collection/storage';
+import { useResolvedCollection } from '@/lib/collection/useResolvedCollection';
 import CollectionManager from '@/components/collection/CollectionManager';
 import {
   PageShell,
@@ -24,8 +26,9 @@ import {
 } from '@/components/design-system';
 
 function CollectionStatsSection() {
-  const collection = useSyncExternalStore(subscribeToCollection, loadCollection, () => []);
-  const summary = useMemo(() => buildCollectionSummary(collection), [collection]);
+  const collection = useSyncExternalStore(subscribeToCollection, loadCollection, () => EMPTY_COLLECTION);
+  const resolvedCollection = useResolvedCollection(collection);
+  const summary = useMemo(() => buildCollectionSummary(resolvedCollection), [resolvedCollection]);
 
   const stats = useMemo(() => {
     const owned = collection.filter(item => item.owned).length;
@@ -82,7 +85,7 @@ function CollectionStatsSection() {
 }
 
 function TerritoryInsightSection() {
-  const collection = useSyncExternalStore(subscribeToCollection, loadCollection, () => []);
+  const collection = useSyncExternalStore(subscribeToCollection, loadCollection, () => EMPTY_COLLECTION);
 
   // Calculate territory coverage based on collection size and diversity
   const territoryInsights = useMemo(() => {
@@ -206,7 +209,7 @@ function TerritoryInsightSection() {
 }
 
 export default function CollectionPage() {
-  const collection = useSyncExternalStore(subscribeToCollection, loadCollection, () => []);
+  const collection = useSyncExternalStore(subscribeToCollection, loadCollection, () => EMPTY_COLLECTION);
 
   return (
     <PageShell showBackgroundLayers>

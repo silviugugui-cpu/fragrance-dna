@@ -1,9 +1,8 @@
 ﻿import type { Metadata } from 'next';
 import { Great_Vibes } from 'next/font/google';
 import './globals.css';
-import { SiteHeader } from '@/components/design-system/SiteHeader';
-import LuxuryAmbientParticles from '@/components/design-system/LuxuryAmbientParticles';
 import { AuthProvider } from '@/lib/auth';
+import RootAppFrame from '@/components/design-system/RootAppFrame';
 
 const greatVibes = Great_Vibes({
   weight: '400',
@@ -22,11 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning className={greatVibes.variable}>
       <body>
         <AuthProvider>
-          <LuxuryAmbientParticles />
-          <div className="page-shell content-layer">
-            <SiteHeader />
-            {children}
-          </div>
+          <RootAppFrame>{children}</RootAppFrame>
         </AuthProvider>
       </body>
     </html>

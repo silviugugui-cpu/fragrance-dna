@@ -1,4 +1,6 @@
 import { UserDNAProfile, OlfactoryVector, EvolutionStage, DriftSnapshot } from "@/lib/types";
+import { getBrowserUserId, getUserScopedStorageKey } from "@/lib/auth/userScope";
+import { persistUserProfilePatch } from "@/lib/auth/persistentProfile";
 
 const STORAGE_KEY = "fragrance_user_profile";
 const MAX_DRIFT_HISTORY = 50; // Keep last 50 snapshots
@@ -8,17 +10,29 @@ const MAX_DRIFT_HISTORY = 50; // Keep last 50 snapshots
  * Uses localStorage for persistence (can be upgraded to DB later)
  */
 export function getOrCreateUserProfile(userId?: string): UserDNAProfile {
+  const scopedUserId = getBrowserUserId(userId);
+  const scopedStorageKey = getUserScopedStorageKey(STORAGE_KEY, scopedUserId);
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(scopedStorageKey);
     if (stored) {
-      return JSON.parse(stored) as UserDNAProfile;
+      const profile = JSON.parse(stored) as UserDNAProfile;
+      if (profile.userId === scopedUserId) return profile;
+    }
+
+    const legacyStored = localStorage.getItem(STORAGE_KEY);
+    if (legacyStored) {
+      const legacyProfile = JSON.parse(legacyStored) as UserDNAProfile;
+      if (!userId || legacyProfile.userId === scopedUserId) {
+        const migratedProfile = { ...legacyProfile, userId: scopedUserId };
+        localStorage.setItem(scopedStorageKey, JSON.stringify(migratedProfile));
+        return migratedProfile;
+      }
     }
   } catch (e) {
     console.warn("Failed to load user profile from storage:", e);
   }
 
-  // Create default profile
-  return createDefaultProfile(userId || generateUserId());
+  return createDefaultProfile(scopedUserId);
 }
 
 /**
@@ -26,7 +40,8 @@ export function getOrCreateUserProfile(userId?: string): UserDNAProfile {
  */
 export function saveUserProfile(profile: UserDNAProfile): void {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+    localStorage.setItem(getUserScopedStorageKey(STORAGE_KEY, profile.userId), JSON.stringify(profile));
+    persistUserProfilePatch({ dnaProfile: profile });
     window.dispatchEvent(new CustomEvent("fragrance-user-profile-updated", { detail: profile }));
   } catch (e) {
     console.error("Failed to save user profile:", e);

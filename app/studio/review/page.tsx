@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 export default async function StudioReviewPage() {
   try {
-    const data = loadBuilderDecisionWorkspaceData();
+    const data = await loadBuilderDecisionWorkspaceData();
     return <StudioDecisionReviewWorkspace data={data} />;
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error while loading review items.";

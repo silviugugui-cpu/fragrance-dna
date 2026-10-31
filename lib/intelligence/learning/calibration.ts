@@ -78,7 +78,7 @@ export type CalibrationComparisonResult = {
 export function simulateLearningProfile(input: LearningSimulatorInput): LearningSimulationResult {
   const selection = evaluateAdaptiveSelection({
     answers: input.behaviorProfile.answers,
-    groundingTokens: flattenGroundingProfile(input.groundingProfile),
+    groundingProfile: input.groundingProfile,
     fragranceService: input.fragranceService,
     legacySequentialEnabled: input.legacySequentialEnabled,
     previousEvaluations: input.previousEvaluations,
@@ -146,10 +146,6 @@ export function buildCalibrationReport(
     recommendations,
     summary: buildCalibrationSummary(scenarios, convergenceCases),
   };
-}
-
-function flattenGroundingProfile(profile: GroundingCalibrationProfile): string[] {
-  return [...profile.love, ...profile.neutral, ...profile.redFlag];
 }
 
 function compareScenarioInputs(left: CalibrationScenarioInput, right: CalibrationScenarioInput): number {

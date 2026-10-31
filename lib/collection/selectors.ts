@@ -1,5 +1,4 @@
-import { getFragranceCatalog } from '@/lib/collection/catalog';
-import type { CollectionBrandDistribution, CollectionFragrance, CollectionSummary } from '@/lib/collection/types';
+import type { CollectionBrandDistribution, CollectionFragrance, CollectionFragranceView, CollectionSummary } from '@/lib/collection/types';
 
 const AXIS_TERMS: Record<string, string[]> = {
   freshness: ['citrus', 'green', 'tea', 'water', 'bergamot', 'lemon', 'lavender'],
@@ -36,7 +35,7 @@ export function getAverageRating(collection: CollectionFragrance[]): number | nu
   return Math.round(average * 10) / 10;
 }
 
-export function getTopBrands(collection: CollectionFragrance[], limit = 3): Array<{ brand: string; count: number }> {
+export function getTopBrands(collection: Array<CollectionFragrance | CollectionFragranceView>, limit = 3): Array<{ brand: string; count: number }> {
   const counts = new Map<string, number>();
 
   for (const item of collection) {
@@ -50,7 +49,7 @@ export function getTopBrands(collection: CollectionFragrance[], limit = 3): Arra
     .slice(0, limit);
 }
 
-export function getCollectionBrandDistribution(collection: CollectionFragrance[]): CollectionBrandDistribution {
+export function getCollectionBrandDistribution(collection: Array<CollectionFragrance | CollectionFragranceView>): CollectionBrandDistribution {
   if (collection.length === 0) {
     return [];
   }
@@ -70,7 +69,7 @@ export function getCollectionBrandDistribution(collection: CollectionFragrance[]
     .sort((left, right) => right.count - left.count || left.brand.localeCompare(right.brand));
 }
 
-export function getCollectionDiversity(collection: CollectionFragrance[]): 'Low' | 'Moderate' | 'High' | null {
+export function getCollectionDiversity(collection: Array<CollectionFragrance | CollectionFragranceView>): 'Low' | 'Moderate' | 'High' | null {
   if (collection.length === 0) {
     return null;
   }
@@ -87,25 +86,20 @@ export function getCollectionDiversity(collection: CollectionFragrance[]): 'Low'
   return 'Low';
 }
 
-export function getCollectionDNACoverage(collection: CollectionFragrance[]): number | null {
+export function getCollectionDNACoverage(collection: Array<CollectionFragrance | CollectionFragranceView>): number | null {
   const ownedCollection = collection.filter((item) => item.owned);
 
   if (ownedCollection.length === 0) {
     return null;
   }
 
-  const catalog = getFragranceCatalog();
-  const fragranceLookup = new Map(catalog.map((fragrance) => [fragrance.id, fragrance]));
   const coveredAxes = new Set<CanonicalAxis>();
 
   for (const item of ownedCollection) {
-    const fragrance = fragranceLookup.get(item.fragranceId);
-    if (!fragrance?.notes) {
-      continue;
-    }
+    const notes = "canonicalNotes" in item ? item.canonicalNotes : [];
 
     for (const [axis, terms] of Object.entries(AXIS_TERMS) as Array<[CanonicalAxis, string[]]>) {
-      const hit = fragrance.notes.some((note) => terms.some((term) => note.toLowerCase().includes(term)));
+      const hit = notes.some((note) => terms.some((term) => note.toLowerCase().includes(term)));
       if (hit) {
         coveredAxes.add(axis);
       }
@@ -115,7 +109,7 @@ export function getCollectionDNACoverage(collection: CollectionFragrance[]): num
   return Math.round((coveredAxes.size / Object.keys(AXIS_TERMS).length) * 100);
 }
 
-export function buildCollectionSummary(collection: CollectionFragrance[]): CollectionSummary {
+export function buildCollectionSummary(collection: Array<CollectionFragrance | CollectionFragranceView>): CollectionSummary {
   return {
     size: getCollectionSize(collection),
     averageRating: getAverageRating(collection),

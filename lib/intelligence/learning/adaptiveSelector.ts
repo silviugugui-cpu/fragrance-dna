@@ -75,10 +75,16 @@ export type AdaptiveSelectionResult = {
 
 export type AdaptiveSelectionInput = {
   answers: Record<string, AnswerRecord>;
-  groundingTokens: string[];
+  behaviorProjection?: BehaviorProjectionState;
+  groundingProfile: {
+    love: string[];
+    neutral: string[];
+    redFlag: string[];
+  };
   fragranceService: FragranceIntelligenceService;
   legacySequentialEnabled?: boolean;
   previousEvaluations?: string[];
+  selectedCandidateAttributeIds?: string[];
   leaderboardLimit?: number;
   calibrationContext?: AdaptiveSelectionCalibrationContext;
 };
@@ -94,7 +100,7 @@ export function evaluateAdaptiveSelection(input: AdaptiveSelectionInput): Adapti
 
   if (remaining.length === 0) {
     const fallback = allFragrances[0];
-    const behaviorProjection = buildBehaviorProjectionFromAnswers(input.answers, input.fragranceService, input.calibrationContext);
+    const behaviorProjection = input.behaviorProjection ?? buildBehaviorProjectionFromAnswers(input.answers, input.fragranceService, input.calibrationContext);
     return {
       fragranceId: fallback?.fragranceId ?? "",
       displayName: fallback?.displayName ?? "",
@@ -116,7 +122,7 @@ export function evaluateAdaptiveSelection(input: AdaptiveSelectionInput): Adapti
 
   if (input.legacySequentialEnabled) {
     const sequential = remaining[0];
-    const behaviorProjection = buildBehaviorProjectionFromAnswers(input.answers, input.fragranceService, input.calibrationContext);
+    const behaviorProjection = input.behaviorProjection ?? buildBehaviorProjectionFromAnswers(input.answers, input.fragranceService, input.calibrationContext);
       const candidates: AdaptiveSelectionCandidateReport[] = remaining.map((fragrance) => ({
       fragranceId: fragrance.fragranceId,
       displayName: fragrance.displayName,
@@ -155,12 +161,12 @@ export function evaluateAdaptiveSelection(input: AdaptiveSelectionInput): Adapti
     };
   }
 
-  const behaviorProjection = buildBehaviorProjectionFromAnswers(input.answers, input.fragranceService, input.calibrationContext);
+  const behaviorProjection = input.behaviorProjection ?? buildBehaviorProjectionFromAnswers(input.answers, input.fragranceService, input.calibrationContext);
   const learningApi = createBehaviorLearningApi(behaviorProjection, buildKnownAttributes(input.fragranceService), {
     fragranceService: input.fragranceService,
   });
 
-  const groundingBias = buildGroundingBias(input.groundingTokens);
+  const groundingBias = buildGroundingBias(input.groundingProfile);
   const candidates: AdaptiveSelectionCandidateReport[] = remaining
     .map((fragrance) => {
       const canonical = input.fragranceService.getCanonicalFragrance(fragrance.fragranceId);
@@ -171,7 +177,12 @@ export function evaluateAdaptiveSelection(input: AdaptiveSelectionInput): Adapti
       const attributeIds = canonical.coreAttributes.map((attribute) => attribute.canonicalAttributeId);
       const expectedEnjoyment = calculateExpectedEnjoyment(attributeIds, behaviorProjection, groundingBias);
       const informationGain = calculateInformationGain(attributeIds, behaviorProjection);
-      const diversity = calculateDiversity(attributeIds, behaviorProjection, answeredIds);
+      const diversity = calculateDiversity(
+        attributeIds,
+        behaviorProjection,
+        answeredIds,
+        input.selectedCandidateAttributeIds,
+      );
       const behaviorAlignment = calculateBehaviorAlignment(canonical.coreAttributes, behaviorProjection);
       const contributions: AdaptiveSelectionContributionBreakdown = {
         expectedEnjoyment: expectedEnjoyment * 0.4,
@@ -268,7 +279,7 @@ function buildKnownAttributes(service: FragranceIntelligenceService): string[] {
   return [...known];
 }
 
-function buildBehaviorProjectionFromAnswers(
+export function buildBehaviorProjectionFromAnswers(
   answers: Record<string, AnswerRecord>,
   service: FragranceIntelligenceService,
   calibrationContext?: AdaptiveSelectionCalibrationContext
@@ -377,21 +388,34 @@ function createEmptyAttributeState(canonicalAttributeId: string) {
   };
 }
 
-function buildGroundingBias(groundingTokens: string[]): Set<string> {
-  const bias = new Set<string>();
-  for (const token of groundingTokens) {
-    const resolved = resolveCanonicalAttribute(token);
-    if (resolved) {
-      bias.add(resolved.canonicalAttributeId);
+type GroundingBias = {
+  loved: Set<string>;
+  avoided: Set<string>;
+};
+
+function buildGroundingBias(profile: AdaptiveSelectionInput["groundingProfile"]): GroundingBias {
+  const loved = new Set<string>();
+  const avoided = new Set<string>();
+  const addTokens = (tokens: string[], target: Set<string>) => {
+    for (const token of tokens) {
+      const resolved = resolveCanonicalAttribute(token);
+      const expandedTokens = resolved?.metadata.groundingExpansionTokens ?? [token];
+      for (const expandedToken of expandedTokens) {
+        const attribute = resolveCanonicalAttribute(expandedToken);
+        if (attribute) target.add(attribute.canonicalAttributeId);
+      }
     }
-  }
-  return bias;
+  };
+
+  addTokens(profile.love, loved);
+  addTokens(profile.redFlag, avoided);
+  return { loved, avoided };
 }
 
 function calculateExpectedEnjoyment(
   attributeIds: string[],
   behaviorProjection: BehaviorProjectionState,
-  groundingBias: Set<string>
+  groundingBias: GroundingBias
 ): number {
   if (attributeIds.length === 0) {
     return 0;
@@ -401,8 +425,12 @@ function calculateExpectedEnjoyment(
     const knowledge = behaviorProjection.attributes[attributeId];
     const affinity = knowledge?.affinity ?? 0;
     const confidence = knowledge?.confidence ?? 0;
-    const groundingBoost = groundingBias.has(attributeId) ? 0.08 : 0;
-    return sum + clamp01(0.5 + affinity * 0.35 + confidence * 0.15 + groundingBoost);
+    const groundingAdjustment = groundingBias.avoided.has(attributeId)
+      ? -0.16
+      : groundingBias.loved.has(attributeId)
+        ? 0.08
+        : 0;
+    return sum + clamp01(0.5 + affinity * 0.35 + confidence * 0.15 + groundingAdjustment);
   }, 0);
 
   return clamp01(total / attributeIds.length);
@@ -431,13 +459,14 @@ function calculateInformationGain(
 function calculateDiversity(
   attributeIds: string[],
   behaviorProjection: BehaviorProjectionState,
-  answeredIds: Set<string>
+  answeredIds: Set<string>,
+  selectedCandidateAttributeIds: string[] = [],
 ): number {
   if (attributeIds.length === 0) {
     return 0;
   }
 
-  const seenAttributes = new Set<string>();
+  const seenAttributes = new Set<string>(selectedCandidateAttributeIds);
   for (const answeredId of answeredIds) {
     const knowledge = behaviorProjection.attributes[answeredId];
     if (knowledge) {

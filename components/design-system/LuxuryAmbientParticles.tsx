@@ -45,7 +45,7 @@ type RenderProfile = {
   brightLineWidth: number;
   heroLineWidth: number;
   frameIntervalMs: number;
-  linkPairStep: number;
+  maxLinks: number;
   haloCount: number;
   dprCap: number;
 };
@@ -61,6 +61,10 @@ export default function LuxuryAmbientParticles() {
   const pathname = usePathname();
 
   useEffect(() => {
+    if (pathname !== '/') {
+      return;
+    }
+
     const canvas = canvasRef.current;
     if (!canvas) {
       return;
@@ -72,54 +76,40 @@ export default function LuxuryAmbientParticles() {
     }
 
     let rafId = 0;
+    let timerId = 0;
     let width = 0;
     let height = 0;
     let dpr = 1;
     let lastRenderAt = -Infinity;
     let particles: Particle[] = [];
     let halos: Halo[] = [];
+    let px: number[] = [];
+    let py: number[] = [];
+    const coarsePointer = window.matchMedia('(pointer: coarse)');
+    const narrowViewport = window.matchMedia('(max-width: 899px)');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const shouldAnimate = () =>
+      !coarsePointer.matches && !narrowViewport.matches && !reducedMotion.matches;
 
     const getRenderProfile = (): RenderProfile => {
-      const isHomepage = pathname === '/';
-      const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
-      const isNarrow = window.innerWidth < 900;
-      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       const connection = navigator as Navigator & { connection?: { saveData?: boolean } };
       const saveData = Boolean(connection.connection?.saveData);
       const lowCpu = (navigator.hardwareConcurrency ?? 8) <= 4;
-      const mobileLike = coarsePointer || isNarrow;
-      const lowPower = prefersReducedMotion || saveData || lowCpu;
-
-      if (mobileLike) {
-        return {
-          minCount: isHomepage ? 10 : 8,
-          maxCount: isHomepage ? 13 : 12,
-          typeBRatio: 0.2,
-          typeCRatio: 0.07,
-          maxDist: isHomepage ? 140 : 130,
-          linkAlphaBoost: isHomepage ? 0.18 : 0.16,
-          brightLineWidth: 0.9,
-          heroLineWidth: 1.2,
-          frameIntervalMs: lowPower ? 52 : 46,
-          linkPairStep: 3,
-          haloCount: 1,
-          dprCap: lowPower ? 1 : 1.1,
-        };
-      }
+      const lowPower = saveData || lowCpu || !shouldAnimate();
 
       return {
-        minCount: isHomepage ? 58 : 35,
-        maxCount: isHomepage ? 71 : 46,
+        minCount: 20,
+        maxCount: 25,
         typeBRatio: 0.34,
         typeCRatio: 0.2,
-        maxDist: isHomepage ? 280 : 220,
-        linkAlphaBoost: isHomepage ? 0.42 : 0.3,
-        brightLineWidth: isHomepage ? 1.6 : 1.2,
-        heroLineWidth: isHomepage ? 2.2 : 1.7,
-        frameIntervalMs: 16,
-        linkPairStep: 1,
-        haloCount: isHomepage ? 3 : 2,
-        dprCap: 2,
+        maxDist: 220,
+        linkAlphaBoost: 0.3,
+        brightLineWidth: 1.2,
+        heroLineWidth: 1.7,
+        frameIntervalMs: lowPower ? 1000 / 24 : 1000 / 30,
+        maxLinks: 12,
+        haloCount: 1,
+        dprCap: lowPower ? 1 : 1.25,
       };
     };
 
@@ -149,6 +139,8 @@ export default function LuxuryAmbientParticles() {
       const typeACount = totalCount - typeBCount - typeCCount;
 
       particles = new Array(totalCount);
+      px = new Array<number>(totalCount);
+      py = new Array<number>(totalCount);
 
       for (let i = 0; i < totalCount; i += 1) {
         const type: ParticleType = i < typeACount ? 0 : i < typeACount + typeBCount ? 1 : 2;
@@ -204,18 +196,17 @@ export default function LuxuryAmbientParticles() {
       buildHalos();
     };
 
-    const draw = (timestamp: number) => {
-      if (timestamp - lastRenderAt < renderProfile.frameIntervalMs) {
-        rafId = window.requestAnimationFrame(draw);
-        return;
-      }
-      lastRenderAt = timestamp;
-
+    const render = (timestamp: number) => {
       ctx.clearRect(0, 0, width, height);
-      ctx.globalCompositeOperation = 'screen';
+      const image = document.querySelector('.hero-first-card img');
+      if (!image) return;
 
-      const px = new Array<number>(particles.length);
-      const py = new Array<number>(particles.length);
+      const imageBounds = image.getBoundingClientRect();
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(imageBounds.left, imageBounds.top, imageBounds.width, imageBounds.height);
+      ctx.clip();
+      ctx.globalCompositeOperation = 'screen';
 
       for (let i = 0; i < halos.length; i += 1) {
         const h = halos[i];
@@ -264,23 +255,21 @@ export default function LuxuryAmbientParticles() {
         if (p.type === 2) {
           const heroGlow = 0.65 + (Math.sin(timestamp * 0.0009 + p.twinkle + p.phaseX) + 1) * 0.175;
           ctx.globalAlpha = alpha * 0.42 * heroGlow;
-          ctx.shadowBlur = 20;
-          ctx.shadowColor = GOLD_COLORS[p.colorIndex];
           ctx.beginPath();
           ctx.arc(x, y, p.size * 3.3, 0, Math.PI * 2);
           ctx.fill();
-          ctx.shadowBlur = 0;
         }
       }
 
       // Pronounced molecular interactions: visible links between bright/hero particles.
       ctx.lineCap = 'round';
-      for (let i = 0; i < particles.length; i += 1) {
+      let linksDrawn = 0;
+      for (let i = 0; i < particles.length && linksDrawn < renderProfile.maxLinks; i += 1) {
         const a = particles[i];
         if (a.type === 0) {
           continue;
         }
-        for (let j = i + 1; j < particles.length; j += renderProfile.linkPairStep) {
+        for (let j = i + 1; j < particles.length && linksDrawn < renderProfile.maxLinks; j += 1) {
           const b = particles[j];
           if (b.type === 0) {
             continue;
@@ -303,30 +292,92 @@ export default function LuxuryAmbientParticles() {
           ctx.globalAlpha = alpha;
           ctx.strokeStyle = GOLD_COLORS[a.type === 2 || b.type === 2 ? 2 : 1];
           ctx.lineWidth = a.type === 2 || b.type === 2 ? renderProfile.heroLineWidth : renderProfile.brightLineWidth;
-          ctx.shadowBlur = a.type === 2 || b.type === 2 ? 10 : 6;
-          ctx.shadowColor = GOLD_COLORS[a.type === 2 || b.type === 2 ? 2 : 1];
           ctx.beginPath();
           ctx.moveTo(px[i], py[i]);
           ctx.lineTo(px[j], py[j]);
           ctx.stroke();
-          ctx.shadowBlur = 0;
+          linksDrawn += 1;
         }
       }
 
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = 'source-over';
-      rafId = window.requestAnimationFrame(draw);
+      ctx.restore();
     };
 
-    resize();
-    rafId = window.requestAnimationFrame(draw);
-    window.addEventListener('resize', resize, { passive: true });
+    const stop = () => {
+      window.cancelAnimationFrame(rafId);
+      window.clearTimeout(timerId);
+      rafId = 0;
+      timerId = 0;
+    };
+
+    const schedule = () => {
+      if (document.hidden || !shouldAnimate()) return;
+      timerId = window.setTimeout(() => {
+        timerId = 0;
+        rafId = window.requestAnimationFrame(draw);
+      }, Math.max(0, renderProfile.frameIntervalMs - (performance.now() - lastRenderAt)));
+    };
+
+    const draw = (timestamp: number) => {
+      rafId = 0;
+      if (document.hidden || !shouldAnimate()) return;
+      if (timestamp - lastRenderAt >= renderProfile.frameIntervalMs) {
+        render(timestamp);
+        lastRenderAt = timestamp;
+      }
+      schedule();
+    };
+
+    const refresh = () => {
+      stop();
+      resize();
+      lastRenderAt = -Infinity;
+      if (document.hidden) return;
+      if (shouldAnimate()) {
+        rafId = window.requestAnimationFrame(draw);
+      } else {
+        render(0);
+      }
+    };
+
+    const onVisibilityChange = () => {
+      stop();
+      if (document.hidden) return;
+      lastRenderAt = -Infinity;
+      if (shouldAnimate()) {
+        rafId = window.requestAnimationFrame(draw);
+      } else {
+        render(0);
+      }
+    };
+
+    const onScroll = () => {
+      if (!document.hidden && !shouldAnimate()) {
+        render(0);
+      }
+    };
+
+    refresh();
+    window.addEventListener('resize', refresh, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true });
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    const mediaQueries = [coarsePointer, narrowViewport, reducedMotion];
+    mediaQueries.forEach((query) => query.addEventListener('change', refresh));
 
     return () => {
-      window.cancelAnimationFrame(rafId);
-      window.removeEventListener('resize', resize);
+      stop();
+      window.removeEventListener('resize', refresh);
+      window.removeEventListener('scroll', onScroll);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      mediaQueries.forEach((query) => query.removeEventListener('change', refresh));
     };
   }, [pathname]);
+
+  if (pathname !== '/') {
+    return null;
+  }
 
   return (
     <canvas

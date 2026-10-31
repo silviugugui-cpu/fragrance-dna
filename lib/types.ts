@@ -1,3 +1,5 @@
+import type { BehaviorProjectionState } from "@/lib/intelligence/projections/models/behaviorProjection";
+
 export type Fragrance = {
   id: string;
   name: string;
@@ -194,6 +196,7 @@ export type DNASessionSnapshot = {
 
 export type DNASessionState = {
   answers: Record<string, AnswerRecord>;
+  behaviorProjection?: BehaviorProjectionState;
   answeredOrder: string[];
   currentIndex: number;
   currentVector: OlfactoryVector;

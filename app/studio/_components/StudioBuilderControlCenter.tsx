@@ -9,10 +9,13 @@ import {
   cancelExecutionAction,
   publishMasterDatabaseAction,
   rebuildMasterDatabaseAction,
+  resumeFromCheckpointAction,
+  rollbackPublishedMasterDatabaseAction,
   retryJobAction,
   runBuilderNowAction,
   runDryRunAction,
   runSelectedStageAction,
+  runStagedExecutionAction,
 } from "@/app/studio/_actions/builderControlActions";
 
 type OperationsSection =
@@ -152,6 +155,11 @@ export function StudioBuilderControlCenter({
             <TopMetric label="Automation %" value={formatPercent(data.missionControl.automationPercent)} />
             <TopMetric label="Automatic Decisions" value={formatNumber(data.missionControl.automaticDecisions)} />
             <TopMetric label="Manual Decisions" value={formatNumber(data.missionControl.manualDecisions)} />
+            <TopMetric label="Automatic Merges" value={formatNumber(data.missionControl.automaticMerges)} />
+            <TopMetric label="Manual Merges" value={formatNumber(data.missionControl.manualMerges)} />
+            <TopMetric label="Conflicts" value={formatNumber(data.missionControl.conflictCount)} />
+            <TopMetric label="Auto-Resolution Rate" value={formatPercent(data.missionControl.autoResolutionRate)} />
+            <TopMetric label="Avg Merge Confidence" value={formatPercent(data.missionControl.averageMergeDecisionConfidence)} />
             <TopMetric label="Decision Accuracy" value={formatPercent(data.missionControl.decisionAccuracy)} />
             <TopMetric label="Review Reduction" value={formatPercent(data.missionControl.reviewReduction)} />
             <TopMetric label="Knowledge %" value={formatPercent(data.missionControl.knowledgeCoveragePercent)} />
@@ -172,6 +180,9 @@ export function StudioBuilderControlCenter({
             <TopMetric label="Sync Status" value={data.missionControl.synchronizationStatus} />
             <TopMetric label="Pending Review" value={formatNumber(data.missionControl.pendingReview)} />
             <TopMetric label="Validation Errors" value={formatNumber(data.validationSummary.errorCount)} />
+            <TopMetric label="Checkpoint" value={data.missionControl.currentCheckpoint ?? "none"} />
+            <TopMetric label="Working DB" value={data.missionControl.workingDatabaseStatus} />
+            <TopMetric label="Published DB" value={data.missionControl.publishedDatabaseStatus} />
           </div>
 
           <div className="flex flex-wrap gap-2 rounded border border-zinc-800 bg-zinc-900/45 p-2">
@@ -255,7 +266,7 @@ function MissionControlSection({
     {
       title: "Review",
       value: formatNumber(data.missionControl.pendingReview),
-      sub: `Auto ${formatNumber(data.missionControl.automaticDecisions)} / Manual ${formatNumber(data.missionControl.manualDecisions)}`,
+      sub: `Conflicts ${formatNumber(data.missionControl.conflictCount)} / Auto-res ${formatPercent(data.missionControl.autoResolutionRate)}`,
       section: "review",
     },
     {
@@ -328,6 +339,28 @@ function RunBuilderSection() {
         </form>
       </ActionCard>
 
+      <ActionCard title="Staged Execution" description="Run progressive dataset stages: 100 / 1,000 / 10,000 / full.">
+        <form action={runStagedExecutionAction} className="space-y-2">
+          <select
+            name="stage"
+            defaultValue="1"
+            className="w-full rounded border border-zinc-700 bg-zinc-950 px-2 py-2 text-sm text-zinc-100 focus:border-amber-300/40 focus:outline-none"
+          >
+            <option value="1">Stage 1 - First 100 perfumes</option>
+            <option value="2">Stage 2 - First 1,000 perfumes</option>
+            <option value="3">Stage 3 - First 10,000 perfumes</option>
+            <option value="4">Stage 4 - Full dataset</option>
+          </select>
+          <button type="submit" className={secondaryButtonClass}>Run Staged Execution</button>
+        </form>
+      </ActionCard>
+
+      <ActionCard title="Resume From Checkpoint" description="Continue from latest persisted checkpoint after failure or pause.">
+        <form action={resumeFromCheckpointAction}>
+          <button type="submit" className={secondaryButtonClass}>Resume</button>
+        </form>
+      </ActionCard>
+
       <ActionCard title="Dry Run" description="Execute validation-only operational dry run.">
         <form action={runDryRunAction}>
           <button type="submit" className={secondaryButtonClass}>Run Dry Run</button>
@@ -364,6 +397,14 @@ function LiveExecutionSection({ data }: { data: BuilderControlCenterData }) {
       <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
         <PairLine label="Current Stage" value={live.currentStage ?? "idle"} />
         <PairLine label="Current Perfume" value={live.currentPerfume ?? "N/A from pipeline state"} />
+        <PairLine label="Current Connector" value={live.currentConnector ?? "n/a"} />
+        <PairLine label="Current Decision" value={live.currentDecision ?? "n/a"} />
+        <PairLine label="Current Merge Result" value={live.currentMergeResult ?? "n/a"} />
+        <PairLine label="Sync Progress" value={formatPercent(live.currentSynchronizationProgress)} />
+        <PairLine label="Current Checkpoint" value={live.currentCheckpoint ?? "none"} />
+        <PairLine label="Retry Attempts" value={formatNumber(live.retryAttempts)} />
+        <PairLine label="Current Errors" value={formatNumber(live.currentErrors)} />
+        <PairLine label="Current Warnings" value={formatNumber(live.currentWarnings)} />
         <PairLine label="Processed" value={formatNumber(live.processedCount)} />
         <PairLine label="Remaining" value={formatNumber(live.remainingCount)} />
         <PairLine label="Execution Speed" value={`${formatNumber(live.executionSpeedPerMinute)} / min`} />
@@ -441,6 +482,10 @@ function ReviewSection({ data }: { data: BuilderControlCenterData }) {
         <PairLine label="Automatic Decisions" value={formatNumber(data.missionControl.automaticDecisions)} />
         <PairLine label="Manual Decisions" value={formatNumber(data.missionControl.manualDecisions)} />
         <PairLine label="Decision Accuracy" value={formatPercent(data.missionControl.decisionAccuracy)} />
+        <PairLine label="Automatic Merges" value={formatNumber(data.missionControl.automaticMerges)} />
+        <PairLine label="Manual Merges" value={formatNumber(data.missionControl.manualMerges)} />
+        <PairLine label="Conflicts" value={formatNumber(data.missionControl.conflictCount)} />
+        <PairLine label="Auto-Resolution Rate" value={formatPercent(data.missionControl.autoResolutionRate)} />
       </div>
       <div className="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-2">
         <article className="rounded border border-zinc-800 bg-zinc-900/60 p-2">
@@ -466,6 +511,38 @@ function ReviewSection({ data }: { data: BuilderControlCenterData }) {
             ))}
           </div>
         </article>
+
+        <article className="rounded border border-zinc-800 bg-zinc-900/60 p-2">
+          <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Top Conflicting Fields</p>
+          <div className="mt-2 space-y-1">
+            {data.reviewMetrics.topConflictingFields.length > 0 ? (
+              data.reviewMetrics.topConflictingFields.map((entry) => (
+                <div key={entry.field} className="flex items-center justify-between text-xs text-zinc-300">
+                  <span>{entry.field}</span>
+                  <span>{formatNumber(entry.count)}</span>
+                </div>
+              ))
+            ) : (
+              <p className="text-xs text-zinc-500">No conflicting fields.</p>
+            )}
+          </div>
+        </article>
+
+        <article className="rounded border border-zinc-800 bg-zinc-900/60 p-2">
+          <p className="text-xs uppercase tracking-[0.12em] text-zinc-500">Top Conflicting Sources</p>
+          <div className="mt-2 space-y-1">
+            {data.reviewMetrics.topConflictingSources.length > 0 ? (
+              data.reviewMetrics.topConflictingSources.map((entry) => (
+                <div key={entry.source} className="flex items-center justify-between text-xs text-zinc-300">
+                  <span>{entry.source}</span>
+                  <span>{formatNumber(entry.count)}</span>
+                </div>
+              ))
+            ) : (
+              <p className="text-xs text-zinc-500">No conflicting sources.</p>
+            )}
+          </div>
+        </article>
       </div>
     </article>
   );
@@ -485,6 +562,27 @@ function PublishSection({ data }: { data: BuilderControlCenterData }) {
         <form action={publishMasterDatabaseAction} className="mt-3">
           <button type="submit" className={primaryButtonClass}>Publish Master Database</button>
         </form>
+        <form action={rollbackPublishedMasterDatabaseAction} className="mt-2">
+          <button type="submit" className={dangerButtonClass}>Rollback Published Database</button>
+        </form>
+      </article>
+
+      <article className="rounded border border-zinc-800 bg-zinc-900/55 p-3">
+        <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-zinc-300">Builder Report</h2>
+        {data.latestExecutionReport ? (
+          <div className="mt-2 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <PairLine label="Execution ID" value={data.latestExecutionReport.executionId} />
+            <PairLine label="Processed Perfumes" value={formatNumber(data.latestExecutionReport.processedPerfumes)} />
+            <PairLine label="Automation Rate" value={formatPercent(data.latestExecutionReport.automationRate)} />
+            <PairLine label="Conflict Rate" value={formatPercent(data.latestExecutionReport.conflictRate)} />
+            <PairLine label="Avg Decision Confidence" value={formatPercent(data.latestExecutionReport.averageDecisionConfidence)} />
+            <PairLine label="Builder Health" value={data.latestExecutionReport.builderHealth} />
+            <PairLine label="Top Missing Fields" value={formatNumber(data.latestExecutionReport.topMissingFields.length)} />
+            <PairLine label="Top Conflict Fields" value={formatNumber(data.latestExecutionReport.topConflictFields.length)} />
+          </div>
+        ) : (
+          <p className="mt-2 text-xs text-zinc-500">No execution report generated yet.</p>
+        )}
       </article>
 
       <article className="rounded border border-zinc-800 bg-zinc-900/55 p-3">

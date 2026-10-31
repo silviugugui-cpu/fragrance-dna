@@ -1,0 +1,164 @@
+{
+  "document_type": "developer_handoff",
+  "document_title": "FragranceDNA User Flow and Vercel-Neon Backend Status",
+  "generated_date": "2026-10-19",
+  "language": "ro",
+  "purpose": "Context autonom pentru un asistent de programare care continua dezvoltarea fluxului userului si configurarea persistentei Vercel + Neon.",
+  "project": {
+    "name": "FragranceDNA",
+    "framework": "Next.js 14 App Router, React 18, TypeScript",
+    "runtime": "Vercel pentru aplicatie si API; localhost:3000 pentru development",
+    "canonical_fragrance_database": "data/generated/fragrancedna.sqlite",
+    "canonical_database_rule": "Fragrance SQLite este sursa comuna pentru parfumuri. Neon este destinat conturilor si datelor personale ale userilor, nu inlocuieste baza master.",
+    "current_database_design": {
+      "fragrance_master": "SQLite master, citire in productie, write local prin Studio",
+      "user_profiles": "Neon PostgreSQL proiectat pentru auth si date per-user",
+      "browser_storage": "Cache per-user; nu este sursa canonica dupa conectarea Neon"
+    }
+  },
+  "current_user_flow": [
+    {
+      "step": 1,
+      "name": "Landing si onboarding",
+      "routes": ["/", "/grounding", "/test"],
+      "status": "Implementat",
+      "details": "Home are CTA-uri Grounding, Test si DNA. Accesul direct la /test fara suficiente preferinte de Grounding este oprit si afiseaza link spre Grounding."
+    },
+    {
+      "step": 2,
+      "name": "Grounding",
+      "route": "/grounding",
+      "status": "Implementat",
+      "details": "8 caracteristici sunt clasificate in Love, Neutral si Avoid. Sunt suportate drag-and-drop si controalele X, check si Neutral. Progresul se salveaza per user. Continuarea cere cel putin doua caracteristici non-Neutral. La submit se calculeaza seed si vector initial."
+    },
+    {
+      "step": 3,
+      "name": "Planul de test",
+      "route": "/test",
+      "status": "Implementat",
+      "details": "Pool-ul vine din cele 65 de profile User DNA din SQLite. Sunt planificate pana la 10 pozitii, fiecare cu Primary si Backup. Userul vede lista si poate alege manual parfumurile pe care le poate testa. Alegerile se pastreaza per user."
+    },
+    {
+      "step": 4,
+      "name": "Evaluarea parfumurilor",
+      "route": "/test",
+      "status": "Implementat si verificat in browser",
+      "details": "Questions sunt generate din atributele canonice ale profilului User DNA selectat. Fiecare slider afisat trebuie atins explicit; Continue ramane disabled pana cand toate caracteristicile curente sunt evaluate. Draft-ul poate fi reluat. Doar Continue confirma parfumul, actualizeaza ADN-ul si progresul. Testarea a confirmat 10 pasi, inclusiv alegerea Backup."
+    },
+    {
+      "step": 5,
+      "name": "Profilul DNA",
+      "route": "/dna",
+      "status": "Gate implementat",
+      "details": "Nu afiseaza profil preview ca rezultat final. Pana la 10 evaluari afiseaza status incomplet si link spre Grounding/Test. Dupa completare arata vectorul si rezumatul DNA."
+    },
+    {
+      "step": 6,
+      "name": "Recomandari",
+      "route": "/results",
+      "status": "Implementat si smoke-testat",
+      "details": "API-ul citeste toate randurile din SQLite master, foloseste note si accords mapate canonic, necesita minimum 3 caracteristici mapate, aplica Love/Avoid si exclude parfumurile owned. Returneaza scor, caracteristici potrivite si explicatie. UI-ul afiseaza parfumuri master, imagini si actiune Save to wishlist. Wishlist-ul este salvat prin Collection."
+    }
+  ],
+  "identity_and_persistence": {
+    "status": "Cod implementat; conectarea Neon nu a fost facuta",
+    "authentication": {
+      "email_password": "Neon cand DATABASE_URL este configurat; JSON local numai in development daca Neon lipseste",
+      "session": "Cookie semnat HMAC-SHA256, HttpOnly, SameSite=Lax, TTL 7 zile",
+      "session_validation": "/api/auth/session valideaza cookie-ul si cauta userul in DB",
+      "sign_out": "/api/auth/sign-out sterge cookie-ul",
+      "production_fail_closed": "Fara DATABASE_URL sau AUTH_SESSION_SECRET, auth Neon din production trebuie sa dea eroare de configurare, nu sa foloseasca JSON ephemeral",
+      "oauth": "Google/Apple sunt simulate doar in development si respinse in production pana exista callback-uri si credentiale reale",
+      "password_reset": "Email reset nu este implementat; UI-ul spune explicit ca resetarea se face prin administrator"
+    },
+    "persistent_profile_fields": [
+      "dnaProfile",
+      "dnaSession",
+      "grounding",
+      "groundingVector",
+      "seed",
+      "collection",
+      "ratedAttributes",
+      "testPlanSelections"
+    ],
+    "profile_api": {
+      "route": "/api/user/profile",
+      "read": "GET citeste profilul userului autentificat",
+      "write": "PUT face upsert al campurilor permise",
+      "ownership": "userId se obtine din cookie-ul verificat; clientul nu poate alege userId"
+    },
+    "admin_management": {
+      "studio_route": "/studio/users",
+      "controls": "Creare cont, reset parola de catre admin, stergere cont, inspectare si resetare profil persistent fara stergerea contului",
+      "guards": "Studio layout, Server Actions si API-urile de mutatie verifica sesiunea si flag-ul is_admin din DB"
+    }
+  },
+  "vercel_neon_setup_user_actions": [
+    {
+      "order": 1,
+      "action": "Userul creeaza sau foloseste contul Vercel care detine proiectul si instaleaza Neon din Vercel Marketplace."
+    },
+    {
+      "order": 2,
+      "action": "Userul creeaza Neon project in regiunea apropiata Vercel si copiaza pooled PostgreSQL connection string."
+    },
+    {
+      "order": 3,
+      "action": "Userul genereaza un AUTH_SESSION_SECRET random de minimum 32 bytes. Secretul nu se comite si ramane stabil intre deploy-uri; rotirea lui invalideaza sesiunile."
+    },
+    {
+      "order": 4,
+      "action": "Userul configureaza in Vercel Environment Variables: DATABASE_URL, AUTH_SESSION_SECRET, ADMIN_EMAIL si ADMIN_PASSWORD. ADMIN_PASSWORD trebuie sa aiba cel putin 12 caractere. Decide separat daca Production si Preview impart acelasi Neon database."
+    },
+    {
+      "order": 5,
+      "action": "Aceeasi configuratie se pune in .env.local pentru development; fisierul ramane necomis."
+    },
+    {
+      "order": 6,
+      "action": "Dupa configurare, se ruleaza npm.cmd run db:auth:migrate pentru import idempotent al conturilor si password hashes din data/generated/auth-users.json si seed-ul adminului. Fisierul sursa nu este sters sau rescris."
+    },
+    {
+      "order": 7,
+      "action": "Se verifica sign-up, sign-in, cookie/session, sign-out, persistenta profilelor, Studio admin si resetul profilului pe deployment-ul Neon."
+    },
+    {
+      "order": 8,
+      "action": "Abia dupa smoke test si build/deploy reusite se considera Neon activ in productie."
+    }
+  ],
+  "migration_limits": {
+    "server_account_data": "auth-users.json poate fi importat cu hash-urile existente",
+    "browser_profile_data": "Datele vechi din localStorage pot fi urcate la primul login de pe browserul care le pastreaza, pentru userul autentificat corespunzator",
+    "unscoped_legacy_data": "Cheile vechi globale nu sunt atasate automat unui cont, deoarece proprietarul nu poate fi verificat si s-ar putea amesteca date intre useri",
+    "source_files": "Contul JSON local ramane backup; scriptul de migrare nu il sterge"
+  },
+  "verified_locally": {
+    "date": "2026-10-19",
+    "auth_smoke_test": "Sign-up temporar a returnat user; /api/auth/session a validat aceeasi identitate; sign-out a facut sesiunea invalida; userul temporar a fost sters imediat",
+    "anonymous_access": "Root 200; /api/auth/session 200 cu user null; /api/user/profile 401; /api/studio/users/profile 401; /studio/users redirectioneaza la sign-in",
+    "typescript": "Diagnosticele get_errors au fost curate. Unele invocari CLI TypeScript nu au afisat exit code din cauza PATH/PowerShell instabil; repeta npx.cmd tsc --noEmit dupa setup daca este necesar.",
+    "neon_connectivity": "Netestat; DATABASE_URL, AUTH_SESSION_SECRET, ADMIN_EMAIL si ADMIN_PASSWORD lipsesc din environment",
+    "production_build": "Next a compilat bundle-ul, dar a iesit cu OOM la 8 GB in lint/typecheck; nu a fost confirmat deploy-ul",
+    "npm_audit": "Auditul productie a raportat 5 advisories: 1 critical, 4 high; Next.js si xlsx au advisories care necesita follow-up separat"
+  },
+  "key_files": [
+    "lib/database/neonDatabase.ts",
+    "lib/auth/serverSession.ts",
+    "lib/auth/serverUserStore.ts",
+    "lib/auth/persistentProfile.ts",
+    "app/api/auth/session/route.ts",
+    "app/api/user/profile/route.ts",
+    "app/api/studio/users/profile/route.ts",
+    "app/studio/users/UserProfileInspector.tsx",
+    "scripts/migrateAuthUsersToNeon.ts",
+    "docs/VERCEL_NEON_SETUP.md"
+  ],
+  "safety_notes": [
+    "Nu exista Neon account/database conectat in acest workspace.",
+    "Nu sunt incluse credentials, password-uri, connection strings reale sau date personale.",
+    "Nu pretinde ca migrarea sau scrierea cloud a fost executata.",
+    "OAuth Google/Apple si resetarea parolei prin email nu sunt gata de productie pana la configurarea serviciilor reale."
+  ],
+  "handoff_prompt": "Continua implementarea Vercel + Neon conform statusului de mai sus. Nu cere sau afisa secrete in chat. Userul trebuie sa creeze integrarea Neon si sa seteze environment variables in Vercel; dupa aceea, ghideaza-l prin npm.cmd run db:auth:migrate si verifica auth/profile persistence in productie. Nu modifica sau sterge auth-users.json fara o cerere explicita."
+}

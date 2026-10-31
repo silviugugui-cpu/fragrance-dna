@@ -28,7 +28,7 @@ export const fragranceIntelligenceStage: PipelineStageModule<
     description: "Emits canonical fragrance intelligence and automation metrics for every fragrance.",
   },
   async execute(input, context) {
-    const intelligence = runCanonicalBuilderIntelligence();
+    const intelligence = await runCanonicalBuilderIntelligence();
 
     return createArtifact({
       artifactType: "FragranceIntelligenceArtifact",

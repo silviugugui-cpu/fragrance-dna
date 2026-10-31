@@ -6,6 +6,7 @@ import type { StageExecutionLog } from "@/lib/builder/logger";
 import { runBuilderPipeline } from "@/lib/builder/pipeline/orchestrator";
 import { PIPELINE_STAGE_ORDER } from "@/lib/builder/pipeline/registry";
 import { createDefaultRawImportReader } from "@/lib/builder/rawImport";
+import { runCanonicalBuilderIntelligence } from "@/lib/builder/intelligence/canonicalBuilderIntelligence";
 import { loadKnowledgeWorkspaceData } from "@/lib/builder/knowledgeWorkspace/knowledgeWorkspace";
 import { loadUnresolvedNoteReviewItems } from "@/lib/builder/review/unresolvedNotes";
 import { runSprint1ValidationPack } from "@/lib/builder/validationPack/sprint1ValidationPack";
@@ -19,11 +20,27 @@ import {
   generateConnectorJobsFromEnrichmentTasks,
   loadSourcesWorkspaceData,
 } from "@/lib/builder/connectors/sourcesWorkspace";
+import {
+  getDatabaseStatus,
+  publishWorkingDatabase,
+  readExecutionCheckpoint,
+  readLatestExecutionReport,
+  rollbackPublishedDatabase,
+  writeExecutionCheckpoint,
+  writeExecutionReport,
+  writeWorkingDatabaseSnapshot,
+  type BuilderExecutionReport,
+} from "@/lib/builder/controlCenter/productionRun";
 import type { StageName } from "@/lib/builder/contracts";
 
 export type BuilderJobType =
   | "full-run"
   | "stage-run"
+  | "stage-1-100"
+  | "stage-2-1000"
+  | "stage-3-10000"
+  | "stage-4-full"
+  | "resume-run"
   | "dry-run"
   | "rebuild-master-database"
   | "publish-master-database";
@@ -79,6 +96,14 @@ export interface BuilderLiveExecutionData {
   status: "idle" | "running" | "cancel-requested";
   currentStage: StageName | null;
   currentPerfume: string | null;
+  currentConnector: string | null;
+  currentDecision: string | null;
+  currentMergeResult: string | null;
+  currentSynchronizationProgress: number;
+  currentCheckpoint: string | null;
+  retryAttempts: number;
+  currentErrors: number;
+  currentWarnings: number;
   processedCount: number;
   remainingCount: number;
   progressPercent: number;
@@ -160,9 +185,16 @@ export interface BuilderControlCenterData {
     automationPercent: number;
     automaticDecisions: number;
     manualDecisions: number;
+    automaticMerges: number;
+    manualMerges: number;
+    conflictCount: number;
+    autoResolutionRate: number;
+    averageMergeDecisionConfidence: number;
     decisionAccuracy: number;
     reviewReduction: number;
     decisionDistribution: Array<{ decision: BuilderDecisionType; count: number }>;
+    topConflictingFields: Array<{ field: string; count: number }>;
+    topConflictingSources: Array<{ source: string; count: number }>;
     knowledgeCoveragePercent: number;
     masterDatabaseCoveragePercent: number;
     missingImages: number;
@@ -183,6 +215,11 @@ export interface BuilderControlCenterData {
     automaticResolutions: number;
     latestExecution: string;
     currentPipelineVersion: string;
+    latestBuilderRunId: string | null;
+    currentBuilderRunId: string | null;
+    currentCheckpoint: string | null;
+    workingDatabaseStatus: string;
+    publishedDatabaseStatus: string;
   };
   liveExecution: BuilderLiveExecutionData;
   jobs: {
@@ -195,6 +232,8 @@ export interface BuilderControlCenterData {
     pendingReviewQueue: number;
     automaticResolutions: number;
     manualResolutions: number;
+    topConflictingFields: Array<{ field: string; count: number }>;
+    topConflictingSources: Array<{ source: string; count: number }>;
     confidenceDistribution: Array<{ bucket: string; count: number }>;
   };
   decisionMetrics: {
@@ -207,6 +246,7 @@ export interface BuilderControlCenterData {
     automationPercent: number;
     decisionDistribution: Array<{ decision: BuilderDecisionType; count: number }>;
   };
+  latestExecutionReport: BuilderExecutionReport | null;
   publishHistory: BuilderPublishRecord[];
   recentActivity: BuilderActivityRecord[];
 }
@@ -253,6 +293,14 @@ const createDefaultLiveExecution = (): BuilderLiveExecutionData => ({
   status: "idle",
   currentStage: null,
   currentPerfume: null,
+  currentConnector: null,
+  currentDecision: null,
+  currentMergeResult: null,
+  currentSynchronizationProgress: 0,
+  currentCheckpoint: null,
+  retryAttempts: 0,
+  currentErrors: 0,
+  currentWarnings: 0,
   processedCount: 0,
   remainingCount: 0,
   progressPercent: 0,
@@ -260,6 +308,50 @@ const createDefaultLiveExecution = (): BuilderLiveExecutionData => ({
   executionSpeedPerMinute: 0,
   updatedAt: new Date().toISOString(),
 });
+
+const processingLimitByJobType = (jobType: BuilderJobType): number | null => {
+  if (jobType === "stage-1-100") {
+    return 100;
+  }
+  if (jobType === "stage-2-1000") {
+    return 1000;
+  }
+  if (jobType === "stage-3-10000") {
+    return 10000;
+  }
+  if (jobType === "stage-4-full") {
+    return null;
+  }
+  return null;
+};
+
+const nextStageFromCheckpoint = (checkpointStage: StageName | null): StageName => {
+  if (!checkpointStage) {
+    return "import";
+  }
+  const index = PIPELINE_STAGE_ORDER.indexOf(checkpointStage);
+  if (index < 0 || index + 1 >= PIPELINE_STAGE_ORDER.length) {
+    return "import";
+  }
+  return PIPELINE_STAGE_ORDER[index + 1];
+};
+
+const toCheckpointLabel = (stage: StageName | null, runId: string): string => {
+  if (!stage) {
+    return `run:${runId}/stage:pending`;
+  }
+  return `run:${runId}/stage:${stage}`;
+};
+
+const countMissingFields = (details: Awaited<ReturnType<typeof loadMasterDatabaseWorkspaceData>>["detailsById"]): Map<string, number> => {
+  const map = new Map<string, number>();
+  for (const detail of Object.values(details)) {
+    for (const field of detail.intelligence.missingFields) {
+      map.set(field, (map.get(field) ?? 0) + 1);
+    }
+  }
+  return map;
+};
 
 const readOperationsState = (): BuilderOperationsState => {
   const filePath = getOperationsStatePath();
@@ -460,24 +552,51 @@ export const runBuilderFromControlCenter = async (
     identifierColumn: config.rawImport.identifierColumn,
     importVersion: config.rawImport.importVersion,
   });
-  const totalRows = payload.rawDatabase.worksheets.reduce(
+  const rawTotalRows = payload.rawDatabase.worksheets.reduce(
     (sum, worksheet) => sum + worksheet.rows.length,
     0,
   );
+  const checkpoint = readExecutionCheckpoint();
+  const processingLimit = processingLimitByJobType(jobType);
+  const totalRows = processingLimit ? Math.min(rawTotalRows, processingLimit) : rawTotalRows;
 
-  const job = createJobRecord({ type: jobType, fromStage });
+  const effectiveFromStage =
+    jobType === "resume-run"
+      ? nextStageFromCheckpoint(checkpoint?.lastCompletedStage ?? null)
+      : fromStage;
+
+  const job = createJobRecord({ type: jobType, fromStage: effectiveFromStage });
   job.status = "running";
   job.startedAt = new Date().toISOString();
   upsertJob(job);
   setCurrentJob(job.jobId);
   setCancelRequested(false);
-  appendActivity("job-started", `Started ${job.type} from stage ${fromStage}.`);
+  appendActivity("job-started", `Started ${job.type} from stage ${effectiveFromStage}.`);
 
   const startedAt = new Date().toISOString();
+  const previousLimit = process.env.BUILDER_PROCESS_LIMIT;
+  if (processingLimit) {
+    process.env.BUILDER_PROCESS_LIMIT = String(processingLimit);
+  } else {
+    delete process.env.BUILDER_PROCESS_LIMIT;
+  }
+
+  writeExecutionCheckpoint({
+    runId: job.jobId,
+    status: "running",
+    currentStage: effectiveFromStage,
+    lastCompletedStage: checkpoint?.lastCompletedStage ?? null,
+    processedPerfumes: 0,
+    totalPerfumes: totalRows,
+    processingLimit,
+    retryAttempts: (checkpoint?.retryAttempts ?? 0) + (jobType === "resume-run" ? 1 : 0),
+    updatedAt: new Date().toISOString(),
+    error: null,
+  });
 
   try {
     const result = await runBuilderPipeline({
-      fromStage,
+      fromStage: effectiveFromStage,
       source: "studio-builder-control-center",
       shouldCancel: () => {
         const current = readOperationsState();
@@ -497,6 +616,14 @@ export const runBuilderFromControlCenter = async (
           status: "running",
           currentStage: stage,
           currentPerfume: null,
+          currentConnector: null,
+          currentDecision: null,
+          currentMergeResult: null,
+          currentSynchronizationProgress: Number(((stageRunIndex / totalStages) * 100).toFixed(2)),
+          currentCheckpoint: toCheckpointLabel(stage, job.jobId),
+          retryAttempts: jobType === "resume-run" ? (checkpoint?.retryAttempts ?? 0) + 1 : 0,
+          currentErrors: 0,
+          currentWarnings: 0,
           processedCount,
           remainingCount,
           progressPercent: Number(((processedCount / Math.max(1, totalRows)) * 100).toFixed(2)),
@@ -504,8 +631,21 @@ export const runBuilderFromControlCenter = async (
           executionSpeedPerMinute: speedPerMinute,
           updatedAt: new Date().toISOString(),
         });
+
+        writeExecutionCheckpoint({
+          runId: job.jobId,
+          status: "running",
+          currentStage: stage,
+          lastCompletedStage: null,
+          processedPerfumes: processedCount,
+          totalPerfumes: totalRows,
+          processingLimit,
+          retryAttempts: jobType === "resume-run" ? (checkpoint?.retryAttempts ?? 0) + 1 : 0,
+          updatedAt: new Date().toISOString(),
+          error: null,
+        });
       },
-      onStageComplete: ({ stageRunIndex, totalStages }) => {
+      onStageComplete: ({ stage, stageRunIndex, totalStages }) => {
         const elapsedSeconds = Math.max(1, (Date.now() - new Date(startedAt).getTime()) / 1000);
         const processedCount = Math.round((totalRows * stageRunIndex) / totalStages);
         const remainingCount = Math.max(0, totalRows - processedCount);
@@ -519,6 +659,14 @@ export const runBuilderFromControlCenter = async (
           status: "running",
           currentStage: null,
           currentPerfume: null,
+          currentConnector: null,
+          currentDecision: null,
+          currentMergeResult: null,
+          currentSynchronizationProgress: Number(((stageRunIndex / totalStages) * 100).toFixed(2)),
+          currentCheckpoint: toCheckpointLabel(stage, job.jobId),
+          retryAttempts: jobType === "resume-run" ? (checkpoint?.retryAttempts ?? 0) + 1 : 0,
+          currentErrors: 0,
+          currentWarnings: 0,
           processedCount,
           remainingCount,
           progressPercent: Number(((processedCount / Math.max(1, totalRows)) * 100).toFixed(2)),
@@ -526,11 +674,104 @@ export const runBuilderFromControlCenter = async (
           executionSpeedPerMinute: speedPerMinute,
           updatedAt: new Date().toISOString(),
         });
+
+        writeExecutionCheckpoint({
+          runId: job.jobId,
+          status: "running",
+          currentStage: null,
+          lastCompletedStage: stage,
+          processedPerfumes: processedCount,
+          totalPerfumes: totalRows,
+          processingLimit,
+          retryAttempts: jobType === "resume-run" ? (checkpoint?.retryAttempts ?? 0) + 1 : 0,
+          updatedAt: new Date().toISOString(),
+          error: null,
+        });
       },
     });
 
     const finishedAt = new Date().toISOString();
-    const record = toRunRecord(result.runId, fromStage, jobType, startedAt, finishedAt, result.logs);
+    const record = toRunRecord(result.runId, effectiveFromStage, jobType, startedAt, finishedAt, result.logs);
+
+    const intelligence = await runCanonicalBuilderIntelligence();
+    const decisionWorkspace = await loadBuilderDecisionWorkspaceData();
+    const masterDatabase = await loadMasterDatabaseWorkspaceData();
+    const sourcesWorkspace = await loadSourcesWorkspaceData();
+
+    const versionId = `working-${record.runId}`;
+    writeWorkingDatabaseSnapshot({
+      versionId,
+      runId: record.runId,
+      pipelineVersion: config.pipelineVersion,
+      generatedAt: finishedAt,
+      processingLimit,
+      processedPerfumes: intelligence.totalFragrancesProcessed,
+      objects: intelligence.objects,
+    });
+
+    const missingFieldCounts = countMissingFields(masterDatabase.detailsById);
+    const topMissingFields = Array.from(missingFieldCounts.entries())
+      .map(([field, count]) => ({ field, count }))
+      .sort((left, right) => right.count - left.count || left.field.localeCompare(right.field))
+      .slice(0, 10);
+
+    const missingBrandCounts = new Map<string, number>();
+    for (const row of masterDatabase.rows) {
+      if (row.brand.trim().length === 0 || row.brand.toLowerCase().includes("unknown")) {
+        const key = row.brand.trim().length > 0 ? row.brand : "Unknown Brand";
+        missingBrandCounts.set(key, (missingBrandCounts.get(key) ?? 0) + 1);
+      }
+    }
+    const topMissingBrands = Array.from(missingBrandCounts.entries())
+      .map(([brand, count]) => ({ brand, count }))
+      .sort((left, right) => right.count - left.count || left.brand.localeCompare(right.brand))
+      .slice(0, 10);
+
+    const report: BuilderExecutionReport = {
+      executionId: record.runId,
+      executionTimestamp: finishedAt,
+      executionDurationMs: record.durationMs,
+      builderVersion: config.pipelineVersion,
+      processedPerfumes: intelligence.totalFragrancesProcessed,
+      newPerfumes: decisionWorkspace.decisionDistribution.find((entry) => entry.decision === "NEW_OBJECT")?.count ?? 0,
+      updatedPerfumes: decisionWorkspace.decisionDistribution.find((entry) => entry.decision === "UPDATE_EXISTING")?.count ?? 0,
+      skippedPerfumes: decisionWorkspace.decisionDistribution.find((entry) => entry.decision === "IGNORE")?.count ?? 0,
+      duplicates: decisionWorkspace.decisionDistribution.find((entry) => entry.decision === "DUPLICATE")?.count ?? 0,
+      automaticDecisions: decisionWorkspace.automaticDecisions,
+      manualReview: decisionWorkspace.manualDecisions,
+      conflicts: decisionWorkspace.conflictCount,
+      conflictRate: decisionWorkspace.totalDecisions > 0
+        ? Number(((decisionWorkspace.conflictCount / decisionWorkspace.totalDecisions) * 100).toFixed(2))
+        : 0,
+      automationRate: decisionWorkspace.automationPercent,
+      averageDecisionConfidence: decisionWorkspace.averageDecisionConfidence,
+      imagesMissing: masterDatabase.missingImages,
+      perfumersMissing: masterDatabase.missingPerfumers,
+      launchYearsMissing: masterDatabase.missingLaunchYears,
+      notesMissing: topMissingFields.find((entry) => entry.field === "notes")?.count ?? 0,
+      accordsMissing: topMissingFields.find((entry) => entry.field === "mainAccords")?.count ?? 0,
+      brandsMissing: topMissingBrands.reduce((sum, entry) => sum + entry.count, 0),
+      topMissingFields,
+      topConflictFields: decisionWorkspace.topConflictingFields.slice(0, 10),
+      topMissingBrands,
+      connectorStatistics: {
+        connectorHealth: sourcesWorkspace.connectorHealth,
+        connectorCoverage: sourcesWorkspace.connectorCoverage,
+        pendingConnectorJobs: sourcesWorkspace.pendingConnectorJobs,
+        discoveryQueue: sourcesWorkspace.discoveryQueue,
+        enrichmentQueue: sourcesWorkspace.enrichmentQueue,
+      },
+      synchronizationStatistics: {
+        status: sourcesWorkspace.synchronizationStatus,
+        lastSynchronization: sourcesWorkspace.lastSynchronization,
+        automaticEnrichment: sourcesWorkspace.automaticEnrichment,
+        newPerfumesFound: sourcesWorkspace.newPerfumesFound,
+      },
+      builderHealth: record.errorCount > 0 ? "degraded" : "healthy",
+      status: record.status,
+    };
+    writeExecutionReport(report);
+
     await generateDiscoveryJobsFromConnectors();
     await generateConnectorJobsFromEnrichmentTasks();
     appendRunRecord(record);
@@ -543,10 +784,28 @@ export const runBuilderFromControlCenter = async (
     job.errorCount = record.errorCount;
     upsertJob(job);
 
+    writeExecutionCheckpoint({
+      runId: record.runId,
+      status: "completed",
+      currentStage: null,
+      lastCompletedStage: "publish",
+      processedPerfumes: intelligence.totalFragrancesProcessed,
+      totalPerfumes: totalRows,
+      processingLimit,
+      retryAttempts: jobType === "resume-run" ? (checkpoint?.retryAttempts ?? 0) + 1 : 0,
+      updatedAt: new Date().toISOString(),
+      error: null,
+    });
+
     setCurrentJob(null);
     setCancelRequested(false);
     setLiveExecution(createDefaultLiveExecution());
     appendActivity("job-finished", `Completed ${job.type} (${record.runId}).`);
+    if (previousLimit !== undefined) {
+      process.env.BUILDER_PROCESS_LIMIT = previousLimit;
+    } else {
+      delete process.env.BUILDER_PROCESS_LIMIT;
+    }
     return record;
   } catch (error) {
     const finishedAt = new Date().toISOString();
@@ -555,7 +814,7 @@ export const runBuilderFromControlCenter = async (
 
     const failedRecord: BuilderRunRecord = {
       runId: `builder-run-${Date.now()}`,
-      fromStage,
+      fromStage: effectiveFromStage,
       jobType,
       startedAt,
       finishedAt,
@@ -564,10 +823,10 @@ export const runBuilderFromControlCenter = async (
       warningCount: 0,
       errorCount: 1,
       completedStages: 0,
-      totalStages: stageOrderFrom(fromStage).length,
+      totalStages: stageOrderFrom(effectiveFromStage).length,
       logs: [
         {
-          stage: fromStage,
+          stage: effectiveFromStage,
           startTime: startedAt,
           finishTime: finishedAt,
           durationMs: new Date(finishedAt).getTime() - new Date(startedAt).getTime(),
@@ -592,6 +851,19 @@ export const runBuilderFromControlCenter = async (
     job.message = message;
     upsertJob(job);
 
+    writeExecutionCheckpoint({
+      runId: failedRecord.runId,
+      status: cancelled ? "cancel-requested" : "failed",
+      currentStage: effectiveFromStage,
+      lastCompletedStage: checkpoint?.lastCompletedStage ?? null,
+      processedPerfumes: 0,
+      totalPerfumes: totalRows,
+      processingLimit,
+      retryAttempts: (checkpoint?.retryAttempts ?? 0) + 1,
+      updatedAt: new Date().toISOString(),
+      error: message,
+    });
+
     setCurrentJob(null);
     setCancelRequested(false);
     setLiveExecution(createDefaultLiveExecution());
@@ -599,6 +871,11 @@ export const runBuilderFromControlCenter = async (
       cancelled ? "job-cancelled" : "job-failed",
       `${cancelled ? "Cancelled" : "Failed"} ${job.type} (${failedRecord.runId}).`,
     );
+    if (previousLimit !== undefined) {
+      process.env.BUILDER_PROCESS_LIMIT = previousLimit;
+    } else {
+      delete process.env.BUILDER_PROCESS_LIMIT;
+    }
     return failedRecord;
   }
 };
@@ -618,6 +895,23 @@ const normalizeStage = (value: string | null): StageName => {
 export const runSelectedBuilderStage = async (stageValue: string | null): Promise<BuilderRunRecord> => {
   const stage = normalizeStage(stageValue);
   return runBuilderFromControlCenter(stage, "stage-run");
+};
+
+export const runStagedBuilderExecution = async (stage: 1 | 2 | 3 | 4): Promise<BuilderRunRecord> => {
+  if (stage === 1) {
+    return runBuilderFromControlCenter("import", "stage-1-100");
+  }
+  if (stage === 2) {
+    return runBuilderFromControlCenter("import", "stage-2-1000");
+  }
+  if (stage === 3) {
+    return runBuilderFromControlCenter("import", "stage-3-10000");
+  }
+  return runBuilderFromControlCenter("import", "stage-4-full");
+};
+
+export const resumeBuilderFromCheckpoint = async (): Promise<BuilderRunRecord> => {
+  return runBuilderFromControlCenter("import", "resume-run");
 };
 
 export const runBuilderDryRun = async (): Promise<BuilderRunRecord> => {
@@ -746,10 +1040,25 @@ export const publishMasterDatabase = async (): Promise<BuilderRunRecord> => {
     status: result.status === "success" ? "success" : "failed",
   };
 
+  if (result.status === "success") {
+    const publishResult = publishWorkingDatabase(result.runId);
+    if (!publishResult.published) {
+      publishRecord.status = "failed";
+    }
+  }
+
   state.publishHistory = [publishRecord, ...state.publishHistory].slice(0, 50);
   writeOperationsState(state);
   appendActivity("publish", `Published Master Database (${publishRecord.version}).`);
   return result;
+};
+
+export const rollbackPublishedMasterDatabase = async (): Promise<boolean> => {
+  const result = rollbackPublishedDatabase();
+  if (result.rolledBack) {
+    appendActivity("publish", `Rollback successful (${result.versionId ?? "unknown"}).`);
+  }
+  return result.rolledBack;
 };
 
 export const cancelCurrentExecution = async (): Promise<boolean> => {
@@ -786,6 +1095,26 @@ export const retryBuilderJob = async (jobIdOrRunId: string | null): Promise<Buil
     return publishMasterDatabase();
   }
 
+  if (target.type === "stage-1-100") {
+    return runStagedBuilderExecution(1);
+  }
+
+  if (target.type === "stage-2-1000") {
+    return runStagedBuilderExecution(2);
+  }
+
+  if (target.type === "stage-3-10000") {
+    return runStagedBuilderExecution(3);
+  }
+
+  if (target.type === "stage-4-full") {
+    return runStagedBuilderExecution(4);
+  }
+
+  if (target.type === "resume-run") {
+    return resumeBuilderFromCheckpoint();
+  }
+
   return runBuilderFromControlCenter(target.fromStage ?? "import", target.type);
 };
 
@@ -809,7 +1138,7 @@ const buildConfidenceDistribution = (
 export const loadBuilderControlCenterData = async (): Promise<BuilderControlCenterData> => {
   const config = createBuilderConfig();
   const reader = createDefaultRawImportReader();
-  const decisionWorkspace = loadBuilderDecisionWorkspaceData();
+  const decisionWorkspace = await loadBuilderDecisionWorkspaceData();
 
   const payload = reader.read({
     workbookPath: resolveReadableWorkbookPath(config.rawImport.workbookPath),
@@ -848,9 +1177,9 @@ export const loadBuilderControlCenterData = async (): Promise<BuilderControlCent
 
   const completedStages = processingQueue.filter((item) => item.status === "completed").length;
   const validationSummary = await runSprint1ValidationPack();
-  const reviewQueue = loadUnresolvedNoteReviewItems(10);
+  const reviewQueue = await loadUnresolvedNoteReviewItems(10);
   const notesWorkspace = loadKnowledgeWorkspaceData("note");
-  const masterDatabase = loadMasterDatabaseWorkspaceData();
+  const masterDatabase = await loadMasterDatabaseWorkspaceData();
   const sourcesWorkspace = await loadSourcesWorkspaceData();
   const operationsState = readOperationsState();
 
@@ -896,6 +1225,14 @@ export const loadBuilderControlCenterData = async (): Promise<BuilderControlCent
           status: "idle",
           currentStage: latestLogs.find((entry) => entry.status === "running")?.stage ?? null,
           currentPerfume: null,
+          currentConnector: null,
+          currentDecision: null,
+          currentMergeResult: null,
+          currentSynchronizationProgress: 0,
+          currentCheckpoint: readExecutionCheckpoint()?.lastCompletedStage ?? null,
+          retryAttempts: readExecutionCheckpoint()?.retryAttempts ?? 0,
+          currentErrors: latestRun?.errorCount ?? 0,
+          currentWarnings: latestRun?.warningCount ?? 0,
           processedCount:
             latestRun && latestRun.totalStages > 0
               ? Math.round((totalRows * latestRun.completedStages) / latestRun.totalStages)
@@ -918,6 +1255,10 @@ export const loadBuilderControlCenterData = async (): Promise<BuilderControlCent
               : 0,
           updatedAt: new Date().toISOString(),
         };
+
+  const databaseStatus = getDatabaseStatus();
+  const latestCheckpoint = readExecutionCheckpoint();
+  const latestExecutionReport = readLatestExecutionReport();
 
   return {
     builderStatus: {
@@ -981,9 +1322,16 @@ export const loadBuilderControlCenterData = async (): Promise<BuilderControlCent
       automationPercent: masterDatabase.automationPercentage,
       automaticDecisions: decisionWorkspace.automaticDecisions,
       manualDecisions: decisionWorkspace.manualDecisions,
+      automaticMerges: decisionWorkspace.automaticMerges,
+      manualMerges: decisionWorkspace.manualMerges,
+      conflictCount: decisionWorkspace.conflictCount,
+      autoResolutionRate: decisionWorkspace.autoResolutionRate,
+      averageMergeDecisionConfidence: decisionWorkspace.averageDecisionConfidence,
       decisionAccuracy: decisionWorkspace.decisionAccuracy,
       reviewReduction: decisionWorkspace.reviewReduction,
       decisionDistribution: decisionWorkspace.decisionDistribution,
+      topConflictingFields: decisionWorkspace.topConflictingFields,
+      topConflictingSources: decisionWorkspace.topConflictingSources,
       knowledgeCoveragePercent: notesWorkspace.coveragePercent,
       masterDatabaseCoveragePercent: masterDatabase.coveragePercent,
       missingImages: masterDatabase.missingImages,
@@ -1004,6 +1352,15 @@ export const loadBuilderControlCenterData = async (): Promise<BuilderControlCent
       automaticResolutions: decisionWorkspace.automaticDecisions,
       latestExecution: latestRun?.finishedAt ?? "never",
       currentPipelineVersion: config.pipelineVersion,
+      latestBuilderRunId: latestRun?.runId ?? null,
+      currentBuilderRunId: operationsState.currentJobId,
+      currentCheckpoint: latestCheckpoint?.lastCompletedStage ?? null,
+      workingDatabaseStatus: databaseStatus.workingExists
+        ? `ready (${databaseStatus.workingVersionId ?? "n/a"})`
+        : "missing",
+      publishedDatabaseStatus: databaseStatus.publishedExists
+        ? `ready (${databaseStatus.publishedVersionId ?? "n/a"})`
+        : "missing",
     },
     liveExecution: derivedLiveExecution,
     jobs: {
@@ -1016,6 +1373,8 @@ export const loadBuilderControlCenterData = async (): Promise<BuilderControlCent
       pendingReviewQueue: reviewQueue.pendingReviews,
       automaticResolutions: masterDatabase.automaticResolutions,
       manualResolutions: reviewQueue.pendingReviews,
+      topConflictingFields: decisionWorkspace.topConflictingFields,
+      topConflictingSources: decisionWorkspace.topConflictingSources,
       confidenceDistribution: buildConfidenceDistribution(confidenceValues),
     },
     decisionMetrics: {
@@ -1028,6 +1387,7 @@ export const loadBuilderControlCenterData = async (): Promise<BuilderControlCent
       automationPercent: decisionWorkspace.automationPercent,
       decisionDistribution: decisionWorkspace.decisionDistribution,
     },
+    latestExecutionReport,
     publishHistory: operationsState.publishHistory.slice(0, 20),
     recentActivity: operationsState.activities.slice(0, 30),
   };
