@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { PERFUME_FALLBACK_IMAGE_SRC } from '@/lib/design/perfumeImage';
+import { PerfumeImageWithFallback } from '@/components/design-system/PerfumeImageWithFallback';
 import type { PublicFragrance } from '@/app/api/fragrances/search/route';
 
 const capitalize = (value: string): string => value.charAt(0).toUpperCase() + value.slice(1);
@@ -58,20 +58,11 @@ function PerfumeImage({
   fragrance: PublicFragrance;
   className?: string;
 }) {
-  const sources = [fragrance.localImagePath, fragrance.imageUrl].filter(
-    (source): source is string => Boolean(source),
-  );
-  const [sourceIndex, setSourceIndex] = useState(0);
-  const src = sources[sourceIndex] ?? PERFUME_FALLBACK_IMAGE_SRC;
-
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={src}
+    <PerfumeImageWithFallback
+      candidates={[fragrance.localImagePath, fragrance.imageUrl]}
       alt={`${fragrance.brand} ${fragrance.perfume}`}
       className={className}
-      loading="lazy"
-      onError={() => setSourceIndex((index) => index + 1)}
     />
   );
 }

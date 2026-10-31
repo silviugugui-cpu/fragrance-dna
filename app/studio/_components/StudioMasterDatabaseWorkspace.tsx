@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useDeferredValue, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { saveMasterDatabaseRecordAction } from "@/app/studio/_actions/masterDatabaseActions";
-import { resolvePerfumeImageSrc } from "@/lib/design/perfumeImage";
+import { PerfumeImageWithFallback } from "@/components/design-system/PerfumeImageWithFallback";
 import type {
   BrandType,
   BuilderStatus,
@@ -432,12 +432,6 @@ export function StudioMasterDatabaseWorkspace({
     (profile) => profile.testProfileId === selectedUserDnaProfileId,
   );
 
-  const selectedImage = resolvePerfumeImageSrc(
-    selectedDetail?.localImagePath,
-    selectedDetail?.imageUrl,
-    selectedRow?.localImagePath,
-    selectedRow?.imageUrl,
-  );
   const selectedContext = selectedRow ? encodeURIComponent(selectedRow.id) : "";
   const editingFormRecord = selectedRow
     ? {
@@ -825,11 +819,15 @@ export function StudioMasterDatabaseWorkspace({
               <div className="max-h-[calc(100vh-240px)] space-y-3 overflow-y-auto p-3">
                 <SectionCard title="Image">
                   <div className="overflow-hidden rounded border border-zinc-800 bg-zinc-900/70">
-                    <img
-                      src={selectedImage.src}
+                    <PerfumeImageWithFallback
+                      candidates={[
+                        selectedDetail?.localImagePath,
+                        selectedDetail?.imageUrl,
+                        selectedRow.localImagePath,
+                        selectedRow.imageUrl,
+                      ]}
                       alt={`${selectedRow.perfume} image`}
                       className="h-44 w-full object-contain p-3"
-                      loading="lazy"
                     />
                   </div>
                   <p className="mt-3 text-sm font-semibold text-amber-100">{selectedRow.perfume}</p>

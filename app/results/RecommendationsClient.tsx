@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { PageShell, PremiumButton } from '@/components/design-system';
-import { resolvePerfumeImageSrc } from '@/lib/design/perfumeImage';
+import { PerfumeImageWithFallback } from '@/components/design-system/PerfumeImageWithFallback';
 import { useAuth } from '@/lib/auth';
 import { getUserScopedStorageKey } from '@/lib/auth/userScope';
 import { loadCollection, addCollectionFragrance } from '@/lib/collection/storage';
@@ -165,11 +165,14 @@ export function RecommendationsClient({ embedded = false }: RecommendationsClien
           <div className="divide-y divide-white/10 border-y border-white/10">
             {recommendations.map((recommendation, index) => {
               const isWishlisted = wishlistIds.has(recommendation.fragranceId);
-              const image = resolvePerfumeImageSrc(recommendation.localImagePath, recommendation.imageUrl);
               return (
                 <article key={recommendation.fragranceId} className="grid gap-4 py-5 md:grid-cols-[36px_72px_minmax(0,1fr)_160px] md:items-center">
                   <p className="text-sm font-semibold text-gold">{String(index + 1).padStart(2, '0')}</p>
-                  <img src={image.src} alt={`${recommendation.perfume || 'Fragrance'} bottle`} className="h-[72px] w-[72px] rounded border border-white/10 bg-black/30 object-contain" />
+                  <PerfumeImageWithFallback
+                    candidates={[recommendation.localImagePath, recommendation.imageUrl]}
+                    alt={`${recommendation.perfume || 'Fragrance'} bottle`}
+                    className="h-[72px] w-[72px] rounded border border-white/10 bg-black/30 object-contain"
+                  />
                   <div className="min-w-0">
                     <p className="text-xs uppercase tracking-wider text-gray-500">{recommendation.brand || 'Fragrance Database'}</p>
                     <h2 className="mt-1 truncate text-lg font-semibold text-white">{recommendation.perfume || 'Unnamed fragrance'}</h2>

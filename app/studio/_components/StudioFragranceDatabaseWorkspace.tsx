@@ -16,7 +16,7 @@ import {
   runCompleteDatabaseSyncAction,
   runFragranticaSmokeTestAction,
 } from "@/app/studio/_actions/sourcesActions";
-import { resolvePerfumeImageSrc } from "@/lib/design/perfumeImage";
+import { PerfumeImageWithFallback } from "@/components/design-system/PerfumeImageWithFallback";
 import type { SourcesWorkspaceData } from "@/lib/builder/connectors/sourcesWorkspace";
 import type {
   MasterDatabaseDetailPanel,
@@ -235,12 +235,6 @@ export function StudioFragranceDatabaseWorkspace({
   const selectedRow = filteredRows.find((row) => row.id === selectedId) ?? filteredRows[0] ?? null;
   const selectedDetail: MasterDatabaseDetailPanel | null =
     selectedRow && masterData ? masterData.detailsById[selectedRow.id] ?? buildFallbackDetail(selectedRow) : null;
-  const selectedImage = resolvePerfumeImageSrc(
-    selectedDetail?.localImagePath,
-    selectedDetail?.imageUrl,
-    selectedRow?.localImagePath,
-    selectedRow?.imageUrl,
-  );
 
   const workspaceRows = masterData?.workspacePerfumes ?? masterData?.rows.length ?? 0;
   const combinedRows = masterData?.combinedPerfumes ?? masterData?.totalPerfumes ?? workspaceRows;
@@ -513,11 +507,15 @@ export function StudioFragranceDatabaseWorkspace({
                     <h3 className="mt-1 text-lg font-semibold text-amber-100">{selectedRow.perfume}</h3>
                     <p className="mt-1 text-sm text-zinc-400">{selectedRow.brand} · {selectedRow.launchYear || "n/a"}</p>
                     <div className="mt-3 overflow-hidden rounded border border-zinc-800 bg-zinc-900/60">
-                      <img
-                        src={selectedImage.src}
+                      <PerfumeImageWithFallback
+                        candidates={[
+                          selectedDetail?.localImagePath,
+                          selectedDetail?.imageUrl,
+                          selectedRow.localImagePath,
+                          selectedRow.imageUrl,
+                        ]}
                         alt={`${selectedRow.brand} ${selectedRow.perfume}`}
                         className="h-44 w-full object-contain"
-                        loading="lazy"
                       />
                     </div>
                     <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-zinc-300">

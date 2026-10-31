@@ -1,8 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type ChangeEvent } from 'react';
-import { resolvePerfumeImageSrc } from '@/lib/design/perfumeImage';
+import { PerfumeImageWithFallback } from '@/components/design-system/PerfumeImageWithFallback';
 import {
   addCollectionFragrance,
   buildCollectionSummary,
@@ -704,14 +703,16 @@ function CollectionCard({
   onEdit: () => void;
   onRemove: () => void;
 }): JSX.Element {
-  const cardImage = resolvePerfumeImageSrc(item.image);
-
   return (
     <article className="glass-card overflow-hidden p-6 transition duration-300 hover:-translate-y-1 hover:shadow-[0_32px_90px_rgba(199,168,107,0.20)]">
       <div className="space-y-5">
         <div className="overflow-hidden rounded-[26px] border border-[rgba(212,175,120,0.12)] bg-[radial-gradient(circle_at_20%_20%,rgba(212,175,120,0.18),transparent_24%),radial-gradient(circle_at_80%_20%,rgba(165,185,150,0.14),transparent_20%),linear-gradient(135deg,rgba(24,26,28,0.95),rgba(12,14,16,0.95))]">
           <div className="flex aspect-[1.55] items-center justify-center p-6">
-            <Image src={cardImage.src} alt={item.name ?? item.fragranceId} width={360} height={230} className="h-full w-full object-cover" />
+            <PerfumeImageWithFallback
+              candidates={[item.image]}
+              alt={item.name ?? item.fragranceId}
+              className="h-full w-full object-cover"
+            />
           </div>
         </div>
 
