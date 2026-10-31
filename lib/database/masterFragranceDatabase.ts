@@ -419,6 +419,115 @@ export const getMasterDatabaseSearchResult = (searchText: string, limit = 50): M
   return rows.map((row) => JSON.parse(row.record_json) as MasterFragranceRecord);
 };
 
+export interface FragranceSearchFilters {
+  query?: string;
+  brandType?: string;
+  brand?: string;
+  gender?: string;
+  accord?: string;
+  anyAccords?: string[];
+  yearFrom?: number;
+  yearTo?: number;
+  minRating?: number;
+}
+
+const hasAnyFilterCriteria = (filters: FragranceSearchFilters): boolean =>
+  Boolean(
+    filters.query?.trim() ||
+    filters.brandType ||
+    filters.brand ||
+    filters.gender ||
+    filters.accord ||
+    (filters.anyAccords && filters.anyAccords.length > 0) ||
+    filters.yearFrom !== undefined ||
+    filters.yearTo !== undefined ||
+    filters.minRating !== undefined,
+  );
+
+// Some sources rate on a 0-10 scale; normalize everything to the 0-5 scale.
+const NORMALIZED_RATING_SQL =
+  "CASE WHEN CAST(fragrances.rating AS REAL) > 5 THEN CAST(fragrances.rating AS REAL) / 2 ELSE CAST(fragrances.rating AS REAL) END";
+
+// Weight rating by vote count so obscure perfect scores do not dominate browsing.
+const WEIGHTED_RATING_SQL =
+  `(${NORMALIZED_RATING_SQL}) * (CAST(COALESCE(json_extract(fragrances.record_json, '$.voteCount'), '0') AS REAL) / (CAST(COALESCE(json_extract(fragrances.record_json, '$.voteCount'), '0') AS REAL) + 25.0))`;
+
+// Filtered search over indexed columns plus JSON1 lookups into record_json.
+// Text matches rank first via FTS5; otherwise results order by community rating.
+export const searchMasterFragrances = (
+  filters: FragranceSearchFilters,
+  limit = 36,
+): MasterFragranceRecord[] => {
+  if (!hasAnyFilterCriteria(filters)) return [];
+
+  const where: string[] = [];
+  const params: unknown[] = [];
+  let join = "";
+  let orderBy = `${WEIGHTED_RATING_SQL} DESC, fragrances.perfume COLLATE NOCASE ASC`;
+
+  const terms = (filters.query ?? "").trim().toLowerCase().replace(/[^a-z0-9\s]+/g, " ").split(/\s+/).filter(Boolean);
+  if (terms.length > 0) {
+    join = "JOIN fragrance_search ON fragrances.row_id = fragrance_search.rowid";
+    where.push("fragrance_search MATCH ?");
+    params.push(terms.map((term) => `"${term.replace(/"/g, "")}"*`).join(" AND "));
+    orderBy = "rank";
+  }
+  if (filters.brandType) {
+    where.push("fragrances.brand_type = ?");
+    params.push(filters.brandType);
+  }
+  if (filters.brand) {
+    where.push("fragrances.brand = ? COLLATE NOCASE");
+    params.push(filters.brand);
+  }
+  if (filters.gender) {
+    where.push("json_extract(fragrances.record_json, '$.gender') = ?");
+    params.push(filters.gender);
+  }
+  if (filters.accord) {
+    where.push("EXISTS (SELECT 1 FROM json_each(fragrances.record_json, '$.mainAccords') WHERE json_each.value = ?)");
+    params.push(filters.accord);
+  }
+  if (filters.anyAccords && filters.anyAccords.length > 0) {
+    where.push(
+      `EXISTS (SELECT 1 FROM json_each(fragrances.record_json, '$.mainAccords') WHERE json_each.value IN (${filters.anyAccords.map(() => "?").join(", ")}))`,
+    );
+    params.push(...filters.anyAccords);
+  }
+  if (filters.yearFrom !== undefined) {
+    where.push("CAST(fragrances.launch_year AS INTEGER) >= ?");
+    params.push(filters.yearFrom);
+  }
+  if (filters.yearTo !== undefined) {
+    where.push("fragrances.launch_year <> '' AND CAST(fragrances.launch_year AS INTEGER) <= ?");
+    params.push(filters.yearTo);
+  }
+  if (filters.minRating !== undefined) {
+    where.push(`fragrances.rating <> '' AND ${NORMALIZED_RATING_SQL} >= ?`);
+    params.push(filters.minRating);
+  }
+
+  const rows = getMasterFragranceDatabase().prepare(`
+    SELECT fragrances.record_json
+    FROM fragrances ${join}
+    WHERE ${where.join(" AND ")}
+    ORDER BY ${orderBy}
+    LIMIT ?
+  `).all(...params, Math.max(1, Math.min(200, limit))) as Array<{ record_json: string }>;
+  return rows.map((row) => JSON.parse(row.record_json) as MasterFragranceRecord);
+};
+
+export const listMasterFragranceBrands = (brandType?: string): string[] => {
+  const rows = brandType
+    ? getMasterFragranceDatabase().prepare(
+        "SELECT DISTINCT brand FROM fragrances WHERE brand_type = ? AND brand <> '' ORDER BY brand COLLATE NOCASE",
+      ).all(brandType) as Array<{ brand: string }>
+    : getMasterFragranceDatabase().prepare(
+        "SELECT DISTINCT brand FROM fragrances WHERE brand <> '' ORDER BY brand COLLATE NOCASE",
+      ).all() as Array<{ brand: string }>;
+  return rows.map((row) => row.brand);
+};
+
 export const rebuildFragranceSearchIndex = (): void => {
   assertMasterDatabaseWritable();
   const database = getMasterFragranceDatabase();

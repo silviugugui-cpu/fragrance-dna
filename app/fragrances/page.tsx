@@ -6,6 +6,51 @@ import type { PublicFragrance } from '@/app/api/fragrances/search/route';
 
 const capitalize = (value: string): string => value.charAt(0).toUpperCase() + value.slice(1);
 
+const CATEGORY_OPTIONS = [
+  { value: '', label: 'All' },
+  { value: 'niche', label: 'Niche' },
+  { value: 'designer', label: 'Designer' },
+  { value: 'dupe', label: 'Dupe · Middle Eastern' },
+] as const;
+
+const SEASON_OPTIONS = [
+  { value: '', label: 'Any season' },
+  { value: 'spring', label: 'Spring' },
+  { value: 'summer', label: 'Summer' },
+  { value: 'autumn', label: 'Autumn' },
+  { value: 'winter', label: 'Winter' },
+] as const;
+
+const AUDIENCE_OPTIONS = [
+  { value: '', label: 'Anyone' },
+  { value: 'women', label: 'For women' },
+  { value: 'men', label: 'For men' },
+  { value: 'unisex', label: 'Unisex' },
+] as const;
+
+const ERA_OPTIONS = [
+  { value: '', label: 'Any era' },
+  { value: '2020s', label: '2020s' },
+  { value: '2010s', label: '2010s' },
+  { value: '2000s', label: '2000s' },
+  { value: '1990s', label: '1990s' },
+  { value: 'classics', label: 'Classics (pre-1990)' },
+] as const;
+
+const RATING_OPTIONS = [
+  { value: '', label: 'Any rating' },
+  { value: '4.5', label: '4.5+' },
+  { value: '4', label: '4.0+' },
+  { value: '3.5', label: '3.5+' },
+] as const;
+
+const ACCORD_OPTIONS = [
+  'woody', 'citrus', 'sweet', 'aromatic', 'warm spicy', 'floral', 'fresh spicy', 'amber',
+  'musky', 'fruity', 'white floral', 'vanilla', 'fresh', 'green', 'rose', 'powdery',
+  'earthy', 'balsamic', 'patchouli', 'leather', 'aquatic', 'lavender', 'iris', 'oud',
+  'smoky', 'tropical', 'tobacco', 'marine', 'honey', 'caramel',
+] as const;
+
 function PerfumeImage({
   fragrance,
   className,
@@ -169,6 +214,14 @@ function FragranceDetail({
 
 export default function FragranceLibraryPage() {
   const [query, setQuery] = useState('');
+  const [category, setCategory] = useState('');
+  const [brand, setBrand] = useState('');
+  const [season, setSeason] = useState('');
+  const [audience, setAudience] = useState('');
+  const [accord, setAccord] = useState('');
+  const [era, setEra] = useState('');
+  const [minRating, setMinRating] = useState('');
+  const [brandOptions, setBrandOptions] = useState<string[]>([]);
   const [results, setResults] = useState<PublicFragrance[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
@@ -176,9 +229,37 @@ export default function FragranceLibraryPage() {
   const [selected, setSelected] = useState<PublicFragrance | null>(null);
   const requestIdRef = useRef(0);
 
+  const hasActiveFilters = Boolean(category || brand || season || audience || accord || era || minRating);
+
+  const clearFilters = () => {
+    setCategory('');
+    setBrand('');
+    setSeason('');
+    setAudience('');
+    setAccord('');
+    setEra('');
+    setMinRating('');
+  };
+
+  // Brand suggestions follow the selected category.
+  useEffect(() => {
+    let active = true;
+    void fetch(`/api/fragrances/brands${category ? `?type=${category}` : ''}`)
+      .then(async (response) => {
+        const payload = (await response.json().catch(() => ({}))) as { brands?: string[] };
+        if (active && response.ok) setBrandOptions(payload.brands ?? []);
+      })
+      .catch(() => {
+        if (active) setBrandOptions([]);
+      });
+    return () => {
+      active = false;
+    };
+  }, [category]);
+
   useEffect(() => {
     const trimmed = query.trim();
-    if (trimmed.length < 2) {
+    if (trimmed.length < 2 && !hasActiveFilters) {
       setResults([]);
       setHasSearched(false);
       setIsSearching(false);
@@ -189,7 +270,17 @@ export default function FragranceLibraryPage() {
     setError('');
     const requestId = ++requestIdRef.current;
     const timeout = window.setTimeout(() => {
-      void fetch(`/api/fragrances/search?q=${encodeURIComponent(trimmed)}&limit=30`, { cache: 'no-store' })
+      const params = new URLSearchParams({ limit: '36' });
+      if (trimmed.length >= 2) params.set('q', trimmed);
+      if (category) params.set('type', category);
+      if (brand) params.set('brand', brand);
+      if (season) params.set('season', season);
+      if (audience) params.set('audience', audience);
+      if (accord) params.set('accord', accord);
+      if (era) params.set('era', era);
+      if (minRating) params.set('minRating', minRating);
+
+      void fetch(`/api/fragrances/search?${params.toString()}`, { cache: 'no-store' })
         .then(async (response) => {
           const payload = (await response.json().catch(() => ({}))) as {
             results?: PublicFragrance[];
@@ -214,7 +305,7 @@ export default function FragranceLibraryPage() {
     }, 300);
 
     return () => window.clearTimeout(timeout);
-  }, [query]);
+  }, [query, category, brand, season, audience, accord, era, minRating, hasActiveFilters]);
 
   return (
     <main className="relative pb-16 pt-8 lg:pt-10">
@@ -260,6 +351,147 @@ export default function FragranceLibraryPage() {
             className="mt-3 w-full rounded-2xl border border-[#9c7841]/45 bg-black/40 px-5 py-4 font-articles-body text-[1.02rem] text-[#f1e3c4] placeholder-[#8a7450] transition-all duration-300 focus:border-[#f3d293]/80 focus:bg-black/55 focus:outline-none focus:ring-2 focus:ring-[#f3d293]/20"
           />
 
+          <div className="mt-5 border-t border-[#9c7841]/25 pt-5">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="mr-1 font-articles-body text-[11px] uppercase tracking-[0.24em] text-[#b7955f]">Category</span>
+              {CATEGORY_OPTIONS.map((option) => {
+                const isActive = category === option.value;
+                return (
+                  <button
+                    key={option.value || 'all'}
+                    type="button"
+                    onClick={() => {
+                      setCategory(option.value);
+                      setBrand('');
+                    }}
+                    className="rounded-full border px-4 py-1.5 font-articles-body text-xs uppercase tracking-[0.14em] transition-all duration-300"
+                    style={{
+                      borderColor: isActive ? 'rgba(243, 210, 147, 0.9)' : 'rgba(156, 120, 65, 0.45)',
+                      color: isActive ? '#f4deb2' : '#b7955f',
+                      background: isActive ? 'rgba(45, 33, 18, 0.85)' : 'rgba(0, 0, 0, 0.3)',
+                    }}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+              <div className="xl:col-span-2">
+                <label htmlFor="filter-brand" className="font-articles-body text-[11px] uppercase tracking-[0.22em] text-[#b7955f]">
+                  Brand
+                </label>
+                <input
+                  id="filter-brand"
+                  type="text"
+                  list="fragrance-brand-options"
+                  value={brand}
+                  onChange={(event) => setBrand(event.target.value)}
+                  placeholder="Any brand"
+                  autoComplete="off"
+                  className="mt-1.5 w-full rounded-xl border border-[#9c7841]/45 bg-black/40 px-3 py-2.5 font-articles-body text-sm text-[#f1e3c4] placeholder-[#8a7450] focus:border-[#f3d293]/80 focus:outline-none"
+                />
+                <datalist id="fragrance-brand-options">
+                  {brandOptions.map((brandOption) => (
+                    <option key={brandOption} value={brandOption} />
+                  ))}
+                </datalist>
+              </div>
+
+              <div>
+                <label htmlFor="filter-season" className="font-articles-body text-[11px] uppercase tracking-[0.22em] text-[#b7955f]">
+                  Season
+                </label>
+                <select
+                  id="filter-season"
+                  value={season}
+                  onChange={(event) => setSeason(event.target.value)}
+                  className="mt-1.5 w-full rounded-xl border border-[#9c7841]/45 bg-black/40 px-3 py-2.5 font-articles-body text-sm text-[#f1e3c4] focus:border-[#f3d293]/80 focus:outline-none"
+                >
+                  {SEASON_OPTIONS.map((option) => (
+                    <option key={option.value || 'any'} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="filter-audience" className="font-articles-body text-[11px] uppercase tracking-[0.22em] text-[#b7955f]">
+                  Audience
+                </label>
+                <select
+                  id="filter-audience"
+                  value={audience}
+                  onChange={(event) => setAudience(event.target.value)}
+                  className="mt-1.5 w-full rounded-xl border border-[#9c7841]/45 bg-black/40 px-3 py-2.5 font-articles-body text-sm text-[#f1e3c4] focus:border-[#f3d293]/80 focus:outline-none"
+                >
+                  {AUDIENCE_OPTIONS.map((option) => (
+                    <option key={option.value || 'any'} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="filter-accord" className="font-articles-body text-[11px] uppercase tracking-[0.22em] text-[#b7955f]">
+                  Accord
+                </label>
+                <select
+                  id="filter-accord"
+                  value={accord}
+                  onChange={(event) => setAccord(event.target.value)}
+                  className="mt-1.5 w-full rounded-xl border border-[#9c7841]/45 bg-black/40 px-3 py-2.5 font-articles-body text-sm text-[#f1e3c4] focus:border-[#f3d293]/80 focus:outline-none"
+                >
+                  <option value="">Any accord</option>
+                  {ACCORD_OPTIONS.map((accordOption) => (
+                    <option key={accordOption} value={accordOption}>{capitalize(accordOption)}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="filter-era" className="font-articles-body text-[11px] uppercase tracking-[0.22em] text-[#b7955f]">
+                  Era
+                </label>
+                <select
+                  id="filter-era"
+                  value={era}
+                  onChange={(event) => setEra(event.target.value)}
+                  className="mt-1.5 w-full rounded-xl border border-[#9c7841]/45 bg-black/40 px-3 py-2.5 font-articles-body text-sm text-[#f1e3c4] focus:border-[#f3d293]/80 focus:outline-none"
+                >
+                  {ERA_OPTIONS.map((option) => (
+                    <option key={option.value || 'any'} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="filter-rating" className="font-articles-body text-[11px] uppercase tracking-[0.22em] text-[#b7955f]">
+                  Min rating
+                </label>
+                <select
+                  id="filter-rating"
+                  value={minRating}
+                  onChange={(event) => setMinRating(event.target.value)}
+                  className="mt-1.5 w-full rounded-xl border border-[#9c7841]/45 bg-black/40 px-3 py-2.5 font-articles-body text-sm text-[#f1e3c4] focus:border-[#f3d293]/80 focus:outline-none"
+                >
+                  {RATING_OPTIONS.map((option) => (
+                    <option key={option.value || 'any'} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="mt-4 rounded-full border border-[#b08a53]/50 px-4 py-1.5 font-articles-body text-xs uppercase tracking-[0.18em] text-[#d8bc83] transition-colors hover:border-[#f3d293] hover:text-[#f4deb2]"
+              >
+                Clear filters
+              </button>
+            )}
+          </div>
+
           <div className="mt-4 min-h-[1.5rem]">
             {error && <p className="font-articles-body text-sm text-red-400">{error}</p>}
             {!error && isSearching && (
@@ -274,7 +506,7 @@ export default function FragranceLibraryPage() {
             )}
             {!error && !isSearching && !hasSearched && (
               <p className="font-articles-body text-sm text-[#8a7450]">
-                Type at least two characters to search across brands and perfumes.
+                Type at least two characters, or pick any filter to browse the library.
               </p>
             )}
           </div>
