@@ -4,20 +4,9 @@ import Link from 'next/link';
 import ArticlesRail from '../ArticlesRail';
 import { usePathname } from 'next/navigation';
 import { perfumers, type PerfumerDnaKey } from '@/lib/data/perfumers';
+import { articlesMenuItems } from '../articlesMenu';
 
-
-const menuItems = [
-  {
-    href: '/articles',
-    label: 'Need to Know',
-    hint: 'Essential fragrance knowledge',
-  },
-  {
-    href: '/articles/perfumers',
-    label: 'Perfume Creators',
-    hint: 'Perfumer DNA and signature styles',
-  },
-];
+const menuItems = articlesMenuItems;
 
 export default function PerfumersPage() {
   const pathname = usePathname();

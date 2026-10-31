@@ -4,6 +4,7 @@ import Link from 'next/link';
 import ArticlesRail from './ArticlesRail';
 import { usePathname } from 'next/navigation';
 import { useMemo, useState } from 'react';
+import { articlesMenuItems } from './articlesMenu';
 
 type Article = {
   title: string;
@@ -317,18 +318,7 @@ export default function ArticlesPage() {
   const pathname = usePathname();
   const [selectedSection, setSelectedSection] = useState<SectionId>('scent-fundamentals');
 
-  const submenuItems: { href: string; label: string; hint: string }[] = [
-    {
-      href: '/articles',
-      label: 'Need to Know',
-      hint: 'Essential fragrance knowledge',
-    },
-    {
-      href: '/articles/perfumers',
-      label: 'Perfume Creators',
-      hint: 'Perfumer DNA and signature styles',
-    },
-  ];
+  const submenuItems = articlesMenuItems;
 
   const activeSection = useMemo(
     () => articleSections.find((section) => section.id === selectedSection) ?? articleSections[0],
