@@ -22,6 +22,10 @@ const TOKENS = [
   "Green & Natural",
   "Dark & Smoky",
   "Soft & Powdery",
+  "Floral & Rosy",
+  "Fruity & Cherry",
+  "Creamy & Coconut",
+  "Marine & Aquatic",
 ];
 
 type Zone = "love" | "neutral" | "hate";
