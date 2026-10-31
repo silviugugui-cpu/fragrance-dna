@@ -125,94 +125,93 @@ function TerritoryDetailPanel({ territory, onClose }: TerritoryDetailProps) {
       className="relative overflow-hidden rounded-[30px] border border-gold/35 bg-[#0a0a0c]"
       style={{ boxShadow: '0 26px 54px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,226,162,0.14)' }}
     >
-      {/* Hero strip with the territory artwork at full resolution */}
-      <div className="relative h-44 md:h-56">
-        {bgImage ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={bgImage} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover object-center" />
-        ) : (
-          <div className="absolute inset-0" style={{ backgroundColor: territory.color }} />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/35 to-[#0a0a0c]" />
+      <button
+        onClick={onClose}
+        className="absolute right-4 top-4 z-10 rounded-full border border-gold/45 bg-black/60 p-2 transition-colors hover:border-gold hover:bg-black/85"
+        aria-label="Close territory details"
+      >
+        <CloseGlyphIcon className="h-5 w-5 text-white" />
+      </button>
 
-        <button
-          onClick={onClose}
-          className="absolute right-4 top-4 z-10 rounded-full border border-gold/45 bg-black/60 p-2 transition-colors hover:border-gold hover:bg-black/85"
-          aria-label="Close territory details"
-        >
-          <CloseGlyphIcon className="h-5 w-5 text-white" />
-        </button>
-
-        <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-3 px-6 pb-5 md:px-8">
-          <div>
-            <h2 className="text-3xl font-bold text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.85)] md:text-4xl">{territory.name}</h2>
-            <p className="mt-1 text-gold">{territory.label}</p>
+      <div className="grid gap-6 p-6 md:grid-cols-[minmax(260px,400px)_minmax(0,1fr)] md:gap-10 md:p-8">
+        {/* Territory artwork displayed near its native ~410x370 resolution to stay sharp */}
+        <div className="mx-auto w-full max-w-[410px] md:mx-0">
+          <div className="overflow-hidden rounded-[22px] border border-gold/30 shadow-[0_18px_40px_rgba(0,0,0,0.5)]">
+            {bgImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={bgImage} alt={`${territory.name} territory artwork`} className="aspect-[410/370] w-full object-cover" />
+            ) : (
+              <div className="aspect-[410/370] w-full" style={{ backgroundColor: territory.color }} />
+            )}
           </div>
-          <span className={`inline-block rounded px-3 py-1 text-sm font-medium ${intensityBadge}`}>{intensityLabel} Intensity</span>
-        </div>
-      </div>
-
-      <div className="grid gap-8 p-6 md:grid-cols-2 md:gap-10 md:p-8">
-        <div className="space-y-8">
-          <p className="text-base leading-relaxed text-gray-300">{territory.description}</p>
-
-          <section>
-            <h3 className="mb-4 text-lg font-bold text-gold">CHARACTERISTICS</h3>
-            <div className="grid grid-cols-1 gap-3">
-              {territory.characteristics.map((char) => (
-                <div key={char} className="flex items-start gap-3">
-                  <span className="mt-1 text-gold">•</span>
-                  <span className="text-gray-300">{char}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section>
-            <h3 className="mb-4 text-lg font-bold text-gold">DNA AXES</h3>
-            <div className="flex flex-wrap gap-2">
-              {territory.dnaAxes.map((axis) => (
-                <span key={axis} className="rounded-lg border border-gold bg-black-700 px-4 py-2 text-sm font-medium text-gold">
-                  {axis}
-                </span>
-              ))}
-            </div>
-          </section>
-        </div>
-
-        <div className="space-y-8">
-          <section>
-            <h3 className="mb-4 text-lg font-bold text-gold">SIGNATURE FRAGRANCES</h3>
-            <div className="space-y-2">
-              {territory.examples.map((example) => (
-                <div key={example} className="flex items-center gap-3 text-gray-300">
-                  <ChevronRightGlyphIcon className="h-4 w-4 text-gold" />
-                  {example}
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section>
-            <h3 className="mb-3 text-sm font-bold uppercase text-gold">SEASONS</h3>
-            <div className="flex flex-wrap gap-2">
-              {territory.season.map((season) => (
-                <span key={season} className="rounded bg-gold-900 px-3 py-1 text-sm text-gold-200">
-                  {season.charAt(0).toUpperCase() + season.slice(1)}
-                </span>
-              ))}
-            </div>
-          </section>
-
-          <section>
-            <h3 className="mb-3 text-sm font-bold uppercase text-gold">VERSATILITY</h3>
-            <div className="flex items-center gap-4">
-              <div className="h-2 flex-1 overflow-hidden rounded-full bg-black-700">
-                <div className="h-full bg-gradient-to-r from-gold to-warm-500" style={{ width: `${territory.versatility}%` }} />
-              </div>
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <span className={`inline-block rounded px-3 py-1 text-sm font-medium ${intensityBadge}`}>{intensityLabel} Intensity</span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs uppercase tracking-wider text-gray-500">Versatility</span>
               <span className="text-lg font-bold text-gold">{territory.versatility}%</span>
             </div>
-          </section>
+          </div>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-black-700">
+            <div className="h-full bg-gradient-to-r from-gold to-warm-500" style={{ width: `${territory.versatility}%` }} />
+          </div>
+        </div>
+
+        <div className="min-w-0">
+          <h2 className="pr-10 text-3xl font-bold text-white md:text-4xl">{territory.name}</h2>
+          <p className="mt-1 text-gold">{territory.label}</p>
+          <p className="mt-4 text-base leading-relaxed text-gray-300">{territory.description}</p>
+
+          <div className="mt-8 grid gap-8 xl:grid-cols-2">
+            <div className="space-y-8">
+              <section>
+                <h3 className="mb-4 text-lg font-bold text-gold">CHARACTERISTICS</h3>
+                <div className="grid grid-cols-1 gap-3">
+                  {territory.characteristics.map((char) => (
+                    <div key={char} className="flex items-start gap-3">
+                      <span className="mt-1 text-gold">•</span>
+                      <span className="text-gray-300">{char}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section>
+                <h3 className="mb-4 text-lg font-bold text-gold">DNA AXES</h3>
+                <div className="flex flex-wrap gap-2">
+                  {territory.dnaAxes.map((axis) => (
+                    <span key={axis} className="rounded-lg border border-gold bg-black-700 px-4 py-2 text-sm font-medium text-gold">
+                      {axis}
+                    </span>
+                  ))}
+                </div>
+              </section>
+            </div>
+
+            <div className="space-y-8">
+              <section>
+                <h3 className="mb-4 text-lg font-bold text-gold">SIGNATURE FRAGRANCES</h3>
+                <div className="space-y-2">
+                  {territory.examples.map((example) => (
+                    <div key={example} className="flex items-center gap-3 text-gray-300">
+                      <ChevronRightGlyphIcon className="h-4 w-4 text-gold" />
+                      {example}
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section>
+                <h3 className="mb-3 text-sm font-bold uppercase text-gold">SEASONS</h3>
+                <div className="flex flex-wrap gap-2">
+                  {territory.season.map((season) => (
+                    <span key={season} className="rounded bg-gold-900 px-3 py-1 text-sm text-gold-200">
+                      {season.charAt(0).toUpperCase() + season.slice(1)}
+                    </span>
+                  ))}
+                </div>
+              </section>
+            </div>
+          </div>
         </div>
       </div>
     </div>
