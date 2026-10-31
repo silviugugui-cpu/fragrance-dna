@@ -557,17 +557,22 @@ export default function TestPage() {
               <p className="text-xs uppercase tracking-wider text-gold">DIAGNOSTIC BATCH {batchNumber}</p>
               <h2 className="mt-2 text-2xl font-semibold text-white">{evaluationPlan.length} selected fragrances, each with a backup</h2>
             </div>
-            <p className="max-w-xl text-sm text-gray-400">Your profile is already active. Choose a primary or backup you can access; each committed evaluation refines your DNA.</p>
+            <p className="max-w-xl text-sm text-gray-400">Your profile is already active. Pick the primary or backup you can smell right now — the evaluation below switches to the fragrance you select.</p>
           </div>
           <div className="grid gap-2 lg:grid-cols-2">
             {evaluationPlan.map((item) => {
               const selectedId = selectedPlanOptions[item.step] ?? item.primary.fragranceId;
               const options = [item.primary, item.backup].filter((option): option is NonNullable<typeof option> => Boolean(option));
+              const isCompletedStep = completedBatchSteps.includes(item.step);
               return (
                 <article key={item.step} className={`rounded-lg border p-3 ${item.step === currentIndex + 1 ? 'border-gold/45 bg-gold/5' : 'border-white/10 bg-black/25'}`}>
                   <div className="mb-2 flex items-center justify-between gap-2">
                     <p className="text-xs uppercase tracking-wider text-gray-400">Step {item.step}</p>
-                    {item.step === currentIndex + 1 ? <span className="text-xs font-semibold text-gold">CURRENT</span> : null}
+                    {isCompletedStep ? (
+                      <span className="text-xs font-semibold text-emerald-300">COMPLETED</span>
+                    ) : item.step === currentIndex + 1 ? (
+                      <span className="text-xs font-semibold text-gold">CURRENT</span>
+                    ) : null}
                   </div>
                   <div className="grid gap-2 sm:grid-cols-2">
                     {options.map((option, optionIndex) => {
@@ -577,20 +582,28 @@ export default function TestPage() {
                           key={option.fragranceId}
                           type="button"
                           aria-pressed={isSelected}
+                          disabled={isCompletedStep}
                           onClick={() => {
+                            // Selecting an option also makes its step the active evaluation,
+                            // so the fragrance being tested always matches the user's choice.
                             const selectedByStep = { ...selectedPlanOptions, [item.step]: option.fragranceId };
+                            const nextStep = item.step - 1;
                             setSelectedPlanOptions(selectedByStep);
+                            setCurrentIndex(nextStep);
+                            setShowPostEvaluation(false);
+                            setBadgeMilestoneMessage('');
+                            setRatingError('');
                             saveBatchState({
                               version: 1,
                               batchNumber,
-                              currentStep: currentIndex,
+                              currentStep: nextStep,
                               items: batchPlan,
                               selectedByStep,
                               completedSteps: completedBatchSteps,
                               excludedFragranceIds: excludedPlanFragranceIds,
                             });
                           }}
-                          className={`min-w-0 rounded border p-3 text-left transition-colors ${isSelected ? 'border-gold/50 bg-gold/10' : 'border-white/10 bg-black/20 hover:border-white/25'}`}
+                          className={`min-w-0 rounded border p-3 text-left transition-colors ${isSelected ? 'border-gold/50 bg-gold/10' : 'border-white/10 bg-black/20 hover:border-white/25'} ${isCompletedStep ? 'cursor-not-allowed opacity-55' : ''}`}
                         >
                           <span className="block text-[10px] uppercase tracking-wider text-gold/80">{optionIndex === 0 ? 'Recommended' : 'Backup'}</span>
                           <span className="mt-1 block truncate text-sm font-semibold text-white">{option.displayName}</span>
