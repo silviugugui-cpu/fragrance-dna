@@ -1,10 +1,6 @@
 'use client';
 
-import Link from 'next/link';
-import ArticlesRail from '../ArticlesRail';
-import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { articlesMenuItems } from '../articlesMenu';
 import { PERFUME_FALLBACK_IMAGE_SRC } from '@/lib/design/perfumeImage';
 import type { PublicFragrance } from '@/app/api/fragrances/search/route';
 
@@ -172,7 +168,6 @@ function FragranceDetail({
 }
 
 export default function FragranceLibraryPage() {
-  const pathname = usePathname();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<PublicFragrance[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -223,7 +218,7 @@ export default function FragranceLibraryPage() {
 
   return (
     <main className="relative pb-16 pt-8 lg:pt-10">
-      <section className="articles-intro-wrap relative z-10 mx-auto w-[90vw] max-w-[1600px]">
+      <section className="relative z-10 mx-auto w-[90vw] max-w-[1280px]">
         <div
           className="rounded-[28px] border border-[#9f7b44]/45 p-6 sm:p-8 lg:p-10"
           style={{
@@ -243,119 +238,87 @@ export default function FragranceLibraryPage() {
         </div>
       </section>
 
-      <section className="relative z-10 mx-auto mt-4 grid w-[90vw] max-w-[1600px] gap-4 lg:grid-cols-3">
-        <div className="w-full lg:col-span-3">
-          <div className="grid gap-5 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-start lg:gap-0">
-            <aside className="articles-brand-rail-shell">
-              <ArticlesRail>
-                <div className="articles-rail-dynamic-mist" aria-hidden="true" />
+      <section className="relative z-10 mx-auto mt-4 w-[90vw] max-w-[1280px] space-y-6">
+        <section
+          className="relative z-10 w-full rounded-[30px] border border-[#9f7b44]/45 p-6 sm:p-8"
+          style={{
+            background:
+              'linear-gradient(170deg, rgba(18,14,11,0.96) 0%, rgba(12,10,9,0.98) 60%), radial-gradient(circle at 85% 8%, rgba(164,118,64,0.25), transparent 36%)',
+            boxShadow: '0 30px 58px rgba(0,0,0,0.52), inset 0 1px 0 rgba(244,220,165,0.18)',
+          }}
+        >
+          <label htmlFor="fragrance-search" className="font-articles-body text-xs uppercase tracking-[0.28em] text-[#d1b57d]">
+            Search the library
+          </label>
+          <input
+            id="fragrance-search"
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Try a perfume or brand name, e.g. Sauvage, Creed, Baccarat Rouge..."
+            autoComplete="off"
+            className="mt-3 w-full rounded-2xl border border-[#9c7841]/45 bg-black/40 px-5 py-4 font-articles-body text-[1.02rem] text-[#f1e3c4] placeholder-[#8a7450] transition-all duration-300 focus:border-[#f3d293]/80 focus:bg-black/55 focus:outline-none focus:ring-2 focus:ring-[#f3d293]/20"
+          />
 
-                <div>
-                  <p className="font-articles-body text-center text-[10px] uppercase tracking-[0.28em] text-[#d5b97f]">Passion Menu</p>
-                </div>
-                <div className="mt-6 flex flex-col gap-3">
-                  {articlesMenuItems.map((item) => {
-                    const isActive = pathname === item.href;
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        data-active={isActive ? 'true' : 'false'}
-                        className="articles-rail-button w-full rounded-2xl border px-4 py-4 text-left transition-all duration-300"
-                      >
-                        <p className="font-articles-heading text-[1.12rem] leading-tight text-[#f4ddb2]">{item.label}</p>
-                        <p className="mt-2 font-articles-body text-[10px] uppercase tracking-[0.2em] text-[#bb9660]">{item.hint}</p>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </ArticlesRail>
-            </aside>
+          <div className="mt-4 min-h-[1.5rem]">
+            {error && <p className="font-articles-body text-sm text-red-400">{error}</p>}
+            {!error && isSearching && (
+              <p className="font-articles-body text-sm text-[#b7955f]">Searching the library...</p>
+            )}
+            {!error && !isSearching && hasSearched && (
+              <p className="font-articles-body text-sm text-[#b7955f]">
+                {results.length === 0
+                  ? 'No fragrances matched your search. Try a shorter or different name.'
+                  : `${results.length} fragrance${results.length === 1 ? '' : 's'} found. Select one for the full profile.`}
+              </p>
+            )}
+            {!error && !isSearching && !hasSearched && (
+              <p className="font-articles-body text-sm text-[#8a7450]">
+                Type at least two characters to search across brands and perfumes.
+              </p>
+            )}
+          </div>
+        </section>
 
-            <div className="articles-content-column space-y-6">
-              <section
-                className="relative z-10 w-full rounded-[30px] border border-[#9f7b44]/45 p-6 sm:p-8"
+        {results.length > 0 && (
+          <section className="relative z-10 grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+            {results.map((fragrance) => (
+              <button
+                key={fragrance.id}
+                type="button"
+                onClick={() => setSelected(fragrance)}
+                className="group rounded-3xl border border-[#a88146]/45 p-5 text-left transition-all duration-300 hover:-translate-y-0.5 hover:border-[#f3d293]/90"
                 style={{
-                  background:
-                    'linear-gradient(170deg, rgba(18,14,11,0.96) 0%, rgba(12,10,9,0.98) 60%), radial-gradient(circle at 85% 8%, rgba(164,118,64,0.25), transparent 36%)',
-                  boxShadow: '0 30px 58px rgba(0,0,0,0.52), inset 0 1px 0 rgba(244,220,165,0.18)',
+                  background: 'linear-gradient(160deg, rgba(19,16,14,0.88), rgba(12,12,12,0.92))',
+                  boxShadow: '0 10px 20px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,228,173,0.1)',
                 }}
               >
-                <label htmlFor="fragrance-search" className="font-articles-body text-xs uppercase tracking-[0.28em] text-[#d1b57d]">
-                  Search the library
-                </label>
-                <input
-                  id="fragrance-search"
-                  type="search"
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Try a perfume or brand name, e.g. Sauvage, Creed, Baccarat Rouge..."
-                  autoComplete="off"
-                  className="mt-3 w-full rounded-2xl border border-[#9c7841]/45 bg-black/40 px-5 py-4 font-articles-body text-[1.02rem] text-[#f1e3c4] placeholder-[#8a7450] transition-all duration-300 focus:border-[#f3d293]/80 focus:bg-black/55 focus:outline-none focus:ring-2 focus:ring-[#f3d293]/20"
-                />
-
-                <div className="mt-4 min-h-[1.5rem]">
-                  {error && <p className="font-articles-body text-sm text-red-400">{error}</p>}
-                  {!error && isSearching && (
-                    <p className="font-articles-body text-sm text-[#b7955f]">Searching the library...</p>
-                  )}
-                  {!error && !isSearching && hasSearched && (
-                    <p className="font-articles-body text-sm text-[#b7955f]">
-                      {results.length === 0
-                        ? 'No fragrances matched your search. Try a shorter or different name.'
-                        : `${results.length} fragrance${results.length === 1 ? '' : 's'} found. Select one for the full profile.`}
-                    </p>
-                  )}
-                  {!error && !isSearching && !hasSearched && (
-                    <p className="font-articles-body text-sm text-[#8a7450]">
-                      Type at least two characters to search across brands and perfumes.
-                    </p>
-                  )}
+                <div className="overflow-hidden rounded-2xl border border-[#9c7841]/30 bg-black/40 p-3">
+                  <PerfumeImage
+                    key={fragrance.id}
+                    fragrance={fragrance}
+                    className="h-36 w-full object-contain transition-transform duration-300 group-hover:scale-[1.04]"
+                  />
                 </div>
-              </section>
-
-              {results.length > 0 && (
-                <section className="relative z-10 grid w-full gap-4 sm:grid-cols-2 2xl:grid-cols-3">
-                  {results.map((fragrance) => (
-                    <button
-                      key={fragrance.id}
-                      type="button"
-                      onClick={() => setSelected(fragrance)}
-                      className="group rounded-3xl border border-[#a88146]/45 p-5 text-left transition-all duration-300 hover:-translate-y-0.5 hover:border-[#f3d293]/90"
-                      style={{
-                        background: 'linear-gradient(160deg, rgba(19,16,14,0.88), rgba(12,12,12,0.92))',
-                        boxShadow: '0 10px 20px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,228,173,0.1)',
-                      }}
-                    >
-                      <div className="overflow-hidden rounded-2xl border border-[#9c7841]/30 bg-black/40 p-3">
-                        <PerfumeImage
-                          key={fragrance.id}
-                          fragrance={fragrance}
-                          className="h-36 w-full object-contain transition-transform duration-300 group-hover:scale-[1.04]"
-                        />
-                      </div>
-                      <p className="mt-4 font-articles-body text-[11px] uppercase tracking-[0.22em] text-[#d4b67a]">
-                        {fragrance.brand}
-                      </p>
-                      <h3 className="mt-1 font-articles-heading text-[1.25rem] leading-tight text-[#f5dfb4]">
-                        {fragrance.perfume}
-                      </h3>
-                      <p className="mt-2 font-articles-body text-xs uppercase tracking-[0.18em] text-[#b7955f]">
-                        {[
-                          fragrance.launchYear,
-                          fragrance.rating ? `★ ${fragrance.rating}` : undefined,
-                          fragrance.brandType,
-                        ]
-                          .filter(Boolean)
-                          .join(' · ')}
-                      </p>
-                    </button>
-                  ))}
-                </section>
-              )}
-            </div>
-          </div>
-        </div>
+                <p className="mt-4 font-articles-body text-[11px] uppercase tracking-[0.22em] text-[#d4b67a]">
+                  {fragrance.brand}
+                </p>
+                <h3 className="mt-1 font-articles-heading text-[1.25rem] leading-tight text-[#f5dfb4]">
+                  {fragrance.perfume}
+                </h3>
+                <p className="mt-2 font-articles-body text-xs uppercase tracking-[0.18em] text-[#b7955f]">
+                  {[
+                    fragrance.launchYear,
+                    fragrance.rating ? `★ ${fragrance.rating}` : undefined,
+                    fragrance.brandType,
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')}
+                </p>
+              </button>
+            ))}
+          </section>
+        )}
       </section>
 
       {selected && <FragranceDetail fragrance={selected} onClose={() => setSelected(null)} />}

@@ -22,6 +22,7 @@ const navLinks = [
   { href: '/test', label: 'TEST', mobile: 'Test', hint: 'Quick fragrance test' },
   { href: '/dna', label: 'YOUR DNA', mobile: 'Your DNA', hint: 'Personal profile' },
   { href: '/collection', label: 'YOUR COLLECTION', mobile: 'Your Collection', hint: 'Saved fragrances' },
+  { href: '/fragrances', label: 'FRAGRANCES', mobile: 'Fragrance library', hint: 'Search 68,000+ perfumes' },
   { href: '/faq', label: 'FAQ', mobile: 'DNA & badges FAQ', hint: 'How confidence and badges work' },
   {
     href: '/articles',

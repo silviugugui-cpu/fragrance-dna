@@ -16,9 +16,4 @@ export const articlesMenuItems: ArticlesMenuItem[] = [
     label: 'Perfume Creators',
     hint: 'Perfumer DNA and signature styles',
   },
-  {
-    href: '/articles/fragrances',
-    label: 'Fragrance Library',
-    hint: 'Search 68,000+ perfumes',
-  },
 ];
