@@ -36,6 +36,7 @@ class AdapterBackedFragranceIntelligenceService implements FragranceIntelligence
   private readonly refs: EvaluationFragranceRef[];
   private readonly sessionRefs: SessionFragranceRef[];
   private readonly profilesById: Map<string, CanonicalLayer>;
+  private readonly semanticPoolMeans: Map<string, number>;
 
   constructor(sourceProfiles?: UserDnaProfileRecord[]) {
     const profiles = sourceProfiles
@@ -60,6 +61,7 @@ class AdapterBackedFragranceIntelligenceService implements FragranceIntelligence
     }));
 
     this.profilesById = new Map(profiles.map((profile, index) => [ids[index], profile]));
+    this.semanticPoolMeans = buildSemanticPoolMeans(profiles);
   }
 
   listEvaluationFragrances(): EvaluationFragranceRef[] {
@@ -85,7 +87,7 @@ class AdapterBackedFragranceIntelligenceService implements FragranceIntelligence
       name: String(layer.canonicalPerfume ?? layer.name ?? "").trim(),
       notes: [...(layer.user_attributes_v3?.concrete ?? [])],
     };
-    const coreAttributes = buildCoreAttributes(item, layer);
+    const coreAttributes = buildCoreAttributes(item, layer, this.semanticPoolMeans);
     const supportingAttributes = buildSupportingAttributes(layer);
 
     return {
@@ -103,9 +105,26 @@ export function createFragranceIntelligenceService(
   return new AdapterBackedFragranceIntelligenceService(profiles);
 }
 
+// Average semantic score per key across the pool; used to find the semantic
+// qualities that are distinctive for a specific fragrance rather than globally common.
+function buildSemanticPoolMeans(profiles: CanonicalLayer[]): Map<string, number> {
+  const sums = new Map<string, { total: number; count: number }>();
+  for (const profile of profiles) {
+    for (const [key, score] of Object.entries(profile.semantic_v1 ?? {})) {
+      if (!Number.isFinite(score)) continue;
+      const entry = sums.get(key) ?? { total: 0, count: 0 };
+      entry.total += score;
+      entry.count += 1;
+      sums.set(key, entry);
+    }
+  }
+  return new Map([...sums.entries()].map(([key, { total, count }]) => [key, count > 0 ? total / count : 0]));
+}
+
 function buildCoreAttributes(
   item: EvaluationProfile,
-  layer: CanonicalLayer | undefined
+  layer: CanonicalLayer | undefined,
+  semanticPoolMeans?: Map<string, number>
 ): CanonicalFragranceAttribute[] {
   const attributes = new Map<string, CanonicalFragranceAttribute>();
 
@@ -147,8 +166,16 @@ function buildCoreAttributes(
     addAttribute(value, "core", 0.8, "evaluation.notes");
   }
 
+  // Pick the semantic qualities that stand out for THIS fragrance: rank by how far
+  // the score exceeds the pool average, so distinctive signatures (e.g. woods,
+  // leather, floral) surface instead of the globally dominant keys.
   const topSemanticKeys = Object.entries(layer?.semantic_v1 ?? {})
-    .sort((left, right) => right[1] - left[1])
+    .filter(([, score]) => Number.isFinite(score) && score >= 40)
+    .sort((left, right) => {
+      const leftDistinct = left[1] - (semanticPoolMeans?.get(left[0]) ?? 0);
+      const rightDistinct = right[1] - (semanticPoolMeans?.get(right[0]) ?? 0);
+      return rightDistinct - leftDistinct;
+    })
     .slice(0, 3)
     .map(([key]) => key);
 

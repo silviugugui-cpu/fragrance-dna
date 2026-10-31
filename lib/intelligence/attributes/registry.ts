@@ -108,7 +108,7 @@ const CANONICAL_ATTRIBUTE_REGISTRY: CanonicalAttributeDefinition[] = [
   makeAttribute({
     canonicalAttributeId: "woody",
     displayName: "Woody",
-    aliases: ["lemn", "woody", "wood", "cedar", "vetiver"],
+    aliases: ["lemn", "woody", "wood", "woods", "cedar", "vetiver"],
     axisMapping: ["darkness", "warmth", "elegance"],
     vectorMapping: { darkness: 0.35, warmth: 0.35, elegance: 0.2 },
     defaultImportance: 0.8,
@@ -144,7 +144,7 @@ const CANONICAL_ATTRIBUTE_REGISTRY: CanonicalAttributeDefinition[] = [
   makeAttribute({
     canonicalAttributeId: "musk_clean",
     displayName: "Musk Clean",
-    aliases: ["musk_clean", "musk clean", "musk", "clean", "cleanliness", "white musk", "soap", "soapy"],
+    aliases: ["musk_clean", "musk clean", "musk", "clean", "curat", "cleanliness", "white musk", "soap", "soapy"],
     axisMapping: ["cleanliness", "elegance"],
     vectorMapping: { cleanliness: 0.85, elegance: 0.2 },
     defaultImportance: 0.8,
@@ -376,6 +376,15 @@ const CANONICAL_ATTRIBUTE_REGISTRY: CanonicalAttributeDefinition[] = [
     metadata: { category: "semantic", sourceFamily: "notes" },
   }),
 
+  makeAttribute({
+    canonicalAttributeId: "leather",
+    displayName: "Leather",
+    aliases: ["leather", "leather_dark", "leather dark", "suede", "piele"],
+    axisMapping: ["darkness", "warmth", "elegance"],
+    vectorMapping: { darkness: 0.6, warmth: 0.3, elegance: 0.15 },
+    defaultImportance: 0.75,
+    metadata: { category: "semantic", sourceFamily: "notes" },
+  }),
   makeAttribute({
     canonicalAttributeId: "smoky",
     displayName: "Smoky",
