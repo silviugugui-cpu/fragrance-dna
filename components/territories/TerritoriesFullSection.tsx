@@ -1,8 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import Image from 'next/image';
-import { PremiumButton } from '@/components/design-system/PremiumButton';
+import { useEffect, useRef, useState } from 'react';
 import { territories, Territory } from '@/lib/data/territories';
 import { CloseGlyphIcon, ChevronRightGlyphIcon } from '@/components/design-system/FragranceIcons';
 
@@ -112,32 +110,55 @@ interface TerritoryDetailProps {
 }
 
 function TerritoryDetailPanel({ territory, onClose }: TerritoryDetailProps) {
+  const bgImage = TERRITORY_BACKGROUNDS[territory.id];
+  const intensityBadge =
+    territory.intensity === 'light'
+      ? 'bg-[#5a1a2e] text-[#ffcab8]'
+      : territory.intensity === 'moderate'
+        ? 'bg-[#4a2e0a] text-[#ffd488]'
+        : 'bg-[#4a0e0e] text-[#ffaaaa]';
+  const intensityLabel =
+    territory.intensity === 'intense' ? 'High' : territory.intensity.charAt(0).toUpperCase() + territory.intensity.slice(1);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black-900 bg-opacity-90 p-4 backdrop-blur-sm">
-      <div className="premium-card-dark relative max-h-[90vh] w-full max-w-2xl overflow-y-auto overflow-hidden rounded-[30px] border border-gold/35">
+    <div
+      className="relative overflow-hidden rounded-[30px] border border-gold/35 bg-[#0a0a0c]"
+      style={{ boxShadow: '0 26px 54px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,226,162,0.14)' }}
+    >
+      {/* Hero strip with the territory artwork at full resolution */}
+      <div className="relative h-44 md:h-56">
+        {bgImage ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={bgImage} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover object-center" />
+        ) : (
+          <div className="absolute inset-0" style={{ backgroundColor: territory.color }} />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/35 to-[#0a0a0c]" />
+
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 z-10 rounded-lg bg-black-700 p-2 transition-colors hover:bg-black-600"
-          aria-label="Close"
+          className="absolute right-4 top-4 z-10 rounded-full border border-gold/45 bg-black/60 p-2 transition-colors hover:border-gold hover:bg-black/85"
+          aria-label="Close territory details"
         >
           <CloseGlyphIcon className="h-5 w-5 text-white" />
         </button>
 
-        <div className="border-b border-gold-900 p-8" style={{ borderTopColor: territory.color, borderTopWidth: '4px' }}>
-          <div className="mb-4 flex items-start gap-4">
-            <div className="h-12 w-12 rounded-lg" style={{ backgroundColor: territory.color }} />
-            <div>
-              <h2 className="text-3xl font-bold text-white">{territory.name}</h2>
-              <p className="mt-1 text-gold">{territory.label}</p>
-            </div>
+        <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-3 px-6 pb-5 md:px-8">
+          <div>
+            <h2 className="text-3xl font-bold text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.85)] md:text-4xl">{territory.name}</h2>
+            <p className="mt-1 text-gold">{territory.label}</p>
           </div>
-          <p className="text-base text-gray-300">{territory.description}</p>
+          <span className={`inline-block rounded px-3 py-1 text-sm font-medium ${intensityBadge}`}>{intensityLabel} Intensity</span>
         </div>
+      </div>
 
-        <div className="space-y-8 p-8">
+      <div className="grid gap-8 p-6 md:grid-cols-2 md:gap-10 md:p-8">
+        <div className="space-y-8">
+          <p className="text-base leading-relaxed text-gray-300">{territory.description}</p>
+
           <section>
             <h3 className="mb-4 text-lg font-bold text-gold">CHARACTERISTICS</h3>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3">
               {territory.characteristics.map((char) => (
                 <div key={char} className="flex items-start gap-3">
                   <span className="mt-1 text-gold">•</span>
@@ -157,7 +178,9 @@ function TerritoryDetailPanel({ territory, onClose }: TerritoryDetailProps) {
               ))}
             </div>
           </section>
+        </div>
 
+        <div className="space-y-8">
           <section>
             <h3 className="mb-4 text-lg font-bold text-gold">SIGNATURE FRAGRANCES</h3>
             <div className="space-y-2">
@@ -170,33 +193,14 @@ function TerritoryDetailPanel({ territory, onClose }: TerritoryDetailProps) {
             </div>
           </section>
 
-          <section className="grid grid-cols-2 gap-6">
-            <div>
-              <h3 className="mb-3 text-sm font-bold uppercase text-gold">SEASONS</h3>
-              <div className="flex flex-wrap gap-2">
-                {territory.season.map((season) => (
-                  <span key={season} className="rounded bg-gold-900 px-3 py-1 text-sm text-gold-200">
-                    {season.charAt(0).toUpperCase() + season.slice(1)}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h3 className="mb-3 text-sm font-bold uppercase text-gold">INTENSITY</h3>
-              <span
-                className={`
-                  inline-block rounded px-3 py-1 text-sm font-medium
-                  ${
-                    territory.intensity === 'light'
-                      ? 'bg-[#5a1a2e] text-[#ffcab8]'
-                      : territory.intensity === 'moderate'
-                        ? 'bg-[#4a2e0a] text-[#ffd488]'
-                        : 'bg-[#4a0e0e] text-[#ffaaaa]'
-                  }
-                `}
-              >
-                {territory.intensity === 'intense' ? 'High' : territory.intensity.charAt(0).toUpperCase() + territory.intensity.slice(1)}
-              </span>
+          <section>
+            <h3 className="mb-3 text-sm font-bold uppercase text-gold">SEASONS</h3>
+            <div className="flex flex-wrap gap-2">
+              {territory.season.map((season) => (
+                <span key={season} className="rounded bg-gold-900 px-3 py-1 text-sm text-gold-200">
+                  {season.charAt(0).toUpperCase() + season.slice(1)}
+                </span>
+              ))}
             </div>
           </section>
 
@@ -219,6 +223,14 @@ export default function TerritoriesFullSection() {
   const [selectedTerritoryId, setSelectedTerritoryId] = useState<string | null>(null);
   const [filterIntensity, setFilterIntensity] = useState<string | null>(null);
   const [filterSeason, setFilterSeason] = useState<string | null>(null);
+  const detailRef = useRef<HTMLElement | null>(null);
+
+  // Bring the expanded detail into view when a territory is selected.
+  useEffect(() => {
+    if (selectedTerritoryId && detailRef.current) {
+      detailRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [selectedTerritoryId]);
 
   const territoryList = Object.values(territories);
 
@@ -325,20 +337,28 @@ export default function TerritoriesFullSection() {
         </div>
       </section>
 
-      <section className="relative z-10 mx-auto w-[90vw] max-w-[1600px] py-10 md:py-14">
+      <section className="relative z-10 mx-auto w-[90vw] max-w-[1600px] pt-10 md:pt-14">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {filteredTerritories.map((territory) => (
             <TerritoryMapCard
               key={territory.id}
               territory={territory}
               isSelected={selectedTerritoryId === territory.id}
-              onClick={() => setSelectedTerritoryId(territory.id)}
+              onClick={() => setSelectedTerritoryId((previous) => (previous === territory.id ? null : territory.id))}
             />
           ))}
         </div>
       </section>
 
-      {selectedTerritory && <TerritoryDetailPanel territory={selectedTerritory} onClose={() => setSelectedTerritoryId(null)} />}
+      {/* Expanded territory detail, inline below the cards */}
+      <section
+        ref={detailRef}
+        className={`relative z-10 mx-auto w-[90vw] max-w-[1600px] scroll-mt-28 ${selectedTerritory ? 'pt-6 md:pt-8' : ''} pb-10 md:pb-14`}
+      >
+        {selectedTerritory && (
+          <TerritoryDetailPanel territory={selectedTerritory} onClose={() => setSelectedTerritoryId(null)} />
+        )}
+      </section>
     </>
   );
 }

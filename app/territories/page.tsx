@@ -108,12 +108,12 @@ interface TerritoryDetailProps {
 
 const TerritoryDetailPanel: React.FC<TerritoryDetailProps> = ({ territory, onClose }) => {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black-900 bg-opacity-90 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black-900 bg-opacity-90 backdrop-blur-sm p-4">
       <div className="premium-card-dark relative max-w-2xl w-full border border-gold/35 rounded-[30px] overflow-hidden max-h-[90vh] overflow-y-auto">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 rounded-lg bg-black-700 hover:bg-black-600 transition-colors"
+          className="absolute top-4 right-4 z-10 p-2 rounded-full border border-gold/45 bg-black/60 hover:border-gold hover:bg-black/85 transition-colors"
           aria-label="Close"
         >
           <CloseGlyphIcon className="h-5 w-5 text-white" />
