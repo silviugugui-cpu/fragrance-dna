@@ -565,7 +565,7 @@ export default function TestPage() {
               const options = [item.primary, item.backup].filter((option): option is NonNullable<typeof option> => Boolean(option));
               const isCompletedStep = completedBatchSteps.includes(item.step);
               return (
-                <article key={item.step} className={`rounded-lg border p-3 ${item.step === currentIndex + 1 ? 'border-gold/45 bg-gold/5' : 'border-white/10 bg-black/25'}`}>
+                <article key={item.step} className={`rounded-2xl border p-3 ${item.step === currentIndex + 1 ? 'border-gold/45 bg-gold/5' : 'border-white/10 bg-black/25'}`}>
                   <div className="mb-2 flex items-center justify-between gap-2">
                     <p className="text-xs uppercase tracking-wider text-gray-400">Step {item.step}</p>
                     {isCompletedStep ? (
@@ -603,7 +603,7 @@ export default function TestPage() {
                               excludedFragranceIds: excludedPlanFragranceIds,
                             });
                           }}
-                          className={`min-w-0 rounded border p-3 text-left transition-colors ${isSelected ? 'border-gold/50 bg-gold/10' : 'border-white/10 bg-black/20 hover:border-white/25'} ${isCompletedStep ? 'cursor-not-allowed opacity-55' : ''}`}
+                          className={`min-w-0 rounded-xl border p-3 text-left transition-colors ${isSelected ? 'border-gold/50 bg-gold/10' : 'border-white/10 bg-black/20 hover:border-white/25'} ${isCompletedStep ? 'cursor-not-allowed opacity-55' : ''}`}
                         >
                           <span className="block text-[10px] uppercase tracking-wider text-gold/80">{optionIndex === 0 ? 'Recommended' : 'Backup'}</span>
                           <span className="mt-1 block truncate text-sm font-semibold text-white">{option.displayName}</span>
@@ -631,7 +631,7 @@ export default function TestPage() {
                   <span className="text-lg text-gray-400">current evidence</span>
                 </div>
               </div>
-              <div className="lg:flex-1 rounded border border-white/10 bg-black/25 p-4 text-right">
+              <div className="lg:flex-1 rounded-2xl border border-white/10 bg-black/25 p-4 text-right">
                 <p className="text-xs uppercase tracking-wider text-gray-400">Diagnostic Batch</p>
                 <p className="mt-1 text-xl font-semibold text-white">Batch {batchNumber}</p>
                 <p className="mt-1 text-sm text-gray-400">Position {currentIndex + 1} of {evaluationPlan.length}</p>
@@ -740,20 +740,20 @@ export default function TestPage() {
                 ) : (
                   <div className="grid gap-3 md:grid-cols-2">
                     {hasMoreCurrentBatch ? (
-                      <button type="button" onClick={handleAnotherInBatch} className="rounded border border-gold/35 bg-gold/10 p-4 text-left hover:bg-gold/15">
+                      <button type="button" onClick={handleAnotherInBatch} className="rounded-2xl border border-gold/35 bg-gold/10 p-4 text-left hover:bg-gold/15">
                         <span className="block text-xs uppercase tracking-wider text-gold">Option A · Current batch</span>
                         <span className="mt-2 block font-semibold text-white">Test another selected fragrance</span>
                         <span className="mt-1 block text-sm text-gray-400">Continue with an unevaluated position from Batch {batchNumber}.</span>
                       </button>
                     ) : null}
-                    <button type="button" onClick={handleExploreNextBatch} className="rounded border border-white/15 bg-black/20 p-4 text-left hover:border-gold/35">
+                    <button type="button" onClick={handleExploreNextBatch} className="rounded-2xl border border-white/15 bg-black/20 p-4 text-left hover:border-gold/35">
                       <span className="block text-xs uppercase tracking-wider text-gold">Option B · New batch</span>
                       <span className="mt-2 block font-semibold text-white">Explore the next adaptive batch</span>
                       <span className="mt-1 block text-sm text-gray-400">Builder will use your latest evidence and avoid already-presented candidates.</span>
                     </button>
                   </div>
                 )}
-                <button type="button" onClick={handleStopTesting} className="rounded border border-white/15 px-4 py-3 text-sm font-semibold text-gray-200 hover:bg-white/5">
+                <button type="button" onClick={handleStopTesting} className="rounded-xl border border-white/15 px-4 py-3 text-sm font-semibold text-gray-200 hover:bg-white/5">
                   Option C · Stop for now and view recommendations
                 </button>
               </div>
@@ -766,8 +766,8 @@ export default function TestPage() {
                 <p className="mt-4 text-sm text-gray-400" role="status">{currentRatedCount} of {evaluationQuestions.length} characteristics rated</p>
                 {ratingError ? <p className="mt-3 text-sm text-rose-300" role="alert">{ratingError}</p> : null}
                 <div className="mt-5 flex flex-wrap gap-3">
-                  <button type="button" onClick={() => router.push('/results')} className="rounded border border-white/15 px-4 py-3 text-sm font-semibold text-gray-200 hover:bg-white/5">Stop for now</button>
-                  <button type="button" disabled={!canContinueCurrentFragrance} onClick={() => void handleNext()} className="rounded border border-gold/35 bg-gold/10 px-4 py-3 text-sm font-semibold text-gold hover:bg-gold/15 disabled:cursor-not-allowed disabled:opacity-40">
+                  <button type="button" onClick={() => router.push('/results')} className="rounded-xl border border-white/15 px-4 py-3 text-sm font-semibold text-gray-200 hover:bg-white/5">Stop for now</button>
+                  <button type="button" disabled={!canContinueCurrentFragrance} onClick={() => void handleNext()} className="rounded-xl border border-gold/35 bg-gold/10 px-4 py-3 text-sm font-semibold text-gold hover:bg-gold/15 disabled:cursor-not-allowed disabled:opacity-40">
                     {canContinueCurrentFragrance ? 'Commit evaluation' : `Rate ${evaluationQuestions.length - currentRatedCount} more characteristics`}
                   </button>
                 </div>
