@@ -30,53 +30,65 @@ export function AuthForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
-  const validateField = (name: string, value: string) => {
-    const newErrors = { ...errors };
-
+  const buildFieldError = (name: string, value: string, source: typeof formData): string | null => {
     switch (name) {
       case 'email':
         if (!value) {
-          newErrors.email = 'Email is required';
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          newErrors.email = 'Please enter a valid email';
-        } else {
-          delete newErrors.email;
+          return type === 'signin' ? 'Username or email is required' : 'Email is required';
         }
-        break;
+        if (type !== 'signin' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          return 'Please enter a valid email';
+        }
+        return null;
 
       case 'password':
         if (!value) {
-          newErrors.password = 'Password is required';
-        } else if (type === 'signup' && value.length < 8) {
-          newErrors.password = 'Password must be at least 8 characters';
-        } else {
-          delete newErrors.password;
+          return 'Password is required';
         }
-        break;
+        if (type === 'signup' && value.length < 8) {
+          return 'Password must be at least 8 characters';
+        }
+        return null;
 
       case 'confirmPassword':
         if (type === 'signup') {
           if (!value) {
-            newErrors.confirmPassword = 'Please confirm your password';
-          } else if (value !== formData.password) {
-            newErrors.confirmPassword = 'Passwords do not match';
-          } else {
-            delete newErrors.confirmPassword;
+            return 'Please confirm your password';
+          }
+          if (value !== source.password) {
+            return 'Passwords do not match';
           }
         }
-        break;
+        return null;
 
       case 'name':
         if (type === 'signup') {
           if (!value) {
-            newErrors.name = 'Name is required';
-          } else if (value.length < 2) {
-            newErrors.name = 'Name must be at least 2 characters';
-          } else {
-            delete newErrors.name;
+            return 'Name is required';
+          }
+          if (value.length < 2) {
+            return 'Name must be at least 2 characters';
           }
         }
-        break;
+        return null;
+
+      default:
+        return null;
+    }
+  };
+
+  const validateField = (name: string, value: string) => {
+    const newErrors = { ...errors };
+
+    const nextFormData = {
+      ...formData,
+      [name]: value,
+    };
+    const error = buildFieldError(name, value, nextFormData);
+    if (error) {
+      newErrors[name] = error;
+    } else {
+      delete newErrors[name];
     }
 
     setErrors(newErrors);
@@ -108,14 +120,22 @@ export function AuthForm({
           ? ['email', 'password', 'confirmPassword', 'name']
           : ['email'];
 
+    const nextTouched = { ...touched };
+    const nextErrors: Record<string, string> = {};
+
     fieldsToValidate.forEach(field => {
-      setTouched(prev => ({ ...prev, [field]: true }));
-      validateField(field, formData[field as keyof typeof formData]);
+      nextTouched[field] = true;
+      const value = formData[field as keyof typeof formData];
+      const error = buildFieldError(field, value, formData);
+      if (error) {
+        nextErrors[field] = error;
+      }
     });
 
-    // Check if there are any errors
-    const hasErrors = Object.keys(errors).length > 0;
-    if (hasErrors) {
+    setTouched(nextTouched);
+    setErrors(nextErrors);
+
+    if (Object.keys(nextErrors).length > 0) {
       return;
     }
 
@@ -136,11 +156,11 @@ export function AuthForm({
       {/* Email Field */}
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-          Email Address
+          {type === 'signin' ? 'Username or Email' : 'Email Address'}
         </label>
         <input
           id="email"
-          type="email"
+          type={type === 'signin' ? 'text' : 'email'}
           name="email"
           value={formData.email}
           onChange={handleChange}

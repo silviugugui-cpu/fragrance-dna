@@ -1,24 +1,40 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
+import { resolvePostSignInRoute } from '@/lib/auth';
 import { AuthForm } from '@/components/auth/AuthForm';
-import { OAuthButton } from '@/components/auth/OAuthButton';
+import { OAuthProviders } from '@/components/auth/OAuthProviders';
 
 export default function SignInPage() {
-  const router = useRouter();
   const { user, isLoading, signIn } = useAuth();
   const [error, setError] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigateAfterSignIn = () => {
+    const target = resolvePostSignInRoute({
+      user,
+    });
+
+    window.location.assign(target);
+  };
 
   // Redirect if already authenticated
   useEffect(() => {
     if (user && !isLoading) {
-      router.push('/');
+      navigateAfterSignIn();
     }
-  }, [user, isLoading, router]);
+  }, [user, isLoading]);
+
+  // Surface errors forwarded by the OAuth callback routes (?oauthError=...).
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const oauthError = params.get('oauthError');
+    if (oauthError) {
+      setError(oauthError);
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+  }, []);
 
   const handleSignIn = async (data: {
     email?: string;
@@ -31,8 +47,6 @@ export default function SignInPage() {
 
     try {
       await signIn(data.email || '', data.password || '');
-      // Redirect will happen via useEffect
-      router.push('/');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Sign in failed. Please try again.');
     } finally {
@@ -61,21 +75,9 @@ export default function SignInPage() {
         {/* Sign In Form */}
         <AuthForm type="signin" onSubmit={handleSignIn} isLoading={isSubmitting} submitLabel="Sign In" />
 
-        {/* Divider */}
-        <div className="relative py-4">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gold/20" />
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-3 bg-black/60 text-gray-400">Or continue with</span>
-          </div>
-        </div>
+        {/* Social Sign In (only rendered for configured providers) */}
+        <OAuthProviders />
 
-        {/* OAuth Buttons */}
-        <div className="space-y-3">
-          <OAuthButton provider="google" variant="secondary" size="lg" disabled={isSubmitting} />
-          <OAuthButton provider="apple" variant="secondary" size="lg" disabled={isSubmitting} />
-        </div>
       </div>
 
       {/* Sign Up Link */}
@@ -102,10 +104,6 @@ export default function SignInPage() {
         <div className="flex gap-3">
           <span className="text-gold font-bold">📊</span>
           <p>Sign in to access your personal fragrance DNA profile and recommendations.</p>
-        </div>
-        <div className="flex gap-3">
-          <span className="text-gold font-bold">⚡</span>
-          <p>Seamless OAuth integration with Google and Apple for quick access.</p>
         </div>
       </div>
     </div>

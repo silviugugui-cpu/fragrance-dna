@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
 import { AuthForm } from '@/components/auth/AuthForm';
-import { OAuthButton } from '@/components/auth/OAuthButton';
+import { OAuthProviders } from '@/components/auth/OAuthProviders';
 
 export default function CreateAccountPage() {
   const router = useRouter();
@@ -61,21 +61,8 @@ export default function CreateAccountPage() {
         {/* Sign Up Form */}
         <AuthForm type="signup" onSubmit={handleSignUp} isLoading={isSubmitting} submitLabel="Create Account" />
 
-        {/* Divider */}
-        <div className="relative py-4">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gold/20" />
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-3 bg-black/60 text-gray-400">Or sign up with</span>
-          </div>
-        </div>
-
-        {/* OAuth Buttons */}
-        <div className="space-y-3">
-          <OAuthButton provider="google" variant="secondary" size="lg" disabled={isSubmitting} />
-          <OAuthButton provider="apple" variant="secondary" size="lg" disabled={isSubmitting} />
-        </div>
+        {/* Social Sign Up (only rendered for configured providers) */}
+        <OAuthProviders />
 
         {/* Terms */}
         <p className="text-xs text-gray-400 text-center leading-relaxed">

@@ -5,5 +5,8 @@
 
 // Re-export auth provider and hooks
 export { AuthProvider, useAuth } from './authContext';
-export type { User, AuthContextType } from './authContext';
+export type { User } from './types';
+export type { AuthContextType } from './authContext';
+export { isAdminUser, resolvePostSignInRoute } from './adminAccess';
+export { ADMIN_USERNAME } from './adminIdentity';
 
