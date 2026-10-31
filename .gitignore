@@ -30,9 +30,16 @@ Thumbs.db
 # Temporary files
 tmp/
 *.tmp
+data/generated/*.sqlite-wal
+data/generated/*.sqlite-shm
+data/generated/*.sqlite.before-*.bak
 
 # Vercel local metadata
 .vercel/
 
 # Local research datasets (not runtime assets)
 public/Scents/
+
+# Locally managed image libraries (too large for git; served locally only)
+public/images/master-db/
+public/images/product-photos/
