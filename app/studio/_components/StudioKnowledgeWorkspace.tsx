@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type {
   KnowledgeEntityType,
   KnowledgeReviewStatus,
@@ -47,7 +47,6 @@ const statusLabel: Record<KnowledgeWorkspaceStatus, string> = {
 
 export function StudioKnowledgeWorkspace({ data, loadError }: StudioKnowledgeWorkspaceProps) {
   const pathname = usePathname();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const searchParamsString = searchParams?.toString() ?? "";
   const queryParams = useMemo(() => new URLSearchParams(searchParamsString), [searchParamsString]);
@@ -58,8 +57,15 @@ export function StudioKnowledgeWorkspace({ data, loadError }: StudioKnowledgeWor
   const [selectedEntityId, setSelectedEntityId] = useState<string>(
     data?.selectedEntity?.entityId ?? data?.displayedEntities[0]?.entityId ?? "",
   );
+  // Tracks query strings this component wrote, so the URL -> state sync only
+  // runs for external navigations and never fights with what the user types.
+  const writtenQueriesRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
+    if (writtenQueriesRef.current.has(searchParamsString)) {
+      return;
+    }
+
     const q = queryParams.get("q");
     const selected =
       queryParams.get("entity") ??
@@ -134,14 +140,19 @@ export function StudioKnowledgeWorkspace({ data, loadError }: StudioKnowledgeWor
 
     const nextQuery = params.toString();
     const currentQuery = searchParamsString;
+    writtenQueriesRef.current.add(nextQuery);
+    if (writtenQueriesRef.current.size > 50) {
+      writtenQueriesRef.current.clear();
+      writtenQueriesRef.current.add(nextQuery);
+    }
     if (nextQuery !== currentQuery) {
-      router.replace(nextQuery.length > 0 ? `${pathname}?${nextQuery}` : pathname);
+      // replaceState keeps the URL shareable without triggering a server refetch per keystroke.
+      window.history.replaceState(null, "", nextQuery.length > 0 ? `${pathname}?${nextQuery}` : pathname);
     }
   }, [
     minOccurrences,
     pathname,
     reviewFilter,
-    router,
     searchParamsString,
     searchQuery,
     selectedEntityId,

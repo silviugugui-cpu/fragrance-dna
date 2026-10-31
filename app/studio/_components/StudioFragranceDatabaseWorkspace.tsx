@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   publishMasterDatabaseAction,
@@ -187,25 +187,39 @@ export function StudioFragranceDatabaseWorkspace({
     );
   }, [masterData]);
 
+  // Defer the search term so typing stays responsive while filtering large row sets.
+  const deferredSearchQuery = useDeferredValue(searchQuery);
+
+  // Precompute the per-row search text once instead of rebuilding it on every keystroke.
+  const searchableRows = useMemo(() => {
+    if (!masterData) {
+      return [];
+    }
+
+    return masterData.rows.map((row) => ({ row, text: buildSearchText(row) }));
+  }, [masterData]);
+
   const filteredRows = useMemo(() => {
     if (!masterData) {
       return [];
     }
 
-    const normalizedSearch = searchQuery.trim().toLowerCase();
+    const normalizedSearch = deferredSearchQuery.trim().toLowerCase();
 
-    return masterData.rows.filter((row) => {
-      if (brandFilter !== "all" && row.brand !== brandFilter) {
-        return false;
-      }
+    return searchableRows
+      .filter(({ row, text }) => {
+        if (brandFilter !== "all" && row.brand !== brandFilter) {
+          return false;
+        }
 
-      if (normalizedSearch.length === 0) {
-        return true;
-      }
+        if (normalizedSearch.length === 0) {
+          return true;
+        }
 
-      return buildSearchText(row).includes(normalizedSearch);
-    });
-  }, [brandFilter, masterData, searchQuery]);
+        return text.includes(normalizedSearch);
+      })
+      .map(({ row }) => row);
+  }, [brandFilter, deferredSearchQuery, masterData, searchableRows]);
 
   useEffect(() => {
     if (filteredRows.length === 0) {

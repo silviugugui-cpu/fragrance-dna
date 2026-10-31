@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { saveMasterDatabaseRecordAction } from "@/app/studio/_actions/masterDatabaseActions";
 import { resolvePerfumeImageSrc } from "@/lib/design/perfumeImage";
 import type {
@@ -146,8 +146,16 @@ export function StudioMasterDatabaseWorkspace({
   const [columnWidths, setColumnWidths] = useState<Record<ColumnKey, number>>(defaultColumnWidths);
   const resizeRef = useRef<{ key: ColumnKey; startX: number; startWidth: number } | null>(null);
   const tableViewportRef = useRef<HTMLDivElement | null>(null);
+  // Tracks query strings this component wrote via replaceState, so the
+  // URL -> state sync below only runs for external navigations and never fights
+  // with what the user is currently typing (URL updates can arrive late).
+  const writtenQueriesRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
+    if (writtenQueriesRef.current.has(searchParamsString)) {
+      return;
+    }
+
     const q = queryParams.get("q");
     const perfume = queryParams.get("perfume");
     const record = queryParams.get("record");
@@ -160,7 +168,7 @@ export function StudioMasterDatabaseWorkspace({
     if (record && record.length > 0) {
       setSelectedId(record);
     }
-  }, [queryParams]);
+  }, [queryParams, searchParamsString]);
 
   useEffect(() => {
     const onMouseMove = (event: MouseEvent) => {
@@ -281,14 +289,57 @@ export function StudioMasterDatabaseWorkspace({
     [rows],
   );
 
+  // Defer the search term so typing stays responsive; the heavy filtering render
+  // below becomes interruptible instead of blocking every keystroke.
+  const deferredSearchQuery = useDeferredValue(searchQuery);
+
+  // Sort once per data/sort change so keystrokes only pay for a linear filter.
+  const sortedRows = useMemo(() => {
+    if (!data) {
+      return [];
+    }
+
+    const copy = [...data.rows];
+    copy.sort((left, right) => {
+      let compare = 0;
+      if (sortKey === "perfume") {
+        compare = left.perfume.localeCompare(right.perfume);
+      } else if (sortKey === "brand") {
+        compare = left.brand.localeCompare(right.brand);
+      } else if (sortKey === "brandType") {
+        compare = left.brandType.localeCompare(right.brandType);
+      } else if (sortKey === "launchYear") {
+        compare = Number.parseInt(left.launchYear || "0", 10) - Number.parseInt(right.launchYear || "0", 10);
+      } else if (sortKey === "completion") {
+        compare = left.completionPercent - right.completionPercent;
+      } else if (sortKey === "confidence") {
+        compare = left.confidence - right.confidence;
+      } else if (sortKey === "missingFields") {
+        compare = left.missingFieldsCount - right.missingFieldsCount;
+      } else if (sortKey === "reviewRequired") {
+        compare = Number(left.reviewRequired) - Number(right.reviewRequired);
+      } else if (sortKey === "performance") {
+        compare = performanceRank[left.performanceStatus] - performanceRank[right.performanceStatus];
+      }
+
+      if (compare === 0) {
+        compare = left.perfume.localeCompare(right.perfume);
+      }
+
+      return sortDirection === "asc" ? compare : -compare;
+    });
+
+    return copy;
+  }, [data, sortDirection, sortKey]);
+
   const filteredRows = useMemo(() => {
     if (!data) {
       return [];
     }
 
-    const normalizedSearch = searchQuery.trim().toLowerCase();
+    const normalizedSearch = deferredSearchQuery.trim().toLowerCase();
     const hyphenatedSearch = normalizedSearch.replace(/\s+/g, "-");
-    const rows = data.rows.filter((row) => {
+    const rows = sortedRows.filter((row) => {
       if (userDnaPoolOnly && !row.userDnaTestEnabled) {
         return false;
       }
@@ -323,48 +374,18 @@ export function StudioMasterDatabaseWorkspace({
       return row.searchText.includes(normalizedSearch) || row.searchText.includes(hyphenatedSearch);
     });
 
-    rows.sort((left, right) => {
-      let compare = 0;
-      if (sortKey === "perfume") {
-        compare = left.perfume.localeCompare(right.perfume);
-      } else if (sortKey === "brand") {
-        compare = left.brand.localeCompare(right.brand);
-      } else if (sortKey === "brandType") {
-        compare = left.brandType.localeCompare(right.brandType);
-      } else if (sortKey === "launchYear") {
-        compare = Number.parseInt(left.launchYear || "0", 10) - Number.parseInt(right.launchYear || "0", 10);
-      } else if (sortKey === "completion") {
-        compare = left.completionPercent - right.completionPercent;
-      } else if (sortKey === "confidence") {
-        compare = left.confidence - right.confidence;
-      } else if (sortKey === "missingFields") {
-        compare = left.missingFieldsCount - right.missingFieldsCount;
-      } else if (sortKey === "reviewRequired") {
-        compare = Number(left.reviewRequired) - Number(right.reviewRequired);
-      } else if (sortKey === "performance") {
-        compare = performanceRank[left.performanceStatus] - performanceRank[right.performanceStatus];
-      }
-
-      if (compare === 0) {
-        compare = left.perfume.localeCompare(right.perfume);
-      }
-
-      return sortDirection === "asc" ? compare : -compare;
-    });
-
     return rows;
   }, [
     brandFilter,
     brandTypeFilter,
     builderFilter,
     data,
+    deferredSearchQuery,
     hasNotesFilter,
     launchYearFilter,
     missingFieldsFilter,
     performanceFilter,
-    searchQuery,
-    sortDirection,
-    sortKey,
+    sortedRows,
     userDnaPoolOnly,
   ]);
 
@@ -467,6 +488,11 @@ export function StudioMasterDatabaseWorkspace({
 
     const nextQuery = params.toString();
     const currentQuery = searchParamsString;
+    writtenQueriesRef.current.add(nextQuery);
+    if (writtenQueriesRef.current.size > 50) {
+      writtenQueriesRef.current.clear();
+      writtenQueriesRef.current.add(nextQuery);
+    }
     if (nextQuery !== currentQuery) {
       window.history.replaceState(null, "", nextQuery.length > 0 ? `${pathname}?${nextQuery}` : pathname);
     }
