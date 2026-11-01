@@ -1,12 +1,8 @@
 ﻿'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import TerritoriesFullSection from '@/components/territories/TerritoriesFullSection';
 import { ChevronRightGlyphIcon } from '@/components/design-system/FragranceIcons';
-import { useAuth } from '@/lib/auth';
 import { useLanguage } from '@/lib/i18n';
-import { loadDnaSession, loadGroundingVector } from '@/lib/dnaSession';
 
 const JOURNEY_STEPS = [
   { key: 'discover', href: '/grounding' },
@@ -18,29 +14,7 @@ const JOURNEY_STEPS = [
 ] as const;
 
 export default function HomePage() {
-  const { user, isLoading } = useAuth();
   const { t } = useLanguage();
-  const [journeyHref, setJourneyHref] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (isLoading) {
-      setJourneyHref(null);
-      return;
-    }
-
-    const syncJourney = () => {
-      const session = loadDnaSession(user?.id);
-      setJourneyHref(
-        session.answeredOrder.length > 0 ? '/dna'
-          : loadGroundingVector(user?.id) ? '/test' : '/grounding',
-      );
-    };
-
-    syncJourney();
-    const events = ['storage', 'fragrance-dna-session-updated', 'fragrancedna-user-profile-loaded'];
-    events.forEach((event) => window.addEventListener(event, syncJourney));
-    return () => events.forEach((event) => window.removeEventListener(event, syncJourney));
-  }, [isLoading, user?.id]);
 
   return (
     <main className="homepage-shell relative pb-10 pt-5 lg:pt-8">
@@ -90,15 +64,6 @@ export default function HomePage() {
             </Link>
           </div>
         </article>
-        <div className="homepage-journey-guide">
-          {journeyHref ? (
-            <Link href={journeyHref} className="homepage-journey-entry">
-              <span>{journeyHref === '/grounding' ? t.home.startHere : t.home.continueJourney}</span>
-              <ChevronRightGlyphIcon className="h-4 w-4" />
-            </Link>
-          ) : <span className="text-sm text-gray-400">{t.home.loadingJourney}</span>}
-          <p>{t.home.journeyTagline}</p>
-        </div>
         <nav className="homepage-mobile-journey" aria-label={t.home.journeyNavAria}>
           <ol>
             {JOURNEY_STEPS.map((step, index) => (
@@ -116,8 +81,6 @@ export default function HomePage() {
           </ol>
         </nav>
       </section>
-
-      <TerritoriesFullSection />
     </main>
   );
 }

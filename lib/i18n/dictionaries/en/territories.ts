@@ -1,17 +1,17 @@
 const territories = {
-  pageTitle: 'Olfactory Territories',
+  pageTitle: 'Olfactive Territories',
   backgroundAlt: 'Territories background',
   hero: {
     overviewLabel: 'Overview',
     overview:
-      'The fragrance universe organizes into distinct territories. Each represents a unique olfactory character, offering different expressions of identity, mood, and occasion.',
+      'The fragrance universe organizes into distinct territories. Each represents a unique olfactive character, offering different expressions of identity, mood, and occasion.',
     howToUseLabel: 'How to use',
     howToUse: 'Click any territory to explore characteristics, DNA signatures, and signature fragrances.',
   },
   fullSection: {
-    kicker: 'Olfactory Territories',
-    title: 'Explore the world of scent',
-    subtitle: 'Find the scent worlds that speak to you.',
+    kicker: 'Olfactive Territories',
+    title: 'Explore the olfactive worlds',
+    subtitle: 'Find the olfactive worlds that speak to you.',
   },
   filters: {
     byIntensity: 'Filter by Intensity',
@@ -54,7 +54,7 @@ const territories = {
   dnaIntegration: {
     kicker: 'DNA INTEGRATION',
     title: 'Map Your Territory Affinity',
-    text: 'Your Olfactory DNA signature maps naturally to territory affinities. Understanding which territories resonate with your profile guides discovery of fragrances that align with your identity.',
+    text: 'Your Olfactive DNA signature maps naturally to territory affinities. Understanding which territories resonate with your profile guides discovery of fragrances that align with your identity.',
     cta: 'DISCOVER YOUR TERRITORIES →',
   },
 };

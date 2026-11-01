@@ -1,5 +1,5 @@
 ﻿const grounding = {
-  loading: 'Loading your scent preferences...',
+  loading: 'Loading your olfactive preferences...',
   tokens: {
     'Fresh & Citrusy': 'Fresh & Citrusy',
     'Sweet & Gourmand': 'Sweet & Gourmand',
@@ -20,7 +20,7 @@
   moveToAvoidTitle: 'Move to Avoid',
   moveToNeutralTitle: 'Move to Neutral',
   moveToLoveTitle: 'Move to Love',
-  sectionTitle: 'Classify Your Scent Qualities',
+  sectionTitle: 'Classify Your Olfactive Qualities',
   sectionDescription: 'Drag a quality into Love, Neutral, or Avoid, or use X, ✓, and the quality button to place it.',
   neutralLabel: 'Neutral Affinities',
   neutralTitle: 'Balance',
@@ -32,10 +32,10 @@
   loveEmpty: 'No qualities in Love yet...',
   avoidLabel: 'Avoidance Patterns',
   avoidTitle: 'Avoid',
-  avoidDescription: 'These textures are best set aside to preserve clarity and warmth in your scent identity.',
+  avoidDescription: 'These textures are best set aside to preserve clarity and warmth in your olfactive identity.',
   avoidEmpty: 'No qualities in Avoid yet...',
   readyTitle: 'Ready to Begin Your Test Flow?',
-  readyDescription: 'Continue sorting until all relevant scent qualities are placed, then press the button to move into the test flow. Classifying more scent qualities improves profile precision and recommendation quality.',
+  readyDescription: 'Continue sorting until all relevant olfactive qualities are placed, then press the button to move into the test flow. Classifying more olfactive qualities improves profile precision and recommendation quality.',
   continueButton: "I'm done sorting, continue to testing",
 };
 

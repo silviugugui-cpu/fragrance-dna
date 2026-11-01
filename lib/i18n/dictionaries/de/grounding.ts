@@ -22,7 +22,7 @@ const grounding: Dictionary['grounding'] = {
   moveToAvoidTitle: 'Nach Meiden verschieben',
   moveToNeutralTitle: 'Nach Neutral verschieben',
   moveToLoveTitle: 'Nach Liebe verschieben',
-  sectionTitle: 'Ordnen Sie Ihre Duftqualitäten ein',
+  sectionTitle: 'Ordnen Sie Ihre olfaktorischen Qualitäten ein',
   sectionDescription: 'Ziehen Sie eine Qualität nach Liebe, Neutral oder Meiden, oder nutzen Sie X, ✓ und die Qualitäts-Schaltfläche, um sie zu platzieren.',
   neutralLabel: 'Neutrale Affinitäten',
   neutralTitle: 'Balance',
@@ -34,10 +34,10 @@ const grounding: Dictionary['grounding'] = {
   loveEmpty: 'Noch keine Qualitäten in Liebe...',
   avoidLabel: 'Vermeidungsmuster',
   avoidTitle: 'Meiden',
-  avoidDescription: 'Diese Texturen legen Sie am besten beiseite, um Klarheit und Wärme Ihrer Duftidentität zu bewahren.',
+  avoidDescription: 'Diese Texturen legen Sie am besten beiseite, um Klarheit und Wärme Ihrer olfaktorischen Identität zu bewahren.',
   avoidEmpty: 'Noch keine Qualitäten in Meiden...',
   readyTitle: 'Bereit für Ihren Testablauf?',
-  readyDescription: 'Sortieren Sie weiter, bis alle relevanten Duftqualitäten platziert sind, und drücken Sie dann die Schaltfläche, um zum Testablauf überzugehen. Je mehr Duftqualitäten Sie einordnen, desto präziser werden Profil und Empfehlungen.',
+  readyDescription: 'Sortieren Sie weiter, bis alle relevanten olfaktorischen Qualitäten platziert sind, und drücken Sie dann die Schaltfläche, um zum Testablauf überzugehen. Je mehr olfaktorische Qualitäten Sie einordnen, desto präziser werden Profil und Empfehlungen.',
   continueButton: 'Fertig sortiert, weiter zum Test',
 };
 

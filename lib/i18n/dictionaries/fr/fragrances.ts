@@ -105,7 +105,7 @@ const fragrances: Dictionary['fragrances'] = {
     ratingValue: (rating, voteCount) => `${rating} / 5${voteCount ? ` · ${voteCount} votes` : ''}`,
     mainAccords: 'Accords principaux',
     about: 'À propos de ce parfum',
-    dnaProfile: 'Profil FragranceDNA',
+    dnaProfile: 'Profil OlfactiveDNA',
   },
 };
 

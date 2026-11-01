@@ -88,7 +88,7 @@ export default function DNAVisualizer({
   }, [series, axes, size]);
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label="Fragrance DNA visualization">
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label="Olfactive DNA visualization">
       <defs>
         <linearGradient id="lineGrad" x1="0" x2="1">
           <stop offset="0%" stopColor="#c7a86b" stopOpacity="0.9" />

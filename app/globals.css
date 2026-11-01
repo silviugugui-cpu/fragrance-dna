@@ -653,7 +653,7 @@ select {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1.5rem;
+  gap: clamp(0.5rem, 1vw, 1.5rem);
   height: 104px;
   padding: 0;
   border-radius: 20px;
@@ -771,7 +771,11 @@ select {
 .site-nav {
   display: flex;
   flex-wrap: wrap;
-  gap: 1.35rem;
+  align-items: center;
+  min-width: 0;
+  /* Fluid spacing: keeps breathing room between items at any viewport width or zoom level. */
+  gap: clamp(0.45rem, 0.9vw, 1.35rem);
+  row-gap: 0.35rem;
 }
 
 .articles-brand-rail-shell {
@@ -997,9 +1001,11 @@ select {
 
 .nav-link {
   color: var(--nav-text-color);
-  font-size: 1.02rem;
+  /* Fluid type: scales with viewport so labels stay readable without crowding at any resolution/zoom. */
+  font-size: clamp(0.64rem, 0.1rem + 0.82vw, 1.02rem);
   font-weight: 600;
-  letter-spacing: 0.17em;
+  letter-spacing: clamp(0.03em, 0.12vw, 0.17em);
+  white-space: nowrap;
   text-transform: uppercase;
   text-decoration: none;
   transition: color 0.24s ease, transform 0.24s ease;
@@ -1447,7 +1453,8 @@ select {
   }
 
   .header-inner {
-    @apply flex items-center justify-between gap-8;
+    @apply flex items-center justify-between;
+    gap: clamp(0.5rem, 1vw, 2rem);
     height: 104px;
     padding-top: 0;
     padding-bottom: 0;
@@ -1460,12 +1467,15 @@ select {
   }
 
   .site-nav {
-    @apply flex items-center gap-10;
+    @apply flex items-center;
+    gap: clamp(0.45rem, 0.9vw, 2.5rem);
 
     a {
-      @apply text-base font-medium transition-all duration-300;
+      @apply font-medium transition-all duration-300;
+      font-size: clamp(0.64rem, 0.1rem + 0.82vw, 1.02rem);
+      white-space: nowrap;
       color: rgba(218, 210, 188, 0.8);
-      letter-spacing: 0.17em;
+      letter-spacing: clamp(0.03em, 0.12vw, 0.17em);
 
       &:hover {
         color: var(--gold-highlight);
@@ -1481,7 +1491,9 @@ select {
   }
 
   .nav-link {
-    @apply relative text-base font-medium text-gray-400 transition-all duration-300;
+    @apply relative font-medium text-gray-400 transition-all duration-300;
+    font-size: clamp(0.64rem, 0.1rem + 0.82vw, 1.02rem);
+    white-space: nowrap;
 
     &::after {
       @apply absolute bottom-0 left-0 w-0 h-0.5 bg-gold-600 transition-all duration-300;

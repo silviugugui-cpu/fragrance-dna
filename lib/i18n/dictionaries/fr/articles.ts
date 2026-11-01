@@ -6,6 +6,7 @@ const articles: Dictionary['articles'] = {
     items: {
       needToKnow: { label: 'À savoir', hint: 'Connaissances essentielles du parfum' },
       perfumeCreators: { label: 'Créateurs de parfum', hint: 'ADN des parfumeurs et styles signatures' },
+      scentTerritories: { label: 'Territoires olfactifs', hint: 'Explorez les mondes olfactifs' },
     },
   },
   needToKnow: {

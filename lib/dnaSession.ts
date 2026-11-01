@@ -45,7 +45,7 @@ export const DNA_CONFIDENCE_BADGES: DnaConfidenceBadge[] = [
   { id: "enthusiast", label: "Enthusiast", minimum: 50, maximum: 64, colorClass: "bg-violet-400", imageSrc: "/Badges/Purple%20Gold%20Enthusiast%20Floral%20Badge%20-%20Black.png" },
   { id: "connoisseur", label: "Connoisseur", minimum: 65, maximum: 79, colorClass: "bg-orange-400", imageSrc: "/Badges/Golden%20Connoisseur%20Perfume%20Emblem%20-%20black.png" },
   { id: "expert", label: "Expert", minimum: 80, maximum: 89, colorClass: "bg-rose-400", imageSrc: "/Badges/Expert%20Ruby%20Crest%20Badge%20-%20Black.png" },
-  { id: "olfactory-master", label: "Olfactory Master", minimum: 90, maximum: 100, colorClass: "bg-amber-300", imageSrc: "/Badges/Olfactory%20Master%20Golden%20Crest-%20black.png" },
+  { id: "olfactory-master", label: "Olfactive Master", minimum: 90, maximum: 100, colorClass: "bg-amber-300", imageSrc: "/Badges/Olfactory%20Master%20Golden%20Crest-%20black.png" },
 ];
 
 export const getDnaConfidenceBadge = (confidence: number): DnaConfidenceBadge => {

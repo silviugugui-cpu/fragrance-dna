@@ -27,6 +27,7 @@ const articles = {
     items: {
       needToKnow: { label: 'Need to Know', hint: 'Essential fragrance knowledge' },
       perfumeCreators: { label: 'Perfume Creators', hint: 'Perfumer DNA and signature styles' },
+      scentTerritories: { label: 'Olfactive Territories', hint: 'Explore the olfactive worlds' },
     },
   },
   needToKnow: {
@@ -39,7 +40,7 @@ const articles = {
     articleCount: (count: number) => `${count} articles`,
     sections: {
       'scent-fundamentals': {
-        title: 'Scent Fundamentals',
+        title: 'Olfactive Fundamentals',
         description: 'Core principles that explain how fragrances are structured and interpreted.',
         intro: 'Build a strong foundation before evaluating performance, value, or brand category.',
         articles: [
@@ -167,7 +168,7 @@ const articles = {
             subtitle: 'The Best Fragrance Is Personal',
             paragraphs: [
               'Personal preference, climate, lifestyle, and emotional associations shape fragrance success more than hype or rankings.',
-              'The goal is not highest-rated. The goal is best fit for your own Fragrance DNA.',
+              'The goal is not highest-rated. The goal is best fit for your own Olfactive DNA.',
             ],
           },
         ],
@@ -187,7 +188,7 @@ const articles = {
           },
           {
             title: 'Why You Stop Smelling Your Own Fragrance',
-            subtitle: 'Olfactory Fatigue Explained',
+            subtitle: 'Olfactive Fatigue Explained',
             paragraphs: [
               'Continuous exposure makes the brain filter familiar scent signals.',
               'Not noticing a fragrance does not prove it is gone. Others may still perceive it clearly.',
@@ -275,7 +276,7 @@ const articles = {
             title: 'Price vs Quality',
             subtitle: 'Expensive Does Not Automatically Mean Better',
             paragraphs: [
-              'Price can reflect branding, packaging, rarity, and positioning as much as olfactory quality.',
+              'Price can reflect branding, packaging, rarity, and positioning as much as olfactive quality.',
               'Many affordable fragrances outperform expensive ones in versatility, enjoyment, and personal fit.',
             ],
           },

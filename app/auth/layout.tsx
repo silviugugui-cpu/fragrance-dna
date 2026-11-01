@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Authentication | FragranceDNA',
-  description: 'Sign in or create your FragranceDNA account',
+  title: 'Authentication | OlfactiveDNA',
+  description: 'Sign in or create your OlfactiveDNA account',
 };
 
 export default function AuthLayout({

@@ -7,7 +7,7 @@ export default function FragranceLogo({ size = 'small' }: { size?: 'small' | 'la
       <div style={{ width: dims, height: dims, borderRadius: '9999px', overflow: 'hidden', position: 'relative' }}>
         <Image
           src="/Logo/Logo Fragrance DNA with text.png"
-          alt="FragranceDNA"
+          alt="OlfactiveDNA"
           fill
           className="object-cover"
           sizes={`${dims}px`}

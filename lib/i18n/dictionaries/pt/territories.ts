@@ -12,7 +12,7 @@ const territories: Dictionary['territories'] = {
   },
   fullSection: {
     kicker: 'Territórios olfativos',
-    title: 'Explore o mundo dos aromas',
+    title: 'Explore os mundos olfativos',
     subtitle: 'Encontre os universos olfativos que falam consigo.',
   },
   filters: {

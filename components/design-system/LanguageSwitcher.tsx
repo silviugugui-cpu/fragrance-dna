@@ -62,7 +62,7 @@ export function LanguageSwitcher({ variant = 'compact', className = '' }: Langua
   }
 
   return (
-    <div ref={containerRef} className={`relative ${className}`}>
+    <div ref={containerRef} className={`relative self-stretch ${className}`}>
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
@@ -70,9 +70,8 @@ export function LanguageSwitcher({ variant = 'compact', className = '' }: Langua
         aria-expanded={isOpen}
         aria-label={t.header.selectLanguage}
         title={t.header.selectLanguage}
-        className="flex items-center gap-1.5 rounded-lg border border-gold/30 bg-black/40 px-2.5 py-2 text-xs font-semibold uppercase tracking-wider text-gold transition-all duration-300 hover:border-gold hover:bg-black/60"
+        className="flex h-full min-h-[2.75rem] items-center gap-1.5 rounded-lg border border-gold/30 bg-black/40 px-3 text-xs font-semibold uppercase tracking-wider text-gold transition-all duration-300 hover:border-gold hover:bg-black/60"
       >
-        <span aria-hidden="true">{LOCALE_LABELS[locale].flag}</span>
         <span>{locale.toUpperCase()}</span>
         <span className={`text-[9px] transition-transform ${isOpen ? 'rotate-180' : ''}`} aria-hidden="true">▼</span>
       </button>
@@ -96,14 +95,11 @@ export function LanguageSwitcher({ variant = 'compact', className = '' }: Langua
                   setLocale(code);
                   setIsOpen(false);
                 }}
-                className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition-colors ${
+                className={`rounded-full px-3 py-1.5 text-sm transition-colors ${
                   isActive ? 'bg-gold/20 text-gold' : 'text-gray-300 hover:bg-gold/10 hover:text-gold'
                 }`}
               >
-                <span className="text-[10px] font-semibold uppercase tracking-wider opacity-70" aria-hidden="true">
-                  {code.toUpperCase()}
-                </span>
-                <span>{LOCALE_LABELS[code].native}</span>
+                {LOCALE_LABELS[code].native}
               </button>
             );
           })}

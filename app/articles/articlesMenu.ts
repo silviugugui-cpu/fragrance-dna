@@ -1,4 +1,4 @@
-export type ArticlesMenuKey = 'needToKnow' | 'perfumeCreators';
+export type ArticlesMenuKey = 'needToKnow' | 'perfumeCreators' | 'scentTerritories';
 
 export interface ArticlesMenuItem {
   href: string;
@@ -10,4 +10,5 @@ export interface ArticlesMenuItem {
 export const articlesMenuItems: ArticlesMenuItem[] = [
   { href: '/articles', key: 'needToKnow' },
   { href: '/articles/perfumers', key: 'perfumeCreators' },
+  { href: '/articles/territories', key: 'scentTerritories' },
 ];

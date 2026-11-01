@@ -2,7 +2,7 @@ const auth = {
   signIn: {
     kicker: 'Authentication',
     title: 'Welcome Back',
-    subtitle: 'Sign in to your account to continue your olfactory journey',
+    subtitle: 'Sign in to your account to continue your olfactive journey',
     submit: 'Sign In',
     noAccount: "Don't have an account?",
     createOne: 'Create one',
@@ -14,7 +14,7 @@ const auth = {
   signUp: {
     kicker: 'Join Us',
     title: 'Create Your Account',
-    subtitle: 'Begin your olfactory discovery with FragranceDNA',
+    subtitle: 'Begin your olfactive discovery with OlfactiveDNA',
     submit: 'Create Account',
     termsPrefix: 'By creating an account, you agree to our',
     termsOfService: 'Terms of Service',
@@ -23,7 +23,7 @@ const auth = {
     alreadyHaveAccount: 'Already have an account?',
     signInLink: 'Sign in',
     benefitsTitle: "What You'll Get:",
-    benefit1: 'Personalized fragrance recommendations based on your olfactory DNA',
+    benefit1: 'Personalized fragrance recommendations based on your olfactive DNA',
     benefit2: 'Access to exclusive territories and fragrance collections',
     benefit3: 'Your personal fragrance identity profile and insights',
     benefit4: 'Curated discovery experience with real-time compatibility scoring',

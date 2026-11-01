@@ -14,6 +14,8 @@ const config: Config = {
           600: '#776E5F',
         },
         black: {
+          // DEFAULT restores the core `black` color (and opacity modifiers like bg-black/75).
+          DEFAULT: '#000000',
           50: '#F5F5F5',
           100: '#E8E8E8',
           200: '#D1D1D1',
@@ -26,6 +28,8 @@ const config: Config = {
           900: '#000000',
         },
         gold: {
+          // DEFAULT makes `gold` usable with opacity modifiers (e.g. border-gold/35).
+          DEFAULT: '#D4AF78',
           50: '#FEFBF3',
           100: '#FEF5E0',
           200: '#FDE8C0',

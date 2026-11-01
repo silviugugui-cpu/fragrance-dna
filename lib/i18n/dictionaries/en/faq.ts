@@ -7,7 +7,7 @@ const faq = {
   continueEvaluations: 'Continue evaluations',
   badgeLevelsTitle: 'Confidence badge levels',
   badgeImageAlt:
-    'Hobby 0 to 34 percent; Explorer 35 to 49 percent; Enthusiast 50 to 64 percent; Connoisseur 65 to 79 percent; Expert 80 to 89 percent; Olfactory Master 90 to 100 percent.',
+    'Hobby 0 to 34 percent; Explorer 35 to 49 percent; Enthusiast 50 to 64 percent; Connoisseur 65 to 79 percent; Expert 80 to 89 percent; Olfactive Master 90 to 100 percent.',
   badgeRange: (minimum: number, maximum: number) => `${minimum}%–${maximum}% confidence`,
   faqTitle: 'Frequently asked questions',
   items: [
@@ -19,7 +19,7 @@ const faq = {
     {
       question: 'How does my profile begin?',
       answer:
-        'Grounding records the scent families you love, feel neutral about, or avoid, and creates your initial DNA profile. You can see recommendations right away. At least two Love or Avoid preferences are needed before starting a diagnostic batch.',
+        'Grounding records the olfactive families you love, feel neutral about, or avoid, and creates your initial DNA profile. You can see recommendations right away. At least two Love or Avoid preferences are needed before starting a diagnostic batch.',
     },
     {
       question: 'How do fragrance evaluations work?',

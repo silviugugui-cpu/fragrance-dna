@@ -156,7 +156,14 @@ intentionally English-only.
   (e.g. `/api/recommendations` localizes explanation templates via the
   `locale` field in the request body).
 * `components/design-system/LanguageSwitcher.tsx` — header dropdown
-  (compact) and mobile-menu grid (full) variants.
+  (compact horizontal strip with native language names) and mobile-menu grid
+  (full) variants. The compact control stretches to match the user control.
+
+Public-facing branding uses OlfactiveDNA and olfactive identity terminology in
+all seven dictionaries; literal perfume/product references remain unchanged.
+Internal route, event, storage, and badge identifiers retain their existing names.
+The header shows the user's name and badge image without a visible badge label;
+the localized badge description remains available through accessible labels.
 
 Rules: persisted values (localStorage values, API parameters, ids) stay in
 canonical English and are mapped to display text through dictionary records;
@@ -182,11 +189,12 @@ in the hero artwork; illumination is reserved for hover and keyboard focus.
 Below 1200px, the artwork is cropped to its decorative upper region and six
 numbered, text-based journey cards replace the small overlaid links. The cards
 use the same Grounding, Test, DNA, territory, and recommendation destinations.
-The entry link shows "Start here" for a new profile, continues to Test after
-Grounding, and opens DNA after committed evaluations. It uses existing
-user-scoped session loaders and refreshes after profile hydration or changes.
-The territory introduction is editorial, with intensity and season filters
-preserved. These layout changes do not alter the particle effects.
+The standalone "Continue your journey" guide is no longer shown. Editorial
+territory exploration lives under the Articles menu at `/articles/territories`,
+with intensity and season filters and inline territory details preserved. Its
+embedded layout fills the Articles content column. This editorial menu is
+separate from the evidence-backed affinity section on the DNA dashboard.
+These layout changes do not alter the particle effects.
 
 ### Ambient visual effects
 

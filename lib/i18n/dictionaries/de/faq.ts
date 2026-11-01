@@ -16,12 +16,12 @@ const faq: Dictionary['faq'] = {
     {
       question: 'Was misst die DNA-Konfidenz?',
       answer:
-        'Die Konfidenz spiegelt wider, wie viel Ihres Duftprofils durch relevante Belege gestützt wird, wie konsistent wiederholte Signale sind und wie viele nützliche Belege sich angesammelt haben. Sie ist keine Bewertung dafür, wie sehr Sie Parfum mögen, und auch keine bloße Zählung abgeschlossener Tests.',
+        'Die Konfidenz spiegelt wider, wie viel Ihres olfaktorischen Profils durch relevante Belege gestützt wird, wie konsistent wiederholte Signale sind und wie viele nützliche Belege sich angesammelt haben. Sie ist keine Bewertung dafür, wie sehr Sie Parfum mögen, und auch keine bloße Zählung abgeschlossener Tests.',
     },
     {
       question: 'Wie beginnt mein Profil?',
       answer:
-        'Das Grounding erfasst die Duftfamilien, die Sie lieben, neutral sehen oder meiden, und erstellt Ihr erstes DNA-Profil. Empfehlungen sehen Sie sofort. Mindestens zwei „Liebe“- oder „Meide“-Präferenzen sind nötig, bevor eine Diagnose-Serie starten kann.',
+        'Das Grounding erfasst die olfaktorischen Familien, die Sie lieben, neutral sehen oder meiden, und erstellt Ihr erstes DNA-Profil. Empfehlungen sehen Sie sofort. Mindestens zwei „Liebe“- oder „Meide“-Präferenzen sind nötig, bevor eine Diagnose-Serie starten kann.',
     },
     {
       question: 'Wie funktionieren Duftbewertungen?',

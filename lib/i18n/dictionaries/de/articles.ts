@@ -6,6 +6,7 @@ const articles: Dictionary['articles'] = {
     items: {
       needToKnow: { label: 'Wissenswertes', hint: 'Grundlegendes Duftwissen' },
       perfumeCreators: { label: 'Parfumschöpfer', hint: 'Parfümeur-DNA und Signaturstile' },
+      scentTerritories: { label: 'Olfaktorische Territorien', hint: 'Entdecken Sie die olfaktorischen Welten' },
     },
   },
   needToKnow: {
@@ -18,7 +19,7 @@ const articles: Dictionary['articles'] = {
     articleCount: (count) => `${count} Artikel`,
     sections: {
       'scent-fundamentals': {
-        title: 'Duft-Grundlagen',
+        title: 'Olfaktorische Grundlagen',
         description: 'Kernprinzipien, die erklären, wie Düfte aufgebaut und wahrgenommen werden.',
         intro: 'Schaffen Sie ein solides Fundament, bevor Sie Leistung, Wert oder Markenkategorie beurteilen.',
         articles: [
@@ -146,7 +147,7 @@ const articles: Dictionary['articles'] = {
             subtitle: 'Der beste Duft ist persönlich',
             paragraphs: [
               'Persönliche Vorlieben, Klima, Lebensstil und emotionale Assoziationen entscheiden mehr über den Erfolg eines Dufts als Hype oder Ranglisten.',
-              'Das Ziel ist nicht die höchste Bewertung. Das Ziel ist die beste Passung zu Ihrer eigenen Duft-DNA.',
+              'Das Ziel ist nicht die höchste Bewertung. Das Ziel ist die beste Passung zu Ihrer eigenen olfaktorischen DNA.',
             ],
           },
         ],

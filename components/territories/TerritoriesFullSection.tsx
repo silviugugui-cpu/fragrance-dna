@@ -150,7 +150,7 @@ function TerritoryDetailPanel({ territory, onClose }: TerritoryDetailProps) {
           <div className="overflow-hidden rounded-[22px] border border-gold/30 shadow-[0_18px_40px_rgba(0,0,0,0.5)]">
             {bgImage ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={bgImage} alt={t.territories.detail.artworkAlt(display?.name ?? territory.name)} className="aspect-[410/370] w-full object-cover" />
+              <img src={bgImage} alt={t.territories.detail.artworkAlt(display?.name ?? territory.name)} className="aspect-[410/370] w-full scale-105 object-cover" />
             ) : (
               <div className="aspect-[410/370] w-full" style={{ backgroundColor: territory.color }} />
             )}
@@ -229,7 +229,7 @@ function TerritoryDetailPanel({ territory, onClose }: TerritoryDetailProps) {
   );
 }
 
-export default function TerritoriesFullSection() {
+export default function TerritoriesFullSection({ embedded = false }: { embedded?: boolean }) {
   const { t } = useLanguage();
   const [selectedTerritoryId, setSelectedTerritoryId] = useState<string | null>(null);
   const [filterIntensity, setFilterIntensity] = useState<string | null>(null);
@@ -253,9 +253,12 @@ export default function TerritoriesFullSection() {
 
   const selectedTerritory = selectedTerritoryId ? territoryList.find((t) => t.id === selectedTerritoryId) : undefined;
 
+  // Embedded mode fills the parent column (e.g. the articles content area) instead of centering at 90vw.
+  const sectionWidth = embedded ? 'w-full' : 'mx-auto w-[90vw] max-w-[1600px]';
+
   return (
     <>
-      <section className="relative z-10 mx-auto mt-6 w-[90vw] max-w-[1600px] pb-4 lg:mt-7 md:pb-6">
+      <section className={`relative z-10 ${sectionWidth} ${embedded ? '' : 'mt-6 lg:mt-7'} pb-4 md:pb-6`}>
         <div
           className="relative overflow-hidden rounded-[30px] bg-black p-0"
           style={{
@@ -348,7 +351,7 @@ export default function TerritoriesFullSection() {
         </div>
       </section>
 
-      <section className="relative z-10 mx-auto w-[90vw] max-w-[1600px] pt-10 md:pt-14">
+      <section className={`relative z-10 ${sectionWidth} pt-10 md:pt-14`}>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {filteredTerritories.map((territory) => (
             <TerritoryMapCard
@@ -364,7 +367,7 @@ export default function TerritoriesFullSection() {
       {/* Expanded territory detail, inline below the cards */}
       <section
         ref={detailRef}
-        className={`relative z-10 mx-auto w-[90vw] max-w-[1600px] scroll-mt-28 ${selectedTerritory ? 'pt-6 md:pt-8' : ''} pb-10 md:pb-14`}
+        className={`relative z-10 ${sectionWidth} scroll-mt-28 ${selectedTerritory ? 'pt-6 md:pt-8' : ''} pb-10 md:pb-14`}
       >
         {selectedTerritory && (
           <TerritoryDetailPanel territory={selectedTerritory} onClose={() => setSelectedTerritoryId(null)} />

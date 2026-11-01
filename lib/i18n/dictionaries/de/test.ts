@@ -11,7 +11,7 @@ const test: Dictionary['test'] = {
   preparingBatch: 'Ihr Diagnose-Set wird vorbereitet...',
   noEvaluableFragrances: 'Der User-DNA-Duftpool enthält keine bewertbaren Düfte.',
   rateEveryCharacteristic: 'Bewerten Sie jede angezeigte Eigenschaft, bevor Sie fortfahren.',
-  badgeMilestoneReached: (badge) => `Ihre Duft-DNA hat ${badge} erreicht! Ihr Profil und Ihre Empfehlungen spiegeln jetzt Ihre neuesten Bewertungen wider.`,
+  badgeMilestoneReached: (badge) => `Ihre olfaktorische DNA hat ${badge} erreicht! Ihr Profil und Ihre Empfehlungen spiegeln jetzt Ihre neuesten Bewertungen wider.`,
   profileUpdatedMessage: 'Ihr DNA-Profil und Ihre Empfehlungen spiegeln jetzt Ihre neuesten Bewertungen wider.',
   noFreshAlternatives: 'Für diesen Schritt sind keine neuen Alternativen mehr im Pool verfügbar. Behalten Sie eine der aktuellen Optionen.',
   heroEyebrow: 'ENTDECKEN',

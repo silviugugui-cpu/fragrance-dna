@@ -16,7 +16,7 @@ const auth: Dictionary['auth'] = {
   signUp: {
     kicker: 'Unisciti a noi',
     title: 'Crea il tuo account',
-    subtitle: 'Inizia la tua scoperta olfattiva con FragranceDNA',
+    subtitle: 'Inizia la tua scoperta olfattiva con OlfactiveDNA',
     submit: 'Crea account',
     termsPrefix: 'Creando un account, accetti i nostri',
     termsOfService: 'Termini di servizio',

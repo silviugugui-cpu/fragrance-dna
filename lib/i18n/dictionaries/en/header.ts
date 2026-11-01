@@ -1,7 +1,7 @@
 const header = {
   nav: {
     home: { label: 'Home', mobile: 'Home', hint: 'Start page' },
-    grounding: { label: 'GROUNDING', mobile: 'Grounding', hint: 'Explore scent basics' },
+    grounding: { label: 'GROUNDING', mobile: 'Grounding', hint: 'Explore olfactive basics' },
     test: { label: 'TEST', mobile: 'Test', hint: 'Quick fragrance test' },
     dna: { label: 'YOUR DNA', mobile: 'Your DNA', hint: 'Personal profile' },
     collection: { label: 'YOUR COLLECTION', mobile: 'Your Collection', hint: 'Saved fragrances' },

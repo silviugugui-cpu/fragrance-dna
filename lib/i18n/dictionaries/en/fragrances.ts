@@ -104,7 +104,7 @@
       `${rating} / 5${voteCount ? ` · ${voteCount} votes` : ''}`,
     mainAccords: 'Main accords',
     about: 'About this fragrance',
-    dnaProfile: 'FragranceDNA profile',
+    dnaProfile: 'OlfactiveDNA profile',
   },
 };
 

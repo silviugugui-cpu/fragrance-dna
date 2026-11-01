@@ -23,10 +23,10 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL('https://olfactivedna.com'),
   title: {
-    default: 'OlfactiveDNA — FragranceDNA',
+    default: 'OlfactiveDNA',
     template: '%s | OlfactiveDNA',
   },
-  description: 'Discover your olfactory identity through science, data, and discovery.',
+  description: 'Discover your olfactive identity through science, data, and discovery.',
   alternates: {
     canonical: '/',
   },
@@ -34,8 +34,8 @@ export const metadata: Metadata = {
     type: 'website',
     url: 'https://olfactivedna.com',
     siteName: 'OlfactiveDNA',
-    title: 'OlfactiveDNA — Discover your scent DNA',
-    description: 'Decode your scent identity. Discover perfumes you truly love.',
+    title: 'OlfactiveDNA — Discover your olfactive DNA',
+    description: 'Decode your olfactive identity. Discover perfumes you truly love.',
     images: [
       {
         url: '/Logo/Logo Fragrance DNA with text.png',
@@ -47,8 +47,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'OlfactiveDNA — Discover your scent DNA',
-    description: 'Decode your scent identity. Discover perfumes you truly love.',
+    title: 'OlfactiveDNA — Discover your olfactive DNA',
+    description: 'Decode your olfactive identity. Discover perfumes you truly love.',
   },
 };
 

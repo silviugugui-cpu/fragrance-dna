@@ -10,7 +10,7 @@
   dominantSignals: 'dominant signals',
   emerging: 'Emerging',
   loading: 'Finding matches in the Fragrance Database...',
-  incompleteTitle: 'Start with your scent preferences',
+  incompleteTitle: 'Start with your olfactive preferences',
   incompleteDescription:
     'Grounding creates your initial DNA profile. Recommendations are available as soon as that profile exists.',
   beginGrounding: 'Begin Grounding',

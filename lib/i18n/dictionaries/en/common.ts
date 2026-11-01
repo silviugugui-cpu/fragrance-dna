@@ -7,7 +7,7 @@ const common = {
     enthusiast: 'Enthusiast',
     connoisseur: 'Connoisseur',
     expert: 'Expert',
-    'olfactory-master': 'Olfactory Master',
+    'olfactory-master': 'Olfactive Master',
   } as Record<string, string>,
   axes: {
     Freshness: 'Freshness',

@@ -6,6 +6,7 @@ const articles: Dictionary['articles'] = {
     items: {
       needToKnow: { label: 'De știut', hint: 'Cunoștințe esențiale despre parfumuri' },
       perfumeCreators: { label: 'Creatori de parfumuri', hint: 'ADN-ul parfumierilor și stiluri de semnătură' },
+      scentTerritories: { label: 'Teritorii olfactive', hint: 'Explorează lumile olfactive' },
     },
   },
   needToKnow: {

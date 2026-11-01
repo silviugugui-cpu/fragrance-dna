@@ -127,7 +127,7 @@ export function SiteHeader() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`nav-link uppercase text-sm font-medium transition-all duration-300 ${
+                className={`nav-link uppercase font-medium transition-all duration-300 ${
                   isActive ? 'active text-gold' : 'text-gray-400 hover:text-gold'
                 }`}
               >
@@ -157,9 +157,8 @@ export function SiteHeader() {
                 title={t.header.dnaBadgeTitle(userBadgeLabel)}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg bg-black/40 hover:bg-black/60 border border-gold/30 hover:border-gold text-gold transition-all duration-300"
               >
-                <span className="max-w-[150px] truncate text-sm font-medium">{user.name}</span>
-                <Image src={userBadge.imageSrc} alt="" width={28} height={28} className="h-7 w-7 shrink-0 object-contain" />
-                <span className="text-[10px] font-semibold uppercase text-gold/80">{userBadgeLabel}</span>
+                <span className="max-w-[clamp(80px,9vw,150px)] truncate text-sm font-medium">{user.name}</span>
+                <Image src={userBadge.imageSrc} alt="" width={42} height={42} className="h-[2.625rem] w-[2.625rem] shrink-0 object-contain" />
                 <span className={`text-xs transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}>▼</span>
               </button>
 
@@ -206,7 +205,7 @@ export function SiteHeader() {
               )}
             </div>
           )}
-          <LanguageSwitcher className="mr-5 lg:mr-8" />
+          <LanguageSwitcher className="mr-3 lg:mr-6" />
         </div>
 
         <div className="mobile-header-actions md:hidden">
@@ -218,7 +217,7 @@ export function SiteHeader() {
           ) : (
             <Link href="/dna" className="mobile-login-btn inline-flex items-center gap-1.5" aria-label={t.header.openDnaProfileAria(userBadgeLabel)}>
               {user.name.split(' ')[0]}
-              <Image src={userBadge.imageSrc} alt="" width={24} height={24} className="h-6 w-6 shrink-0 object-contain" />
+              <Image src={userBadge.imageSrc} alt="" width={36} height={36} className="h-9 w-9 shrink-0 object-contain" />
             </Link>
           )}
           <button

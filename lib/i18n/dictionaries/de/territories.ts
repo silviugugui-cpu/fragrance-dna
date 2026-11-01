@@ -12,8 +12,8 @@ const territories: Dictionary['territories'] = {
   },
   fullSection: {
     kicker: 'Olfaktorische Territorien',
-    title: 'Entdecken Sie die Welt des Dufts',
-    subtitle: 'Finden Sie die Duftwelten, die Sie ansprechen.',
+    title: 'Entdecken Sie die olfaktorischen Welten',
+    subtitle: 'Finden Sie die olfaktorischen Welten, die Sie ansprechen.',
   },
   filters: {
     byIntensity: 'Nach Intensität filtern',

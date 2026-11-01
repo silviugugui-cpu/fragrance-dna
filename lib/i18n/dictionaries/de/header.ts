@@ -3,7 +3,7 @@ import type { Dictionary } from '../en';
 const header: Dictionary['header'] = {
   nav: {
     home: { label: 'Start', mobile: 'Start', hint: 'Startseite' },
-    grounding: { label: 'GROUNDING', mobile: 'Grounding', hint: 'Duftgrundlagen entdecken' },
+    grounding: { label: 'GROUNDING', mobile: 'Grounding', hint: 'Olfaktorische Grundlagen entdecken' },
     test: { label: 'TEST', mobile: 'Test', hint: 'Schneller Dufttest' },
     dna: { label: 'IHRE DNA', mobile: 'Ihre DNA', hint: 'Persönliches Profil' },
     collection: { label: 'IHRE SAMMLUNG', mobile: 'Ihre Sammlung', hint: 'Gespeicherte Düfte' },

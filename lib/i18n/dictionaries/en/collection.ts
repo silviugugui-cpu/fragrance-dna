@@ -1,9 +1,9 @@
-﻿const collection = {
+const collection = {
   page: {
     eyebrow: 'YOUR LIBRARY',
     title: 'Your Collection',
     description:
-      'Build and manage your fragrance library. Track ownership, rate fragrances, and discover patterns in your olfactory preferences.',
+      'Build and manage your fragrance library. Track ownership, rate fragrances, and discover patterns in your olfactive preferences.',
     emptyTitle: 'Start Your Collection',
     emptyDescription:
       'Add your first fragrance to unlock collection insights, territory coverage analysis, and personalized discovery recommendations.',
@@ -12,7 +12,7 @@
   stats: {
     label: 'YOUR LIBRARY',
     title: 'Your Collection',
-    description: 'Track the fragrances you own and explore your olfactory landscape.',
+    description: 'Track the fragrances you own and explore your olfactive landscape.',
     total: 'Total Fragrances',
     totalSubtitle: 'in your collection',
     owned: 'Owned',
@@ -24,7 +24,7 @@
   },
   territory: {
     label: 'TERRITORY INSIGHTS',
-    title: 'Olfactory Coverage',
+    title: 'Olfactive Coverage',
     description: 'Understand which fragrance territories are represented in your collection.',
     coverageLabel: 'Territory Coverage',
     territoriesCount: (represented: number) => `(${represented}/10 territories)`,
@@ -38,7 +38,7 @@
     diverseText:
       'Your collection spans multiple fragrance territories, showing a sophisticated and exploratory taste profile.',
     buildingText:
-      'Your collection is developing. Diversifying across territories will reveal your full olfactory identity.',
+      'Your collection is developing. Diversifying across territories will reveal your full olfactive identity.',
     nextSteps: 'Next Steps:',
     stepAddMore: (n: number) => `• Add ${n} more fragrances to unlock DNA insights`,
     stepExplore: '• Explore underrepresented territories',
@@ -48,7 +48,7 @@
     eyebrow: 'My Collection',
     title: 'Track the fragrances you own.',
     description:
-      "Track the fragrances you own and understand the olfactory landscape you've already built.",
+      "Track the fragrances you own and understand the olfactive landscape you've already built.",
     emptyTitle: 'Your collection starts here.',
     emptyDescription:
       'Add the fragrances you already own to unlock collection-level insights and future recommendation features.',
@@ -66,7 +66,7 @@
   manager: {
     eyebrow: 'Collection',
     title: 'My Collection',
-    subtitle: 'The fragrances that define your personal olfactory library.',
+    subtitle: 'The fragrances that define your personal olfactive library.',
     totalLabel: 'Total Fragrances',
     totalValue: (n: number) => (n === 1 ? '1 Fragrance' : `${n} Fragrances`),
     totalDescription:

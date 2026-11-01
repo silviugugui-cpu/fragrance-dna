@@ -4,7 +4,7 @@ export interface TerritoryDisplay {
   characteristics: string[];
 }
 
-// Display text for olfactory territories, keyed by territory id (see lib/data/territories.ts).
+// Display text for olfactive territories, keyed by territory id (see lib/data/territories.ts).
 const territoryData: Record<string, TerritoryDisplay> = {
   'fresh-citrus': {
     name: 'Fresh Citrus',
