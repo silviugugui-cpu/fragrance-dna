@@ -400,7 +400,7 @@ export default function ArticlesPage() {
                         >
                           <p className="font-articles-body text-[11px] uppercase tracking-[0.24em] text-[#d4b67a]">Section</p>
                           <h2 className="mt-2 font-articles-heading text-[1.55rem] text-[#f5dfb4]">{section.title}</h2>
-                          <p className="mt-3 font-articles-body text-sm leading-relaxed text-[#dacfb7]">{section.description}</p>
+                          <p className="mt-3 font-articles-body text-base leading-relaxed text-[#dacfb7]">{section.description}</p>
                           <p className="mt-4 font-articles-body text-xs uppercase tracking-[0.2em] text-[#b7955f]">
                             {section.articles.length} articles
                           </p>
@@ -439,7 +439,7 @@ export default function ArticlesPage() {
                             <p className="mt-2 font-articles-body text-[1.05rem] font-semibold text-[#caa46b]">{article.subtitle}</p>
 
                             {article.callout && (
-                              <blockquote className="mt-4 whitespace-pre-line rounded-xl border border-[#b08a53]/45 bg-black/25 px-4 py-3 font-articles-body text-sm text-[#e4d7bc]">
+                              <blockquote className="mt-4 whitespace-pre-line rounded-xl border border-[#b08a53]/45 bg-black/25 px-4 py-3 font-articles-body text-base leading-relaxed text-[#e4d7bc]">
                                 {article.callout}
                               </blockquote>
                             )}

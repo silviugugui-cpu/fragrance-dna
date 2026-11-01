@@ -241,7 +241,7 @@ export default function GroundingPage() {
               <div className="mb-6">
                 <p className="text-xs uppercase tracking-wider text-warm-300 font-bold mb-2">Neutral Affinities</p>
                 <h3 className="text-xl font-bold text-white mb-3">Balance</h3>
-                <p className="text-sm text-gray-400">
+                <p className="text-base text-gray-400">
                   These whispers add atmosphere without demanding the spotlight, creating a soft, balanced trail.
                 </p>
               </div>
@@ -269,7 +269,7 @@ export default function GroundingPage() {
               <div className="mb-6">
                 <p className="text-xs uppercase tracking-wider text-gold font-bold mb-2">Attraction Patterns</p>
                 <h3 className="text-xl font-bold text-white mb-3">Love</h3>
-                <p className="text-sm text-gray-400">
+                <p className="text-base text-gray-400">
                   These accords ignite your curiosity and become the luminous heart of your fragrance story.
                 </p>
               </div>
@@ -297,7 +297,7 @@ export default function GroundingPage() {
               <div className="mb-6">
                 <p className="text-xs uppercase tracking-wider text-black-200 font-bold mb-2">Avoidance Patterns</p>
                 <h3 className="text-xl font-bold text-white mb-3">Avoid</h3>
-                <p className="text-sm text-gray-400">
+                <p className="text-base text-gray-400">
                   These textures are best set aside to preserve clarity and warmth in your scent identity.
                 </p>
               </div>

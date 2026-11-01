@@ -129,7 +129,7 @@ export function RecommendationsClient({ embedded = false }: RecommendationsClien
           ) : (
             <h1 className="mt-3 text-3xl font-semibold text-white">Fragrances to explore</h1>
           )}
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-300">
+          <p className="mt-3 max-w-2xl text-base leading-7 text-gray-300">
             Recommendations use your current DNA profile, starting with Grounding and refining after each committed evaluation, against mapped notes and accords in the master fragrance database.
           </p>
           {summary ? (
@@ -176,7 +176,7 @@ export function RecommendationsClient({ embedded = false }: RecommendationsClien
                   <div className="min-w-0">
                     <p className="text-xs uppercase tracking-wider text-gray-500">{recommendation.brand || 'Fragrance Database'}</p>
                     <h2 className="mt-1 truncate text-lg font-semibold text-white">{recommendation.perfume || 'Unnamed fragrance'}</h2>
-                    <p className="mt-1 text-sm text-gray-400">{recommendation.explanation}</p>
+                    <p className="mt-1 text-base leading-relaxed text-gray-400">{recommendation.explanation}</p>
                     {recommendation.matchedAttributes.length > 0 ? (
                       <p className="mt-2 text-xs text-gray-500">Mapped characteristics: {recommendation.matchedAttributes.join(', ')}</p>
                     ) : null}

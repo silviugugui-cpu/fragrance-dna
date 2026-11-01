@@ -604,7 +604,7 @@ export default function TestPage() {
               <p className="text-xs uppercase tracking-wider text-gold">DIAGNOSTIC BATCH {batchNumber}</p>
               <h2 className="mt-2 text-2xl font-semibold text-white">{evaluationPlan.length} selected fragrances, each with a backup</h2>
             </div>
-            <p className="max-w-xl text-sm text-gray-400">Your profile is already active. Pick the primary or backup you can smell right now — the evaluation below switches to the fragrance you select.</p>
+            <p className="max-w-xl text-base text-gray-400">Your profile is already active. Pick the primary or backup you can smell right now — the evaluation below switches to the fragrance you select.</p>
           </div>
           <div className="grid gap-4 lg:grid-cols-2">
             {evaluationPlan.map((item) => {
@@ -834,7 +834,7 @@ export default function TestPage() {
             <section className="py-12">
               <div className="premium-card-dark p-8 md:p-10">
                 <h3 className="text-2xl font-bold text-white">Evaluate this fragrance</h3>
-                <p className="mt-2 max-w-2xl text-sm text-gray-300">Only committed evaluations update your DNA and confidence. You can stop after any evaluation and return later.</p>
+                <p className="mt-2 max-w-2xl text-base text-gray-300">Only committed evaluations update your DNA and confidence. You can stop after any evaluation and return later.</p>
                 <p className="mt-4 text-sm text-gray-400" role="status">{currentRatedCount} of {evaluationQuestions.length} characteristics rated</p>
                 {ratingError ? <p className="mt-3 text-sm text-rose-300" role="alert">{ratingError}</p> : null}
                 <div className="mt-5 flex flex-wrap gap-3">

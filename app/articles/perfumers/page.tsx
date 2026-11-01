@@ -72,8 +72,8 @@ export default function PerfumersPage() {
                   <p className="mt-2 inline-flex rounded-full border border-[#b08a53]/45 bg-black/25 px-2.5 py-1 font-articles-body text-[10px] uppercase tracking-[0.18em] text-[#d8be8a]">
                     {perfumer.cluster}
                   </p>
-                  <p className="mt-2 font-articles-body text-sm text-[#d9c7a2]">{perfumer.style}</p>
-                  <p className="mt-2 font-articles-body text-sm leading-relaxed text-[#e4d7bc]">{perfumer.philosophy}</p>
+                  <p className="mt-2 font-articles-body text-base text-[#d9c7a2]">{perfumer.style}</p>
+                  <p className="mt-2 font-articles-body text-base leading-relaxed text-[#e4d7bc]">{perfumer.philosophy}</p>
 
                   <div className="mt-4">
                     <p className="font-articles-body text-[11px] uppercase tracking-[0.22em] text-[#caa46b]">Iconic Fragrances</p>

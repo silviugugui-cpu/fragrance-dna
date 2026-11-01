@@ -82,7 +82,7 @@ export default function FaqPage() {
                   {faq.question}
                   <span className="text-gold transition-transform group-open:rotate-45" aria-hidden="true">+</span>
                 </summary>
-                <p className="max-w-3xl pt-4 text-sm leading-7 text-gray-300">{faq.answer}</p>
+                <p className="max-w-3xl pt-4 text-base leading-7 text-gray-300">{faq.answer}</p>
               </details>
             ))}
           </div>
