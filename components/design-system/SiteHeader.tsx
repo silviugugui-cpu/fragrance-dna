@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useEffect, useState, type MouseEvent } from 'react';
+import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -36,7 +36,6 @@ export function SiteHeader() {
   const { t } = useLanguage();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isSprayActive, setIsSprayActive] = useState(false);
   const [confidence, setConfidence] = useState(0);
   const userBadge = getDnaConfidenceBadge(confidence);
   const userBadgeLabel = t.common.badges[userBadge.id] ?? userBadge.label;
@@ -77,40 +76,13 @@ export function SiteHeader() {
     router.push('/');
   };
 
-  const handleHeaderMouseMove = (event: MouseEvent<HTMLDivElement>) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const relativeX = (event.clientX - rect.left) / rect.width;
-    const shouldActivate = relativeX >= 0.68;
-    setIsSprayActive((prev) => (prev === shouldActivate ? prev : shouldActivate));
-  };
-
   return (
     <header className="site-header">
-      <div
-        className="header-inner"
-        data-spray-active={isSprayActive ? 'true' : 'false'}
-        onMouseMove={handleHeaderMouseMove}
-        onMouseLeave={() => setIsSprayActive(false)}
-      >
-        <div className="header-spray-mist" aria-hidden="true" />
+      <div className="header-inner">
         {/* Logo */}
         <div className="brand-logo-lock relative flex h-full flex-shrink-0 items-center">
           <div className="brand-logo-fixed relative z-[90] inline-block hover:opacity-80 transition-opacity">
-            <div className="spray-scroll-anchor" aria-hidden="true">
-              <div className="spray-bottle-stage">
-                <Image
-                  src="/beautiful scents/Sticla parfum cu spray.png?v=20260623f"
-                  alt="Perfume bottle spray"
-                  width={420}
-                  height={700}
-                  className="spray-bottle-image"
-                  style={{ height: 'auto' }}
-                  unoptimized
-                  sizes="420px"
-                />
-              </div>
-            </div>
-            <div className="relative z-[120]" style={{ top: '10mm' }}>
+            <div className="relative z-[120]">
               <SiteLogo href={!isLoading && isAdminUser(user) ? '/studio' : '/'} />
             </div>
           </div>
@@ -140,14 +112,8 @@ export function SiteHeader() {
         {/* Sign In / User Menu */}
         <div className="hidden flex-shrink-0 relative z-[70] items-center gap-3 md:flex">
           {!user ? (
-            <div
-              className="signin-spray-trigger origin-right scale-[1.3]"
-              onMouseEnter={() => setIsSprayActive(true)}
-              onMouseLeave={() => setIsSprayActive(false)}
-              onFocusCapture={() => setIsSprayActive(true)}
-              onBlurCapture={() => setIsSprayActive(false)}
-            >
-              <LuxuryLoginButton className="h-[38px]" />
+            <div className="origin-right scale-[1.3]">
+              <LuxuryLoginButton className="h-[38px] !border-0 !rounded-none hover:!shadow-none" />
             </div>
           ) : (
             <div className="relative">
@@ -155,10 +121,10 @@ export function SiteHeader() {
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 aria-label={t.header.dnaBadgeAria(user.name, userBadgeLabel)}
                 title={t.header.dnaBadgeTitle(userBadgeLabel)}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-black/40 hover:bg-black/60 border border-gold/30 hover:border-gold text-gold transition-all duration-300"
+                className="flex items-center gap-2 px-3 py-2 text-gold transition-opacity duration-300 hover:opacity-80"
               >
                 <span className="max-w-[clamp(80px,9vw,150px)] truncate text-sm font-medium">{user.name}</span>
-                <Image src={userBadge.imageSrc} alt="" width={42} height={42} className="h-[2.625rem] w-[2.625rem] shrink-0 object-contain" />
+                <Image src={userBadge.imageSrc} alt="" width={81} height={81} className="h-[5.04rem] w-[5.04rem] shrink-0 object-contain" />
                 <span className={`text-xs transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}>▼</span>
               </button>
 
@@ -217,7 +183,7 @@ export function SiteHeader() {
           ) : (
             <Link href="/dna" className="mobile-login-btn inline-flex items-center gap-1.5" aria-label={t.header.openDnaProfileAria(userBadgeLabel)}>
               {user.name.split(' ')[0]}
-              <Image src={userBadge.imageSrc} alt="" width={36} height={36} className="h-9 w-9 shrink-0 object-contain" />
+              <Image src={userBadge.imageSrc} alt="" width={69} height={69} className="h-[4.32rem] w-[4.32rem] shrink-0 object-contain" />
             </Link>
           )}
           <button

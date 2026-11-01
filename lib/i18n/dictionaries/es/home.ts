@@ -1,9 +1,9 @@
 import type { Dictionary } from '../en';
 
 const home: Dictionary['home'] = {
-  heroTitleLine1: 'DESCUBRE TU ADN OLFATIVO.',
+  heroTitleLine1: 'Descubre tu ADN olfativo',
   heroTitleLine2: 'ENCUENTRA FRAGANCIAS QUE TE EMOCIONEN.',
-  heroSubtitle: 'Descodifica tu identidad olfativa. Descubre perfumes que realmente ames.',
+  heroSubtitle: 'Descubre perfumes que realmente ames.',
   heroImageAlt: 'Ingredientes olfativos dorados fluyendo hacia una hélice de ADN de perfume',
   ctaStartGrounding: 'EMPEZAR LA BASE OLFATIVA',
   ctaStartTest: 'EMPEZAR EL TEST',

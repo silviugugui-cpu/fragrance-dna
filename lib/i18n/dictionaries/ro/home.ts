@@ -1,9 +1,9 @@
 import type { Dictionary } from '../en';
 
 const home: Dictionary['home'] = {
-  heroTitleLine1: 'DESCOPERĂ-ȚI ADN-UL OLFACTIV.',
+  heroTitleLine1: 'Descoperă-ți ADN-ul olfactiv',
   heroTitleLine2: 'GĂSEȘTE PARFUMURI CARE TE EMOȚIONEAZĂ.',
-  heroSubtitle: 'Decodifică-ți identitatea olfactivă. Descoperă parfumuri pe care le iubești cu adevărat.',
+  heroSubtitle: 'Descoperă parfumuri pe care le iubești cu adevărat.',
   heroImageAlt: 'Ingrediente olfactive aurii curgând într-o elice de ADN a parfumului',
   ctaStartGrounding: 'ÎNCEPE ANCORAREA',
   ctaStartTest: 'ÎNCEPE TESTUL',

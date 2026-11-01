@@ -74,7 +74,7 @@ const auth = {
     connecting: 'Connecting...',
   },
   loginButton: {
-    label: 'Sign into your DNA',
+    label: 'Sign in',
   },
 };
 

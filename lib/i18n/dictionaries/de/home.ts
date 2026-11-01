@@ -1,9 +1,9 @@
 import type { Dictionary } from '../en';
 
 const home: Dictionary['home'] = {
-  heroTitleLine1: 'ENTDECKEN SIE IHRE OLFAKTORISCHE DNA.',
+  heroTitleLine1: 'Entdecken Sie Ihre olfaktorische DNA',
   heroTitleLine2: 'FINDEN SIE DÜFTE, DIE SIE BEWEGEN.',
-  heroSubtitle: 'Entschlüsseln Sie Ihre olfaktorische Identität. Entdecken Sie Parfums, die Sie wirklich lieben.',
+  heroSubtitle: 'Entdecken Sie Parfums, die Sie wirklich lieben.',
   heroImageAlt: 'Goldene Duftzutaten fließen in eine Parfum-DNA-Helix',
   ctaStartGrounding: 'GROUNDING STARTEN',
   ctaStartTest: 'TEST STARTEN',

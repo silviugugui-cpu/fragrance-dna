@@ -53,7 +53,6 @@ export default function ArticlesPage() {
           <div className="grid gap-5 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-start lg:gap-0">
             <aside className="articles-brand-rail-shell">
               <ArticlesRail>
-                <div className="articles-rail-dynamic-mist" aria-hidden="true" />
 
                 <div>
                   <p className="font-articles-body text-center text-[10px] uppercase tracking-[0.28em] text-[#d5b97f]">{t.articles.menu.passionMenu}</p>

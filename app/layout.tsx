@@ -38,9 +38,9 @@ export const metadata: Metadata = {
     description: 'Decode your olfactive identity. Discover perfumes you truly love.',
     images: [
       {
-        url: '/Logo/Logo Fragrance DNA with text.png',
+        url: '/Logo/logo-only-v2/preview.png',
         width: 1200,
-        height: 630,
+        height: 893,
         alt: 'OlfactiveDNA',
       },
     ],

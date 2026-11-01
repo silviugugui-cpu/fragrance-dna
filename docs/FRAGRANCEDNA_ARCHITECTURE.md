@@ -186,6 +186,8 @@ Avoid questionnaire-style interactions whenever possible.
 
 Desktop keeps five subdued, high-contrast links aligned between the six circles
 in the hero artwork; illumination is reserved for hover and keyboard focus.
+Their labels fit the available button width automatically after locale changes,
+resizing, and font loading, using the shared `AutoFitLabel` component.
 Below 1200px, the artwork is cropped to its decorative upper region and six
 numbered, text-based journey cards replace the small overlaid links. The cards
 use the same Grounding, Test, DNA, territory, and recommendation destinations.

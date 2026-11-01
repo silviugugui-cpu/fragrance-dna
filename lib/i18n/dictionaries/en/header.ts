@@ -19,7 +19,7 @@ const header = {
   menu: 'Menu',
   closeMenu: 'Close',
   closeMobileMenu: 'Close mobile menu',
-  signIntoYourDna: 'Sign into your DNA',
+  signIntoYourDna: 'Sign in',
   dnaBadgeAria: (name: string, badge: string) => `${name}, ${badge} DNA badge`,
   dnaBadgeTitle: (badge: string) => `${badge} DNA badge`,
   openDnaProfileAria: (badge: string) => `Open DNA profile, ${badge} badge`,

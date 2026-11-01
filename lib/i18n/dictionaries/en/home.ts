@@ -1,7 +1,7 @@
 const home = {
-  heroTitleLine1: 'DISCOVER YOUR OLFACTIVE DNA.',
+  heroTitleLine1: 'Discover your olfactive DNA',
   heroTitleLine2: 'FIND FRAGRANCES THAT MOVE YOU.',
-  heroSubtitle: 'Decode your olfactive identity. Discover perfumes you truly love.',
+  heroSubtitle: 'Discover perfumes you truly love.',
   heroImageAlt: 'Golden scent ingredients flowing into an olfactive DNA helix',
   ctaStartGrounding: 'START GROUNDING',
   ctaStartTest: 'START TEST',

@@ -70,7 +70,7 @@ export function LanguageSwitcher({ variant = 'compact', className = '' }: Langua
         aria-expanded={isOpen}
         aria-label={t.header.selectLanguage}
         title={t.header.selectLanguage}
-        className="flex h-full min-h-[2.75rem] items-center gap-1.5 rounded-lg border border-gold/30 bg-black/40 px-3 text-xs font-semibold uppercase tracking-wider text-gold transition-all duration-300 hover:border-gold hover:bg-black/60"
+        className="flex h-full min-h-[2.75rem] items-center gap-1.5 px-3 text-xs font-semibold uppercase tracking-wider text-gold transition-opacity duration-300 hover:opacity-80"
       >
         <span>{locale.toUpperCase()}</span>
         <span className={`text-[9px] transition-transform ${isOpen ? 'rotate-180' : ''}`} aria-hidden="true">▼</span>

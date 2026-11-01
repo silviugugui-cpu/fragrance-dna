@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { ChevronRightGlyphIcon } from '@/components/design-system/FragranceIcons';
 import { useLanguage } from '@/lib/i18n';
+import AutoFitLabel from '@/components/design-system/AutoFitLabel';
 
 const JOURNEY_STEPS = [
   { key: 'discover', href: '/grounding' },
@@ -37,30 +38,26 @@ export default function HomePage() {
 
           <div className="hero-first-copy">
             <h1>
-              {t.home.heroTitleLine1}
-              <br />
-              {t.home.heroTitleLine2}
+              {t.home.heroTitleLine1}{' '}
+              <span className="hero-title-suffix">- {t.home.heroSubtitle}</span>
             </h1>
-            <p>
-              {t.home.heroSubtitle}
-            </p>
           </div>
 
           <div className="hero-first-cta-row z-10">
             <Link href="/grounding" className="hero-first-cta-link hero-first-cta-grounding inline-flex">
-              <span className="luxury-cta luxury-cta-hero-secondary w-full justify-center !rounded-full">{t.home.ctaStartGrounding}</span>
+              <span className="luxury-cta luxury-cta-hero-secondary w-full justify-center !rounded-full"><AutoFitLabel>{t.home.ctaStartGrounding}</AutoFitLabel></span>
             </Link>
             <Link href="/test" className="hero-first-cta-link hero-first-cta-test inline-flex">
-              <span className="luxury-cta luxury-cta-hero-secondary w-full justify-center !rounded-full">{t.home.ctaStartTest}</span>
+              <span className="luxury-cta luxury-cta-hero-secondary w-full justify-center !rounded-full"><AutoFitLabel>{t.home.ctaStartTest}</AutoFitLabel></span>
             </Link>
             <Link href="/dna" className="hero-first-cta-link hero-first-cta-dna inline-flex">
-              <span className="luxury-cta luxury-cta-hero-secondary w-full justify-center !rounded-full">{t.home.ctaEnterDna}</span>
+              <span className="luxury-cta luxury-cta-hero-secondary w-full justify-center !rounded-full"><AutoFitLabel>{t.home.ctaEnterDna}</AutoFitLabel></span>
             </Link>
             <Link href="/dna#olfactory-territories" className="hero-first-cta-link hero-first-cta-territories inline-flex">
-              <span className="luxury-cta luxury-cta-hero-secondary w-full justify-center !rounded-full">{t.home.ctaTerritories}</span>
+              <span className="luxury-cta luxury-cta-hero-secondary w-full justify-center !rounded-full"><AutoFitLabel>{t.home.ctaTerritories}</AutoFitLabel></span>
             </Link>
             <Link href="/dna#your-recommendations" className="hero-first-cta-link hero-first-cta-recommendations inline-flex">
-              <span className="luxury-cta luxury-cta-hero-secondary w-full justify-center !rounded-full">{t.home.ctaRecommendations}</span>
+              <span className="luxury-cta luxury-cta-hero-secondary w-full justify-center !rounded-full"><AutoFitLabel>{t.home.ctaRecommendations}</AutoFitLabel></span>
             </Link>
           </div>
         </article>

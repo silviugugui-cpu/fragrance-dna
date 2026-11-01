@@ -3,13 +3,13 @@ import Image from 'next/image';
 export default function FragranceLogo({ size = 'small' }: { size?: 'small' | 'large' | 'navbar' }) {
   const dims = size === 'small' ? 36 : size === 'navbar' ? 174 : 88;
   return (
-    <div style={{ width: dims, height: dims }} className="fragrance-logo inline-block">
-      <div style={{ width: dims, height: dims, borderRadius: '9999px', overflow: 'hidden', position: 'relative' }}>
+    <div style={size === 'navbar' ? undefined : { width: dims, height: dims }} className={`fragrance-logo inline-block ${size === 'navbar' ? 'fragrance-logo-navbar' : ''}`}>
+      <div style={{ width: '100%', height: '100%', position: 'relative' }}>
         <Image
-          src="/Logo/Logo Fragrance DNA with text.png"
+          src="/Logo/logo-only-v2/olfactive-dna-logo.svg"
           alt="OlfactiveDNA"
           fill
-          className="object-cover"
+          className="object-contain"
           sizes={`${dims}px`}
           priority={false}
         />
