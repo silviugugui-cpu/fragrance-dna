@@ -1,5 +1,22 @@
 const nextConfig = {
   reactStrictMode: true,
+  // Canonical domain: send legacy and www hosts to olfactivedna.com (SEO-safe 308).
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "fragrance-dna.vercel.app" }],
+        destination: "https://olfactivedna.com/:path*",
+        permanent: true,
+      },
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.olfactivedna.com" }],
+        destination: "https://olfactivedna.com/:path*",
+        permanent: true,
+      },
+    ];
+  },
   experimental: {
     serverComponentsExternalPackages: ["better-sqlite3"],
     outputFileTracingIncludes: {

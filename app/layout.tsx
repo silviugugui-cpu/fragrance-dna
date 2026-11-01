@@ -19,8 +19,35 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'FragranceDNA',
+  metadataBase: new URL('https://olfactivedna.com'),
+  title: {
+    default: 'OlfactiveDNA — FragranceDNA',
+    template: '%s | OlfactiveDNA',
+  },
   description: 'Discover your olfactory identity through science, data, and discovery.',
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    type: 'website',
+    url: 'https://olfactivedna.com',
+    siteName: 'OlfactiveDNA',
+    title: 'OlfactiveDNA — Discover your scent DNA',
+    description: 'Decode your scent identity. Discover perfumes you truly love.',
+    images: [
+      {
+        url: '/Logo/Logo Fragrance DNA with text.png',
+        width: 1200,
+        height: 630,
+        alt: 'OlfactiveDNA',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'OlfactiveDNA — Discover your scent DNA',
+    description: 'Decode your scent identity. Discover perfumes you truly love.',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
