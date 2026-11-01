@@ -62,6 +62,7 @@ export default function TestPage() {
   const [ratedAttributes, setRatedAttributes] = useState<Record<string, string[]>>({});
   const [ratingError, setRatingError] = useState('');
   const [selectedPlanOptions, setSelectedPlanOptions] = useState<Record<number, string>>({});
+  const [planNotice, setPlanNotice] = useState('');
   const [groundingSelectionCount, setGroundingSelectionCount] = useState(0);
   const [groundingProfile, setGroundingProfile] = useState({ love: [] as string[], neutral: [] as string[], redFlag: [] as string[] });
   const [isHydrated, setIsHydrated] = useState(false);
@@ -478,6 +479,52 @@ export default function TestPage() {
     setRatingError('');
   };
 
+  // Replaces a single step's primary + backup with two fresh alternatives,
+  // excluding everything already shown in this batch.
+  const handleRerollStep = (step: number) => {
+    const item = batchPlan.find((planItem) => planItem.step === step);
+    if (!item || completedBatchSteps.includes(step)) return;
+
+    const occupiedIds = batchPlan.flatMap((planItem) => [
+      planItem.primary.fragranceId,
+      ...(planItem.backup ? [planItem.backup.fragranceId] : []),
+    ]);
+    const newlyExcluded = [...new Set([...excludedPlanFragranceIds, ...occupiedIds])];
+    const replacement = buildFragranceEvaluationPlan({
+      fragranceService: fragranceIntelligence,
+      groundingProfile,
+      answers: committedAnswers,
+      behaviorProjection,
+      previousEvaluations: completedFragranceIds,
+      excludedFragranceIds: newlyExcluded,
+      count: 1,
+    })[0];
+
+    if (!replacement) {
+      setPlanNotice('No fresh alternatives remain in the pool for this step. Keep one of the current options.');
+      return;
+    }
+
+    const nextPlan = batchPlan.map((planItem) =>
+      planItem.step === step ? { step, primary: replacement.primary, backup: replacement.backup } : planItem,
+    );
+    const nextSelected = { ...selectedPlanOptions };
+    delete nextSelected[step];
+    setPlanNotice('');
+    setBatchPlan(nextPlan);
+    setSelectedPlanOptions(nextSelected);
+    setExcludedPlanFragranceIds(newlyExcluded);
+    saveBatchState({
+      version: 1,
+      batchNumber,
+      currentStep: currentIndex,
+      items: nextPlan,
+      selectedByStep: nextSelected,
+      completedSteps: completedBatchSteps,
+      excludedFragranceIds: newlyExcluded,
+    });
+  };
+
   const handleExploreNextBatch = () => {
     const newlyExcluded = [...new Set([
       ...excludedPlanFragranceIds,
@@ -559,22 +606,35 @@ export default function TestPage() {
             </div>
             <p className="max-w-xl text-sm text-gray-400">Your profile is already active. Pick the primary or backup you can smell right now — the evaluation below switches to the fragrance you select.</p>
           </div>
-          <div className="grid gap-2 lg:grid-cols-2">
+          <div className="grid gap-4 lg:grid-cols-2">
             {evaluationPlan.map((item) => {
               const selectedId = selectedPlanOptions[item.step] ?? item.primary.fragranceId;
               const options = [item.primary, item.backup].filter((option): option is NonNullable<typeof option> => Boolean(option));
               const isCompletedStep = completedBatchSteps.includes(item.step);
+              const isCurrentStep = item.step === currentIndex + 1;
               return (
-                <article key={item.step} className={`rounded-2xl border p-3 ${item.step === currentIndex + 1 ? 'border-gold/45 bg-gold/5' : 'border-white/10 bg-black/25'}`}>
-                  <div className="mb-2 flex items-center justify-between gap-2">
-                    <p className="text-xs uppercase tracking-wider text-gray-400">Step {item.step}</p>
+                <article
+                  key={item.step}
+                  className="relative overflow-hidden rounded-[26px] border p-5 transition-all duration-300"
+                  style={{
+                    borderColor: isCurrentStep ? 'rgba(243, 210, 147, 0.75)' : 'rgba(168, 129, 70, 0.32)',
+                    background: isCurrentStep
+                      ? 'radial-gradient(circle at 12% 0%, rgba(250,223,164,0.12), transparent 42%), linear-gradient(160deg, rgba(32,24,14,0.95), rgba(14,12,10,0.97))'
+                      : 'linear-gradient(160deg, rgba(19,16,14,0.9), rgba(11,11,12,0.94))',
+                    boxShadow: isCurrentStep
+                      ? '0 18px 38px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,228,173,0.22)'
+                      : '0 10px 22px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,228,173,0.08)',
+                  }}
+                >
+                  <div className="mb-4 flex items-center justify-between gap-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#c5a05e]">Step {item.step}</p>
                     {isCompletedStep ? (
-                      <span className="text-xs font-semibold text-emerald-300">COMPLETED</span>
-                    ) : item.step === currentIndex + 1 ? (
-                      <span className="text-xs font-semibold text-gold">CURRENT</span>
+                      <span className="rounded-full border border-emerald-300/35 bg-emerald-400/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-200">Completed</span>
+                    ) : isCurrentStep ? (
+                      <span className="rounded-full border border-gold/50 bg-gold/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-gold">Now testing</span>
                     ) : null}
                   </div>
-                  <div className="grid gap-2 sm:grid-cols-2">
+                  <div className="grid gap-3 sm:grid-cols-2">
                     {options.map((option, optionIndex) => {
                       const isSelected = selectedId === option.fragranceId;
                       return (
@@ -603,19 +663,33 @@ export default function TestPage() {
                               excludedFragranceIds: excludedPlanFragranceIds,
                             });
                           }}
-                          className={`min-w-0 rounded-xl border p-3 text-left transition-colors ${isSelected ? 'border-gold/50 bg-gold/10' : 'border-white/10 bg-black/20 hover:border-white/25'} ${isCompletedStep ? 'cursor-not-allowed opacity-55' : ''}`}
+                          className={`min-w-0 rounded-2xl border p-4 text-left transition-all duration-300 ${
+                            isSelected
+                              ? 'border-gold/60 bg-gold/10 shadow-[inset_0_1px_0_rgba(255,228,173,0.2)]'
+                              : 'border-white/10 bg-black/25 hover:-translate-y-0.5 hover:border-gold/40'
+                          } ${isCompletedStep ? 'cursor-not-allowed opacity-50' : ''}`}
                         >
-                          <span className="block text-[10px] uppercase tracking-wider text-gold/80">{optionIndex === 0 ? 'Recommended' : 'Backup'}</span>
-                          <span className="mt-1 block truncate text-sm font-semibold text-white">{option.displayName}</span>
-                          <span className="mt-0.5 block truncate text-xs text-gray-400">{option.brand || 'Brand unavailable'}</span>
+                          <span className="block text-[10px] uppercase tracking-[0.22em] text-[#b7955f]">{optionIndex === 0 ? 'Recommended' : 'Backup'}</span>
+                          <span className="mt-2 block truncate font-display text-[1.05rem] leading-snug text-[#f2e3c2]">{option.displayName}</span>
+                          <span className="mt-1 block truncate text-xs uppercase tracking-[0.14em] text-gray-500">{option.brand || 'Brand unavailable'}</span>
                         </button>
                       );
                     })}
                   </div>
+                  {!isCompletedStep && (
+                    <button
+                      type="button"
+                      onClick={() => handleRerollStep(item.step)}
+                      className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-1.5 text-xs uppercase tracking-[0.16em] text-gray-400 transition-colors hover:border-gold/45 hover:text-gold"
+                    >
+                      <span aria-hidden="true">↻</span> Show me two other options
+                    </button>
+                  )}
                 </article>
               );
             })}
           </div>
+          {planNotice ? <p className="mt-4 text-sm text-gold/85" role="status">{planNotice}</p> : null}
         </div>
       </section>
 
@@ -668,9 +742,6 @@ export default function TestPage() {
             <p className="mb-4 text-sm text-gold/80">{currentRef.brand || 'Brand unavailable'}{currentPlanOption?.fragranceId === activePlan?.backup?.fragranceId ? ' · Backup selected' : ''}</p>
             <p className="text-base text-gray-300 max-w-2xl leading-relaxed">
               Rate this fragrance across its canonical attributes. Your evaluations blend with your grounding preferences to continuously refine your olfactory identity.
-            </p>
-            <p className="mt-4 max-w-3xl text-sm leading-relaxed text-gold/90">
-              {currentPlanOption?.explanation ?? 'Selected from the User DNA test pool based on your Grounding preferences.'}
             </p>
           </div>
 
@@ -741,20 +812,21 @@ export default function TestPage() {
                   <div className="grid gap-3 md:grid-cols-2">
                     {hasMoreCurrentBatch ? (
                       <button type="button" onClick={handleAnotherInBatch} className="rounded-2xl border border-gold/35 bg-gold/10 p-4 text-left hover:bg-gold/15">
-                        <span className="block text-xs uppercase tracking-wider text-gold">Option A · Current batch</span>
+                        <span className="block text-xs uppercase tracking-wider text-gold">Continue</span>
                         <span className="mt-2 block font-semibold text-white">Test another selected fragrance</span>
                         <span className="mt-1 block text-sm text-gray-400">Continue with an unevaluated position from Batch {batchNumber}.</span>
                       </button>
-                    ) : null}
-                    <button type="button" onClick={handleExploreNextBatch} className="rounded-2xl border border-white/15 bg-black/20 p-4 text-left hover:border-gold/35">
-                      <span className="block text-xs uppercase tracking-wider text-gold">Option B · New batch</span>
-                      <span className="mt-2 block font-semibold text-white">Explore the next adaptive batch</span>
-                      <span className="mt-1 block text-sm text-gray-400">Builder will use your latest evidence and avoid already-presented candidates.</span>
-                    </button>
+                    ) : (
+                      <button type="button" onClick={handleExploreNextBatch} className="rounded-2xl border border-gold/35 bg-gold/10 p-4 text-left hover:bg-gold/15">
+                        <span className="block text-xs uppercase tracking-wider text-gold">Batch complete</span>
+                        <span className="mt-2 block font-semibold text-white">Explore the next adaptive batch</span>
+                        <span className="mt-1 block text-sm text-gray-400">Builder will use your latest evidence and avoid already-presented candidates.</span>
+                      </button>
+                    )}
                   </div>
                 )}
                 <button type="button" onClick={handleStopTesting} className="rounded-xl border border-white/15 px-4 py-3 text-sm font-semibold text-gray-200 hover:bg-white/5">
-                  Option C · Stop for now and view recommendations
+                  Stop for now and view recommendations
                 </button>
               </div>
             </section>
