@@ -5,6 +5,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Warm grays tuned for text on the dark gold theme (cool Tailwind
+        // defaults read muddy on near-black and clash with the gold palette).
+        gray: {
+          300: '#DFD6C5',
+          400: '#BFB4A2',
+          500: '#9A907E',
+          600: '#776E5F',
+        },
         black: {
           50: '#F5F5F5',
           100: '#E8E8E8',

@@ -33,6 +33,8 @@ body {
 html {
   overflow-y: scroll;
   scrollbar-gutter: stable;
+  /* Slightly larger base scale: every rem-based size gains ~6% legibility. */
+  font-size: 17px;
 }
 
 /* DNA script font for branding — loaded via next/font/google (Great Vibes) */
@@ -55,6 +57,11 @@ body {
   background-attachment: scroll;
   color: #d4af78;
   line-height: 1.6;
+  /* Platform body font + smoother glyph rendering on the dark theme. */
+  font-family: var(--font-body-base), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 body.studio-plain-workspace,
@@ -557,19 +564,19 @@ select {
 }
 
 .page-shell .text-gray-300 {
-  color: rgba(223, 207, 173, 0.92) !important;
+  color: rgba(234, 221, 197, 0.98) !important;
 }
 
 .page-shell .text-gray-400 {
-  color: rgba(201, 182, 147, 0.86) !important;
+  color: rgba(216, 200, 170, 0.95) !important;
 }
 
 .page-shell .text-gray-500 {
-  color: rgba(179, 159, 124, 0.82) !important;
+  color: rgba(193, 175, 143, 0.92) !important;
 }
 
 .page-shell .text-gray-600 {
-  color: rgba(155, 136, 104, 0.82) !important;
+  color: rgba(168, 150, 118, 0.9) !important;
 }
 
 .content-layer {
