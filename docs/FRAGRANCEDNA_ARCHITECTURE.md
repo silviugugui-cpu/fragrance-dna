@@ -135,6 +135,35 @@ Never rely solely on popularity.
 
 ---
 
+## Internationalization (i18n)
+
+The public site supports 7 languages: English (default), French, German,
+Spanish, Italian, Portuguese, and Romanian. The Studio admin area is
+intentionally English-only.
+
+* `lib/i18n/config.ts` — locale list, labels, `NEXT_LOCALE` cookie name.
+* `lib/i18n/dictionaries/<locale>/<namespace>.ts` — one folder per locale,
+  one file per namespace (common, header, home, grounding, test, dna,
+  recommendations, fragrances, brands, collection, articles, faq,
+  territories, auth, misc, territoryData). English defines the shape;
+  `en/index.ts` exports the `Dictionary` type and every other locale is
+  type-checked against it, so missing translations fail compilation.
+* `lib/i18n/LanguageProvider.tsx` — client context. `useLanguage()` returns
+  `{ locale, setLocale, t }`. The locale persists in the `NEXT_LOCALE`
+  cookie (read server-side in `app/layout.tsx` for `<html lang>` and the
+  initial render, avoiding hydration flashes) and in localStorage.
+* `lib/i18n/getDictionary.ts` — server-safe lookup used by API routes
+  (e.g. `/api/recommendations` localizes explanation templates via the
+  `locale` field in the request body).
+* `components/design-system/LanguageSwitcher.tsx` — header dropdown
+  (compact) and mobile-menu grid (full) variants.
+
+Rules: persisted values (localStorage values, API parameters, ids) stay in
+canonical English and are mapped to display text through dictionary records;
+database-sourced content (fragrance names, canonical attribute metadata)
+is not translated. Parameterized strings are arrow functions in the
+dictionaries.
+
 ## UX Philosophy
 
 The user experience should feel:

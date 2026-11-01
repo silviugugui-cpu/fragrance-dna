@@ -9,6 +9,7 @@ import {
   RadarChart,
   ResponsiveContainer,
 } from 'recharts';
+import { useLanguage } from '@/lib/i18n';
 
 export const DNA_AXES = [
   'Freshness',
@@ -100,6 +101,7 @@ export default function DnaRadar({
 }) {
   const chartId = useId().replace(/:/g, '');
   const finalGradientId = `${chartId}-final-gradient`;
+  const { t } = useLanguage();
 
   const baselineProvidedCount = useMemo(
     () => DNA_AXES.filter((axis) => typeof baselineValues?.[axis] === 'number').length,
@@ -132,26 +134,26 @@ export default function DnaRadar({
     <article className="glass-card p-6 md:p-8">
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div className="space-y-2">
-          <h2 className="text-sm uppercase tracking-[0.28em] text-[rgba(165,185,150,0.85)]">YOUR DNA SIGNATURE</h2>
+          <h2 className="text-sm uppercase tracking-[0.28em] text-[rgba(165,185,150,0.85)]">{t.dna.radar.signatureTitle}</h2>
           <p className="text-sm text-[rgba(210,196,170,0.85)]">
-            Final DNA compared with your grounding baseline across 11 signature dimensions.
+            {t.dna.radar.signatureDescription}
           </p>
         </div>
         <div className="space-y-2 text-xs uppercase tracking-[0.2em] text-[rgba(216,188,134,0.9)]">
           <div className="flex items-center justify-end gap-2">
             <span className="h-0.5 w-5 rounded bg-[rgba(108,196,219,0.96)]" aria-hidden />
-            <span className="text-[rgba(188,219,232,0.92)]">Grounding Baseline</span>
+            <span className="text-[rgba(188,219,232,0.92)]">{t.dna.radar.groundingBaseline}</span>
           </div>
           <div className="flex items-center justify-end gap-2">
             <span className="h-0.5 w-5 rounded bg-[rgba(220,182,110,0.95)]" aria-hidden />
-            <span>Final DNA</span>
+            <span>{t.dna.radar.finalDna}</span>
           </div>
         </div>
       </div>
 
       {showWarning ? (
         <div className="mt-4 inline-flex items-center rounded-full border border-[rgba(225,170,95,0.4)] bg-[rgba(225,170,95,0.12)] px-3 py-1 text-xs text-[rgba(255,222,170,0.95)]">
-          Some comparison points were missing and have been estimated from calibrated DNA previews.
+          {t.dna.radar.missingDataWarning}
         </div>
       ) : null}
 
@@ -186,7 +188,7 @@ export default function DnaRadar({
                       fontSize={12}
                       style={{ letterSpacing: '0.04em' }}
                     >
-                      <tspan x="0" dy="0">{axis}</tspan>
+                      <tspan x="0" dy="0">{t.common.axes[axis] ?? axis}</tspan>
                       <tspan x="0" dy="16" fill="rgba(228,186,112,0.95)">{score}</tspan>
                     </text>
                   </g>
@@ -202,7 +204,7 @@ export default function DnaRadar({
             />
 
             <Radar
-              name="Grounding Baseline"
+              name={t.dna.radar.groundingBaseline}
               dataKey="baseline"
               stroke="rgba(108,196,219,0.95)"
               fill="rgba(108,196,219,0.08)"
@@ -211,7 +213,7 @@ export default function DnaRadar({
               dot={{ r: 2.6, fill: 'rgba(136,212,232,0.96)', stroke: 'rgba(3,18,24,0.8)', strokeWidth: 1 }}
             />
             <Radar
-              name="Final DNA"
+              name={t.dna.radar.finalDna}
               dataKey="final"
               stroke="rgba(236,191,113,0.98)"
               fill={`url(#${finalGradientId})`}
@@ -223,7 +225,7 @@ export default function DnaRadar({
         </ResponsiveContainer>
       </div>
 
-      <p className="mt-2 text-xs text-[rgba(185,168,138,0.72)]">Scores range from 0 (low presence) to 100 (very high presence).</p>
+      <p className="mt-2 text-xs text-[rgba(185,168,138,0.72)]">{t.dna.radar.scoresRange}</p>
     </article>
   );
 }

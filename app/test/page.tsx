@@ -23,6 +23,7 @@ import { buildFragranceEvaluationPlan, type FragranceEvaluationPlanItem, type Pe
 import type { BehaviorProjectionState } from '@/lib/intelligence/projections/models/behaviorProjection';
 import { runTestDualWrite } from '@/lib/intelligence/test/testDualWrite';
 import { buildDefaultAnswers, getEvaluationQuestionsForFragrance } from '@/lib/test/adaptiveQuestions';
+import { useLanguage } from '@/lib/i18n';
 import { PageShell, PremiumButton } from '@/components/design-system';
 import type { UserDnaProfileRecord } from '@/lib/database/masterFragranceDatabase';
 
@@ -47,6 +48,7 @@ const PLAN_SELECTIONS_STORAGE_KEY = 'fragranceDNA-plan-selections';
 export default function TestPage() {
   const router = useRouter();
   const { user, isLoading: isAuthLoading } = useAuth();
+  const { t } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [batchNumber, setBatchNumber] = useState(1);
   const [batchPlan, setBatchPlan] = useState<FragranceEvaluationPlanItem[]>([]);
@@ -81,7 +83,7 @@ export default function TestPage() {
       .then(async (response) => {
         const payload = await response.json() as { profiles?: UserDnaProfileRecord[]; error?: string };
         if (!response.ok || !Array.isArray(payload.profiles) || payload.profiles.length === 0) {
-          throw new Error(payload.error ?? 'The User DNA fragrance pool is unavailable.');
+          throw new Error(payload.error ?? '');
         }
         if (active) {
           setFragranceIntelligence(createFragranceIntelligenceService(payload.profiles));
@@ -90,7 +92,7 @@ export default function TestPage() {
       })
       .catch((error: unknown) => {
         if (active) {
-          setPoolError(error instanceof Error ? error.message : 'The User DNA fragrance pool is unavailable.');
+          setPoolError(error instanceof Error ? error.message : '');
           setPoolStatus('error');
         }
       });
@@ -334,31 +336,31 @@ export default function TestPage() {
   const needsGrounding = groundingSelectionCount < 2;
 
   if (isAuthLoading || !isHydrated) {
-    return <PageShell><div className="main-container py-16 text-sm text-gray-300">Loading your test profile...</div></PageShell>;
+    return <PageShell><div className="main-container py-16 text-sm text-gray-300">{t.test.loadingProfile}</div></PageShell>;
   }
   if (poolStatus === 'loading') {
-    return <PageShell><div className="main-container py-16 text-sm text-gray-300">Loading the User DNA fragrance pool...</div></PageShell>;
+    return <PageShell><div className="main-container py-16 text-sm text-gray-300">{t.test.loadingPool}</div></PageShell>;
   }
   if (poolStatus === 'error') {
-    return <PageShell><div role="alert" className="main-container py-16 text-sm text-rose-300">{poolError}</div></PageShell>;
+    return <PageShell><div role="alert" className="main-container py-16 text-sm text-rose-300">{poolError || t.test.poolUnavailable}</div></PageShell>;
   }
   if (needsGrounding) {
     return (
       <PageShell>
         <section className="py-16"><div className="main-container"><div className="premium-card-dark mx-auto max-w-2xl border border-gold/20 p-8 md:p-10">
-          <p className="mb-3 text-xs uppercase tracking-wider text-gold">GROUNDING REQUIRED</p>
-          <h1 className="mb-4 text-2xl font-bold text-white">Start with your scent preferences</h1>
-          <p className="mb-6 leading-relaxed text-gray-300">Place at least two characteristics in Love or Avoid before requesting a diagnostic batch.</p>
-          <PremiumButton variant="primary" size="lg" type="button" onClick={() => router.push('/grounding')}>Begin Grounding</PremiumButton>
+          <p className="mb-3 text-xs uppercase tracking-wider text-gold">{t.test.groundingRequiredEyebrow}</p>
+          <h1 className="mb-4 text-2xl font-bold text-white">{t.test.groundingRequiredTitle}</h1>
+          <p className="mb-6 leading-relaxed text-gray-300">{t.test.groundingRequiredDescription}</p>
+          <PremiumButton variant="primary" size="lg" type="button" onClick={() => router.push('/grounding')}>{t.test.beginGrounding}</PremiumButton>
         </div></div></section>
       </PageShell>
     );
   }
   if (!batchPlanInitialized) {
-    return <PageShell><div className="main-container py-16 text-sm text-gray-300">Preparing your diagnostic batch...</div></PageShell>;
+    return <PageShell><div className="main-container py-16 text-sm text-gray-300">{t.test.preparingBatch}</div></PageShell>;
   }
   if (!currentRef && !noMoreDiagnostics) {
-    return <PageShell><div role="alert" className="main-container py-16 text-sm text-rose-300">The User DNA fragrance pool contains no evaluable fragrances.</div></PageShell>;
+    return <PageShell><div role="alert" className="main-container py-16 text-sm text-rose-300">{t.test.noEvaluableFragrances}</div></PageShell>;
   }
 
   const handleSliderChange = (key: string, value: number) => {
@@ -381,7 +383,7 @@ export default function TestPage() {
 
   const handleNext = async () => {
     if (evaluationQuestions.length === 0 || !canContinueCurrentFragrance || !activePlan || !currentRef) {
-      setRatingError('Rate every displayed characteristic before continuing.');
+      setRatingError(t.test.rateEveryCharacteristic);
       return;
     }
 
@@ -419,8 +421,8 @@ export default function TestPage() {
     const nextBadge = getDnaConfidenceBadge(confidence);
     setBadgeMilestoneMessage(
       nextBadge.id !== previousBadge.id && nextBadge.minimum > previousBadge.minimum
-        ? `Your Fragrance DNA has reached ${nextBadge.label}! Your profile and recommendations now reflect your latest evidence.`
-        : 'Your DNA profile and recommendations now reflect your latest evidence.',
+        ? t.test.badgeMilestoneReached(t.common.badges[nextBadge.id] ?? nextBadge.label)
+        : t.test.profileUpdatedMessage,
     );
 
     if (phase1Flags.eventsWriteEnabled || phase1Flags.testDualWriteEnabled) {
@@ -501,7 +503,7 @@ export default function TestPage() {
     })[0];
 
     if (!replacement) {
-      setPlanNotice('No fresh alternatives remain in the pool for this step. Keep one of the current options.');
+      setPlanNotice(t.test.noFreshAlternatives);
       return;
     }
 
@@ -588,10 +590,10 @@ export default function TestPage() {
       <section className="py-12 md:py-20 mb-4">
         <div className="main-container">
           <div className="max-w-3xl">
-            <p className="text-sm font-medium uppercase tracking-wider text-gold mb-4">DISCOVER</p>
-            <h1 className="text-4xl md:text-5xl font-light mb-6 text-white">Guided Fragrance Discovery</h1>
+            <p className="text-sm font-medium uppercase tracking-wider text-gold mb-4">{t.test.heroEyebrow}</p>
+            <h1 className="text-4xl md:text-5xl font-light mb-6 text-white">{t.test.heroTitle}</h1>
             <p className="text-lg text-gray-300 max-w-2xl leading-relaxed">
-              Evaluate each fragrance through its own canonical attributes. Your preferences shape a refined DNA profile with each selection. Move at your own pace and trust your instinct.
+              {t.test.heroDescription}
             </p>
           </div>
         </div>
@@ -601,10 +603,10 @@ export default function TestPage() {
         <div className="main-container">
           <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="text-xs uppercase tracking-wider text-gold">DIAGNOSTIC BATCH {batchNumber}</p>
-              <h2 className="mt-2 text-2xl font-semibold text-white">{evaluationPlan.length} selected fragrances, each with a backup</h2>
+              <p className="text-xs uppercase tracking-wider text-gold">{t.test.diagnosticBatch(batchNumber)}</p>
+              <h2 className="mt-2 text-2xl font-semibold text-white">{t.test.selectedFragrances(evaluationPlan.length)}</h2>
             </div>
-            <p className="max-w-xl text-base text-gray-400">Your profile is already active. Pick the primary or backup you can smell right now — the evaluation below switches to the fragrance you select.</p>
+            <p className="max-w-xl text-base text-gray-400">{t.test.batchDescription}</p>
           </div>
           <div className="grid gap-4 lg:grid-cols-2">
             {evaluationPlan.map((item) => {
@@ -627,11 +629,11 @@ export default function TestPage() {
                   }}
                 >
                   <div className="mb-4 flex items-center justify-between gap-2">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#c5a05e]">Step {item.step}</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#c5a05e]">{t.test.step(item.step)}</p>
                     {isCompletedStep ? (
-                      <span className="rounded-full border border-emerald-300/35 bg-emerald-400/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-200">Completed</span>
+                      <span className="rounded-full border border-emerald-300/35 bg-emerald-400/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-200">{t.test.completed}</span>
                     ) : isCurrentStep ? (
-                      <span className="rounded-full border border-gold/50 bg-gold/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-gold">Now testing</span>
+                      <span className="rounded-full border border-gold/50 bg-gold/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-gold">{t.test.nowTesting}</span>
                     ) : null}
                   </div>
                   <div className="grid gap-3 sm:grid-cols-2">
@@ -669,9 +671,9 @@ export default function TestPage() {
                               : 'border-white/10 bg-black/25 hover:-translate-y-0.5 hover:border-gold/40'
                           } ${isCompletedStep ? 'cursor-not-allowed opacity-50' : ''}`}
                         >
-                          <span className="block text-[10px] uppercase tracking-[0.22em] text-[#b7955f]">{optionIndex === 0 ? 'Recommended' : 'Backup'}</span>
+                          <span className="block text-[10px] uppercase tracking-[0.22em] text-[#b7955f]">{optionIndex === 0 ? t.test.recommended : t.test.backup}</span>
                           <span className="mt-2 block truncate font-display text-[1.05rem] leading-snug text-[#f2e3c2]">{option.displayName}</span>
-                          <span className="mt-1 block truncate text-xs uppercase tracking-[0.14em] text-gray-500">{option.brand || 'Brand unavailable'}</span>
+                          <span className="mt-1 block truncate text-xs uppercase tracking-[0.14em] text-gray-500">{option.brand || t.test.brandUnavailable}</span>
                         </button>
                       );
                     })}
@@ -682,7 +684,7 @@ export default function TestPage() {
                       onClick={() => handleRerollStep(item.step)}
                       className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-1.5 text-xs uppercase tracking-[0.16em] text-gray-400 transition-colors hover:border-gold/45 hover:text-gold"
                     >
-                      <span aria-hidden="true">↻</span> Show me two other options
+                      <span aria-hidden="true">↻</span> {t.test.showTwoOtherOptions}
                     </button>
                   )}
                 </article>
@@ -699,33 +701,33 @@ export default function TestPage() {
           <div className="premium-card-dark p-8">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
               <div className="flex-1">
-                <p className="text-xs uppercase tracking-wider text-gray-400 mb-3">DNA CONFIDENCE LEVEL</p>
+                <p className="text-xs uppercase tracking-wider text-gray-400 mb-3">{t.test.dnaConfidenceLevel}</p>
                 <div className="flex items-baseline gap-3 mb-4">
                   <h2 className="text-4xl font-bold text-white">{currentConfidence}%</h2>
-                  <span className="text-lg text-gray-400">current evidence</span>
+                  <span className="text-lg text-gray-400">{t.test.currentEvidence}</span>
                 </div>
               </div>
               <div className="lg:flex-1 rounded-2xl border border-white/10 bg-black/25 p-4 text-right">
-                <p className="text-xs uppercase tracking-wider text-gray-400">Diagnostic Batch</p>
-                <p className="mt-1 text-xl font-semibold text-white">Batch {batchNumber}</p>
-                <p className="mt-1 text-sm text-gray-400">Position {currentIndex + 1} of {evaluationPlan.length}</p>
+                <p className="text-xs uppercase tracking-wider text-gray-400">{t.test.diagnosticBatchLabel}</p>
+                <p className="mt-1 text-xl font-semibold text-white">{t.test.batchNumber(batchNumber)}</p>
+                <p className="mt-1 text-sm text-gray-400">{t.test.positionOf(currentIndex + 1, evaluationPlan.length)}</p>
               </div>
             </div>
 
             <div className="mt-6 border-t border-black-600 pt-5">
               <div className="flex items-center gap-2">
                 <span className={`h-3 w-3 rounded-full ${currentBadge.colorClass}`} aria-hidden="true" />
-                <span className="text-xs uppercase tracking-wider text-gray-400">Current DNA Badge</span>
-                <span className="font-semibold text-white">{currentBadge.label}</span>
+                <span className="text-xs uppercase tracking-wider text-gray-400">{t.test.currentDnaBadge}</span>
+                <span className="font-semibold text-white">{t.common.badges[currentBadge.id] ?? currentBadge.label}</span>
               </div>
               {nextBadge ? (
                 <div className="mt-3 max-w-md">
-                  <p className="text-xs text-gray-400">Progress toward {nextBadge.label}</p>
-                  <div role="progressbar" aria-label={`Progress toward ${nextBadge.label}`} aria-valuemin={currentBadge.minimum} aria-valuemax={nextBadge.minimum} aria-valuenow={currentConfidence} className="mt-2 h-2 overflow-hidden rounded-full bg-black-700">
+                  <p className="text-xs text-gray-400">{t.test.progressToward(t.common.badges[nextBadge.id] ?? nextBadge.label)}</p>
+                  <div role="progressbar" aria-label={t.test.progressToward(t.common.badges[nextBadge.id] ?? nextBadge.label)} aria-valuemin={currentBadge.minimum} aria-valuemax={nextBadge.minimum} aria-valuenow={currentConfidence} className="mt-2 h-2 overflow-hidden rounded-full bg-black-700">
                     <div className={`h-full ${nextBadge.colorClass}`} style={{ width: `${badgeProgress}%` }} />
                   </div>
                 </div>
-              ) : <p className="mt-3 text-xs text-gray-400">Highest confidence badge reached.</p>}
+              ) : <p className="mt-3 text-xs text-gray-400">{t.test.highestBadgeReached}</p>}
             </div>
           </div>
         </div>
@@ -737,11 +739,11 @@ export default function TestPage() {
           {!showPostEvaluation && activePlan && currentRef && (
             <>
           <div className="premium-card-dark p-8 md:p-12 border-l-4 border-l-gold mb-12">
-            <p className="text-xs uppercase tracking-wider text-gray-400 mb-3">CURRENT FRAGRANCE</p>
+            <p className="text-xs uppercase tracking-wider text-gray-400 mb-3">{t.test.currentFragrance}</p>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">{currentRef.displayName}</h2>
-            <p className="mb-4 text-sm text-gold/80">{currentRef.brand || 'Brand unavailable'}{currentPlanOption?.fragranceId === activePlan?.backup?.fragranceId ? ' · Backup selected' : ''}</p>
+            <p className="mb-4 text-sm text-gold/80">{currentRef.brand || t.test.brandUnavailable}{currentPlanOption?.fragranceId === activePlan?.backup?.fragranceId ? ` · ${t.test.backupSelected}` : ''}</p>
             <p className="text-base text-gray-300 max-w-2xl leading-relaxed">
-              Rate this fragrance across its canonical attributes. Your evaluations blend with your grounding preferences to continuously refine your olfactory identity.
+              {t.test.rateFragranceDescription}
             </p>
           </div>
 
@@ -803,44 +805,44 @@ export default function TestPage() {
             <section className="py-12">
               <div className="premium-card-dark space-y-5 p-8 md:p-10">
                 <div>
-                  <p className="text-xs uppercase tracking-wider text-gold">PROFILE UPDATED</p>
-                  <h3 className="mt-2 text-2xl font-bold text-white">{badgeMilestoneMessage || 'Your DNA profile has been updated.'}</h3>
+                  <p className="text-xs uppercase tracking-wider text-gold">{t.test.profileUpdatedEyebrow}</p>
+                  <h3 className="mt-2 text-2xl font-bold text-white">{badgeMilestoneMessage || t.test.profileUpdatedFallback}</h3>
                 </div>
                 {noMoreDiagnostics ? (
-                  <p className="text-sm leading-6 text-gray-300">No materially useful diagnostic candidates remain in the current pool. Your profile and recommendations remain available.</p>
+                  <p className="text-sm leading-6 text-gray-300">{t.test.noMoreDiagnostics}</p>
                 ) : (
                   <div className="grid gap-3 md:grid-cols-2">
                     {hasMoreCurrentBatch ? (
                       <button type="button" onClick={handleAnotherInBatch} className="rounded-2xl border border-gold/35 bg-gold/10 p-4 text-left hover:bg-gold/15">
-                        <span className="block text-xs uppercase tracking-wider text-gold">Continue</span>
-                        <span className="mt-2 block font-semibold text-white">Test another selected fragrance</span>
-                        <span className="mt-1 block text-sm text-gray-400">Continue with an unevaluated position from Batch {batchNumber}.</span>
+                        <span className="block text-xs uppercase tracking-wider text-gold">{t.test.continueLabel}</span>
+                        <span className="mt-2 block font-semibold text-white">{t.test.testAnother}</span>
+                        <span className="mt-1 block text-sm text-gray-400">{t.test.continueWithBatch(batchNumber)}</span>
                       </button>
                     ) : (
                       <button type="button" onClick={handleExploreNextBatch} className="rounded-2xl border border-gold/35 bg-gold/10 p-4 text-left hover:bg-gold/15">
-                        <span className="block text-xs uppercase tracking-wider text-gold">Batch complete</span>
-                        <span className="mt-2 block font-semibold text-white">Explore the next adaptive batch</span>
-                        <span className="mt-1 block text-sm text-gray-400">Builder will use your latest evidence and avoid already-presented candidates.</span>
+                        <span className="block text-xs uppercase tracking-wider text-gold">{t.test.batchComplete}</span>
+                        <span className="mt-2 block font-semibold text-white">{t.test.exploreNextBatch}</span>
+                        <span className="mt-1 block text-sm text-gray-400">{t.test.builderUsesEvidence}</span>
                       </button>
                     )}
                   </div>
                 )}
                 <button type="button" onClick={handleStopTesting} className="rounded-xl border border-white/15 px-4 py-3 text-sm font-semibold text-gray-200 hover:bg-white/5">
-                  Stop for now and view recommendations
+                  {t.test.stopAndViewRecommendations}
                 </button>
               </div>
             </section>
           ) : activePlan ? (
             <section className="py-12">
               <div className="premium-card-dark p-8 md:p-10">
-                <h3 className="text-2xl font-bold text-white">Evaluate this fragrance</h3>
-                <p className="mt-2 max-w-2xl text-base text-gray-300">Only committed evaluations update your DNA and confidence. You can stop after any evaluation and return later.</p>
-                <p className="mt-4 text-sm text-gray-400" role="status">{currentRatedCount} of {evaluationQuestions.length} characteristics rated</p>
+                <h3 className="text-2xl font-bold text-white">{t.test.evaluateThisFragrance}</h3>
+                <p className="mt-2 max-w-2xl text-base text-gray-300">{t.test.onlyCommittedEvaluations}</p>
+                <p className="mt-4 text-sm text-gray-400" role="status">{t.test.ratedCount(currentRatedCount, evaluationQuestions.length)}</p>
                 {ratingError ? <p className="mt-3 text-sm text-rose-300" role="alert">{ratingError}</p> : null}
                 <div className="mt-5 flex flex-wrap gap-3">
-                  <button type="button" onClick={() => router.push('/results')} className="rounded-xl border border-white/15 px-4 py-3 text-sm font-semibold text-gray-200 hover:bg-white/5">Stop for now</button>
+                  <button type="button" onClick={() => router.push('/results')} className="rounded-xl border border-white/15 px-4 py-3 text-sm font-semibold text-gray-200 hover:bg-white/5">{t.test.stopForNow}</button>
                   <button type="button" disabled={!canContinueCurrentFragrance} onClick={() => void handleNext()} className="rounded-xl border border-gold/35 bg-gold/10 px-4 py-3 text-sm font-semibold text-gold hover:bg-gold/15 disabled:cursor-not-allowed disabled:opacity-40">
-                    {canContinueCurrentFragrance ? 'Commit evaluation' : `Rate ${evaluationQuestions.length - currentRatedCount} more characteristics`}
+                    {canContinueCurrentFragrance ? t.test.commitEvaluation : t.test.rateMore(evaluationQuestions.length - currentRatedCount)}
                   </button>
                 </div>
               </div>

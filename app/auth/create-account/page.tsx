@@ -6,8 +6,10 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
 import { AuthForm } from '@/components/auth/AuthForm';
 import { OAuthProviders } from '@/components/auth/OAuthProviders';
+import { useLanguage } from '@/lib/i18n';
 
 export default function CreateAccountPage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const { user, isLoading, signUp } = useAuth();
   const [error, setError] = useState<string>('');
@@ -34,7 +36,7 @@ export default function CreateAccountPage() {
       // Redirect will happen via useEffect
       router.push('/');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Sign up failed. Please try again.');
+      setError(err instanceof Error ? err.message : t.auth.signUp.genericError);
     } finally {
       setIsSubmitting(false);
     }
@@ -44,9 +46,9 @@ export default function CreateAccountPage() {
     <div className="space-y-8">
       {/* Header */}
       <div className="text-center space-y-3">
-        <p className="text-sm font-medium uppercase tracking-wider text-gold">Join Us</p>
-        <h1 className="text-4xl font-light text-white">Create Your Account</h1>
-        <p className="text-gray-400">Begin your olfactory discovery with FragranceDNA</p>
+        <p className="text-sm font-medium uppercase tracking-wider text-gold">{t.auth.signUp.kicker}</p>
+        <h1 className="text-4xl font-light text-white">{t.auth.signUp.title}</h1>
+        <p className="text-gray-400">{t.auth.signUp.subtitle}</p>
       </div>
 
       {/* Main Card */}
@@ -59,20 +61,20 @@ export default function CreateAccountPage() {
         )}
 
         {/* Sign Up Form */}
-        <AuthForm type="signup" onSubmit={handleSignUp} isLoading={isSubmitting} submitLabel="Create Account" />
+        <AuthForm type="signup" onSubmit={handleSignUp} isLoading={isSubmitting} submitLabel={t.auth.signUp.submit} />
 
         {/* Social Sign Up (only rendered for configured providers) */}
         <OAuthProviders />
 
         {/* Terms */}
         <p className="text-xs text-gray-400 text-center leading-relaxed">
-          By creating an account, you agree to our{' '}
+          {t.auth.signUp.termsPrefix}{' '}
           <Link href="/terms" className="text-gold hover:text-gold/80">
-            Terms of Service
+            {t.auth.signUp.termsOfService}
           </Link>{' '}
-          and{' '}
+          {t.auth.signUp.termsAnd}{' '}
           <Link href="/privacy" className="text-gold hover:text-gold/80">
-            Privacy Policy
+            {t.auth.signUp.privacyPolicy}
           </Link>
         </p>
       </div>
@@ -80,31 +82,31 @@ export default function CreateAccountPage() {
       {/* Sign In Link */}
       <div className="text-center">
         <p className="text-gray-400">
-          Already have an account?{' '}
+          {t.auth.signUp.alreadyHaveAccount}{' '}
           <Link href="/auth/sign-in" className="text-gold hover:text-gold/80 font-semibold transition-colors">
-            Sign in
+            {t.auth.signUp.signInLink}
           </Link>
         </p>
       </div>
 
       {/* Benefits Section */}
       <div className="border-t border-gold/10 pt-8 space-y-4 text-sm text-gray-400">
-        <h3 className="text-white font-semibold mb-4">What You'll Get:</h3>
+        <h3 className="text-white font-semibold mb-4">{t.auth.signUp.benefitsTitle}</h3>
         <div className="flex gap-3">
           <span className="text-gold font-bold">✦</span>
-          <p>Personalized fragrance recommendations based on your olfactory DNA</p>
+          <p>{t.auth.signUp.benefit1}</p>
         </div>
         <div className="flex gap-3">
           <span className="text-gold font-bold">✦</span>
-          <p>Access to exclusive territories and fragrance collections</p>
+          <p>{t.auth.signUp.benefit2}</p>
         </div>
         <div className="flex gap-3">
           <span className="text-gold font-bold">✦</span>
-          <p>Your personal fragrance identity profile and insights</p>
+          <p>{t.auth.signUp.benefit3}</p>
         </div>
         <div className="flex gap-3">
           <span className="text-gold font-bold">✦</span>
-          <p>Curated discovery experience with real-time compatibility scoring</p>
+          <p>{t.auth.signUp.benefit4}</p>
         </div>
       </div>
     </div>

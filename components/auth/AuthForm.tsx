@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useLanguage } from '@/lib/i18n';
 
 export interface AuthFormProps {
   type: 'signin' | 'signup' | 'reset';
@@ -18,8 +19,10 @@ export function AuthForm({
   type,
   onSubmit,
   isLoading = false,
-  submitLabel = type === 'signin' ? 'Sign In' : type === 'signup' ? 'Create Account' : 'Reset Password',
+  submitLabel,
 }: AuthFormProps) {
+  const { t } = useLanguage();
+  const resolvedSubmitLabel = submitLabel ?? t.auth.form.defaultSubmit[type];
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -34,29 +37,31 @@ export function AuthForm({
     switch (name) {
       case 'email':
         if (!value) {
-          return type === 'signin' ? 'Username or email is required' : 'Email is required';
+          return type === 'signin'
+            ? t.auth.form.errors.usernameOrEmailRequired
+            : t.auth.form.errors.emailRequired;
         }
         if (type !== 'signin' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          return 'Please enter a valid email';
+          return t.auth.form.errors.emailInvalid;
         }
         return null;
 
       case 'password':
         if (!value) {
-          return 'Password is required';
+          return t.auth.form.errors.passwordRequired;
         }
         if (type === 'signup' && value.length < 8) {
-          return 'Password must be at least 8 characters';
+          return t.auth.form.errors.passwordTooShort;
         }
         return null;
 
       case 'confirmPassword':
         if (type === 'signup') {
           if (!value) {
-            return 'Please confirm your password';
+            return t.auth.form.errors.confirmPasswordRequired;
           }
           if (value !== source.password) {
-            return 'Passwords do not match';
+            return t.auth.form.errors.passwordsDoNotMatch;
           }
         }
         return null;
@@ -64,10 +69,10 @@ export function AuthForm({
       case 'name':
         if (type === 'signup') {
           if (!value) {
-            return 'Name is required';
+            return t.auth.form.errors.nameRequired;
           }
           if (value.length < 2) {
-            return 'Name must be at least 2 characters';
+            return t.auth.form.errors.nameTooShort;
           }
         }
         return null;
@@ -156,7 +161,7 @@ export function AuthForm({
       {/* Email Field */}
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-          {type === 'signin' ? 'Username or Email' : 'Email Address'}
+          {type === 'signin' ? t.auth.form.labels.usernameOrEmail : t.auth.form.labels.email}
         </label>
         <input
           id="email"
@@ -165,7 +170,7 @@ export function AuthForm({
           value={formData.email}
           onChange={handleChange}
           onBlur={handleBlur}
-          placeholder="you@example.com"
+          placeholder={t.auth.form.placeholders.email}
           className={inputClasses}
           disabled={isLoading}
         />
@@ -176,7 +181,7 @@ export function AuthForm({
       {type === 'signup' && (
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
-            Full Name
+            {t.auth.form.labels.fullName}
           </label>
           <input
             id="name"
@@ -185,7 +190,7 @@ export function AuthForm({
             value={formData.name}
             onChange={handleChange}
             onBlur={handleBlur}
-            placeholder="Your Name"
+            placeholder={t.auth.form.placeholders.name}
             className={inputClasses}
             disabled={isLoading}
           />
@@ -197,7 +202,7 @@ export function AuthForm({
       {type !== 'reset' && (
         <div>
           <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
-            {type === 'signup' ? 'Create Password' : 'Password'}
+            {type === 'signup' ? t.auth.form.labels.createPassword : t.auth.form.labels.password}
           </label>
           <input
             id="password"
@@ -215,7 +220,7 @@ export function AuthForm({
           )}
           {type === 'signup' && !errors.password && (
             <p className="mt-1 text-xs text-gray-400">
-              At least 8 characters, mix of letters, numbers, and symbols
+              {t.auth.form.passwordHint}
             </p>
           )}
         </div>
@@ -225,7 +230,7 @@ export function AuthForm({
       {type === 'signup' && (
         <div>
           <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-2">
-            Confirm Password
+            {t.auth.form.labels.confirmPassword}
           </label>
           <input
             id="confirmPassword"
@@ -250,7 +255,7 @@ export function AuthForm({
         disabled={isLoading || Object.keys(errors).length > 0}
         className="w-full px-4 py-3 mt-6 bg-gold hover:bg-opacity-90 text-black font-semibold rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-gold/30 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isLoading ? 'Processing...' : submitLabel}
+        {isLoading ? t.auth.form.processing : resolvedSubmitLabel}
       </button>
     </form>
   );

@@ -7,6 +7,7 @@ import { SectionHeader } from '@/components/design-system/SectionHeader';
 import { PremiumButton } from '@/components/design-system/PremiumButton';
 import { territories, Territory } from '@/lib/data/territories';
 import { CloseGlyphIcon, ChevronRightGlyphIcon } from '@/components/design-system/FragranceIcons';
+import { useLanguage } from '@/lib/i18n';
 
 interface TerritoryCardProps {
   territory: Territory;
@@ -15,6 +16,9 @@ interface TerritoryCardProps {
 }
 
 const TerritoryMapCard: React.FC<TerritoryCardProps> = ({ territory, isSelected, onClick }) => {
+  const { t } = useLanguage();
+  const display = t.territoryData[territory.id];
+
   return (
     <button
       onClick={onClick}
@@ -32,7 +36,7 @@ const TerritoryMapCard: React.FC<TerritoryCardProps> = ({ territory, isSelected,
 
       {/* Territory Name */}
       <div className="flex items-start justify-between mb-3">
-        <h3 className="text-lg font-bold text-white">{territory.name}</h3>
+        <h3 className="text-lg font-bold text-white">{display?.name ?? territory.name}</h3>
         <span className="inline-block w-4 h-4 rounded-full" style={{ backgroundColor: territory.color }} />
       </div>
 
@@ -47,18 +51,18 @@ const TerritoryMapCard: React.FC<TerritoryCardProps> = ({ territory, isSelected,
             : 'bg-red-900 text-red-300'
           }
         `}>
-          {territory.intensity.charAt(0).toUpperCase() + territory.intensity.slice(1)} Intensity
+          {t.territories.intensityBadge(t.territories.intensity[territory.intensity] ?? territory.intensity)}
         </span>
       </div>
 
       {/* Description Preview */}
       <p className="text-sm text-gray-400 mb-4 line-clamp-2 text-left">
-        {territory.description}
+        {display?.description ?? territory.description}
       </p>
 
       {/* Versatility Indicator */}
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs text-gray-500 uppercase">Versatility</span>
+        <span className="text-xs text-gray-500 uppercase">{t.territories.card.versatility}</span>
         <div className="flex-1 mx-2 h-1 bg-black-600 rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-gold to-warm-500"
@@ -75,7 +79,7 @@ const TerritoryMapCard: React.FC<TerritoryCardProps> = ({ territory, isSelected,
             key={axis}
             className="text-xs bg-black-700 text-gold border border-gold-700 px-2 py-1 rounded"
           >
-            {axis}
+            {t.common.axes[axis] ?? axis}
           </span>
         ))}
       </div>
@@ -93,7 +97,7 @@ const TerritoryMapCard: React.FC<TerritoryCardProps> = ({ territory, isSelected,
               }
             `}
           >
-            {season.slice(0, 3).toUpperCase()}
+            {(t.territories.seasonsShort[season] ?? season.slice(0, 3)).toUpperCase()}
           </span>
         ))}
       </div>
@@ -107,6 +111,9 @@ interface TerritoryDetailProps {
 }
 
 const TerritoryDetailPanel: React.FC<TerritoryDetailProps> = ({ territory, onClose }) => {
+  const { t } = useLanguage();
+  const display = t.territoryData[territory.id];
+
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black-900 bg-opacity-90 backdrop-blur-sm p-4">
       <div className="premium-card-dark relative max-w-2xl w-full border border-gold/35 rounded-[30px] overflow-hidden max-h-[90vh] overflow-y-auto">
@@ -114,7 +121,7 @@ const TerritoryDetailPanel: React.FC<TerritoryDetailProps> = ({ territory, onClo
         <button
           onClick={onClose}
           className="absolute top-4 right-4 z-10 p-2 rounded-full border border-gold/45 bg-black/60 hover:border-gold hover:bg-black/85 transition-colors"
-          aria-label="Close"
+          aria-label={t.territories.detail.close}
         >
           <CloseGlyphIcon className="h-5 w-5 text-white" />
         </button>
@@ -127,20 +134,20 @@ const TerritoryDetailPanel: React.FC<TerritoryDetailProps> = ({ territory, onClo
               style={{ backgroundColor: territory.color }}
             />
             <div>
-              <h2 className="text-3xl font-bold text-white">{territory.name}</h2>
-              <p className="text-gold mt-1">{territory.label}</p>
+              <h2 className="text-3xl font-bold text-white">{display?.name ?? territory.name}</h2>
+              <p className="text-gold mt-1">{display?.name ? display.name.toUpperCase() : territory.label}</p>
             </div>
           </div>
-          <p className="text-base text-gray-300">{territory.description}</p>
+          <p className="text-base text-gray-300">{display?.description ?? territory.description}</p>
         </div>
 
         {/* Content */}
         <div className="p-8 space-y-8">
           {/* Characteristics */}
           <section>
-            <h3 className="text-lg font-bold text-gold mb-4">CHARACTERISTICS</h3>
+            <h3 className="text-lg font-bold text-gold mb-4">{t.territories.detail.characteristics}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {territory.characteristics.map((char) => (
+              {(display?.characteristics ?? territory.characteristics).map((char) => (
                 <div key={char} className="flex items-start gap-3">
                   <span className="text-gold mt-1">•</span>
                   <span className="text-gray-300">{char}</span>
@@ -151,14 +158,14 @@ const TerritoryDetailPanel: React.FC<TerritoryDetailProps> = ({ territory, onClo
 
           {/* DNA Axes */}
           <section>
-            <h3 className="text-lg font-bold text-gold mb-4">DNA AXES</h3>
+            <h3 className="text-lg font-bold text-gold mb-4">{t.territories.detail.dnaAxes}</h3>
             <div className="flex flex-wrap gap-2">
               {territory.dnaAxes.map((axis) => (
                 <span
                   key={axis}
                   className="px-4 py-2 bg-black-700 border border-gold text-gold rounded-lg text-sm font-medium"
                 >
-                  {axis}
+                  {t.common.axes[axis] ?? axis}
                 </span>
               ))}
             </div>
@@ -166,7 +173,7 @@ const TerritoryDetailPanel: React.FC<TerritoryDetailProps> = ({ territory, onClo
 
           {/* Examples */}
           <section>
-            <h3 className="text-lg font-bold text-gold mb-4">SIGNATURE FRAGRANCES</h3>
+            <h3 className="text-lg font-bold text-gold mb-4">{t.territories.detail.signatureFragrances}</h3>
             <div className="space-y-2">
               {territory.examples.map((example) => (
                 <div key={example} className="flex items-center gap-3 text-gray-300">
@@ -180,17 +187,17 @@ const TerritoryDetailPanel: React.FC<TerritoryDetailProps> = ({ territory, onClo
           {/* Season & Intensity */}
           <section className="grid grid-cols-2 gap-6">
             <div>
-              <h3 className="text-sm font-bold text-gold mb-3 uppercase">SEASONS</h3>
+              <h3 className="text-sm font-bold text-gold mb-3 uppercase">{t.territories.detail.seasons}</h3>
               <div className="flex flex-wrap gap-2">
                 {territory.season.map((season) => (
                   <span key={season} className="px-3 py-1 bg-gold-900 text-gold-200 rounded text-sm">
-                    {season.charAt(0).toUpperCase() + season.slice(1)}
+                    {t.territories.seasons[season] ?? season.charAt(0).toUpperCase() + season.slice(1)}
                   </span>
                 ))}
               </div>
             </div>
             <div>
-              <h3 className="text-sm font-bold text-gold mb-3 uppercase">INTENSITY</h3>
+              <h3 className="text-sm font-bold text-gold mb-3 uppercase">{t.territories.detail.intensity}</h3>
               <span className={`
                 inline-block px-3 py-1 rounded text-sm font-medium
                 ${territory.intensity === 'light' 
@@ -200,14 +207,14 @@ const TerritoryDetailPanel: React.FC<TerritoryDetailProps> = ({ territory, onClo
                   : 'bg-red-900 text-red-200'
                 }
               `}>
-                {territory.intensity.charAt(0).toUpperCase() + territory.intensity.slice(1)}
+                {t.territories.intensity[territory.intensity] ?? territory.intensity.charAt(0).toUpperCase() + territory.intensity.slice(1)}
               </span>
             </div>
           </section>
 
           {/* Versatility */}
           <section>
-            <h3 className="text-sm font-bold text-gold mb-3 uppercase">VERSATILITY</h3>
+            <h3 className="text-sm font-bold text-gold mb-3 uppercase">{t.territories.detail.versatility}</h3>
             <div className="flex items-center gap-4">
               <div className="flex-1 h-2 bg-black-700 rounded-full overflow-hidden">
                 <div
@@ -225,6 +232,7 @@ const TerritoryDetailPanel: React.FC<TerritoryDetailProps> = ({ territory, onClo
 };
 
 export default function TerritoriesPage() {
+  const { t } = useLanguage();
   const [selectedTerritoryId, setSelectedTerritoryId] = useState<string | null>(null);
   const [filterIntensity, setFilterIntensity] = useState<string | null>(null);
   const [filterSeason, setFilterSeason] = useState<string | null>(null);
@@ -250,7 +258,7 @@ export default function TerritoriesPage() {
             <div className="absolute inset-2 md:inset-3 overflow-hidden rounded-[28px]">
               <Image
                 src="/Territory/Territory.png"
-                alt="Territories background"
+                alt={t.territories.backgroundAlt}
                 fill
                 priority
                 className="object-cover object-center"
@@ -264,23 +272,22 @@ export default function TerritoriesPage() {
               <div className="w-full max-w-5xl px-5 py-3 md:px-10 md:py-4 mx-auto text-center">
                 <div className="mx-auto max-w-4xl rounded-[28px] border border-white/10 bg-black/35 px-6 py-6 md:px-10 md:py-8 backdrop-blur-sm shadow-[0_22px_52px_rgba(0,0,0,0.35)]">
                   <h1 className="text-3xl md:text-5xl font-bold text-[#d8c49d] leading-none drop-shadow-[0_6px_18px_rgba(0,0,0,0.55)]">
-                  Olfactory Territories
+                  {t.territories.pageTitle}
                   </h1>
                 </div>
 
                 <div className="mt-4 grid gap-3 text-left md:grid-cols-2">
                   <div className="rounded-[24px] border border-gold/18 bg-black/55 px-5 py-4 md:px-6 md:py-5 shadow-[0_18px_40px_rgba(0,0,0,0.35)] backdrop-blur-md">
-                    <p className="text-sm font-semibold uppercase tracking-[0.26em] text-gold mb-3">Overview</p>
+                    <p className="text-sm font-semibold uppercase tracking-[0.26em] text-gold mb-3">{t.territories.hero.overviewLabel}</p>
                     <p className="text-base md:text-lg text-gray-100/92 leading-relaxed">
-                      The fragrance universe organizes into distinct territories. Each represents a unique olfactory character,
-                      offering different expressions of identity, mood, and occasion.
+                      {t.territories.hero.overview}
                     </p>
                   </div>
 
                   <div className="rounded-[24px] border border-gold/18 bg-black/55 px-5 py-4 md:px-6 md:py-5 shadow-[0_18px_40px_rgba(0,0,0,0.35)] backdrop-blur-md">
-                    <p className="text-sm font-semibold uppercase tracking-[0.26em] text-gold mb-3">How to use</p>
+                    <p className="text-sm font-semibold uppercase tracking-[0.26em] text-gold mb-3">{t.territories.hero.howToUseLabel}</p>
                     <p className="text-base md:text-lg text-gray-100/92 leading-relaxed">
-                      Click any territory to explore characteristics, DNA signatures, and signature fragrances.
+                      {t.territories.hero.howToUse}
                     </p>
                   </div>
                 </div>
@@ -297,7 +304,7 @@ export default function TerritoriesPage() {
             <div className="absolute inset-0">
               <Image
                 src="/Territory/Territory.png"
-                alt="Territories background"
+                alt={t.territories.backgroundAlt}
                 fill
                 aria-hidden="true"
                 className="object-cover object-center opacity-55"
@@ -311,7 +318,7 @@ export default function TerritoriesPage() {
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 items-stretch max-w-4xl mx-auto">
               {/* Filter by Intensity */}
                 <div className="rounded-[22px] border border-gold/16 bg-black/50 p-4 md:p-5 backdrop-blur-md shadow-[0_18px_36px_rgba(0,0,0,0.3)]">
-                <p className="text-xs font-semibold text-[#d9c299] uppercase mb-3 tracking-[0.22em]">Filter by Intensity</p>
+                <p className="text-xs font-semibold text-[#d9c299] uppercase mb-3 tracking-[0.22em]">{t.territories.filters.byIntensity}</p>
                 <div className="flex gap-2 flex-wrap">
                   <button
                     onClick={() => setFilterIntensity(null)}
@@ -321,7 +328,7 @@ export default function TerritoriesPage() {
                         : 'bg-black/75 text-gold border border-gold/45 hover:border-gold'
                     }`}
                   >
-                    All
+                    {t.territories.filters.all}
                   </button>
                   {['light', 'moderate', 'intense'].map((intensity) => (
                     <button
@@ -333,7 +340,7 @@ export default function TerritoriesPage() {
                           : 'bg-black/75 text-gray-100 border border-white/10 hover:border-gold'
                       }`}
                     >
-                      {intensity}
+                      {t.territories.intensity[intensity] ?? intensity}
                     </button>
                   ))}
                 </div>
@@ -341,7 +348,7 @@ export default function TerritoriesPage() {
 
               {/* Filter by Season */}
                 <div className="rounded-[22px] border border-gold/16 bg-black/50 p-4 md:p-5 backdrop-blur-md shadow-[0_18px_36px_rgba(0,0,0,0.3)]">
-                <p className="text-xs font-semibold text-[#d9c299] uppercase mb-3 tracking-[0.22em]">Filter by Season</p>
+                <p className="text-xs font-semibold text-[#d9c299] uppercase mb-3 tracking-[0.22em]">{t.territories.filters.bySeason}</p>
                 <div className="flex gap-2 flex-wrap">
                   <button
                     onClick={() => setFilterSeason(null)}
@@ -351,7 +358,7 @@ export default function TerritoriesPage() {
                         : 'bg-black/75 text-gold border border-gold/45 hover:border-gold'
                     }`}
                   >
-                    All
+                    {t.territories.filters.all}
                   </button>
                   {['spring', 'summer', 'fall', 'winter'].map((season) => (
                     <button
@@ -363,7 +370,7 @@ export default function TerritoriesPage() {
                           : 'bg-black/75 text-gray-100 border border-white/10 hover:border-gold'
                       }`}
                     >
-                      {season.slice(0, 3)}
+                      {t.territories.seasonsShort[season] ?? season.slice(0, 3)}
                     </button>
                   ))}
                 </div>
@@ -402,20 +409,19 @@ export default function TerritoriesPage() {
       <section className="py-10 md:py-14">
         <div className="main-container">
           <div className="premium-card-dark p-10 md:p-14 text-center">
-            <p className="text-gold text-sm font-semibold uppercase mb-2">DNA INTEGRATION</p>
+            <p className="text-gold text-sm font-semibold uppercase mb-2">{t.territories.dnaIntegration.kicker}</p>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-              Map Your Territory Affinity
+              {t.territories.dnaIntegration.title}
             </h2>
             <p className="text-lg text-gray-400 mb-8 max-w-3xl mx-auto">
-              Your Olfactory DNA signature maps naturally to territory affinities. Understanding which territories
-              resonate with your profile guides discovery of fragrances that align with your identity.
+              {t.territories.dnaIntegration.text}
             </p>
             <PremiumButton
               variant="primary"
               size="md"
               onClick={() => (window.location.href = '/grounding')}
             >
-              DISCOVER YOUR TERRITORIES →
+              {t.territories.dnaIntegration.cta}
             </PremiumButton>
           </div>
         </div>

@@ -5,19 +5,21 @@ import { useEffect, useState } from 'react';
 import TerritoriesFullSection from '@/components/territories/TerritoriesFullSection';
 import { ChevronRightGlyphIcon } from '@/components/design-system/FragranceIcons';
 import { useAuth } from '@/lib/auth';
+import { useLanguage } from '@/lib/i18n';
 import { loadDnaSession, loadGroundingVector } from '@/lib/dnaSession';
 
 const JOURNEY_STEPS = [
-  { title: 'Discover what you love', description: 'Start with smells, ingredients, and experiences that move you.', href: '/grounding', action: 'Start Grounding' },
-  { title: 'Understand your preferences', description: 'Evaluate fragrances to uncover your personal scent signals.', href: '/test', action: 'Start Test' },
-  { title: 'Build your profile', description: 'See your preferences come together in a living scent profile.', href: '/dna', action: 'View your profile' },
-  { title: 'Reveal your DNA', description: 'Explore the dimensions that make your scent identity unique.', href: '/dna', action: 'Enter your DNA' },
-  { title: 'Explore scent territories', description: 'Find the olfactory worlds that resonate with your DNA.', href: '/dna#olfactory-territories', action: 'Your Olfactory Territories' },
-  { title: 'Find your matches', description: 'Discover fragrances to consider next, guided by your scent DNA.', href: '/dna#your-recommendations', action: 'Your Recommendations' },
+  { key: 'discover', href: '/grounding' },
+  { key: 'understand', href: '/test' },
+  { key: 'build', href: '/dna' },
+  { key: 'reveal', href: '/dna' },
+  { key: 'explore', href: '/dna#olfactory-territories' },
+  { key: 'matches', href: '/dna#your-recommendations' },
 ] as const;
 
 export default function HomePage() {
   const { user, isLoading } = useAuth();
+  const { t } = useLanguage();
   const [journeyHref, setJourneyHref] = useState<string | null>(null);
 
   useEffect(() => {
@@ -54,59 +56,59 @@ export default function HomePage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/Pictures/Pasi/Pasi.png?v=20260623b"
-              alt="Golden scent ingredients flowing into a fragrance DNA helix"
+              alt={t.home.heroImageAlt}
               className="block w-full h-auto"
             />
           </div>
 
           <div className="hero-first-copy">
             <h1>
-              DISCOVER YOUR SCENT DNA.
+              {t.home.heroTitleLine1}
               <br />
-              FIND FRAGRANCES THAT MOVE YOU.
+              {t.home.heroTitleLine2}
             </h1>
             <p>
-              Decode your scent identity. Discover perfumes you truly love.
+              {t.home.heroSubtitle}
             </p>
           </div>
 
           <div className="hero-first-cta-row z-10">
             <Link href="/grounding" className="hero-first-cta-link hero-first-cta-grounding inline-flex">
-              <span className="luxury-cta luxury-cta-hero-secondary w-full justify-center !rounded-full">START GROUNDING</span>
+              <span className="luxury-cta luxury-cta-hero-secondary w-full justify-center !rounded-full">{t.home.ctaStartGrounding}</span>
             </Link>
             <Link href="/test" className="hero-first-cta-link hero-first-cta-test inline-flex">
-              <span className="luxury-cta luxury-cta-hero-secondary w-full justify-center !rounded-full">START TEST</span>
+              <span className="luxury-cta luxury-cta-hero-secondary w-full justify-center !rounded-full">{t.home.ctaStartTest}</span>
             </Link>
             <Link href="/dna" className="hero-first-cta-link hero-first-cta-dna inline-flex">
-              <span className="luxury-cta luxury-cta-hero-secondary w-full justify-center !rounded-full">ENTER YOUR DNA</span>
+              <span className="luxury-cta luxury-cta-hero-secondary w-full justify-center !rounded-full">{t.home.ctaEnterDna}</span>
             </Link>
             <Link href="/dna#olfactory-territories" className="hero-first-cta-link hero-first-cta-territories inline-flex">
-              <span className="luxury-cta luxury-cta-hero-secondary w-full justify-center !rounded-full">Your Olfactory Territories</span>
+              <span className="luxury-cta luxury-cta-hero-secondary w-full justify-center !rounded-full">{t.home.ctaTerritories}</span>
             </Link>
             <Link href="/dna#your-recommendations" className="hero-first-cta-link hero-first-cta-recommendations inline-flex">
-              <span className="luxury-cta luxury-cta-hero-secondary w-full justify-center !rounded-full">Your Recommendations</span>
+              <span className="luxury-cta luxury-cta-hero-secondary w-full justify-center !rounded-full">{t.home.ctaRecommendations}</span>
             </Link>
           </div>
         </article>
         <div className="homepage-journey-guide">
           {journeyHref ? (
             <Link href={journeyHref} className="homepage-journey-entry">
-              <span>{journeyHref === '/grounding' ? 'Start here' : 'Continue your journey'}</span>
+              <span>{journeyHref === '/grounding' ? t.home.startHere : t.home.continueJourney}</span>
               <ChevronRightGlyphIcon className="h-4 w-4" />
             </Link>
-          ) : <span className="text-sm text-gray-400">Loading your journey...</span>}
-          <p>From the scents you love to the fragrances that feel like you.</p>
+          ) : <span className="text-sm text-gray-400">{t.home.loadingJourney}</span>}
+          <p>{t.home.journeyTagline}</p>
         </div>
-        <nav className="homepage-mobile-journey" aria-label="Your scent journey">
+        <nav className="homepage-mobile-journey" aria-label={t.home.journeyNavAria}>
           <ol>
             {JOURNEY_STEPS.map((step, index) => (
-              <li key={step.title}>
+              <li key={step.key}>
                 <Link href={step.href}>
                   <span className="homepage-step-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
                   <div>
-                    <h2>{step.title}</h2>
-                    <p>{step.description}</p>
-                    <span className="homepage-step-action">{step.action}<ChevronRightGlyphIcon className="h-4 w-4" /></span>
+                    <h2>{t.home.journeySteps[step.key].title}</h2>
+                    <p>{t.home.journeySteps[step.key].description}</p>
+                    <span className="homepage-step-action">{t.home.journeySteps[step.key].action}<ChevronRightGlyphIcon className="h-4 w-4" /></span>
                   </div>
                 </Link>
               </li>

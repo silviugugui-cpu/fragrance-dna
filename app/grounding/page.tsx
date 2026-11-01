@@ -11,6 +11,7 @@ import { mergeGroundingVectorIntoSession } from "@/lib/dnaSession";
 import { getOrCreateUserProfile, updateUserVector } from "@/lib/engine/userProfileManager";
 import { getPhase1Flags } from "@/lib/intelligence/flags/phase1Flags";
 import { runGroundingDualWrite } from "@/lib/intelligence/grounding/groundingDualWrite";
+import { useLanguage } from "@/lib/i18n";
 import { PageShell, SectionHeader, PremiumButton } from "@/components/design-system";
 
 const TOKENS = [
@@ -33,6 +34,7 @@ type Zone = "love" | "neutral" | "hate";
 export default function GroundingPage() {
   const router = useRouter();
   const { user, isLoading } = useAuth();
+  const { t } = useLanguage();
   const [isGroundingReady, setIsGroundingReady] = useState(false);
   const draggedTokenRef = useRef<string | null>(null);
   const [state, setState] = useState<Record<string, Zone>>(
@@ -92,6 +94,7 @@ export default function GroundingPage() {
   }
 
   function renderTokenControl(token: string, tone: "love" | "neutral" | "hate") {
+    const tokenLabel = t.grounding.tokens[token] ?? token;
     const toneClass =
       tone === "love"
         ? "bg-gold/20 border-gold/40 text-gold"
@@ -111,8 +114,8 @@ export default function GroundingPage() {
           type="button"
           onClick={() => setTokenZone(token, "hate")}
           className="h-full border-r border-red-400/50 bg-red-500/20 px-2 py-2 text-xs font-bold text-red-300 hover:bg-red-500/35"
-          aria-label={`Move ${token} to Avoid`}
-          title="Move to Avoid"
+          aria-label={t.grounding.moveToAvoidAria(tokenLabel)}
+          title={t.grounding.moveToAvoidTitle}
         >
           X
         </button>
@@ -120,17 +123,17 @@ export default function GroundingPage() {
           type="button"
           onClick={() => setTokenZone(token, "neutral")}
           className="px-3 py-2 text-sm font-medium"
-          aria-label={`Move ${token} to Neutral`}
-          title="Move to Neutral"
+          aria-label={t.grounding.moveToNeutralAria(tokenLabel)}
+          title={t.grounding.moveToNeutralTitle}
         >
-          {token}
+          {tokenLabel}
         </button>
         <button
           type="button"
           onClick={() => setTokenZone(token, "love")}
           className="h-full border-l border-emerald-400/50 bg-emerald-500/20 px-2 py-2 text-xs font-bold text-emerald-300 hover:bg-emerald-500/35"
-          aria-label={`Move ${token} to Love`}
-          title="Move to Love"
+          aria-label={t.grounding.moveToLoveAria(tokenLabel)}
+          title={t.grounding.moveToLoveTitle}
         >
           ✓
         </button>
@@ -212,7 +215,7 @@ export default function GroundingPage() {
   };
 
   if (isLoading || !isGroundingReady) {
-    return <PageShell><div className="main-container py-16 text-sm text-gray-300">Loading your scent preferences...</div></PageShell>;
+    return <PageShell><div className="main-container py-16 text-sm text-gray-300">{t.grounding.loading}</div></PageShell>;
   }
 
   return (
@@ -221,8 +224,8 @@ export default function GroundingPage() {
       <section className="py-12 md:py-16">
         <div className="main-container">
           <SectionHeader
-            title="Classify Your Scent Qualities"
-            description="Drag a quality into Love, Neutral, or Avoid, or use X, ✓, and the quality button to place it."
+            title={t.grounding.sectionTitle}
+            description={t.grounding.sectionDescription}
             className="mb-10"
           />
 
@@ -239,10 +242,10 @@ export default function GroundingPage() {
               }}
             >
               <div className="mb-6">
-                <p className="text-xs uppercase tracking-wider text-warm-300 font-bold mb-2">Neutral Affinities</p>
-                <h3 className="text-xl font-bold text-white mb-3">Balance</h3>
+                <p className="text-xs uppercase tracking-wider text-warm-300 font-bold mb-2">{t.grounding.neutralLabel}</p>
+                <h3 className="text-xl font-bold text-white mb-3">{t.grounding.neutralTitle}</h3>
                 <p className="text-base text-gray-400">
-                  These whispers add atmosphere without demanding the spotlight, creating a soft, balanced trail.
+                  {t.grounding.neutralDescription}
                 </p>
               </div>
 
@@ -250,7 +253,7 @@ export default function GroundingPage() {
                 {groupedTokens.neutral.length > 0 ? (
                   groupedTokens.neutral.map((token) => renderTokenControl(token, "neutral"))
                 ) : (
-                  <p className="text-sm text-gray-500 italic">No qualities in Neutral right now...</p>
+                  <p className="text-sm text-gray-500 italic">{t.grounding.neutralEmpty}</p>
                 )}
               </div>
             </div>
@@ -267,10 +270,10 @@ export default function GroundingPage() {
               }}
             >
               <div className="mb-6">
-                <p className="text-xs uppercase tracking-wider text-gold font-bold mb-2">Attraction Patterns</p>
-                <h3 className="text-xl font-bold text-white mb-3">Love</h3>
+                <p className="text-xs uppercase tracking-wider text-gold font-bold mb-2">{t.grounding.loveLabel}</p>
+                <h3 className="text-xl font-bold text-white mb-3">{t.grounding.loveTitle}</h3>
                 <p className="text-base text-gray-400">
-                  These accords ignite your curiosity and become the luminous heart of your fragrance story.
+                  {t.grounding.loveDescription}
                 </p>
               </div>
 
@@ -278,7 +281,7 @@ export default function GroundingPage() {
                 {groupedTokens.love.length > 0 ? (
                   groupedTokens.love.map((token) => renderTokenControl(token, "love"))
                 ) : (
-                  <p className="text-sm text-gray-500 italic">No qualities in Love yet...</p>
+                  <p className="text-sm text-gray-500 italic">{t.grounding.loveEmpty}</p>
                 )}
               </div>
             </div>
@@ -295,10 +298,10 @@ export default function GroundingPage() {
               }}
             >
               <div className="mb-6">
-                <p className="text-xs uppercase tracking-wider text-black-200 font-bold mb-2">Avoidance Patterns</p>
-                <h3 className="text-xl font-bold text-white mb-3">Avoid</h3>
+                <p className="text-xs uppercase tracking-wider text-black-200 font-bold mb-2">{t.grounding.avoidLabel}</p>
+                <h3 className="text-xl font-bold text-white mb-3">{t.grounding.avoidTitle}</h3>
                 <p className="text-base text-gray-400">
-                  These textures are best set aside to preserve clarity and warmth in your scent identity.
+                  {t.grounding.avoidDescription}
                 </p>
               </div>
 
@@ -306,7 +309,7 @@ export default function GroundingPage() {
                 {groupedTokens.hate.length > 0 ? (
                   groupedTokens.hate.map((token) => renderTokenControl(token, "hate"))
                 ) : (
-                  <p className="text-sm text-gray-500 italic">No qualities in Avoid yet...</p>
+                  <p className="text-sm text-gray-500 italic">{t.grounding.avoidEmpty}</p>
                 )}
               </div>
             </div>
@@ -320,9 +323,9 @@ export default function GroundingPage() {
         <section className="py-12 md:py-16 mb-8 -mt-[2cm]">
           <div className="main-container">
             <div className="premium-card-dark p-8 md:p-12 text-center">
-              <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">Ready to Begin Your Test Flow?</h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">{t.grounding.readyTitle}</h2>
               <p className="text-gray-300 mb-8 max-w-xl mx-auto">
-                Continue sorting until all relevant scent qualities are placed, then press the button to move into the test flow. Classifying more scent qualities improves profile precision and recommendation quality.
+                {t.grounding.readyDescription}
               </p>
               <PremiumButton
                 onClick={finish}
@@ -330,7 +333,7 @@ export default function GroundingPage() {
                 size="lg"
                 className="w-full sm:w-auto sm:min-w-[360px] min-h-[68px] px-8 sm:px-10 py-4 sm:py-0 text-[0.92rem] sm:text-[1.02rem] font-bold leading-tight tracking-[0.06em] sm:tracking-[0.08em] uppercase text-center whitespace-normal border-2 border-gold/65 shadow-[0_14px_28px_rgba(212,175,120,0.24)] hover:shadow-[0_18px_34px_rgba(212,175,120,0.3)]"
               >
-                I'm done sorting, continue to testing
+                {t.grounding.continueButton}
               </PremiumButton>
             </div>
           </div>

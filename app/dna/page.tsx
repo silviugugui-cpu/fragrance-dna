@@ -10,24 +10,12 @@ import { AscendGlyphIcon, DescendGlyphIcon } from '@/components/design-system/Fr
 import { calculateTerritoryAffinities } from '@/lib/engine/territoryAffinities';
 import { perfumers, type PerfumerDnaKey } from '@/lib/data/perfumers';
 import type { DNASessionState, OlfactoryVector, UserDNAProfile } from '@/lib/types';
+import { useLanguage } from '@/lib/i18n';
+import type { Dictionary } from '@/lib/i18n/dictionaries/en';
 import { RecommendationsClient } from '@/app/results/RecommendationsClient';
 
 const SHIFT_MINIMAL_THRESHOLD = 8;
 const SHIFT_MODERATE_THRESHOLD = 16;
-
-const PROFILE_WORDS: Record<DnaAxis, string> = {
-  Freshness: 'Fresh',
-  Warmth: 'Warm',
-  Complexity: 'Refined',
-  Elegance: 'Elegant',
-  Character: 'Bold',
-  Presence: 'Expressive',
-  Comfort: 'Soft',
-  Uniqueness: 'Distinct',
-  Versatility: 'Modern',
-  Luxury: 'Luxurious',
-  Formality: 'Polished',
-};
 
 type PerfumerAxisDiff = {
   axis: PerfumerDnaKey;
@@ -39,14 +27,6 @@ type PerfumerMatch = {
   score: number;
   reason: string;
   cluster: string;
-};
-
-const PERFUMER_AXIS_REASON: Record<PerfumerDnaKey, string> = {
-  Freshness: 'freshness alignment',
-  Complexity: 'complexity structure match',
-  Elegance: 'elegance structure match',
-  Presence: 'presence resonance',
-  Luxury: 'luxury resonance',
 };
 
 const PREVIEW_VECTOR: OlfactoryVector = {
@@ -117,9 +97,9 @@ function getEvolutionStrength(averageShift: number): 'Minimal' | 'Moderate' | 'S
   return 'Strong';
 }
 
-function formatLastUpdated(timestamp: number | null): string {
+function formatLastUpdated(timestamp: number | null, todayLabel: string): string {
   if (!timestamp) {
-    return 'Today';
+    return todayLabel;
   }
 
   const date = new Date(timestamp);
@@ -130,7 +110,7 @@ function formatLastUpdated(timestamp: number | null): string {
     date.getDate() === now.getDate();
 
   if (isToday) {
-    return 'Today';
+    return todayLabel;
   }
 
   return date.toLocaleDateString();
@@ -144,15 +124,18 @@ function clampScore(value: number): number {
   return Math.max(0, Math.min(100, value));
 }
 
-function buildPerfumerReason(axisDiffs: PerfumerAxisDiff[]): string {
+function buildPerfumerReason(axisDiffs: PerfumerAxisDiff[], dict: Dictionary['dna']): string {
   const best = axisDiffs[0];
   const secondBest = axisDiffs[1];
 
   if (!best || !secondBest) {
-    return 'Balanced olfactory profile alignment';
+    return dict.perfumerReasonBalanced;
   }
 
-  return `High ${PERFUMER_AXIS_REASON[best.axis]} + ${PERFUMER_AXIS_REASON[secondBest.axis]}`;
+  return dict.perfumerReasonHigh(
+    dict.perfumerAxisReason[best.axis] ?? best.axis,
+    dict.perfumerAxisReason[secondBest.axis] ?? secondBest.axis,
+  );
 }
 
 function computePerfumerMatchScore(
@@ -178,25 +161,28 @@ function computePerfumerMatchScore(
 function buildNarrative(
   dominant: Array<{ axis: DnaAxis; value: number }>,
   positive: Array<{ axis: DnaAxis; delta: number }>,
-  negative: Array<{ axis: DnaAxis; delta: number }>
+  negative: Array<{ axis: DnaAxis; delta: number }>,
+  dict: Dictionary['dna'],
+  axisNames: Record<string, string>
 ): string {
-  const leadAxes = dominant.slice(0, 3).map((item) => item.axis.toLowerCase()).join(', ');
+  const leadAxes = dominant.slice(0, 3).map((item) => axisNames[item.axis] ?? item.axis);
   const strongestGain = positive[0];
   const strongestDrop = negative[0];
 
   const gainPart = strongestGain
-    ? `Testing reinforced ${strongestGain.axis.toLowerCase()} by +${strongestGain.delta}.`
-    : 'Testing kept your DNA highly consistent.';
+    ? dict.narrativeGain(axisNames[strongestGain.axis] ?? strongestGain.axis, strongestGain.delta)
+    : dict.narrativeGainNone;
 
   const dropPart = strongestDrop
-    ? `The biggest pullback was ${strongestDrop.axis.toLowerCase()} (${strongestDrop.delta}).`
-    : 'No axis showed a meaningful negative regression.';
+    ? dict.narrativeDrop(axisNames[strongestDrop.axis] ?? strongestDrop.axis, strongestDrop.delta)
+    : dict.narrativeDropNone;
 
-  return `Your profile is currently shaped by ${leadAxes}. ${gainPart} ${dropPart}`;
+  return `${dict.narrativeShaped(leadAxes)} ${gainPart} ${dropPart}`;
 }
 
 export default function DnaPage() {
   const { user, isLoading: isAuthLoading } = useAuth();
+  const { t } = useLanguage();
   const [dnaSession, setDnaSession] = useState<DNASessionState | null>(null);
   const [userProfile, setUserProfile] = useState<UserDNAProfile | null>(null);
   const [groundingVector, setGroundingVector] = useState<OlfactoryVector | null>(null);
@@ -310,16 +296,16 @@ export default function DnaPage() {
   );
 
   const profileType = useMemo(
-    () => dominantAxes.slice(0, 3).map((item) => PROFILE_WORDS[item.axis]).join(' '),
-    [dominantAxes]
+    () => dominantAxes.slice(0, 3).map((item) => t.dna.profileWords[item.axis] ?? item.axis).join(' '),
+    [dominantAxes, t]
   );
 
   const profileEvolution = getEvolutionStrength(averageShift);
-  const lastUpdated = formatLastUpdated(summary?.completedAt ?? dnaSession?.lastUpdatedAt ?? userProfile?.updatedAt ?? null);
+  const lastUpdated = formatLastUpdated(summary?.completedAt ?? dnaSession?.lastUpdatedAt ?? userProfile?.updatedAt ?? null, t.dna.today);
   const lastRefreshLabel = refreshedAt ? new Date(refreshedAt).toLocaleTimeString() : '--:--:--';
   const narrative = useMemo(
-    () => buildNarrative(dominantAxes, positiveChanges, negativeChanges),
-    [dominantAxes, positiveChanges, negativeChanges]
+    () => buildNarrative(dominantAxes, positiveChanges, negativeChanges, t.dna, t.common.axes),
+    [dominantAxes, positiveChanges, negativeChanges, t]
   );
 
   const perfumerMatches = useMemo<PerfumerMatch[]>(() => {
@@ -337,7 +323,7 @@ export default function DnaPage() {
         return {
           name: perfumer.name,
           score,
-          reason: buildPerfumerReason(axisDiffs),
+          reason: buildPerfumerReason(axisDiffs, t.dna),
           cluster: perfumer.cluster,
         };
       })
@@ -349,10 +335,10 @@ export default function DnaPage() {
         return left.name.localeCompare(right.name);
       })
       .slice(0, 3);
-  }, [finalAxisValues]);
+  }, [finalAxisValues, t]);
 
   if (isAuthLoading || !dnaSession) {
-    return <PageShell><div className="main-container py-16 text-sm text-gray-300">Loading your DNA profile...</div></PageShell>;
+    return <PageShell><div className="main-container py-16 text-sm text-gray-300">{t.dna.loading}</div></PageShell>;
   }
 
   if (finalVector === null) {
@@ -361,19 +347,19 @@ export default function DnaPage() {
         <section className="py-16">
           <div className="main-container">
             <div id="olfactory-territories" className="premium-card-dark mx-auto max-w-2xl scroll-mt-32 border border-gold/20 p-8 md:p-10">
-              <p className="mb-3 text-xs uppercase tracking-wider text-gold">DNA PROFILE IN PROGRESS</p>
-              <h1 className="mb-4 text-2xl font-bold text-white">Your DNA is still taking shape</h1>
+              <p className="mb-3 text-xs uppercase tracking-wider text-gold">{t.dna.inProgressEyebrow}</p>
+              <h1 className="mb-4 text-2xl font-bold text-white">{t.dna.inProgressTitle}</h1>
               <p className="mb-6 leading-relaxed text-gray-300">
-                Start with Grounding to create your initial profile. You can request recommendations immediately, then refine the profile through adaptive fragrance evaluations.
+                {t.dna.inProgressDescription}
               </p>
-              <p className="mb-6 text-sm text-gray-400">Your Olfactory Territories will be calculated here once your profile has real preference signals.</p>
+              <p className="mb-6 text-sm text-gray-400">{t.dna.territoriesPending}</p>
               <PremiumButton
                 variant="primary"
                 size="lg"
                 type="button"
                 onClick={() => window.location.assign('/grounding')}
               >
-                Begin Grounding
+                {t.dna.beginGrounding}
               </PremiumButton>
             </div>
             <div className="mt-12">
@@ -390,11 +376,10 @@ export default function DnaPage() {
       {/* Hero Section */}
       <section className="py-12 md:py-16">
         <div className="main-container">
-          <p className="text-gold text-sm font-semibold uppercase mb-2">Your DNA</p>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Your DNA</h1>
+          <p className="text-gold text-sm font-semibold uppercase mb-2">{t.dna.heroEyebrow}</p>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{t.dna.heroTitle}</h1>
           <p className="text-lg text-gray-400 max-w-3xl">
-            Your final olfactory identity decoded. See how testing shifted your profile from baseline and discover the
-            DNA signature that defines your fragrance preferences across 11 dimensions.
+            {t.dna.heroDescription}
           </p>
         </div>
       </section>
@@ -403,30 +388,30 @@ export default function DnaPage() {
       <section className="py-8 md:py-10 border-b border-black-600">
         <div className="main-container">
           <SectionHeader
-            label="LIVE PROFILE"
-            title="Current DNA Snapshot"
-            description="Signals imported from your profile feed into the DNA page in real time."
+            label={t.dna.liveProfileLabel}
+            title={t.dna.snapshotTitle}
+            description={t.dna.snapshotDescription}
             className="mb-6"
           />
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <StatCard
-              label="DNA Confidence Level"
+              label={t.dna.confidenceLabel}
               value={`${finalConfidence}%`}
-              subtitle="Evidence-based profile confidence"
+              subtitle={t.dna.confidenceSubtitle}
             />
             <article className="premium-card-dark p-5">
-              <p className="text-xs uppercase tracking-wider text-gray-400">Current Badge</p>
+              <p className="text-xs uppercase tracking-wider text-gray-400">{t.dna.currentBadge}</p>
               <div className="mt-2 flex items-center gap-2">
                 <span className={`h-3 w-3 rounded-full ${currentBadge.colorClass}`} aria-hidden="true" />
-                <p className="text-lg font-semibold text-white">{currentBadge.label}</p>
+                <p className="text-lg font-semibold text-white">{t.common.badges[currentBadge.id] ?? currentBadge.label}</p>
               </div>
               {nextBadge ? (
                 <>
-                  <p className="mt-3 text-xs text-gray-400">Progress toward {nextBadge.label}</p>
+                  <p className="mt-3 text-xs text-gray-400">{t.dna.progressToward(t.common.badges[nextBadge.id] ?? nextBadge.label)}</p>
                   <div
                     role="progressbar"
-                    aria-label={`Progress toward ${nextBadge.label}`}
+                    aria-label={t.dna.progressToward(t.common.badges[nextBadge.id] ?? nextBadge.label)}
                     aria-valuemin={currentBadge.minimum}
                     aria-valuemax={nextBadge.minimum}
                     aria-valuenow={finalConfidence}
@@ -435,12 +420,12 @@ export default function DnaPage() {
                     <div className={`h-full ${nextBadge.colorClass}`} style={{ width: `${badgeProgress}%` }} />
                   </div>
                 </>
-              ) : <p className="mt-3 text-xs text-gray-400">Highest confidence badge reached.</p>}
+              ) : <p className="mt-3 text-xs text-gray-400">{t.dna.highestBadgeReached}</p>}
             </article>
             <StatCard
-              label="Last Refresh"
+              label={t.dna.lastRefresh}
               value={lastRefreshLabel}
-              subtitle="Live sync time"
+              subtitle={t.dna.lastRefreshSubtitle}
             />
           </div>
         </div>
@@ -450,9 +435,9 @@ export default function DnaPage() {
       <section className="py-12 md:py-16 border-b border-black-600">
         <div className="main-container">
           <SectionHeader
-            label="PERFUMER AFFINITY"
-            title="Your Perfumer Matches"
-            description="Perfume creators whose olfactory DNA aligns with your identity"
+            label={t.dna.perfumerAffinityLabel}
+            title={t.dna.perfumerMatchesTitle}
+            description={t.dna.perfumerMatchesDescription}
             className="mb-8"
           />
 
@@ -463,7 +448,7 @@ export default function DnaPage() {
                 <h3 className="mt-3 text-2xl font-bold text-white">{match.name}</h3>
                 <div className="mt-5 flex items-end gap-2">
                   <span className="text-4xl font-bold text-gold">{match.score}%</span>
-                  <span className="pb-1 text-xs uppercase tracking-[0.18em] text-gray-400">Match</span>
+                  <span className="pb-1 text-xs uppercase tracking-[0.18em] text-gray-400">{t.dna.matchLabel}</span>
                 </div>
                 <p className="mt-4 text-sm leading-relaxed text-gray-300">{match.reason}</p>
               </article>
@@ -479,10 +464,10 @@ export default function DnaPage() {
             {/* Radar Chart */}
             <div className="premium-card-dark p-6 md:p-8">
               <div className="mb-6">
-                <p className="text-xs font-semibold text-gold uppercase mb-2">DNA SIGNATURE</p>
-                <h3 className="text-xl font-bold text-white">Final DNA vs Baseline</h3>
+                <p className="text-xs font-semibold text-gold uppercase mb-2">{t.dna.dnaSignatureLabel}</p>
+                <h3 className="text-xl font-bold text-white">{t.dna.finalVsBaseline}</h3>
                 <p className="text-sm text-gray-400 mt-2">
-                  Scores range from 0 (low presence) to 100 (very high presence).
+                  {t.dna.scoresRange}
                 </p>
               </div>
               <DnaRadar baselineValues={baselineAxisValues} finalValues={finalAxisValues} />
@@ -492,17 +477,17 @@ export default function DnaPage() {
             <div className="space-y-6">
               {/* Profile Summary Card */}
               <div className="premium-card-dark p-6">
-                <p className="text-xs font-semibold text-gold uppercase mb-4">PROFILE SUMMARY</p>
+                <p className="text-xs font-semibold text-gold uppercase mb-4">{t.dna.profileSummaryLabel}</p>
 
                 <div className="space-y-4">
                   <div>
-                    <p className="text-xs text-gray-500 uppercase">Profile Signature</p>
-                    <p className="text-lg font-bold text-gold mt-1">{profileType || 'Emerging'}</p>
+                    <p className="text-xs text-gray-500 uppercase">{t.dna.profileSignature}</p>
+                    <p className="text-lg font-bold text-gold mt-1">{profileType || t.dna.emerging}</p>
                   </div>
 
                   <div className="pt-4 border-t border-gold-900 space-y-3">
                     <div className="flex justify-between">
-                      <span className="text-xs text-gray-500">Last Updated</span>
+                      <span className="text-xs text-gray-500">{t.dna.lastUpdated}</span>
                       <span className="text-sm font-medium text-gray-300">{lastUpdated}</span>
                     </div>
                   </div>
@@ -511,23 +496,19 @@ export default function DnaPage() {
 
               {/* Evolution Card */}
               <div className="premium-card-dark p-6">
-                <p className="text-xs font-semibold text-gold uppercase mb-4">EVOLUTION</p>
+                <p className="text-xs font-semibold text-gold uppercase mb-4">{t.dna.evolutionLabel}</p>
 
                 <div className="space-y-4">
                   <div>
-                    <p className="text-xs text-gray-500 uppercase">Average Shift</p>
+                    <p className="text-xs text-gray-500 uppercase">{t.dna.averageShift}</p>
                     <p className="text-3xl font-bold text-white mt-2">+{averageShift}%</p>
                   </div>
 
                   <div>
-                    <p className="text-xs text-gray-500 uppercase mb-2">Profile Evolution</p>
-                    <p className="text-sm font-medium text-gold">{profileEvolution}</p>
+                    <p className="text-xs text-gray-500 uppercase mb-2">{t.dna.profileEvolution}</p>
+                    <p className="text-sm font-medium text-gold">{t.dna.evolutionLabels[profileEvolution]}</p>
                     <p className="text-xs text-gray-400 mt-1">
-                      {profileEvolution === 'Minimal'
-                        ? 'Your profile is highly consistent'
-                        : profileEvolution === 'Moderate'
-                        ? 'Moderate shifts across some dimensions'
-                        : 'Significant profile evolution detected'}
+                      {t.dna.evolutionExplanations[profileEvolution]}
                     </p>
                   </div>
                 </div>
@@ -541,22 +522,22 @@ export default function DnaPage() {
       <section className="py-12 md:py-16 border-b border-black-600">
         <div className="main-container">
           <SectionHeader
-            label="INSIGHTS"
-            title="Your DNA Analysis"
-            description="Your most dominant axes and how testing influenced your profile."
+            label={t.dna.insightsLabel}
+            title={t.dna.insightsTitle}
+            description={t.dna.insightsDescription}
             className="mb-8"
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Top Axes */}
             <div className="premium-card-dark p-6">
-              <h3 className="text-sm font-bold text-gold uppercase mb-4">Top Dominant Axes</h3>
+              <h3 className="text-sm font-bold text-gold uppercase mb-4">{t.dna.topDominantAxes}</h3>
               <div className="space-y-3">
                 {dominantAxes.map((item, index) => (
                   <div key={item.axis} className="flex items-center justify-between p-3 bg-black-700 rounded-lg border border-black-600 hover:border-gold transition-colors">
                     <div className="flex items-center gap-3">
                       <span className="text-gold font-bold text-lg">{index + 1}.</span>
-                      <span className="text-gray-300">{item.axis}</span>
+                      <span className="text-gray-300">{t.common.axes[item.axis] ?? item.axis}</span>
                     </div>
                     <span className="text-gold font-bold">{item.value}</span>
                   </div>
@@ -566,33 +547,33 @@ export default function DnaPage() {
 
             {/* Influenced by Testing */}
             <div className="premium-card-dark p-6">
-              <h3 className="text-sm font-bold text-gold uppercase mb-4">Most Influenced by Testing</h3>
+              <h3 className="text-sm font-bold text-gold uppercase mb-4">{t.dna.mostInfluenced}</h3>
               <div className="space-y-3">
                 {positiveChanges.length > 0 ? (
                   positiveChanges.map((item) => (
                     <div key={item.axis} className="flex items-center justify-between p-3 bg-green-950 rounded-lg border border-green-900">
                       <span className="flex items-center gap-2 text-green-300">
                         <AscendGlyphIcon className="h-4 w-4 text-green-300" />
-                        <span>{item.axis}</span>
+                        <span>{t.common.axes[item.axis] ?? item.axis}</span>
                       </span>
                       <span className="text-green-400 font-bold">+{item.delta}</span>
                     </div>
                   ))
                 ) : (
-                  <p className="text-gray-400 text-sm">No positive shifts yet.</p>
+                  <p className="text-gray-400 text-sm">{t.dna.noPositiveShifts}</p>
                 )}
                 {negativeChanges.length > 0 ? (
                   negativeChanges.map((item) => (
                     <div key={item.axis} className="flex items-center justify-between p-3 bg-red-950 rounded-lg border border-red-900">
                       <span className="flex items-center gap-2 text-red-300">
                         <DescendGlyphIcon className="h-4 w-4 text-red-300" />
-                        <span>{item.axis}</span>
+                        <span>{t.common.axes[item.axis] ?? item.axis}</span>
                       </span>
                       <span className="text-red-400 font-bold">{item.delta}</span>
                     </div>
                   ))
                 ) : (
-                  <p className="text-gray-400 text-sm">No negative shifts yet.</p>
+                  <p className="text-gray-400 text-sm">{t.dna.noNegativeShifts}</p>
                 )}
               </div>
             </div>
@@ -604,7 +585,7 @@ export default function DnaPage() {
       <section className="py-12 md:py-16 border-b border-black-600">
         <div className="main-container">
           <div className="premium-card-dark p-8">
-            <h3 className="text-sm font-bold text-gold uppercase mb-4">DNA Narrative</h3>
+            <h3 className="text-sm font-bold text-gold uppercase mb-4">{t.dna.dnaNarrative}</h3>
             <p className="text-base leading-7 text-gray-300">{narrative}</p>
           </div>
         </div>
@@ -613,15 +594,13 @@ export default function DnaPage() {
       {/* Territory Affinities Section */}
       <section id="olfactory-territories" className="scroll-mt-32 py-12 md:py-16" aria-labelledby="olfactory-territories-title">
         <div className="main-container">
-          <p className="mb-2 text-xs uppercase tracking-wider text-gold">DNA TERRITORY AFFINITY</p>
-          <h2 id="olfactory-territories-title" className="mb-3 text-3xl font-semibold">Your Olfactory Territories</h2>
+          <p className="mb-2 text-xs uppercase tracking-wider text-gold">{t.dna.territoryAffinityLabel}</p>
+          <h2 id="olfactory-territories-title" className="mb-3 text-3xl font-semibold">{t.dna.territoriesTitle}</h2>
           <p className="mb-3 max-w-3xl text-sm text-gray-300">
-            Ranked from your current DNA. Each affinity is the average of the displayed DNA axes,
-            not a probability or a percentage of your identity. Scores do not need to total 100.
+            {t.dna.territoriesDescription}
           </p>
           <p className="mb-8 text-xs text-gray-400">
-            Exploratory interpretation · profile confidence {finalConfidence}%.
-            Territory refinement maps to Elegance and sensuality to Comfort; confidence is not used as a preference.
+            {t.dna.territoriesNote(finalConfidence)}
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -629,14 +608,14 @@ export default function DnaPage() {
               <div key={territory.id} className="premium-card-dark p-6">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-4 h-4 rounded-full" style={{ backgroundColor: territory.color }} />
-                  <h4 className="font-bold text-white">{territory.name}</h4>
+                  <h4 className="font-bold text-white">{t.territoryData[territory.id]?.name ?? territory.name}</h4>
                 </div>
-                <p className="mb-3 text-lg font-semibold text-gold">{score}/100 affinity <span className="text-xs text-gray-400">· Rank {index + 1}</span></p>
-                <p className="text-sm text-gray-400">{territory.description.slice(0, 80)}...</p>
+                <p className="mb-3 text-lg font-semibold text-gold">{t.dna.affinityScore(score)} <span className="text-xs text-gray-400">· {t.dna.rankLabel(index + 1)}</span></p>
+                <p className="text-sm text-gray-400">{(t.territoryData[territory.id]?.description ?? territory.description).slice(0, 80)}...</p>
                 <div className="mt-4 flex gap-2">
                   {contributions.map(({ axis, score: axisScore }) => (
                     <span key={axis} className="text-xs bg-black-700 text-gold px-2 py-1 rounded">
-                      {axis} {axisScore}
+                      {t.common.axes[axis] ?? axis} {axisScore}
                     </span>
                   ))}
                 </div>
@@ -647,7 +626,7 @@ export default function DnaPage() {
           <div className="mt-8 text-center">
             <a href="/territories">
               <PremiumButton variant="secondary" size="md">
-                EXPLORE ALL TERRITORIES →
+                {t.dna.exploreAllTerritories}
               </PremiumButton>
             </a>
           </div>
@@ -659,19 +638,19 @@ export default function DnaPage() {
       {/* CTA Section */}
       <section className="py-12 md:py-16 border-t border-black-600">
         <div className="main-container text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Ready to Refine Your DNA?</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">{t.dna.ctaTitle}</h2>
           <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
-            Test more fragrances to strengthen your profile, discover new territories, and deepen your olfactory identity.
+            {t.dna.ctaDescription}
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <a href="/results">
               <PremiumButton variant="secondary" size="md">
-                VIEW PERSONALIZED RECOMMENDATIONS
+                {t.dna.viewRecommendations}
               </PremiumButton>
             </a>
             <a href="/test">
               <PremiumButton variant="primary" size="md">
-                CONTINUE TESTING →
+                {t.dna.continueTesting}
               </PremiumButton>
             </a>
           </div>

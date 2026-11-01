@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/lib/auth';
+import { useLanguage } from '@/lib/i18n';
 import { AppleGlyphIcon, SearchLensIcon } from '@/components/design-system/FragranceIcons';
 
 export interface OAuthButtonProps {
@@ -21,6 +22,7 @@ export function OAuthButton({
 }: OAuthButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { signInWithGoogle, signInWithApple } = useAuth();
+  const { t } = useLanguage();
 
   const handleClick = async () => {
     setIsLoading(true);
@@ -55,12 +57,12 @@ export function OAuthButton({
   const providerConfig = {
     google: {
       icon: <SearchLensIcon className="h-5 w-5 text-[#D4AF37]/80" />,
-      label: 'Continue with Google',
+      label: t.auth.oauth.continueWith('Google'),
       bgGradient: '',
     },
     apple: {
       icon: <AppleGlyphIcon className="h-5 w-5 text-[#D4AF37]/80" />,
-      label: 'Continue with Apple',
+      label: t.auth.oauth.continueWith('Apple'),
       bgGradient: '',
     },
   };
@@ -76,7 +78,7 @@ export function OAuthButton({
       } ${config.bgGradient}`}
     >
       <span className="text-xl">{config.icon}</span>
-      <span>{isLoading ? 'Connecting...' : config.label}</span>
+      <span>{isLoading ? t.auth.oauth.connecting : config.label}</span>
     </button>
   );
 }

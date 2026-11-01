@@ -9,6 +9,7 @@ import {
 } from '@/lib/collection';
 import { EMPTY_COLLECTION } from '@/lib/collection/storage';
 import { useResolvedCollection } from '@/lib/collection/useResolvedCollection';
+import { useLanguage } from '@/lib/i18n';
 import CollectionManager from '@/components/collection/CollectionManager';
 import {
   PageShell,
@@ -26,6 +27,7 @@ import {
 } from '@/components/design-system';
 
 function CollectionStatsSection() {
+  const { t } = useLanguage();
   const collection = useSyncExternalStore(subscribeToCollection, loadCollection, () => EMPTY_COLLECTION);
   const resolvedCollection = useResolvedCollection(collection);
   const summary = useMemo(() => buildCollectionSummary(resolvedCollection), [resolvedCollection]);
@@ -42,40 +44,40 @@ function CollectionStatsSection() {
     <section className="py-12 border-b border-black-600">
       <div className="main-container">
         <SectionHeader
-          label="YOUR LIBRARY"
-          title="Your Collection"
-          description="Track the fragrances you own and explore your olfactory landscape."
+          label={t.collection.stats.label}
+          title={t.collection.stats.title}
+          description={t.collection.stats.description}
           className="mb-8"
         />
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
-            label="Total Fragrances"
+            label={t.collection.stats.total}
             value={collection.length.toString()}
-            subtitle="in your collection"
+            subtitle={t.collection.stats.totalSubtitle}
             icon={<ArchiveCabinetIcon className="h-5 w-5" />}
           />
           <StatCard
-            label="Owned"
+            label={t.collection.stats.owned}
             value={stats.owned.toString()}
-            subtitle={`${Math.round((stats.owned / Math.max(collection.length, 1)) * 100)}% of collection`}
+            subtitle={t.collection.stats.ownedSubtitle(Math.round((stats.owned / Math.max(collection.length, 1)) * 100))}
             icon={<CheckSealIcon className="h-5 w-5" />}
           />
           <StatCard
-            label="Wishlist"
+            label={t.collection.stats.wishlist}
             value={stats.wishlist.toString()}
-            subtitle="Items to acquire"
+            subtitle={t.collection.stats.wishlistSubtitle}
             icon={<StarGlyphIcon className="h-5 w-5" />}
           />
           <StatCard
-            label="Avg Rating"
+            label={t.collection.stats.avgRating}
             value={
               summary.averageRating !== null
                 ? summary.averageRating.toFixed(1)
                 : '—'
             }
-            subtitle={`${stats.rated} rated`}
+            subtitle={t.collection.stats.ratedSubtitle(stats.rated)}
             icon={<TargetGlyphIcon className="h-5 w-5" />}
           />
         </div>
@@ -85,6 +87,7 @@ function CollectionStatsSection() {
 }
 
 function TerritoryInsightSection() {
+  const { t } = useLanguage();
   const collection = useSyncExternalStore(subscribeToCollection, loadCollection, () => EMPTY_COLLECTION);
 
   // Calculate territory coverage based on collection size and diversity
@@ -94,7 +97,7 @@ function TerritoryInsightSection() {
         coverage: 0,
         represented: 0,
         diverse: false,
-        suggestion: 'Start your collection to explore territory coverage.',
+        suggestion: t.collection.territory.startSuggestion,
       };
     }
 
@@ -113,18 +116,18 @@ function TerritoryInsightSection() {
       diverse,
       suggestion:
         estimatedTerritoryReach < 5
-          ? 'Build diversity by exploring underrepresented territories.'
-          : 'Your collection shows strong territory balance.',
+          ? t.collection.territory.buildSuggestion
+          : t.collection.territory.balancedSuggestion,
     };
-  }, [collection.length]);
+  }, [collection.length, t]);
 
   return (
     <section className="py-12 border-b border-black-600">
       <div className="main-container">
         <SectionHeader
-          label="TERRITORY INSIGHTS"
-          title="Olfactory Coverage"
-          description="Understand which fragrance territories are represented in your collection."
+          label={t.collection.territory.label}
+          title={t.collection.territory.title}
+          description={t.collection.territory.description}
           className="mb-8"
         />
 
@@ -133,13 +136,13 @@ function TerritoryInsightSection() {
           <div className="premium-card-dark p-6">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <p className="text-xs font-semibold text-gold uppercase mb-2">Territory Coverage</p>
+                <p className="text-xs font-semibold text-gold uppercase mb-2">{t.collection.territory.coverageLabel}</p>
                 <div className="flex items-baseline gap-2">
                   <span className="text-4xl font-bold text-white">
                     {territoryInsights.coverage}%
                   </span>
                   <span className="text-sm text-gray-400">
-                    ({territoryInsights.represented}/10 territories)
+                    {t.collection.territory.territoriesCount(territoryInsights.represented)}
                   </span>
                 </div>
               </div>
@@ -162,7 +165,7 @@ function TerritoryInsightSection() {
             <div className="mt-6">
               <Link href="/territories">
                 <PremiumButton variant="secondary" size="sm" className="w-full">
-                  EXPLORE TERRITORIES
+                  {t.collection.territory.exploreCta}
                 </PremiumButton>
               </Link>
             </div>
@@ -172,9 +175,9 @@ function TerritoryInsightSection() {
           <div className="premium-card-dark p-6">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <p className="text-xs font-semibold text-gold uppercase mb-2">Collection Character</p>
+                <p className="text-xs font-semibold text-gold uppercase mb-2">{t.collection.territory.characterLabel}</p>
                 <h3 className="text-lg font-bold text-white">
-                  {territoryInsights.diverse ? 'Diverse Explorer' : 'Building Explorer'}
+                  {territoryInsights.diverse ? t.collection.territory.diverseExplorer : t.collection.territory.buildingExplorer}
                 </h3>
               </div>
               {territoryInsights.diverse ? (
@@ -187,18 +190,18 @@ function TerritoryInsightSection() {
             <div className="space-y-3 mb-4 text-sm text-gray-400">
               <p>
                 {territoryInsights.diverse
-                  ? 'Your collection spans multiple fragrance territories, showing a sophisticated and exploratory taste profile.'
-                  : 'Your collection is developing. Diversifying across territories will reveal your full olfactory identity.'}
+                  ? t.collection.territory.diverseText
+                  : t.collection.territory.buildingText}
               </p>
             </div>
 
             {/* Recommendations */}
             <div className="bg-black-700 border border-gold-900 rounded p-4 text-sm text-gray-300">
-              <p className="font-semibold text-gold mb-2">Next Steps:</p>
+              <p className="font-semibold text-gold mb-2">{t.collection.territory.nextSteps}</p>
               <ul className="space-y-1 text-xs">
-                <li>• Add {Math.max(0, 3 - collection.length)} more fragrances to unlock DNA insights</li>
-                <li>• Explore underrepresented territories</li>
-                <li>• Rate your fragrances to refine your profile</li>
+                <li>{t.collection.territory.stepAddMore(Math.max(0, 3 - collection.length))}</li>
+                <li>{t.collection.territory.stepExplore}</li>
+                <li>{t.collection.territory.stepRate}</li>
               </ul>
             </div>
           </div>
@@ -209,6 +212,7 @@ function TerritoryInsightSection() {
 }
 
 export default function CollectionPage() {
+  const { t } = useLanguage();
   const collection = useSyncExternalStore(subscribeToCollection, loadCollection, () => EMPTY_COLLECTION);
 
   return (
@@ -216,11 +220,10 @@ export default function CollectionPage() {
       {/* Header */}
       <section className="py-12">
         <div className="main-container text-center">
-          <p className="text-gold text-sm font-semibold uppercase mb-2">YOUR LIBRARY</p>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Your Collection</h1>
+          <p className="text-gold text-sm font-semibold uppercase mb-2">{t.collection.page.eyebrow}</p>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{t.collection.page.title}</h1>
           <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-            Build and manage your fragrance library. Track ownership, rate fragrances, and discover patterns
-            in your olfactory preferences.
+            {t.collection.page.description}
           </p>
         </div>
       </section>
@@ -243,14 +246,13 @@ export default function CollectionPage() {
         <section className="py-16 text-center">
           <div className="premium-card-dark p-12 max-w-2xl mx-auto">
             <BottleOutlineIcon className="mx-auto mb-4 h-9 w-9 text-[#D4AF37]/75" />
-            <h3 className="text-xl font-bold text-white mb-2">Start Your Collection</h3>
+            <h3 className="text-xl font-bold text-white mb-2">{t.collection.page.emptyTitle}</h3>
             <p className="text-gray-400 mb-6">
-              Add your first fragrance to unlock collection insights, territory coverage analysis, and
-              personalized discovery recommendations.
+              {t.collection.page.emptyDescription}
             </p>
             <Link href="/grounding">
               <PremiumButton variant="primary" size="md">
-                DISCOVER FRAGRANCES →
+                {t.collection.page.emptyCta}
               </PremiumButton>
             </Link>
           </div>

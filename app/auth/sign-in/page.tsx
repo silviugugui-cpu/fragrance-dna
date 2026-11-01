@@ -6,8 +6,10 @@ import { useAuth } from '@/lib/auth';
 import { resolvePostSignInRoute } from '@/lib/auth';
 import { AuthForm } from '@/components/auth/AuthForm';
 import { OAuthProviders } from '@/components/auth/OAuthProviders';
+import { useLanguage } from '@/lib/i18n';
 
 export default function SignInPage() {
+  const { t } = useLanguage();
   const { user, isLoading, signIn } = useAuth();
   const [error, setError] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,7 +50,7 @@ export default function SignInPage() {
     try {
       await signIn(data.email || '', data.password || '');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Sign in failed. Please try again.');
+      setError(err instanceof Error ? err.message : t.auth.signIn.genericError);
     } finally {
       setIsSubmitting(false);
     }
@@ -58,9 +60,9 @@ export default function SignInPage() {
     <div className="space-y-8">
       {/* Header */}
       <div className="text-center space-y-3">
-        <p className="text-sm font-medium uppercase tracking-wider text-gold">Authentication</p>
-        <h1 className="text-4xl font-light text-white">Welcome Back</h1>
-        <p className="text-gray-400">Sign in to your account to continue your olfactory journey</p>
+        <p className="text-sm font-medium uppercase tracking-wider text-gold">{t.auth.signIn.kicker}</p>
+        <h1 className="text-4xl font-light text-white">{t.auth.signIn.title}</h1>
+        <p className="text-gray-400">{t.auth.signIn.subtitle}</p>
       </div>
 
       {/* Main Card */}
@@ -73,7 +75,7 @@ export default function SignInPage() {
         )}
 
         {/* Sign In Form */}
-        <AuthForm type="signin" onSubmit={handleSignIn} isLoading={isSubmitting} submitLabel="Sign In" />
+        <AuthForm type="signin" onSubmit={handleSignIn} isLoading={isSubmitting} submitLabel={t.auth.signIn.submit} />
 
         {/* Social Sign In (only rendered for configured providers) */}
         <OAuthProviders />
@@ -83,14 +85,14 @@ export default function SignInPage() {
       {/* Sign Up Link */}
       <div className="text-center space-y-2">
         <p className="text-gray-400">
-          Don't have an account?{' '}
+          {t.auth.signIn.noAccount}{' '}
           <Link href="/auth/create-account" className="text-gold hover:text-gold/80 font-semibold transition-colors">
-            Create one
+            {t.auth.signIn.createOne}
           </Link>
         </p>
         <p className="text-sm text-gray-500">
           <Link href="/auth/forgot-password" className="hover:text-gold transition-colors">
-            Forgot your password?
+            {t.auth.signIn.forgotPassword}
           </Link>
         </p>
       </div>
@@ -99,11 +101,11 @@ export default function SignInPage() {
       <div className="border-t border-gold/10 pt-8 space-y-4 text-sm text-gray-400">
         <div className="flex gap-3">
           <span className="text-gold font-bold">🔒</span>
-          <p>Your security is our priority. All data is encrypted and protected.</p>
+          <p>{t.auth.signIn.securityNote}</p>
         </div>
         <div className="flex gap-3">
           <span className="text-gold font-bold">📊</span>
-          <p>Sign in to access your personal fragrance DNA profile and recommendations.</p>
+          <p>{t.auth.signIn.profileNote}</p>
         </div>
       </div>
     </div>

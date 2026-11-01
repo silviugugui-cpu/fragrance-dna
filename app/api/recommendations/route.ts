@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { resolveCanonicalAttribute } from "@/lib/intelligence/attributes";
 import { readAllMasterFragrances, type MasterFragranceRecord } from "@/lib/database/masterFragranceDatabase";
+import { getDictionary } from "@/lib/i18n/getDictionary";
 import type { OlfactoryVector } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -92,6 +93,8 @@ export async function POST(request: Request) {
   const avoidedIds = resolveGroundingIds(toStringList(grounding.redFlag));
   const requestedLimit = Number(payload.limit ?? 30);
   const limit = Number.isFinite(requestedLimit) ? Math.max(1, Math.min(100, Math.floor(requestedLimit))) : 30;
+  // Localized explanation templates; defaults to English for unknown/missing locales.
+  const dictionary = getDictionary(typeof payload.locale === "string" ? payload.locale : undefined).recommendations;
 
   const recordsById = new Map<string, MasterFragranceRecord>();
   for (const record of readAllMasterFragrances()) {
@@ -111,8 +114,8 @@ export async function POST(request: Request) {
     const score = clamp01(scoreVector(userVector, candidateVector) + Math.min(0.1, lovedMatches.length * 0.025));
     const matchedAttributes = evidence.map((attribute) => attribute.displayName).slice(0, 5);
     const explanation = lovedMatches.length > 0
-      ? `Aligns with ${lovedMatches.map((attribute) => attribute.displayName).slice(0, 3).join(", ")}, while fitting your learned DNA.`
-      : `Ranked by its mapped notes and accords against your learned DNA.`;
+      ? dictionary.explanationAligned(lovedMatches.map((attribute) => attribute.displayName).slice(0, 3).join(", "))
+      : dictionary.explanationRanked;
 
     return [{
       fragranceId: id,

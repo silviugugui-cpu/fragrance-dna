@@ -1,7 +1,9 @@
 ﻿import type { Metadata } from 'next';
 import { Great_Vibes, Inter } from 'next/font/google';
+import { cookies } from 'next/headers';
 import './globals.css';
 import { AuthProvider } from '@/lib/auth';
+import { DEFAULT_LOCALE, LOCALE_COOKIE, LanguageProvider, isLocale } from '@/lib/i18n';
 import RootAppFrame from '@/components/design-system/RootAppFrame';
 
 const greatVibes = Great_Vibes({
@@ -51,12 +53,17 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const cookieLocale = cookies().get(LOCALE_COOKIE)?.value;
+  const locale = isLocale(cookieLocale) ? cookieLocale : DEFAULT_LOCALE;
+
   return (
-    <html lang="en" suppressHydrationWarning className={`${greatVibes.variable} ${inter.variable}`}>
+    <html lang={locale} suppressHydrationWarning className={`${greatVibes.variable} ${inter.variable}`}>
       <body>
-        <AuthProvider>
-          <RootAppFrame>{children}</RootAppFrame>
-        </AuthProvider>
+        <LanguageProvider initialLocale={cookieLocale}>
+          <AuthProvider>
+            <RootAppFrame>{children}</RootAppFrame>
+          </AuthProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

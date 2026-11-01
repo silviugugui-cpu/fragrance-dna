@@ -1,0 +1,30 @@
+const header = {
+  nav: {
+    home: { label: 'Home', mobile: 'Home', hint: 'Start page' },
+    grounding: { label: 'GROUNDING', mobile: 'Grounding', hint: 'Explore scent basics' },
+    test: { label: 'TEST', mobile: 'Test', hint: 'Quick fragrance test' },
+    dna: { label: 'YOUR DNA', mobile: 'Your DNA', hint: 'Personal profile' },
+    collection: { label: 'YOUR COLLECTION', mobile: 'Your Collection', hint: 'Saved fragrances' },
+    fragrances: { label: 'FRAGRANCES', mobile: 'Fragrance library', hint: 'Search 68,000+ perfumes' },
+    faq: { label: 'FAQ', mobile: 'DNA & badges FAQ', hint: 'How confidence and badges work' },
+    articles: { label: 'ARTICLES', mobile: 'Fragrance as a passion', hint: 'Read fragrance insights' },
+  },
+  signedInAs: 'Signed in as',
+  myDnaProfile: 'My DNA Profile',
+  myCollection: 'My Collection',
+  dnaBadgesFaq: 'DNA Badges & FAQ',
+  signOut: 'Sign Out',
+  signingOut: 'Signing out...',
+  login: 'Login',
+  menu: 'Menu',
+  closeMenu: 'Close',
+  closeMobileMenu: 'Close mobile menu',
+  signIntoYourDna: 'Sign into your DNA',
+  dnaBadgeAria: (name: string, badge: string) => `${name}, ${badge} DNA badge`,
+  dnaBadgeTitle: (badge: string) => `${badge} DNA badge`,
+  openDnaProfileAria: (badge: string) => `Open DNA profile, ${badge} badge`,
+  language: 'Language',
+  selectLanguage: 'Select language',
+};
+
+export default header;

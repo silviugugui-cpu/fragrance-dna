@@ -12,6 +12,7 @@ import {
 } from '@/lib/collection';
 import { EMPTY_COLLECTION } from '@/lib/collection/storage';
 import { useResolvedCollection } from '@/lib/collection/useResolvedCollection';
+import { useLanguage } from '@/lib/i18n';
 import type { CollectionFilter, CollectionFragrance, CollectionFragranceView, CollectionSortKey } from '@/lib/collection';
 import type { MasterFragranceRecord } from '@/lib/database/masterFragranceDatabase';
 
@@ -71,19 +72,21 @@ type ModalState =
   | { mode: 'remove'; itemId: string }
   | null;
 
-const FILTERS: Array<{ label: string; value: CollectionFilter }> = [
-  { label: 'All', value: 'all' },
-  { label: 'Owned', value: 'owned' },
-  { label: 'Wishlist', value: 'wishlist' },
+const FILTERS: Array<{ key: 'all' | 'owned' | 'wishlist'; value: CollectionFilter }> = [
+  { key: 'all', value: 'all' },
+  { key: 'owned', value: 'owned' },
+  { key: 'wishlist', value: 'wishlist' },
 ];
 
-const SORTS: Array<{ label: string; value: CollectionSortKey }> = [
-  { label: 'Name', value: 'name' },
-  { label: 'Brand', value: 'brand' },
-  { label: 'Rating', value: 'rating' },
+const SORTS: Array<{ key: 'name' | 'brand' | 'rating'; value: CollectionSortKey }> = [
+  { key: 'name', value: 'name' },
+  { key: 'brand', value: 'brand' },
+  { key: 'rating', value: 'rating' },
 ];
 
 export default function CollectionManager() {
+  const { t } = useLanguage();
+  const tm = t.collection.manager;
   const collection = useSyncExternalStore(subscribeToCollection, loadCollection, () => EMPTY_COLLECTION);
   const resolvedCollection = useResolvedCollection(collection);
   const [query, setQuery] = useState('');
@@ -114,11 +117,11 @@ export default function CollectionManager() {
       try {
         const params = new URLSearchParams({ q: normalizedQuery, limit: '20' });
         const response = await fetch(`/api/collection/catalog?${params.toString()}`, { signal: controller.signal });
-        if (!response.ok) throw new Error('Unable to search the Fragrance DB.');
+        if (!response.ok) throw new Error(tm.messages.searchUnavailable);
         const payload = await response.json() as { results?: MasterFragranceRecord[] };
         setDatabaseRecords(payload.results ?? []);
       } catch (error) {
-        if (!controller.signal.aborted) showMessage(error instanceof Error ? error.message : 'Collection search failed.');
+        if (!controller.signal.aborted) showMessage(error instanceof Error ? error.message : tm.messages.searchFailed);
       }
     }, 180);
 
@@ -139,11 +142,11 @@ export default function CollectionManager() {
       try {
         const params = new URLSearchParams({ q: addQuery.trim(), limit: '20' });
         const response = await fetch(`/api/collection/catalog?${params.toString()}`, { signal: controller.signal });
-        if (!response.ok) throw new Error('Unable to search the Fragrance DB.');
+        if (!response.ok) throw new Error(tm.messages.searchUnavailable);
         const payload = await response.json() as { results?: MasterFragranceRecord[] };
         setAddRecords(payload.results ?? []);
       } catch (error) {
-        if (!controller.signal.aborted) showMessage(error instanceof Error ? error.message : 'Collection search failed.');
+        if (!controller.signal.aborted) showMessage(error instanceof Error ? error.message : tm.messages.searchFailed);
       }
     }, 180);
 
@@ -213,11 +216,11 @@ export default function CollectionManager() {
       wishlist: options.wishlist,
     });
     if (!result.added) {
-      showMessage('This fragrance is already in your collection.');
+      showMessage(tm.messages.alreadyInCollection);
       return;
     }
 
-    showMessage(options.wishlist ? 'Fragrance saved to your wishlist.' : 'Fragrance added to your collection.');
+    showMessage(options.wishlist ? tm.messages.savedToWishlist : tm.messages.addedToCollection);
     setModal(null);
   }
 
@@ -239,7 +242,7 @@ export default function CollectionManager() {
     try {
       const response = await fetch('/api/collection/import', { method: 'POST', body: formData });
       const payload = await response.json() as CollectionImportResponse & { error?: string };
-      if (!response.ok) throw new Error(payload.error ?? 'Unable to import collection workbook.');
+      if (!response.ok) throw new Error(payload.error ?? tm.messages.importUnavailable);
 
       let added = 0;
       let existing = 0;
@@ -261,14 +264,14 @@ export default function CollectionManager() {
       }
 
       setImportSummary(
-        `Added ${added}; already in collection ${existing}; unmatched ${payload.unmatched.length}; duplicate rows ${payload.duplicateRows}.`,
+        tm.messages.importSummary(added, existing, payload.unmatched.length, payload.duplicateRows),
       );
       if (payload.unmatched.length > 0) {
-        setNotification(`${payload.unmatched.length} row(s) did not match the Fragrance DB. See import summary.`);
+        setNotification(tm.messages.unmatchedRows(payload.unmatched.length));
         window.setTimeout(() => setNotification(null), 5000);
       }
     } catch (error) {
-      setImportSummary(error instanceof Error ? error.message : 'Collection import failed.');
+      setImportSummary(error instanceof Error ? error.message : tm.messages.importFailed);
     } finally {
       setIsImporting(false);
       input.value = '';
@@ -290,7 +293,7 @@ export default function CollectionManager() {
       personalRating: ratingValue ? Number(ratingValue) : undefined,
       notes,
     });
-    showMessage('Collection entry updated.');
+    showMessage(tm.messages.entryUpdated);
     setModal(null);
   }
 
@@ -300,66 +303,66 @@ export default function CollectionManager() {
     }
 
     removeCollectionFragrance(activeRemoveItem.id);
-    showMessage('Fragrance removed from your collection.');
+    showMessage(tm.messages.removed);
     setModal(null);
   }
 
   return (
     <section className="glass p-10 space-y-10">
       <div className="space-y-6 max-w-3xl">
-        <p className="text-sm uppercase tracking-[0.48em] text-[rgba(165,185,150,0.85)]">Collection</p>
-        <h1 className="text-5xl font-light tracking-[0.04em] text-[rgba(212,175,120,0.95)]">My Collection</h1>
+        <p className="text-sm uppercase tracking-[0.48em] text-[rgba(165,185,150,0.85)]">{tm.eyebrow}</p>
+        <h1 className="text-5xl font-light tracking-[0.04em] text-[rgba(212,175,120,0.95)]">{tm.title}</h1>
         <p className="text-lg leading-9 text-[rgba(190,170,140,0.65)]">
-          The fragrances that define your personal olfactory library.
+          {tm.subtitle}
         </p>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
         <article className="glass-card p-8">
-          <p className="text-xs uppercase tracking-[0.24em] text-[rgba(165,185,150,0.7)]">Total Fragrances</p>
-          <p className="mt-3 text-5xl font-light text-[rgba(242,229,199,0.95)]">{summary.size} Fragrances</p>
+          <p className="text-xs uppercase tracking-[0.24em] text-[rgba(165,185,150,0.7)]">{tm.totalLabel}</p>
+          <p className="mt-3 text-5xl font-light text-[rgba(242,229,199,0.95)]">{tm.totalValue(summary.size)}</p>
           <p className="mt-4 max-w-xl text-sm leading-7 text-[rgba(190,170,140,0.65)]">
-            Manage the scents in your library now so future Collection DNA, coverage analysis, and recommendation systems have a stable foundation.
+            {tm.totalDescription}
           </p>
         </article>
 
         <article className="glass-card p-8 space-y-4">
-          <p className="text-xs uppercase tracking-[0.24em] text-[rgba(165,185,150,0.7)]">Collection Summary</p>
+          <p className="text-xs uppercase tracking-[0.24em] text-[rgba(165,185,150,0.7)]">{tm.summaryLabel}</p>
           <div className="grid grid-cols-2 gap-4">
-            <SummaryTile label="Owned" value={`${collection.filter((item) => item.owned).length}`} />
-            <SummaryTile label="Wishlist" value={`${collection.filter((item) => item.wishlist).length}`} />
-            <SummaryTile label="Top Brand" value={summary.topBrand ?? '—'} />
-            <SummaryTile label="Coverage" value={summary.dnaCoverage != null ? `${summary.dnaCoverage}%` : '—'} />
+            <SummaryTile label={tm.owned} value={`${collection.filter((item) => item.owned).length}`} />
+            <SummaryTile label={tm.wishlist} value={`${collection.filter((item) => item.wishlist).length}`} />
+            <SummaryTile label={tm.topBrand} value={summary.topBrand ?? '—'} />
+            <SummaryTile label={tm.coverage} value={summary.dnaCoverage != null ? `${summary.dnaCoverage}%` : '—'} />
           </div>
         </article>
       </div>
 
       <section className="glass-card p-8 space-y-6">
         <div className="space-y-3 max-w-3xl">
-          <p className="text-xs uppercase tracking-[0.24em] text-[rgba(165,185,150,0.7)]">Database Search</p>
-          <h2 className="text-3xl font-light text-[rgba(242,229,199,0.95)]">Search the fragrance database</h2>
+          <p className="text-xs uppercase tracking-[0.24em] text-[rgba(165,185,150,0.7)]">{tm.dbSearchLabel}</p>
+          <h2 className="text-3xl font-light text-[rgba(242,229,199,0.95)]">{tm.dbSearchTitle}</h2>
           <p className="text-sm leading-7 text-[rgba(190,170,140,0.65)]">
-            Find fragrances from the catalog and save them directly into your collection or wishlist.
+            {tm.dbSearchDescription}
           </p>
         </div>
 
         <label className="glass-card flex items-center gap-4 px-5 py-4">
-          <span className="text-xs uppercase tracking-[0.2em] text-[rgba(165,185,150,0.7)]">Search</span>
+          <span className="text-xs uppercase tracking-[0.2em] text-[rgba(165,185,150,0.7)]">{tm.searchLabel}</span>
           <input
             value={databaseQuery}
             onChange={(event) => setDatabaseQuery(event.target.value)}
-            placeholder="Search by fragrance, brand, or note..."
+            placeholder={tm.dbSearchPlaceholder}
             className="w-full bg-transparent text-sm text-[rgba(242,229,199,0.95)] outline-none placeholder:text-[rgba(190,170,140,0.38)]"
           />
         </label>
 
         {databaseQuery.trim().length === 0 ? (
           <div className="rounded-[28px] border border-[rgba(212,175,120,0.12)] bg-black/20 p-8 text-sm text-[rgba(190,170,140,0.65)]">
-            Start typing to search the fragrance database and add results to your collection.
+            {tm.dbSearchHint}
           </div>
         ) : databaseSearchResults.length === 0 ? (
           <div className="rounded-[28px] border border-[rgba(212,175,120,0.12)] bg-black/20 p-8 text-sm text-[rgba(190,170,140,0.65)]">
-            No fragrances matched your search.
+            {tm.dbNoMatches}
           </div>
         ) : (
           <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
@@ -377,7 +380,7 @@ export default function CollectionManager() {
                 </p>
                 <h3 className="mt-2 text-xl font-light text-[rgba(242,229,199,0.95)]">{fragrance.name}</h3>
                 <p className="mt-2 text-xs uppercase tracking-[0.18em] text-[rgba(212,175,120,0.75)]">
-                  {fragrance.year ?? 'Year n/a'}
+                  {fragrance.year ?? tm.yearNA}
                 </p>
                 {fragrance.notes?.length ? (
                   <p className="mt-3 line-clamp-2 text-sm leading-7 text-[rgba(190,170,140,0.65)]">
@@ -396,7 +399,7 @@ export default function CollectionManager() {
                         : 'border border-[rgba(212,175,120,0.14)] bg-[rgba(212,175,120,0.92)] text-[#111111] hover:brightness-110'
                     }`}
                   >
-                    {existing ? 'Already added' : 'Add to collection'}
+                    {existing ? tm.alreadyAdded : tm.addToCollection}
                   </button>
                   <button
                     type="button"
@@ -408,7 +411,7 @@ export default function CollectionManager() {
                         : 'border border-[rgba(212,175,120,0.14)] bg-white/5 text-[rgba(212,175,120,0.88)] hover:bg-white/10'
                     }`}
                   >
-                    {existing ? 'In collection' : 'Save to wishlist'}
+                    {existing ? tm.inCollection : tm.saveToWishlist}
                   </button>
                 </div>
               </article>
@@ -425,14 +428,14 @@ export default function CollectionManager() {
           multiple
           onChange={(event) => void handleImportFiles(event)}
           className="sr-only"
-          aria-label="Select collection Excel files"
+          aria-label={tm.importFilesAria}
         />
         <button
           type="button"
           onClick={openAddModal}
           className="inline-flex items-center justify-center rounded-full bg-[linear-gradient(135deg,rgba(212,175,120,0.94),rgba(186,153,110,0.9))] px-8 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-[#121212] shadow-[0_20px_70px_rgba(212,175,120,0.18)] transition duration-300 hover:brightness-110"
         >
-          Add Fragrance
+          {tm.addFragrance}
         </button>
         <button
           type="button"
@@ -440,7 +443,7 @@ export default function CollectionManager() {
           onClick={() => importInputRef.current?.click()}
           className="inline-flex items-center justify-center rounded-full border border-[rgba(212,175,120,0.18)] bg-white/5 px-8 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-[rgba(212,175,120,0.9)] transition duration-200 hover:bg-white/10 disabled:cursor-wait disabled:opacity-60"
         >
-          {isImporting ? 'Importing...' : 'Import Collection'}
+          {isImporting ? tm.importing : tm.importCollection}
         </button>
         {notification ? <p className="text-sm text-[rgba(212,175,120,0.9)]">{notification}</p> : null}
         {importSummary ? <p role="status" className="w-full text-sm text-[rgba(165,185,150,0.9)]">{importSummary}</p> : null}
@@ -448,23 +451,23 @@ export default function CollectionManager() {
 
       <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr_0.6fr]">
         <label className="glass-card flex items-center gap-4 px-5 py-4">
-          <span className="text-xs uppercase tracking-[0.2em] text-[rgba(165,185,150,0.7)]">Search</span>
+          <span className="text-xs uppercase tracking-[0.2em] text-[rgba(165,185,150,0.7)]">{tm.searchLabel}</span>
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search fragrances..."
+            placeholder={tm.searchPlaceholder}
             className="w-full bg-transparent text-sm text-[rgba(242,229,199,0.95)] outline-none placeholder:text-[rgba(190,170,140,0.38)]"
           />
         </label>
 
         <label className="glass-card flex items-center gap-4 px-5 py-4">
-          <span className="text-xs uppercase tracking-[0.2em] text-[rgba(165,185,150,0.7)]">Brand</span>
+          <span className="text-xs uppercase tracking-[0.2em] text-[rgba(165,185,150,0.7)]">{tm.brandLabel}</span>
           <select
             value={brandFilter}
             onChange={(event) => setBrandFilter(event.target.value)}
             className="w-full bg-transparent text-sm text-[rgba(242,229,199,0.95)] outline-none"
           >
-            <option value="all">All brands</option>
+            <option value="all">{tm.allBrands}</option>
             {brands.map((brand) => (
               <option key={brand} value={brand}>
                 {brand}
@@ -474,7 +477,7 @@ export default function CollectionManager() {
         </label>
 
         <label className="glass-card flex items-center gap-4 px-5 py-4">
-          <span className="text-xs uppercase tracking-[0.2em] text-[rgba(165,185,150,0.7)]">Sort by</span>
+          <span className="text-xs uppercase tracking-[0.2em] text-[rgba(165,185,150,0.7)]">{tm.sortBy}</span>
           <select
             value={sortBy}
             onChange={(event) => setSortBy(event.target.value as CollectionSortKey)}
@@ -482,7 +485,7 @@ export default function CollectionManager() {
           >
             {SORTS.map((item) => (
               <option key={item.value} value={item.value}>
-                {item.label}
+                {tm.sorts[item.key]}
               </option>
             ))}
           </select>
@@ -501,7 +504,7 @@ export default function CollectionManager() {
                 : 'border border-[rgba(212,175,120,0.18)] bg-white/5 text-[rgba(212,175,120,0.86)] hover:bg-white/10'
             }`}
           >
-            {item.label}
+            {tm.filters[item.key]}
           </button>
         ))}
       </div>
@@ -509,19 +512,19 @@ export default function CollectionManager() {
       {filteredCollection.length === 0 ? (
         <div className="glass-card p-12 text-center space-y-4">
           <p className="text-3xl font-light text-[rgba(242,229,199,0.95)]">
-            {summary.size === 0 ? 'Your collection starts here.' : 'No fragrances match your current filters.'}
+            {summary.size === 0 ? tm.emptyTitle : tm.noFilterMatches}
           </p>
           <p className="mx-auto max-w-2xl text-sm leading-7 text-[rgba(190,170,140,0.65)]">
             {summary.size === 0
-              ? 'Add the fragrances you already own to unlock collection-level insights and future recommendation features.'
-              : 'Adjust search, brand, or sort settings to reveal the fragrances already in your library.'}
+              ? tm.emptyDescription
+              : tm.adjustFilters}
           </p>
           <button
             type="button"
             onClick={openAddModal}
             className="inline-flex items-center justify-center rounded-full bg-[linear-gradient(135deg,rgba(212,175,120,0.94),rgba(186,153,110,0.9))] px-8 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-[#121212] shadow-[0_20px_70px_rgba(212,175,120,0.18)] transition duration-300 hover:brightness-110"
           >
-            Add First Fragrance
+            {tm.addFirst}
           </button>
         </div>
       ) : (
@@ -538,14 +541,14 @@ export default function CollectionManager() {
       )}
 
       {modal?.mode === 'add' ? (
-        <ModalShell title="Add Fragrance" onClose={() => setModal(null)}>
+        <ModalShell title={tm.modalAddTitle} onClose={() => setModal(null)}>
           <div className="space-y-4">
             <label className="glass-card flex items-center gap-4 px-5 py-4">
-              <span className="text-xs uppercase tracking-[0.2em] text-[rgba(165,185,150,0.7)]">Search</span>
+              <span className="text-xs uppercase tracking-[0.2em] text-[rgba(165,185,150,0.7)]">{tm.searchLabel}</span>
               <input
                 value={addQuery}
                 onChange={(event) => setAddQuery(event.target.value)}
-                placeholder="Search fragrance..."
+                placeholder={tm.modalAddPlaceholder}
                 className="w-full bg-transparent text-sm text-[rgba(242,229,199,0.95)] outline-none placeholder:text-[rgba(190,170,140,0.38)]"
                 autoFocus
               />
@@ -554,7 +557,7 @@ export default function CollectionManager() {
             <div className="space-y-3 max-h-[420px] overflow-auto pr-1">
               {addSearchResults.length === 0 ? (
                 <p className="rounded-[22px] border border-[rgba(212,175,120,0.12)] bg-black/20 p-6 text-sm text-[rgba(190,170,140,0.65)]">
-                  Search the fragrance database to add an item to your collection.
+                  {tm.modalAddHint}
                 </p>
               ) : (
                 addSearchResults.map(({ fragrance, existing }) => (
@@ -576,7 +579,7 @@ export default function CollectionManager() {
                       <p className="mt-1 text-lg text-[rgba(242,229,199,0.95)]">{fragrance.name}</p>
                     </div>
                     <span className="text-xs uppercase tracking-[0.18em] text-[rgba(212,175,120,0.85)]">
-                      {existing ? 'Already added' : 'Add'}
+                      {existing ? tm.alreadyAdded : tm.add}
                     </span>
                   </button>
                 ))
@@ -587,7 +590,7 @@ export default function CollectionManager() {
       ) : null}
 
       {modal?.mode === 'edit' && activeEditItem ? (
-        <ModalShell title="Edit Collection Entry" onClose={() => setModal(null)}>
+        <ModalShell title={tm.modalEditTitle} onClose={() => setModal(null)}>
           <form
             className="space-y-6"
             onSubmit={(event) => {
@@ -604,19 +607,19 @@ export default function CollectionManager() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="glass-card flex flex-col gap-3 p-5">
-                <span className="text-xs uppercase tracking-[0.2em] text-[rgba(165,185,150,0.7)]">Status</span>
+                <span className="text-xs uppercase tracking-[0.2em] text-[rgba(165,185,150,0.7)]">{tm.statusLabel}</span>
                 <select
                   name="owned"
                   defaultValue={activeEditItem.wishlist ? 'wishlist' : 'owned'}
                   className="bg-transparent text-sm text-[rgba(242,229,199,0.95)] outline-none"
                 >
-                  <option value="owned">Owned</option>
-                  <option value="wishlist">Wishlist</option>
+                  <option value="owned">{tm.statusOwned}</option>
+                  <option value="wishlist">{tm.statusWishlist}</option>
                 </select>
               </label>
 
               <label className="glass-card flex flex-col gap-3 p-5">
-                <span className="text-xs uppercase tracking-[0.2em] text-[rgba(165,185,150,0.7)]">Personal Rating</span>
+                <span className="text-xs uppercase tracking-[0.2em] text-[rgba(165,185,150,0.7)]">{tm.personalRating}</span>
                 <input
                   name="personalRating"
                   type="number"
@@ -624,19 +627,19 @@ export default function CollectionManager() {
                   max="10"
                   step="0.1"
                   defaultValue={activeEditItem.personalRating ?? ''}
-                  placeholder="0.0 - 10.0"
+                  placeholder={tm.ratingPlaceholder}
                   className="bg-transparent text-sm text-[rgba(242,229,199,0.95)] outline-none placeholder:text-[rgba(190,170,140,0.38)]"
                 />
               </label>
             </div>
 
             <label className="glass-card flex flex-col gap-3 p-5">
-              <span className="text-xs uppercase tracking-[0.2em] text-[rgba(165,185,150,0.7)]">Notes</span>
+              <span className="text-xs uppercase tracking-[0.2em] text-[rgba(165,185,150,0.7)]">{tm.notesLabel}</span>
               <textarea
                 name="notes"
                 defaultValue={activeEditItem.notes ?? ''}
                 rows={5}
-                placeholder="Add personal notes, wear impressions, or reference moments."
+                placeholder={tm.notesPlaceholder}
                 className="resize-none bg-transparent text-sm text-[rgba(242,229,199,0.95)] outline-none placeholder:text-[rgba(190,170,140,0.38)]"
               />
             </label>
@@ -647,13 +650,13 @@ export default function CollectionManager() {
                 onClick={() => setModal(null)}
                 className="rounded-full border border-[rgba(212,175,120,0.12)] bg-white/5 px-6 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-[rgba(212,175,120,0.86)] transition duration-200 hover:bg-white/10"
               >
-                Cancel
+                {tm.cancel}
               </button>
               <button
                 type="submit"
                 className="rounded-full bg-[linear-gradient(135deg,rgba(212,175,120,0.94),rgba(186,153,110,0.9))] px-6 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-[#121212] transition duration-200 hover:brightness-110"
               >
-                Save Changes
+                {tm.saveChanges}
               </button>
             </div>
           </form>
@@ -661,13 +664,13 @@ export default function CollectionManager() {
       ) : null}
 
       {modal?.mode === 'remove' && activeRemoveItem ? (
-        <ModalShell title="Remove Fragrance" onClose={() => setModal(null)}>
+        <ModalShell title={tm.modalRemoveTitle} onClose={() => setModal(null)}>
           <div className="space-y-6">
             <div className="space-y-2">
-              <p className="text-sm uppercase tracking-[0.22em] text-[rgba(165,185,150,0.68)]">Confirm deletion</p>
+              <p className="text-sm uppercase tracking-[0.22em] text-[rgba(165,185,150,0.68)]">{tm.confirmDeletion}</p>
               <h3 className="text-3xl font-light text-[rgba(242,229,199,0.95)]">{activeRemoveItem.name}</h3>
               <p className="text-sm text-[rgba(190,170,140,0.65)]">
-                This will remove the fragrance from your collection. This action can be reversed later by adding it again.
+                {tm.removeWarning}
               </p>
             </div>
 
@@ -677,14 +680,14 @@ export default function CollectionManager() {
                 onClick={() => setModal(null)}
                 className="rounded-full border border-[rgba(212,175,120,0.12)] bg-white/5 px-6 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-[rgba(212,175,120,0.86)] transition duration-200 hover:bg-white/10"
               >
-                Cancel
+                {tm.cancel}
               </button>
               <button
                 type="button"
                 onClick={handleRemoveConfirmed}
                 className="rounded-full bg-[linear-gradient(135deg,rgba(212,175,120,0.94),rgba(186,153,110,0.9))] px-6 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-[#121212] transition duration-200 hover:brightness-110"
               >
-                Remove
+                {tm.remove}
               </button>
             </div>
           </div>
@@ -703,6 +706,8 @@ function CollectionCard({
   onEdit: () => void;
   onRemove: () => void;
 }): JSX.Element {
+  const { t } = useLanguage();
+  const tm = t.collection.manager;
   return (
     <article className="glass-card overflow-hidden p-6 transition duration-300 hover:-translate-y-1 hover:shadow-[0_32px_90px_rgba(199,168,107,0.20)]">
       <div className="space-y-5">
@@ -720,7 +725,7 @@ function CollectionCard({
           <p className="text-xs uppercase tracking-[0.24em] text-[rgba(165,185,150,0.7)]">{item.brand}</p>
           <h3 className="text-2xl font-light text-[rgba(242,229,199,0.95)]">{item.name}</h3>
           <p className="text-sm uppercase tracking-[0.16em] text-[rgba(212,175,120,0.8)]">
-            Rating {typeof item.personalRating === 'number' ? item.personalRating.toFixed(1) : '—'}
+            {tm.rating} {typeof item.personalRating === 'number' ? item.personalRating.toFixed(1) : '—'}
           </p>
         </div>
 
@@ -730,14 +735,14 @@ function CollectionCard({
             onClick={onEdit}
             className="rounded-full border border-[rgba(212,175,120,0.14)] bg-white/5 px-5 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[rgba(212,175,120,0.88)] transition duration-200 hover:bg-white/10"
           >
-            Edit
+            {tm.edit}
           </button>
           <button
             type="button"
             onClick={onRemove}
             className="rounded-full border border-[rgba(212,175,120,0.14)] bg-white/5 px-5 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[rgba(212,175,120,0.88)] transition duration-200 hover:bg-white/10"
           >
-            Remove
+            {tm.remove}
           </button>
         </div>
       </div>
@@ -763,12 +768,13 @@ function ModalShell({
   onClose: () => void;
   children: React.ReactNode;
 }): JSX.Element {
+  const { t } = useLanguage();
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-8 backdrop-blur-xl">
       <div className="glass w-full max-w-2xl p-6 sm:p-8">
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.24em] text-[rgba(165,185,150,0.7)]">Collection</p>
+            <p className="text-xs uppercase tracking-[0.24em] text-[rgba(165,185,150,0.7)]">{t.collection.manager.eyebrow}</p>
             <h2 className="mt-2 text-3xl font-light text-[rgba(242,229,199,0.95)]">{title}</h2>
           </div>
           <button
@@ -776,7 +782,7 @@ function ModalShell({
             onClick={onClose}
             className="rounded-full border border-[rgba(212,175,120,0.12)] bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.18em] text-[rgba(212,175,120,0.85)] transition duration-200 hover:bg-white/10"
           >
-            Close
+            {t.common.close}
           </button>
         </div>
         {children}

@@ -2,46 +2,47 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { PerfumeImageWithFallback } from '@/components/design-system/PerfumeImageWithFallback';
+import { useLanguage } from '@/lib/i18n';
 import type { PublicFragrance } from '@/app/api/fragrances/search/route';
 
 const capitalize = (value: string): string => value.charAt(0).toUpperCase() + value.slice(1);
 
 const CATEGORY_OPTIONS = [
-  { value: '', label: 'All' },
-  { value: 'niche', label: 'Niche' },
-  { value: 'designer', label: 'Designer' },
-  { value: 'dupe', label: 'Dupe · Middle Eastern' },
+  { value: '', key: 'all' },
+  { value: 'niche', key: 'niche' },
+  { value: 'designer', key: 'designer' },
+  { value: 'dupe', key: 'dupe' },
 ] as const;
 
 const SEASON_OPTIONS = [
-  { value: '', label: 'Any season' },
-  { value: 'spring', label: 'Spring' },
-  { value: 'summer', label: 'Summer' },
-  { value: 'autumn', label: 'Autumn' },
-  { value: 'winter', label: 'Winter' },
+  { value: '', key: 'any' },
+  { value: 'spring', key: 'spring' },
+  { value: 'summer', key: 'summer' },
+  { value: 'autumn', key: 'autumn' },
+  { value: 'winter', key: 'winter' },
 ] as const;
 
 const AUDIENCE_OPTIONS = [
-  { value: '', label: 'Anyone' },
-  { value: 'women', label: 'For women' },
-  { value: 'men', label: 'For men' },
-  { value: 'unisex', label: 'Unisex' },
+  { value: '', key: 'any' },
+  { value: 'women', key: 'women' },
+  { value: 'men', key: 'men' },
+  { value: 'unisex', key: 'unisex' },
 ] as const;
 
 const ERA_OPTIONS = [
-  { value: '', label: 'Any era' },
-  { value: '2020s', label: '2020s' },
-  { value: '2010s', label: '2010s' },
-  { value: '2000s', label: '2000s' },
-  { value: '1990s', label: '1990s' },
-  { value: 'classics', label: 'Classics (pre-1990)' },
+  { value: '', key: 'any' },
+  { value: '2020s', key: '2020s' },
+  { value: '2010s', key: '2010s' },
+  { value: '2000s', key: '2000s' },
+  { value: '1990s', key: '1990s' },
+  { value: 'classics', key: 'classics' },
 ] as const;
 
 const RATING_OPTIONS = [
-  { value: '', label: 'Any rating' },
-  { value: '4.5', label: '4.5+' },
-  { value: '4', label: '4.0+' },
-  { value: '3.5', label: '3.5+' },
+  { value: '', key: 'any' },
+  { value: '4.5', key: '4.5' },
+  { value: '4', key: '4' },
+  { value: '3.5', key: '3.5' },
 ] as const;
 
 const ACCORD_OPTIONS = [
@@ -84,6 +85,8 @@ function FragranceDetail({
   fragrance: PublicFragrance;
   onClose: () => void;
 }) {
+  const { t } = useLanguage();
+
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose();
@@ -116,7 +119,7 @@ function FragranceDetail({
           onClick={onClose}
           className="absolute right-5 top-5 rounded-full border border-[#b08a53]/50 px-3 py-1.5 font-articles-body text-xs uppercase tracking-[0.18em] text-[#d8bc83] transition-colors hover:border-[#f3d293] hover:text-[#f4deb2]"
         >
-          Close
+          {t.common.close}
         </button>
 
         <div className="grid gap-6 sm:grid-cols-[200px_minmax(0,1fr)]">
@@ -133,15 +136,15 @@ function FragranceDetail({
             </h2>
 
             <dl className="mt-4">
-              <DetailRow label="Launched" value={fragrance.launchYear} />
-              <DetailRow label="Perfumer" value={fragrance.perfumer} />
-              <DetailRow label="Audience" value={fragrance.gender ? capitalize(fragrance.gender) : undefined} />
-              <DetailRow label="Category" value={fragrance.brandType} />
+              <DetailRow label={t.fragrances.detail.launched} value={fragrance.launchYear} />
+              <DetailRow label={t.fragrances.detail.perfumer} value={fragrance.perfumer} />
+              <DetailRow label={t.fragrances.detail.audience} value={fragrance.gender ? capitalize(fragrance.gender) : undefined} />
+              <DetailRow label={t.fragrances.detail.category} value={fragrance.brandType} />
               <DetailRow
-                label="Community rating"
+                label={t.fragrances.detail.communityRating}
                 value={
                   fragrance.rating
-                    ? `${fragrance.rating} / 5${fragrance.voteCount ? ` · ${fragrance.voteCount} votes` : ''}`
+                    ? t.fragrances.detail.ratingValue(fragrance.rating, fragrance.voteCount)
                     : undefined
                 }
               />
@@ -151,14 +154,14 @@ function FragranceDetail({
 
         {fragrance.mainAccords.length > 0 && (
           <div className="mt-6">
-            <p className="font-articles-body text-[11px] uppercase tracking-[0.24em] text-[#b7955f]">Main accords</p>
+            <p className="font-articles-body text-[11px] uppercase tracking-[0.24em] text-[#b7955f]">{t.fragrances.detail.mainAccords}</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {fragrance.mainAccords.map((accord) => (
                 <span
                   key={accord}
                   className="rounded-full border border-[#b08a53]/45 bg-black/30 px-3 py-1 font-articles-body text-xs text-[#e4d7bc]"
                 >
-                  {capitalize(accord)}
+                  {t.fragrances.accordLabels[accord] ?? capitalize(accord)}
                 </span>
               ))}
             </div>
@@ -167,7 +170,7 @@ function FragranceDetail({
 
         {fragrance.description && (
           <div className="mt-6">
-            <p className="font-articles-body text-[11px] uppercase tracking-[0.24em] text-[#b7955f]">About this fragrance</p>
+            <p className="font-articles-body text-[11px] uppercase tracking-[0.24em] text-[#b7955f]">{t.fragrances.detail.about}</p>
             <p className="mt-3 font-articles-body text-[0.98rem] leading-relaxed text-[#e3d7be]">
               {fragrance.description}
             </p>
@@ -176,12 +179,12 @@ function FragranceDetail({
 
         {dnaEntries.length > 0 && (
           <div className="mt-6">
-            <p className="font-articles-body text-[11px] uppercase tracking-[0.24em] text-[#b7955f]">FragranceDNA profile</p>
+            <p className="font-articles-body text-[11px] uppercase tracking-[0.24em] text-[#b7955f]">{t.fragrances.detail.dnaProfile}</p>
             <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
               {dnaEntries.map(([axis, value]) => (
                 <div key={axis}>
                   <div className="flex items-baseline justify-between">
-                    <span className="font-articles-body text-xs text-[#dacfb7]">{axis}</span>
+                    <span className="font-articles-body text-xs text-[#dacfb7]">{t.common.axes[axis] ?? axis}</span>
                     <span className="font-articles-body text-xs text-[#caa46b]">{Math.round(value)}</span>
                   </div>
                   <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-black/50">
@@ -204,6 +207,7 @@ function FragranceDetail({
 }
 
 export default function FragranceLibraryPage() {
+  const { t } = useLanguage();
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('');
   const [brand, setBrand] = useState('');
@@ -279,7 +283,7 @@ export default function FragranceLibraryPage() {
           };
           if (requestId !== requestIdRef.current) return;
           if (!response.ok) {
-            throw new Error(payload.error ?? 'Search failed. Please try again.');
+            throw new Error(payload.error ?? t.fragrances.status.searchFailed);
           }
           setResults(payload.results ?? []);
           setHasSearched(true);
@@ -288,7 +292,7 @@ export default function FragranceLibraryPage() {
           if (requestId !== requestIdRef.current) return;
           setResults([]);
           setHasSearched(true);
-          setError(searchError instanceof Error ? searchError.message : 'Search failed. Please try again.');
+          setError(searchError instanceof Error ? searchError.message : t.fragrances.status.searchFailed);
         })
         .finally(() => {
           if (requestId === requestIdRef.current) setIsSearching(false);
@@ -309,13 +313,12 @@ export default function FragranceLibraryPage() {
             boxShadow: '0 30px 58px rgba(0,0,0,0.55), inset 0 1px 0 rgba(248,221,163,0.2)',
           }}
         >
-          <p className="font-articles-body text-xs uppercase tracking-[0.28em] text-[#d8bc83]/85">Fragrance Library</p>
+          <p className="font-articles-body text-xs uppercase tracking-[0.28em] text-[#d8bc83]/85">{t.fragrances.hero.eyebrow}</p>
           <h1 className="mt-3 font-articles-heading text-[clamp(1.75rem,3.1vw,3.2rem)] leading-[1.08] text-[#f4deb2]">
-            Explore the Fragrance Library
+            {t.fragrances.hero.title}
           </h1>
           <p className="mt-4 max-w-[70ch] font-articles-body text-[1.01rem] leading-relaxed text-[#e4d8bf]">
-            Search our master database of more than 68,000 fragrances. Open any result to see everything we
-            know about it: accords, perfumer, launch year, community rating, and more.
+            {t.fragrances.hero.description}
           </p>
         </div>
       </section>
@@ -330,21 +333,21 @@ export default function FragranceLibraryPage() {
           }}
         >
           <label htmlFor="fragrance-search" className="font-articles-body text-xs uppercase tracking-[0.28em] text-[#d1b57d]">
-            Search the library
+            {t.fragrances.search.label}
           </label>
           <input
             id="fragrance-search"
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Try a perfume or brand name, e.g. Sauvage, Creed, Baccarat Rouge..."
+            placeholder={t.fragrances.search.placeholder}
             autoComplete="off"
             className="mt-3 w-full rounded-2xl border border-[#9c7841]/45 bg-black/40 px-5 py-4 font-articles-body text-[1.02rem] text-[#f1e3c4] placeholder-[#8a7450] transition-all duration-300 focus:border-[#f3d293]/80 focus:bg-black/55 focus:outline-none focus:ring-2 focus:ring-[#f3d293]/20"
           />
 
           <div className="mt-5 border-t border-[#9c7841]/25 pt-5">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="mr-1 font-articles-body text-[11px] uppercase tracking-[0.24em] text-[#b7955f]">Category</span>
+              <span className="mr-1 font-articles-body text-[11px] uppercase tracking-[0.24em] text-[#b7955f]">{t.fragrances.search.category}</span>
               {CATEGORY_OPTIONS.map((option) => {
                 const isActive = category === option.value;
                 return (
@@ -362,7 +365,7 @@ export default function FragranceLibraryPage() {
                       background: isActive ? 'rgba(45, 33, 18, 0.85)' : 'rgba(0, 0, 0, 0.3)',
                     }}
                   >
-                    {option.label}
+                    {t.fragrances.categoryOptions[option.key]}
                   </button>
                 );
               })}
@@ -371,7 +374,7 @@ export default function FragranceLibraryPage() {
             <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
               <div className="xl:col-span-2">
                 <label htmlFor="filter-brand" className="font-articles-body text-[11px] uppercase tracking-[0.22em] text-[#b7955f]">
-                  Brand
+                  {t.fragrances.search.brand}
                 </label>
                 <input
                   id="filter-brand"
@@ -379,7 +382,7 @@ export default function FragranceLibraryPage() {
                   list="fragrance-brand-options"
                   value={brand}
                   onChange={(event) => setBrand(event.target.value)}
-                  placeholder="Any brand"
+                  placeholder={t.fragrances.search.brandPlaceholder}
                   autoComplete="off"
                   className="mt-1.5 w-full rounded-xl border border-[#9c7841]/45 bg-black/40 px-3 py-2.5 font-articles-body text-sm text-[#f1e3c4] placeholder-[#8a7450] focus:border-[#f3d293]/80 focus:outline-none"
                 />
@@ -392,7 +395,7 @@ export default function FragranceLibraryPage() {
 
               <div>
                 <label htmlFor="filter-season" className="font-articles-body text-[11px] uppercase tracking-[0.22em] text-[#b7955f]">
-                  Season
+                  {t.fragrances.search.season}
                 </label>
                 <select
                   id="filter-season"
@@ -401,14 +404,14 @@ export default function FragranceLibraryPage() {
                   className="mt-1.5 w-full rounded-xl border border-[#9c7841]/45 bg-black/40 px-3 py-2.5 font-articles-body text-sm text-[#f1e3c4] focus:border-[#f3d293]/80 focus:outline-none"
                 >
                   {SEASON_OPTIONS.map((option) => (
-                    <option key={option.value || 'any'} value={option.value}>{option.label}</option>
+                    <option key={option.value || 'any'} value={option.value}>{t.fragrances.seasonOptions[option.key]}</option>
                   ))}
                 </select>
               </div>
 
               <div>
                 <label htmlFor="filter-audience" className="font-articles-body text-[11px] uppercase tracking-[0.22em] text-[#b7955f]">
-                  Audience
+                  {t.fragrances.search.audience}
                 </label>
                 <select
                   id="filter-audience"
@@ -417,14 +420,14 @@ export default function FragranceLibraryPage() {
                   className="mt-1.5 w-full rounded-xl border border-[#9c7841]/45 bg-black/40 px-3 py-2.5 font-articles-body text-sm text-[#f1e3c4] focus:border-[#f3d293]/80 focus:outline-none"
                 >
                   {AUDIENCE_OPTIONS.map((option) => (
-                    <option key={option.value || 'any'} value={option.value}>{option.label}</option>
+                    <option key={option.value || 'any'} value={option.value}>{t.fragrances.audienceOptions[option.key]}</option>
                   ))}
                 </select>
               </div>
 
               <div>
                 <label htmlFor="filter-accord" className="font-articles-body text-[11px] uppercase tracking-[0.22em] text-[#b7955f]">
-                  Accord
+                  {t.fragrances.search.accord}
                 </label>
                 <select
                   id="filter-accord"
@@ -432,16 +435,18 @@ export default function FragranceLibraryPage() {
                   onChange={(event) => setAccord(event.target.value)}
                   className="mt-1.5 w-full rounded-xl border border-[#9c7841]/45 bg-black/40 px-3 py-2.5 font-articles-body text-sm text-[#f1e3c4] focus:border-[#f3d293]/80 focus:outline-none"
                 >
-                  <option value="">Any accord</option>
+                  <option value="">{t.fragrances.search.anyAccord}</option>
                   {ACCORD_OPTIONS.map((accordOption) => (
-                    <option key={accordOption} value={accordOption}>{capitalize(accordOption)}</option>
+                    <option key={accordOption} value={accordOption}>
+                      {t.fragrances.accordLabels[accordOption] ?? capitalize(accordOption)}
+                    </option>
                   ))}
                 </select>
               </div>
 
               <div>
                 <label htmlFor="filter-era" className="font-articles-body text-[11px] uppercase tracking-[0.22em] text-[#b7955f]">
-                  Era
+                  {t.fragrances.search.era}
                 </label>
                 <select
                   id="filter-era"
@@ -450,14 +455,14 @@ export default function FragranceLibraryPage() {
                   className="mt-1.5 w-full rounded-xl border border-[#9c7841]/45 bg-black/40 px-3 py-2.5 font-articles-body text-sm text-[#f1e3c4] focus:border-[#f3d293]/80 focus:outline-none"
                 >
                   {ERA_OPTIONS.map((option) => (
-                    <option key={option.value || 'any'} value={option.value}>{option.label}</option>
+                    <option key={option.value || 'any'} value={option.value}>{t.fragrances.eraOptions[option.key]}</option>
                   ))}
                 </select>
               </div>
 
               <div>
                 <label htmlFor="filter-rating" className="font-articles-body text-[11px] uppercase tracking-[0.22em] text-[#b7955f]">
-                  Min rating
+                  {t.fragrances.search.minRating}
                 </label>
                 <select
                   id="filter-rating"
@@ -466,7 +471,7 @@ export default function FragranceLibraryPage() {
                   className="mt-1.5 w-full rounded-xl border border-[#9c7841]/45 bg-black/40 px-3 py-2.5 font-articles-body text-sm text-[#f1e3c4] focus:border-[#f3d293]/80 focus:outline-none"
                 >
                   {RATING_OPTIONS.map((option) => (
-                    <option key={option.value || 'any'} value={option.value}>{option.label}</option>
+                    <option key={option.value || 'any'} value={option.value}>{t.fragrances.ratingOptions[option.key]}</option>
                   ))}
                 </select>
               </div>
@@ -478,7 +483,7 @@ export default function FragranceLibraryPage() {
                 onClick={clearFilters}
                 className="mt-4 rounded-full border border-[#b08a53]/50 px-4 py-1.5 font-articles-body text-xs uppercase tracking-[0.18em] text-[#d8bc83] transition-colors hover:border-[#f3d293] hover:text-[#f4deb2]"
               >
-                Clear filters
+                {t.fragrances.search.clearFilters}
               </button>
             )}
           </div>
@@ -486,18 +491,18 @@ export default function FragranceLibraryPage() {
           <div className="mt-4 min-h-[1.5rem]">
             {error && <p className="font-articles-body text-sm text-red-400">{error}</p>}
             {!error && isSearching && (
-              <p className="font-articles-body text-sm text-[#b7955f]">Searching the library...</p>
+              <p className="font-articles-body text-sm text-[#b7955f]">{t.fragrances.status.searching}</p>
             )}
             {!error && !isSearching && hasSearched && (
               <p className="font-articles-body text-sm text-[#b7955f]">
                 {results.length === 0
-                  ? 'No fragrances matched your search. Try a shorter or different name.'
-                  : `${results.length} fragrance${results.length === 1 ? '' : 's'} found. Select one for the full profile.`}
+                  ? t.fragrances.status.noMatches
+                  : t.fragrances.status.found(results.length)}
               </p>
             )}
             {!error && !isSearching && !hasSearched && (
               <p className="font-articles-body text-sm text-[#8a7450]">
-                Type at least two characters, or pick any filter to browse the library.
+                {t.fragrances.status.hint}
               </p>
             )}
           </div>

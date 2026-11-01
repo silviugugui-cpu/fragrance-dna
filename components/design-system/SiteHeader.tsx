@@ -12,35 +12,34 @@ import Link from 'next/link';
 import Image from 'next/image';
 import SiteLogo from '@/app/components/SiteLogo';
 import LuxuryLoginButton from './LuxuryLoginButton';
+import LanguageSwitcher from './LanguageSwitcher';
 import { useAuth } from '@/lib/auth';
+import { useLanguage } from '@/lib/i18n';
 import { isAdminUser } from '@/lib/auth/adminAccess';
 import { getDnaConfidenceBadge, loadDnaSession } from '@/lib/dnaSession';
 
-const navLinks = [
-  { href: '/', label: 'Home', mobile: 'Home', hint: 'Start page' },
-  { href: '/grounding', label: 'GROUNDING', mobile: 'Grounding', hint: 'Explore scent basics' },
-  { href: '/test', label: 'TEST', mobile: 'Test', hint: 'Quick fragrance test' },
-  { href: '/dna', label: 'YOUR DNA', mobile: 'Your DNA', hint: 'Personal profile' },
-  { href: '/collection', label: 'YOUR COLLECTION', mobile: 'Your Collection', hint: 'Saved fragrances' },
-  { href: '/fragrances', label: 'FRAGRANCES', mobile: 'Fragrance library', hint: 'Search 68,000+ perfumes' },
-  { href: '/faq', label: 'FAQ', mobile: 'DNA & badges FAQ', hint: 'How confidence and badges work' },
-  {
-    href: '/articles',
-    label: 'ARTICLES',
-    mobile: 'Fragrance as a passion',
-    hint: 'Read fragrance insights',
-  },
-];
+const NAV_LINKS = [
+  { href: '/', key: 'home' },
+  { href: '/grounding', key: 'grounding' },
+  { href: '/test', key: 'test' },
+  { href: '/dna', key: 'dna' },
+  { href: '/collection', key: 'collection' },
+  { href: '/fragrances', key: 'fragrances' },
+  { href: '/faq', key: 'faq' },
+  { href: '/articles', key: 'articles' },
+] as const;
 
 export function SiteHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, signOut, isLoading } = useAuth();
+  const { t } = useLanguage();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSprayActive, setIsSprayActive] = useState(false);
   const [confidence, setConfidence] = useState(0);
   const userBadge = getDnaConfidenceBadge(confidence);
+  const userBadgeLabel = t.common.badges[userBadge.id] ?? userBadge.label;
 
   useEffect(() => {
     const syncConfidence = () => {
@@ -122,7 +121,7 @@ export function SiteHeader() {
           className="site-nav relative z-[70] hidden md:flex"
           aria-label="Primary navigation"
         >
-          {navLinks.map((link) => {
+          {NAV_LINKS.map((link) => {
             const isActive = pathname === link.href;
             return (
               <Link
@@ -132,17 +131,17 @@ export function SiteHeader() {
                   isActive ? 'active text-gold' : 'text-gray-400 hover:text-gold'
                 }`}
               >
-                {link.label}
+                {t.header.nav[link.key].label}
               </Link>
             );
           })}
         </nav>
 
         {/* Sign In / User Menu */}
-        <div className="hidden flex-shrink-0 relative z-[70] md:block">
+        <div className="hidden flex-shrink-0 relative z-[70] items-center gap-3 md:flex">
           {!user ? (
             <div
-              className="signin-spray-trigger mr-[1cm] origin-right scale-[1.3]"
+              className="signin-spray-trigger origin-right scale-[1.3]"
               onMouseEnter={() => setIsSprayActive(true)}
               onMouseLeave={() => setIsSprayActive(false)}
               onFocusCapture={() => setIsSprayActive(true)}
@@ -151,16 +150,16 @@ export function SiteHeader() {
               <LuxuryLoginButton className="h-[38px]" />
             </div>
           ) : (
-            <div className="relative mr-5 lg:mr-8">
+            <div className="relative">
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                aria-label={`${user.name}, ${userBadge.label} DNA badge`}
-                title={`${userBadge.label} DNA badge`}
+                aria-label={t.header.dnaBadgeAria(user.name, userBadgeLabel)}
+                title={t.header.dnaBadgeTitle(userBadgeLabel)}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg bg-black/40 hover:bg-black/60 border border-gold/30 hover:border-gold text-gold transition-all duration-300"
               >
                 <span className="max-w-[150px] truncate text-sm font-medium">{user.name}</span>
                 <Image src={userBadge.imageSrc} alt="" width={28} height={28} className="h-7 w-7 shrink-0 object-contain" />
-                <span className="text-[10px] font-semibold uppercase text-gold/80">{userBadge.label}</span>
+                <span className="text-[10px] font-semibold uppercase text-gold/80">{userBadgeLabel}</span>
                 <span className={`text-xs transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}>▼</span>
               </button>
 
@@ -168,7 +167,7 @@ export function SiteHeader() {
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-black/90 border border-gold/30 rounded-lg shadow-lg shadow-gold/20 overflow-hidden z-50">
                   <div className="p-3 border-b border-gold/20">
-                    <p className="text-xs text-gray-400">Signed in as</p>
+                    <p className="text-xs text-gray-400">{t.header.signedInAs}</p>
                     <p className="text-sm font-medium text-gold">{user.email}</p>
                   </div>
 
@@ -178,21 +177,21 @@ export function SiteHeader() {
                       className="block px-4 py-2 text-sm text-gray-300 hover:bg-gold/10 hover:text-gold transition-colors"
                       onClick={() => setIsDropdownOpen(false)}
                     >
-                      My DNA Profile
+                      {t.header.myDnaProfile}
                     </Link>
                     <Link
                       href="/collection"
                       className="block px-4 py-2 text-sm text-gray-300 hover:bg-gold/10 hover:text-gold transition-colors"
                       onClick={() => setIsDropdownOpen(false)}
                     >
-                      My Collection
+                      {t.header.myCollection}
                     </Link>
                     <Link
                       href="/faq"
                       className="block px-4 py-2 text-sm text-gray-300 hover:bg-gold/10 hover:text-gold transition-colors"
                       onClick={() => setIsDropdownOpen(false)}
                     >
-                      DNA Badges & FAQ
+                      {t.header.dnaBadgesFaq}
                     </Link>
                   </div>
 
@@ -201,21 +200,23 @@ export function SiteHeader() {
                     disabled={isLoading}
                     className="w-full px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 transition-colors border-t border-gold/20 disabled:opacity-50"
                   >
-                    {isLoading ? 'Signing out...' : 'Sign Out'}
+                    {isLoading ? t.header.signingOut : t.header.signOut}
                   </button>
                 </div>
               )}
             </div>
           )}
+          <LanguageSwitcher className="mr-5 lg:mr-8" />
         </div>
 
         <div className="mobile-header-actions md:hidden">
+          <LanguageSwitcher />
           {!user ? (
-            <Link href="/auth/sign-in" className="mobile-login-btn" aria-label="Sign into your DNA">
-              Login
+            <Link href="/auth/sign-in" className="mobile-login-btn" aria-label={t.header.signIntoYourDna}>
+              {t.header.login}
             </Link>
           ) : (
-            <Link href="/dna" className="mobile-login-btn inline-flex items-center gap-1.5" aria-label={`Open DNA profile, ${userBadge.label} badge`}>
+            <Link href="/dna" className="mobile-login-btn inline-flex items-center gap-1.5" aria-label={t.header.openDnaProfileAria(userBadgeLabel)}>
               {user.name.split(' ')[0]}
               <Image src={userBadge.imageSrc} alt="" width={24} height={24} className="h-6 w-6 shrink-0 object-contain" />
             </Link>
@@ -227,7 +228,7 @@ export function SiteHeader() {
             aria-expanded={isMobileMenuOpen}
             aria-controls="mobile-primary-nav"
           >
-            {isMobileMenuOpen ? 'Close' : 'Menu'}
+            {isMobileMenuOpen ? t.header.closeMenu : t.header.menu}
           </button>
         </div>
       </div>
@@ -237,13 +238,13 @@ export function SiteHeader() {
           <button
             type="button"
             className="mobile-nav-backdrop md:hidden"
-            aria-label="Close mobile menu"
+            aria-label={t.header.closeMobileMenu}
             onClick={() => setIsMobileMenuOpen(false)}
           />
 
           <div id="mobile-primary-nav" className="mobile-nav-panel md:hidden">
             <nav className="mobile-nav-list" aria-label="Mobile primary navigation">
-              {navLinks.map((link) => {
+              {NAV_LINKS.map((link) => {
                 const isActive = pathname === link.href;
                 return (
                   <Link
@@ -251,12 +252,14 @@ export function SiteHeader() {
                     href={link.href}
                     className={`mobile-nav-link ${isActive ? 'active' : ''}`}
                   >
-                    <span className="mobile-nav-link-title">{link.mobile}</span>
-                    <span className="mobile-nav-link-hint">{link.hint}</span>
+                    <span className="mobile-nav-link-title">{t.header.nav[link.key].mobile}</span>
+                    <span className="mobile-nav-link-hint">{t.header.nav[link.key].hint}</span>
                   </Link>
                 );
               })}
             </nav>
+
+            <LanguageSwitcher variant="full" className="mt-6 border-t border-white/10 pt-5" />
 
             {user && (
               <button
@@ -265,7 +268,7 @@ export function SiteHeader() {
                 className="mobile-signout-btn"
                 type="button"
               >
-                {isLoading ? 'Signing out...' : 'Sign out'}
+                {isLoading ? t.header.signingOut : t.header.signOut}
               </button>
             )}
           </div>

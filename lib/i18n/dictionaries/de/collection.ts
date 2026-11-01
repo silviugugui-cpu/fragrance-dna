@@ -1,0 +1,161 @@
+﻿import type { Dictionary } from '../en';
+
+const collection: Dictionary['collection'] = {
+  page: {
+    eyebrow: 'IHRE BIBLIOTHEK',
+    title: 'Ihre Sammlung',
+    description:
+      'Bauen Sie Ihre Duftbibliothek auf und verwalten Sie sie. Verfolgen Sie Ihren Besitz, bewerten Sie Düfte und entdecken Sie Muster in Ihren olfaktorischen Vorlieben.',
+    emptyTitle: 'Starten Sie Ihre Sammlung',
+    emptyDescription:
+      'Fügen Sie Ihren ersten Duft hinzu, um Sammlungsanalysen, die Analyse der Territoriumsabdeckung und personalisierte Entdeckungsempfehlungen freizuschalten.',
+    emptyCta: 'DÜFTE ENTDECKEN →',
+  },
+  stats: {
+    label: 'IHRE BIBLIOTHEK',
+    title: 'Ihre Sammlung',
+    description: 'Verfolgen Sie die Düfte, die Sie besitzen, und erkunden Sie Ihre olfaktorische Landschaft.',
+    total: 'Düfte insgesamt',
+    totalSubtitle: 'in Ihrer Sammlung',
+    owned: 'Im Besitz',
+    ownedSubtitle: (pct) => `${pct}% der Sammlung`,
+    wishlist: 'Wunschliste',
+    wishlistSubtitle: 'Noch zu erwerben',
+    avgRating: 'Ø Bewertung',
+    ratedSubtitle: (n) => `${n} bewertet`,
+  },
+  territory: {
+    label: 'TERRITORIUMS-EINBLICKE',
+    title: 'Olfaktorische Abdeckung',
+    description: 'Verstehen Sie, welche Duftterritorien in Ihrer Sammlung vertreten sind.',
+    coverageLabel: 'Territoriumsabdeckung',
+    territoriesCount: (represented) => `(${represented}/10 Territorien)`,
+    startSuggestion: 'Starten Sie Ihre Sammlung, um die Territoriumsabdeckung zu erkunden.',
+    buildSuggestion: 'Schaffen Sie Vielfalt, indem Sie unterrepräsentierte Territorien erkunden.',
+    balancedSuggestion: 'Ihre Sammlung zeigt eine starke Balance zwischen den Territorien.',
+    exploreCta: 'TERRITORIEN ERKUNDEN',
+    characterLabel: 'Charakter der Sammlung',
+    diverseExplorer: 'Vielseitiger Entdecker',
+    buildingExplorer: 'Entdecker im Aufbau',
+    diverseText:
+      'Ihre Sammlung umfasst mehrere Duftterritorien und zeigt ein anspruchsvolles, entdeckungsfreudiges Geschmacksprofil.',
+    buildingText:
+      'Ihre Sammlung entwickelt sich. Mehr Vielfalt über die Territorien hinweg wird Ihre volle olfaktorische Identität offenbaren.',
+    nextSteps: 'Nächste Schritte:',
+    stepAddMore: (n) =>
+      n === 1
+        ? '• Fügen Sie 1 weiteren Duft hinzu, um DNA-Einblicke freizuschalten'
+        : `• Fügen Sie ${n} weitere Düfte hinzu, um DNA-Einblicke freizuschalten`,
+    stepExplore: '• Erkunden Sie unterrepräsentierte Territorien',
+    stepRate: '• Bewerten Sie Ihre Düfte, um Ihr Profil zu verfeinern',
+  },
+  summaryCard: {
+    eyebrow: 'Meine Sammlung',
+    title: 'Behalten Sie die Düfte im Blick, die Sie besitzen.',
+    description:
+      'Verfolgen Sie die Düfte, die Sie besitzen, und verstehen Sie die olfaktorische Landschaft, die Sie bereits aufgebaut haben.',
+    emptyTitle: 'Ihre Sammlung beginnt hier.',
+    emptyDescription:
+      'Fügen Sie die Düfte hinzu, die Sie bereits besitzen, um Sammlungsanalysen und künftige Empfehlungsfunktionen freizuschalten.',
+    addFirst: 'Ersten Duft hinzufügen',
+    size: 'Sammlungsgröße',
+    sizeValue: (n) => (n === 1 ? '1 Duft' : `${n} Düfte`),
+    averageRating: 'Durchschnittliche persönliche Bewertung',
+    topBrand: 'Top-Marke',
+    diversity: 'Vielfalt der Sammlung',
+    dnaCoverage: 'DNA-Abdeckung',
+    footer:
+      'Die Sammlung ist ein zentraler Bereich für künftige DNA-, Lücken-, Redundanz- und Empfehlungssysteme.',
+    manage: 'Sammlung verwalten',
+  },
+  manager: {
+    eyebrow: 'Sammlung',
+    title: 'Meine Sammlung',
+    subtitle: 'Die Düfte, die Ihre persönliche olfaktorische Bibliothek ausmachen.',
+    totalLabel: 'Düfte insgesamt',
+    totalValue: (n) => (n === 1 ? '1 Duft' : `${n} Düfte`),
+    totalDescription:
+      'Verwalten Sie die Düfte Ihrer Bibliothek schon jetzt, damit künftige Sammlungs-DNA-, Abdeckungs- und Empfehlungssysteme auf einem stabilen Fundament stehen.',
+    summaryLabel: 'Sammlungsübersicht',
+    owned: 'Im Besitz',
+    wishlist: 'Wunschliste',
+    topBrand: 'Top-Marke',
+    coverage: 'Abdeckung',
+    dbSearchLabel: 'Datenbanksuche',
+    dbSearchTitle: 'Duftdatenbank durchsuchen',
+    dbSearchDescription:
+      'Finden Sie Düfte aus dem Katalog und speichern Sie sie direkt in Ihrer Sammlung oder Wunschliste.',
+    searchLabel: 'Suche',
+    dbSearchPlaceholder: 'Nach Duft, Marke oder Note suchen...',
+    dbSearchHint:
+      'Beginnen Sie zu tippen, um die Duftdatenbank zu durchsuchen und Ergebnisse zu Ihrer Sammlung hinzuzufügen.',
+    dbNoMatches: 'Keine Düfte entsprachen Ihrer Suche.',
+    yearNA: 'Jahr k. A.',
+    alreadyAdded: 'Bereits hinzugefügt',
+    addToCollection: 'Zur Sammlung hinzufügen',
+    inCollection: 'In der Sammlung',
+    saveToWishlist: 'Auf die Wunschliste',
+    importFilesAria: 'Excel-Dateien der Sammlung auswählen',
+    addFragrance: 'Duft hinzufügen',
+    importing: 'Import läuft...',
+    importCollection: 'Sammlung importieren',
+    searchPlaceholder: 'Düfte suchen...',
+    brandLabel: 'Marke',
+    allBrands: 'Alle Marken',
+    sortBy: 'Sortieren nach',
+    filters: {
+      all: 'Alle',
+      owned: 'Im Besitz',
+      wishlist: 'Wunschliste',
+    },
+    sorts: {
+      name: 'Name',
+      brand: 'Marke',
+      rating: 'Bewertung',
+    },
+    emptyTitle: 'Ihre Sammlung beginnt hier.',
+    noFilterMatches: 'Keine Düfte entsprechen Ihren aktuellen Filtern.',
+    emptyDescription:
+      'Fügen Sie die Düfte hinzu, die Sie bereits besitzen, um Sammlungsanalysen und künftige Empfehlungsfunktionen freizuschalten.',
+    adjustFilters:
+      'Passen Sie Suche, Marke oder Sortierung an, um die Düfte in Ihrer Bibliothek wieder anzuzeigen.',
+    addFirst: 'Ersten Duft hinzufügen',
+    rating: 'Bewertung',
+    edit: 'Bearbeiten',
+    remove: 'Entfernen',
+    cancel: 'Abbrechen',
+    saveChanges: 'Änderungen speichern',
+    modalAddTitle: 'Duft hinzufügen',
+    modalAddPlaceholder: 'Duft suchen...',
+    modalAddHint: 'Durchsuchen Sie die Duftdatenbank, um einen Eintrag zu Ihrer Sammlung hinzuzufügen.',
+    add: 'Hinzufügen',
+    modalEditTitle: 'Sammlungseintrag bearbeiten',
+    statusLabel: 'Status',
+    statusOwned: 'Im Besitz',
+    statusWishlist: 'Wunschliste',
+    personalRating: 'Persönliche Bewertung',
+    ratingPlaceholder: '0,0 - 10,0',
+    notesLabel: 'Notizen',
+    notesPlaceholder: 'Fügen Sie persönliche Notizen, Trageeindrücke oder besondere Momente hinzu.',
+    modalRemoveTitle: 'Duft entfernen',
+    confirmDeletion: 'Löschen bestätigen',
+    removeWarning:
+      'Der Duft wird aus Ihrer Sammlung entfernt. Diese Aktion lässt sich später rückgängig machen, indem Sie ihn erneut hinzufügen.',
+    messages: {
+      searchUnavailable: 'Die Duftdatenbank kann nicht durchsucht werden.',
+      searchFailed: 'Die Sammlungssuche ist fehlgeschlagen.',
+      alreadyInCollection: 'Dieser Duft ist bereits in Ihrer Sammlung.',
+      savedToWishlist: 'Duft auf Ihrer Wunschliste gespeichert.',
+      addedToCollection: 'Duft zu Ihrer Sammlung hinzugefügt.',
+      importUnavailable: 'Die Sammlungsarbeitsmappe kann nicht importiert werden.',
+      importSummary: (added, existing, unmatched, duplicates) =>
+        `Hinzugefügt: ${added}; bereits in der Sammlung: ${existing}; ohne Treffer: ${unmatched}; doppelte Zeilen: ${duplicates}.`,
+      unmatchedRows: (n) => `${n} Zeile(n) ohne Treffer in der Duftdatenbank. Siehe Importübersicht.`,
+      importFailed: 'Der Import der Sammlung ist fehlgeschlagen.',
+      entryUpdated: 'Sammlungseintrag aktualisiert.',
+      removed: 'Duft aus Ihrer Sammlung entfernt.',
+    },
+  },
+};
+
+export default collection;

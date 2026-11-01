@@ -8,6 +8,7 @@ import { useAuth } from '@/lib/auth';
 import { getUserScopedStorageKey } from '@/lib/auth/userScope';
 import { loadCollection, addCollectionFragrance } from '@/lib/collection/storage';
 import { buildSummary, loadDnaSession, loadGroundingVector } from '@/lib/dnaSession';
+import { useLanguage } from '@/lib/i18n';
 import type { DNASummary } from '@/lib/types';
 
 type Recommendation = {
@@ -28,6 +29,8 @@ interface RecommendationsClientProps {
 }
 
 export function RecommendationsClient({ embedded = false }: RecommendationsClientProps) {
+  const { locale, t } = useLanguage();
+  const tr = t.recommendations;
   const { user, isLoading: isAuthLoading } = useAuth();
   const [status, setStatus] = useState<RecommendationState>('loading');
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
@@ -75,12 +78,13 @@ export function RecommendationsClient({ embedded = false }: RecommendationsClien
         groundingProfile,
         ownedFragranceIds: collection.filter((item) => item.owned).map((item) => item.fragranceId),
         limit: 30,
+        locale,
       }),
     })
       .then(async (response) => {
         const payload = await response.json() as { recommendations?: Recommendation[]; error?: string };
         if (!response.ok || !Array.isArray(payload.recommendations)) {
-          throw new Error(payload.error ?? 'Unable to load fragrance recommendations.');
+          throw new Error(payload.error ?? tr.loadError);
         }
         if (active) {
           setRecommendations(payload.recommendations);
@@ -89,7 +93,7 @@ export function RecommendationsClient({ embedded = false }: RecommendationsClien
       })
       .catch((error: unknown) => {
         if (active) {
-          setErrorMessage(error instanceof Error ? error.message : 'Unable to load fragrance recommendations.');
+          setErrorMessage(error instanceof Error ? error.message : tr.loadError);
           setStatus('error');
         }
       });
@@ -97,7 +101,7 @@ export function RecommendationsClient({ embedded = false }: RecommendationsClien
     return () => {
       active = false;
     };
-  }, [isAuthLoading, user?.id]);
+  }, [isAuthLoading, user?.id, locale]);
 
   useEffect(() => {
     if (!embedded || window.location.hash !== '#your-recommendations') return;
@@ -122,21 +126,21 @@ export function RecommendationsClient({ embedded = false }: RecommendationsClien
       <section className="py-12 md:py-16">
         <div className="main-container">
           <p className="text-xs uppercase tracking-[0.2em] text-gold">
-            {embedded ? 'YOUR RECOMMENDATIONS' : 'DNA MATCHES'}
+            {embedded ? tr.eyebrowEmbedded : tr.eyebrow}
           </p>
           {embedded ? (
-            <h2 id="your-recommendations-title" className="mt-3 text-3xl font-semibold text-white">Your Recommendations</h2>
+            <h2 id="your-recommendations-title" className="mt-3 text-3xl font-semibold text-white">{tr.titleEmbedded}</h2>
           ) : (
-            <h1 className="mt-3 text-3xl font-semibold text-white">Fragrances to explore</h1>
+            <h1 className="mt-3 text-3xl font-semibold text-white">{tr.title}</h1>
           )}
           <p className="mt-3 max-w-2xl text-base leading-7 text-gray-300">
-            Recommendations use your current DNA profile, starting with Grounding and refining after each committed evaluation, against mapped notes and accords in the master fragrance database.
+            {tr.intro}
           </p>
           {summary ? (
             <div className="mt-6 flex flex-wrap gap-6 border-y border-white/10 py-4 text-sm">
-              <span><strong className="text-white">{summary.answeredCount}</strong><span className="ml-2 text-gray-400">evaluations</span></span>
-              <span><strong className="text-white">{summary.confidenceScore}%</strong><span className="ml-2 text-gray-400">profile confidence</span></span>
-              <span><strong className="text-white">{summary.dominantAxes.join(', ') || 'Emerging'}</strong><span className="ml-2 text-gray-400">dominant signals</span></span>
+              <span><strong className="text-white">{summary.answeredCount}</strong><span className="ml-2 text-gray-400">{tr.evaluations}</span></span>
+              <span><strong className="text-white">{summary.confidenceScore}%</strong><span className="ml-2 text-gray-400">{tr.profileConfidence}</span></span>
+              <span><strong className="text-white">{summary.dominantAxes.join(', ') || tr.emerging}</strong><span className="ml-2 text-gray-400">{tr.dominantSignals}</span></span>
             </div>
           ) : null}
         </div>
@@ -144,13 +148,13 @@ export function RecommendationsClient({ embedded = false }: RecommendationsClien
 
       <section className="pb-16">
         <div className="main-container">
-          {status === 'loading' ? <p className="py-10 text-sm text-gray-400">Finding matches in the Fragrance Database...</p> : null}
+          {status === 'loading' ? <p className="py-10 text-sm text-gray-400">{tr.loading}</p> : null}
           {status === 'incomplete' ? (
             <div className="max-w-xl border border-gold/20 bg-black/30 p-6">
-              <h2 className="text-lg font-semibold text-white">Start with your scent preferences</h2>
-              <p className="mt-2 text-sm text-gray-400">Grounding creates your initial DNA profile. Recommendations are available as soon as that profile exists.</p>
+              <h2 className="text-lg font-semibold text-white">{tr.incompleteTitle}</h2>
+              <p className="mt-2 text-sm text-gray-400">{tr.incompleteDescription}</p>
               <Link href="/grounding" className="mt-5 inline-flex">
-                <PremiumButton variant="primary" size="md">Begin Grounding</PremiumButton>
+                <PremiumButton variant="primary" size="md">{tr.beginGrounding}</PremiumButton>
               </Link>
             </div>
           ) : null}
@@ -159,7 +163,7 @@ export function RecommendationsClient({ embedded = false }: RecommendationsClien
           ) : null}
           {status === 'ready' && recommendations.length === 0 ? (
             <div className="border border-white/10 bg-black/25 p-5 text-sm text-gray-300">
-              The master database does not yet have enough mapped notes or accords for a reliable match.
+              {tr.emptyReady}
             </div>
           ) : null}
           <div className="divide-y divide-white/10 border-y border-white/10">
@@ -170,15 +174,15 @@ export function RecommendationsClient({ embedded = false }: RecommendationsClien
                   <p className="text-sm font-semibold text-gold">{String(index + 1).padStart(2, '0')}</p>
                   <PerfumeImageWithFallback
                     candidates={[recommendation.localImagePath, recommendation.imageUrl]}
-                    alt={`${recommendation.perfume || 'Fragrance'} bottle`}
+                    alt={tr.bottleAlt(recommendation.perfume || tr.fallbackName)}
                     className="h-[72px] w-[72px] rounded border border-white/10 bg-black/30 object-contain"
                   />
                   <div className="min-w-0">
-                    <p className="text-xs uppercase tracking-wider text-gray-500">{recommendation.brand || 'Fragrance Database'}</p>
-                    <h2 className="mt-1 truncate text-lg font-semibold text-white">{recommendation.perfume || 'Unnamed fragrance'}</h2>
+                    <p className="text-xs uppercase tracking-wider text-gray-500">{recommendation.brand || tr.fallbackBrand}</p>
+                    <h2 className="mt-1 truncate text-lg font-semibold text-white">{recommendation.perfume || tr.unnamedFragrance}</h2>
                     <p className="mt-1 text-base leading-relaxed text-gray-400">{recommendation.explanation}</p>
                     {recommendation.matchedAttributes.length > 0 ? (
-                      <p className="mt-2 text-xs text-gray-500">Mapped characteristics: {recommendation.matchedAttributes.join(', ')}</p>
+                      <p className="mt-2 text-xs text-gray-500">{tr.mappedCharacteristics} {recommendation.matchedAttributes.join(', ')}</p>
                     ) : null}
                   </div>
                   <div className="flex items-center justify-between gap-3 md:flex-col md:items-end">
@@ -189,7 +193,7 @@ export function RecommendationsClient({ embedded = false }: RecommendationsClien
                       onClick={() => saveToWishlist(recommendation)}
                       className="rounded border border-gold/30 px-3 py-2 text-xs font-semibold text-gold transition hover:bg-gold/10 disabled:cursor-default disabled:opacity-50"
                     >
-                      {isWishlisted ? 'In wishlist' : 'Save to wishlist'}
+                      {isWishlisted ? tr.inWishlist : tr.saveToWishlist}
                     </button>
                   </div>
                 </article>
@@ -198,8 +202,8 @@ export function RecommendationsClient({ embedded = false }: RecommendationsClien
           </div>
           {status === 'ready' && recommendations.length > 0 ? (
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/dna"><PremiumButton variant="secondary" size="md">View your DNA</PremiumButton></Link>
-              <Link href="/collection"><PremiumButton variant="primary" size="md">Open collection</PremiumButton></Link>
+              <Link href="/dna"><PremiumButton variant="secondary" size="md">{tr.viewDna}</PremiumButton></Link>
+              <Link href="/collection"><PremiumButton variant="primary" size="md">{tr.openCollection}</PremiumButton></Link>
             </div>
           ) : null}
         </div>
