@@ -4,6 +4,12 @@
 
 Canonical Architecture v2 is frozen and implementation-ready.
 
+Public SEO metadata uses `https://olfactivedna.com` as `metadataBase`.
+The shared root layout sets canonical and Open Graph URLs to `./`, which
+Next.js resolves against the current route, including dynamic brand paths.
+Do not use `/` in the shared layout: it would make every page canonicalize to
+the homepage. Query parameters are excluded from these route URLs.
+
 Primary canonical references are:
 
 * PRODUCT_DOCTRINE.md

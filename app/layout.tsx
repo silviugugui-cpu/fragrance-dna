@@ -31,11 +31,11 @@ export const metadata: Metadata = {
   },
   description: 'Discover your olfactive identity through science, data, and discovery.',
   alternates: {
-    canonical: '/',
+    canonical: './',
   },
   openGraph: {
     type: 'website',
-    url: 'https://olfactivedna.com',
+    url: './',
     siteName: 'OlfactiveDNA',
     title: 'OlfactiveDNA — Discover your olfactive DNA',
     description: 'Decode your olfactive identity. Discover perfumes you truly love.',
