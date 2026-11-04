@@ -156,8 +156,9 @@ intentionally English-only.
   (e.g. `/api/recommendations` localizes explanation templates via the
   `locale` field in the request body).
 * `components/design-system/LanguageSwitcher.tsx` — header dropdown
-  (compact horizontal strip with native language names) and mobile-menu grid
-  (full) variants. The compact control stretches to match the user control.
+  (vertical list below 768px, horizontal strip on desktop, with native language
+  names) and mobile-menu grid (full) variants. The compact control stretches
+  to match the user control; its mobile dropdown options have touch-friendly padding.
 
 Public-facing branding uses OlfactiveDNA and olfactive identity terminology in
 all seven dictionaries; literal perfume/product references remain unchanged.

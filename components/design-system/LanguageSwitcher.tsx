@@ -80,7 +80,7 @@ export function LanguageSwitcher({ variant = 'compact', className = '' }: Langua
         <div
           role="listbox"
           aria-label={t.header.selectLanguage}
-          className="absolute right-0 top-full z-[130] mt-3 flex items-center gap-1 whitespace-nowrap rounded-full border border-gold/40 bg-[#0b0b0b] px-2 py-1.5 shadow-lg shadow-black/80"
+          className="absolute right-0 top-full z-[130] mt-3 flex flex-col items-stretch gap-1 whitespace-nowrap rounded-2xl border border-gold/40 bg-[#0b0b0b] px-2 py-1.5 shadow-lg shadow-black/80 md:flex-row md:items-center md:rounded-full"
         >
           {LOCALES.map((code) => {
             const isActive = code === locale;
@@ -95,7 +95,7 @@ export function LanguageSwitcher({ variant = 'compact', className = '' }: Langua
                   setLocale(code);
                   setIsOpen(false);
                 }}
-                className={`rounded-full px-3 py-1.5 text-sm transition-colors ${
+                className={`rounded-full px-3 py-3 text-left text-sm transition-colors md:py-1.5 md:text-center ${
                   isActive ? 'bg-gold/20 text-gold' : 'text-gray-300 hover:bg-gold/10 hover:text-gold'
                 }`}
               >
