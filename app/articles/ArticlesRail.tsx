@@ -6,25 +6,27 @@ export default function ArticlesRail({ children }: { children: ReactNode }) {
   const railRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
+    const header = document.querySelector('.header-inner');
     const logo = document.querySelector('.brand-logo-fixed .fragrance-logo');
     const rail = railRef.current;
-    if (!logo || !rail) return;
+    if (!header || !logo || !rail) return;
 
-    const alignWithLogo = () => {
+    const alignRail = () => {
       const bounds = logo.getBoundingClientRect();
       rail.style.setProperty('--articles-logo-bottom', `${bounds.bottom}px`);
-      rail.style.setProperty('--articles-logo-left', `${bounds.left}px`);
+      rail.style.setProperty('--articles-header-left', `${header.getBoundingClientRect().left}px`);
     };
 
-    alignWithLogo();
-    const observer = new ResizeObserver(alignWithLogo);
+    alignRail();
+    const observer = new ResizeObserver(alignRail);
+    observer.observe(header);
     observer.observe(logo);
-    window.addEventListener('scroll', alignWithLogo, { passive: true });
-    window.addEventListener('resize', alignWithLogo);
+    window.addEventListener('scroll', alignRail, { passive: true });
+    window.addEventListener('resize', alignRail);
     return () => {
       observer.disconnect();
-      window.removeEventListener('scroll', alignWithLogo);
-      window.removeEventListener('resize', alignWithLogo);
+      window.removeEventListener('scroll', alignRail);
+      window.removeEventListener('resize', alignRail);
     };
   }, []);
 

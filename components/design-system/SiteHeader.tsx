@@ -79,6 +79,7 @@ export function SiteHeader() {
   return (
     <header className="site-header">
       <div className="header-inner">
+        <LanguageSwitcher className="header-language-switcher" />
         {/* Logo */}
         <div className="brand-logo-lock relative flex h-full flex-shrink-0 items-center">
           <div className="brand-logo-fixed relative z-[90] inline-block hover:opacity-80 transition-opacity">
@@ -171,19 +172,17 @@ export function SiteHeader() {
               )}
             </div>
           )}
-          <LanguageSwitcher className="mr-3 lg:mr-6" />
         </div>
 
         <div className="mobile-header-actions md:hidden">
-          <LanguageSwitcher />
           {!user ? (
             <Link href="/auth/sign-in" className="mobile-login-btn" aria-label={t.header.signIntoYourDna}>
               {t.header.login}
             </Link>
           ) : (
             <Link href="/dna" className="mobile-login-btn inline-flex items-center gap-1.5" aria-label={t.header.openDnaProfileAria(userBadgeLabel)}>
-              {user.name.split(' ')[0]}
-              <Image src={userBadge.imageSrc} alt="" width={69} height={69} className="h-[4.32rem] w-[4.32rem] shrink-0 object-contain" />
+              <span className="min-w-0 truncate">{user.name.split(' ')[0]}</span>
+              <Image src={userBadge.imageSrc} alt="" width={32} height={32} className="h-8 w-8 shrink-0 object-contain" />
             </Link>
           )}
           <button

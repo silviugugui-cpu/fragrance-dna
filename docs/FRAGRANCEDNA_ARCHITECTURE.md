@@ -157,8 +157,10 @@ intentionally English-only.
   `locale` field in the request body).
 * `components/design-system/LanguageSwitcher.tsx` — header dropdown
   (vertical list below 768px, horizontal strip on desktop, with native language
-  names) and mobile-menu grid (full) variants. The compact control stretches
-  to match the user control; its mobile dropdown options have touch-friendly padding.
+  names) and mobile-menu grid (full) variants. A single compact control sits in a
+  small bordered box at the header's top-left corner, outside the navigation flex
+  flow on desktop and mobile. Its dropdown is left-anchored and its mobile options
+  have touch-friendly padding.
 
 Public-facing branding uses OlfactiveDNA and olfactive identity terminology in
 all seven dictionaries; literal perfume/product references remain unchanged.
@@ -198,6 +200,16 @@ with intensity and season filters and inline territory details preserved. Its
 embedded layout fills the Articles content column. This editorial menu is
 separate from the evidence-backed affinity section on the DNA dashboard.
 These layout changes do not alter the particle effects.
+
+On desktop, the shared Articles rail aligns its left border with the horizontal
+header container, not the inset logo. It retains its logo-based vertical position
+and updates alignment on scrolling and resizing across all Articles pages.
+On smaller screens, the rail stays in the normal content flow.
+
+The mobile header logo is centered within its reserved slot without the desktop
+logo's translation, below the corner language control and contained in the header.
+Mobile profile badges are 32px. The account label truncates when space is tight,
+while language and menu controls retain their space inside the header.
 
 ### Ambient visual effects
 
