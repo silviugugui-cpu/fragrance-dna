@@ -221,6 +221,16 @@ Gold-filled login submit buttons use a dark surface and champagne text/outline.
 Semantic error, warning, success, and chart colors are not recolored.
 Normal Mode will define its own inks.
 
+### Confidence badge artwork
+
+Confidence badge artwork is registered in `DNA_CONFIDENCE_BADGES` in
+`lib/dnaSession.ts` and uses the six transparent PNGs in
+`public/Badges/OlfactiveDNA-Badges`. Header account badges and the FAQ share this
+registry. The FAQ renders individual badges rather than the old composite image.
+Confidence thresholds, tier IDs, and localized labels remain unchanged.
+Header badges are 6.3rem square on desktop and 2.5rem on mobile, 25% larger
+than their previous 5.04rem and 2rem sizes; FAQ badge sizing is independent.
+
 ### Homepage journey
 
 The homepage heading displays only the localized `home.heroSubtitle`

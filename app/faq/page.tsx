@@ -28,18 +28,10 @@ export default function FaqPage() {
       <section className="border-b border-white/10 py-10 md:py-14">
         <div className="main-container">
           <h2 className="mb-6 text-xl font-semibold text-white md:text-2xl">{t.faq.badgeLevelsTitle}</h2>
-          <Image
-            src="/Badges/Olfactory%20Progress%20Badge%20Collection%20-%20black.png"
-            alt={t.faq.badgeImageAlt}
-            width={1792}
-            height={896}
-            sizes="(min-width: 1200px) 1120px, (min-width: 768px) 92vw, 100vw"
-            className="h-auto w-full"
-          />
-          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {DNA_CONFIDENCE_BADGES.map((badge) => (
               <article key={badge.id} className="flex items-center gap-3 border-t border-white/10 py-3">
-                <Image src={badge.imageSrc} alt="" width={52} height={52} className="h-[52px] w-[52px] shrink-0 object-contain" />
+                <Image src={badge.imageSrc} alt="" width={112} height={112} className="h-28 w-28 shrink-0 object-contain" />
                 <div>
                   <h3 className="font-semibold text-white">{t.common.badges[badge.id] ?? badge.label}</h3>
                   <p className="text-sm text-gray-400">{t.faq.badgeRange(badge.minimum, badge.maximum)}</p>

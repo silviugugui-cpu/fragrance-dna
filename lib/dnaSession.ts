@@ -40,12 +40,12 @@ export type DnaConfidenceBadge = {
 };
 
 export const DNA_CONFIDENCE_BADGES: DnaConfidenceBadge[] = [
-  { id: "hobby", label: "Hobby", minimum: 0, maximum: 34, colorClass: "bg-emerald-400", imageSrc: "/Badges/Botanical%20Gold%20Hobby%20Badge%20-%20black.png" },
-  { id: "explorer", label: "Explorer", minimum: 35, maximum: 49, colorClass: "bg-sky-400", imageSrc: "/Badges/Explorer%20Compass%20Badge%20-%20Black.png" },
-  { id: "enthusiast", label: "Enthusiast", minimum: 50, maximum: 64, colorClass: "bg-violet-400", imageSrc: "/Badges/Purple%20Gold%20Enthusiast%20Floral%20Badge%20-%20Black.png" },
-  { id: "connoisseur", label: "Connoisseur", minimum: 65, maximum: 79, colorClass: "bg-orange-400", imageSrc: "/Badges/Golden%20Connoisseur%20Perfume%20Emblem%20-%20black.png" },
-  { id: "expert", label: "Expert", minimum: 80, maximum: 89, colorClass: "bg-rose-400", imageSrc: "/Badges/Expert%20Ruby%20Crest%20Badge%20-%20Black.png" },
-  { id: "olfactory-master", label: "Olfactive Master", minimum: 90, maximum: 100, colorClass: "bg-amber-300", imageSrc: "/Badges/Olfactory%20Master%20Golden%20Crest-%20black.png" },
+  { id: "hobby", label: "Hobby", minimum: 0, maximum: 34, colorClass: "bg-emerald-400", imageSrc: "/Badges/OlfactiveDNA-Badges/01-hobby.png" },
+  { id: "explorer", label: "Explorer", minimum: 35, maximum: 49, colorClass: "bg-sky-400", imageSrc: "/Badges/OlfactiveDNA-Badges/02-explorer.png" },
+  { id: "enthusiast", label: "Enthusiast", minimum: 50, maximum: 64, colorClass: "bg-violet-400", imageSrc: "/Badges/OlfactiveDNA-Badges/03-enthusiast.png" },
+  { id: "connoisseur", label: "Connoisseur", minimum: 65, maximum: 79, colorClass: "bg-orange-400", imageSrc: "/Badges/OlfactiveDNA-Badges/04-connoisseur.png" },
+  { id: "expert", label: "Expert", minimum: 80, maximum: 89, colorClass: "bg-rose-400", imageSrc: "/Badges/OlfactiveDNA-Badges/05-expert.png" },
+  { id: "olfactory-master", label: "Olfactive Master", minimum: 90, maximum: 100, colorClass: "bg-amber-300", imageSrc: "/Badges/OlfactiveDNA-Badges/06-olfactory-master.png" },
 ];
 
 export const getDnaConfidenceBadge = (confidence: number): DnaConfidenceBadge => {

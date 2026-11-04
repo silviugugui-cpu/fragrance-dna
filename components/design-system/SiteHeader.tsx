@@ -128,7 +128,7 @@ export function SiteHeader() {
                 className="flex items-center gap-2 px-3 py-2 text-gold transition-opacity duration-300 hover:opacity-80"
               >
                 <span className="max-w-[clamp(80px,9vw,150px)] truncate text-sm font-medium">{user.name}</span>
-                <Image src={userBadge.imageSrc} alt="" width={81} height={81} className="h-[5.04rem] w-[5.04rem] shrink-0 object-contain" />
+                <Image src={userBadge.imageSrc} alt="" width={102} height={102} className="h-[6.3rem] w-[6.3rem] shrink-0 object-contain" />
                 <span className={`text-xs transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}>▼</span>
               </button>
 
@@ -185,7 +185,7 @@ export function SiteHeader() {
           ) : (
             <Link href="/dna" className="mobile-login-btn inline-flex items-center gap-1.5" aria-label={t.header.openDnaProfileAria(userBadgeLabel)}>
               <span className="min-w-0 truncate">{user.name.split(' ')[0]}</span>
-              <Image src={userBadge.imageSrc} alt="" width={32} height={32} className="h-8 w-8 shrink-0 object-contain" />
+              <Image src={userBadge.imageSrc} alt="" width={40} height={40} className="h-10 w-10 shrink-0 object-contain" />
             </Link>
           )}
           <button
