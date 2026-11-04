@@ -621,11 +621,11 @@ export default function TestPage() {
                   style={{
                     borderColor: isCurrentStep ? 'rgba(var(--public-champagne-channels,243,210,147),0.75)' : 'rgba(var(--public-champagne-channels,168,129,70),0.32)',
                     background: isCurrentStep
-                      ? 'radial-gradient(circle at 12% 0%, rgba(250,223,164,0.12), transparent 42%), linear-gradient(160deg, rgba(32,24,14,0.95), rgba(14,12,10,0.97))'
-                      : 'linear-gradient(160deg, rgba(19,16,14,0.9), rgba(11,11,12,0.94))',
+                      ? 'radial-gradient(circle at 12% 0%, rgba(250,223,164,0.12), transparent 42%), linear-gradient(160deg, rgba(var(--public-surface-channels,32,24,14),0.95), rgba(var(--public-surface-channels,14,12,10),0.97))'
+                      : 'linear-gradient(160deg, rgba(var(--public-surface-channels,19,16,14),0.9), rgba(var(--public-surface-channels,11,11,12),0.94))',
                     boxShadow: isCurrentStep
-                      ? '0 18px 38px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,228,173,0.22)'
-                      : '0 10px 22px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,228,173,0.08)',
+                      ? 'var(--public-panel-shadow, 0 18px 38px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,228,173,0.22))'
+                      : 'var(--public-panel-shadow, 0 10px 22px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,228,173,0.08))',
                   }}
                 >
                   <div className="mb-4 flex items-center justify-between gap-2">

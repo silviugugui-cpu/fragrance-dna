@@ -13,7 +13,7 @@ const articles: Dictionary['articles'] = {
     kicker: 'Wissenswertes',
     title: 'Artikel in Wissenswertes',
     intro:
-      'Entdecken Sie strukturiertes Duftwissen nach Kategorien. Wählen Sie einen Bereich aus – die Artikel öffnen sich direkt darunter auf dieser Seite.',
+      'Entdecken Sie strukturiertes Duftwissen nach Kategorien.',
     sectionLabel: 'Bereich',
     nowReading: 'Sie lesen gerade',
     articleCount: (count) => `${count} Artikel`,
@@ -299,7 +299,7 @@ const articles: Dictionary['articles'] = {
   perfumers: {
     kicker: 'Parfumschöpfer',
     title: 'Parfümeure und kreative DNA',
-    intro: 'Entdecken Sie die Signaturstile der Schöpfer, ihre Parfümerie-Philosophien und DNA-Profile entlang zentraler Achsen.',
+    intro: 'Entdecken Sie die Signaturstile der Schöpfer und ihre Parfümerie-Philosophien.',
     iconicFragrances: 'Ikonische Düfte',
     clusters: {
       'FRESH ARCHITECTS': 'ARCHITEKTEN DER FRISCHE',

@@ -62,44 +62,44 @@ export default function DnaMetrics({
   return (
     <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
       <article className={CARD_BASE_CLASS}>
-        <p className="text-xs uppercase tracking-[0.24em] text-[rgba(165,185,150,0.75)]">{t.dna.metrics.confidence}</p>
+        <p className="text-xs uppercase tracking-[0.24em] text-[color:var(--public-readable-text,rgba(165,185,150,0.75))]">{t.dna.metrics.confidence}</p>
         <div className="mt-4 flex items-end justify-between">
           <div>
-            <p className="text-4xl font-semibold text-[rgba(212,175,120,0.95)]">{confidence}%</p>
-            <p className="mt-2 text-sm text-[rgba(190,170,140,0.74)]">{t.dna.metrics.highReliability}</p>
+            <p className="text-4xl font-semibold text-[color:var(--public-readable-text,rgba(212,175,120,0.95))]">{confidence}%</p>
+            <p className="mt-2 text-sm text-[color:var(--public-readable-text,rgba(190,170,140,0.74))]">{t.dna.metrics.highReliability}</p>
           </div>
           <ShieldIcon />
         </div>
       </article>
 
       <article className={CARD_BASE_CLASS}>
-        <p className="text-xs uppercase tracking-[0.24em] text-[rgba(165,185,150,0.75)]">{t.dna.metrics.dominantAxes}</p>
+        <p className="text-xs uppercase tracking-[0.24em] text-[color:var(--public-readable-text,rgba(165,185,150,0.75))]">{t.dna.metrics.dominantAxes}</p>
         <div className="mt-4 flex items-end justify-between gap-3">
           <div>
-            <p className="text-2xl text-[rgba(212,175,120,0.95)]">{dominantAxes}</p>
-            <p className="mt-2 text-sm text-[rgba(190,170,140,0.74)]">{t.dna.metrics.coreIdentity}</p>
+            <p className="text-2xl text-[color:var(--public-readable-text,rgba(212,175,120,0.95))]">{dominantAxes}</p>
+            <p className="mt-2 text-sm text-[color:var(--public-readable-text,rgba(190,170,140,0.74))]">{t.dna.metrics.coreIdentity}</p>
           </div>
           <NetworkIcon />
         </div>
       </article>
 
       <article className={CARD_BASE_CLASS}>
-        <p className="text-xs uppercase tracking-[0.24em] text-[rgba(165,185,150,0.75)]">{t.dna.metrics.testInfluence}</p>
+        <p className="text-xs uppercase tracking-[0.24em] text-[color:var(--public-readable-text,rgba(165,185,150,0.75))]">{t.dna.metrics.testInfluence}</p>
         <div className="mt-4 flex items-end justify-between">
           <div>
-            <p className="text-3xl text-[rgba(212,175,120,0.95)]">{t.dna.metrics.tested(testedCount, remainingCount)}</p>
-            <p className="mt-2 text-sm text-[rgba(190,170,140,0.74)]">{t.dna.metrics.sufficientData}</p>
+            <p className="text-3xl text-[color:var(--public-readable-text,rgba(212,175,120,0.95))]">{t.dna.metrics.tested(testedCount, remainingCount)}</p>
+            <p className="mt-2 text-sm text-[color:var(--public-readable-text,rgba(190,170,140,0.74))]">{t.dna.metrics.sufficientData}</p>
           </div>
           <LabIcon />
         </div>
       </article>
 
       <article className={CARD_BASE_CLASS}>
-        <p className="text-xs uppercase tracking-[0.24em] text-[rgba(165,185,150,0.75)]">{t.dna.metrics.state}</p>
+        <p className="text-xs uppercase tracking-[0.24em] text-[color:var(--public-readable-text,rgba(165,185,150,0.75))]">{t.dna.metrics.state}</p>
         <div className="mt-4 flex items-end justify-between">
           <div>
-            <p className="text-3xl text-[rgba(212,175,120,0.95)]">{stateLabel}</p>
-            <p className="mt-2 text-sm text-[rgba(190,170,140,0.74)]">{t.dna.metrics.profileCompleted}</p>
+            <p className="text-3xl text-[color:var(--public-readable-text,rgba(212,175,120,0.95))]">{stateLabel}</p>
+            <p className="mt-2 text-sm text-[color:var(--public-readable-text,rgba(190,170,140,0.74))]">{t.dna.metrics.profileCompleted}</p>
           </div>
           <TargetIcon />
         </div>

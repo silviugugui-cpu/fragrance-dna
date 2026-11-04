@@ -9,7 +9,7 @@ const header: Dictionary['header'] = {
     collection: { label: 'COLECȚIA TA', mobile: 'Colecția ta', hint: 'Parfumuri salvate' },
     fragrances: { label: 'PARFUMURI', mobile: 'Biblioteca de parfumuri', hint: 'Caută printre peste 68.000 de parfumuri' },
     faq: { label: 'FAQ', mobile: 'FAQ ADN și insigne', hint: 'Cum funcționează încrederea și insignele' },
-    articles: { label: 'ARTICOLE', mobile: 'Parfumul ca pasiune', hint: 'Citește articole despre parfumuri' },
+    articles: { label: 'DESCOPERĂ', mobile: 'Descoperă', hint: 'Explorează cunoștințe, creatori și teritorii olfactive' },
   },
   signedInAs: 'Autentificat ca',
   myDnaProfile: 'Profilul meu ADN',
@@ -27,7 +27,8 @@ const header: Dictionary['header'] = {
   openDnaProfileAria: (badge) => `Deschide profilul ADN, insigna ${badge}`,
   language: 'Limbă',
   selectLanguage: 'Selectează limba',
-  themeComingSoon: 'Modul întunecat este activ. Modul normal va fi disponibil în curând.',
+  switchToNormal: 'Activează modul normal',
+  switchToDark: 'Activează modul întunecat',
 };
 
 export default header;

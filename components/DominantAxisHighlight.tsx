@@ -60,34 +60,34 @@ export default function DominantAxisHighlight({
 
   return (
     <div className="glass-card p-8 space-y-6">
-      <p className="text-sm uppercase tracking-[0.3em] text-[rgba(165,185,150,0.85)]">
+      <p className="text-sm uppercase tracking-[0.3em] text-[color:var(--public-readable-text,rgba(165,185,150,0.85))]">
         {title}
       </p>
 
       {/* Primary axis */}
       <div className="space-y-3">
         <div className="flex items-baseline gap-3">
-          <span className="text-3xl font-light text-[rgba(212,175,120,0.95)]">
+          <span className="text-3xl font-light text-[color:var(--public-readable-text,rgba(212,175,120,0.95))]">
             {dominantName}
           </span>
-          <span className="text-xs uppercase tracking-[0.2em] text-[rgba(190,170,140,0.65)]">
+          <span className="text-xs uppercase tracking-[0.2em] text-[color:var(--public-readable-text,rgba(190,170,140,0.65))]">
             {isHighPrimary ? 'High affinity' : 'Low preference'}
           </span>
         </div>
 
-        <p className="text-sm text-[rgba(190,170,140,0.7)] leading-6">
+        <p className="text-sm text-[color:var(--public-readable-text,rgba(190,170,140,0.7))] leading-6">
           {AXIS_DESCRIPTIONS[dominant.axis]}
         </p>
 
         {/* Intensity bar */}
         <div className="space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-[rgba(165,185,150,0.6)]">Intensity</span>
-            <span className="text-xs font-semibold text-[rgba(212,175,120,0.8)]">
+            <span className="text-xs text-[color:var(--public-readable-text,rgba(165,185,150,0.6))]">Intensity</span>
+            <span className="text-xs font-semibold text-[color:var(--public-readable-text,rgba(212,175,120,0.8))]">
               {primaryIntensity}%
             </span>
           </div>
-          <div className="h-3 rounded-full bg-[rgba(0,0,0,0.3)] overflow-hidden">
+          <div className="h-3 rounded-full bg-[rgba(var(--public-surface-channels,0,0,0),0.3)] overflow-hidden">
             <div
               className="h-full rounded-full bg-gradient-to-r from-[rgba(212,175,120,0.6)] to-[rgba(212,175,120,0.95)]"
               style={{ width: `${dominant.distance * 100}%` }}
@@ -101,26 +101,26 @@ export default function DominantAxisHighlight({
         <div className="border-t border-[rgba(212,175,120,0.15)] pt-4">
           <div className="space-y-3">
             <div className="flex items-baseline gap-3">
-              <span className="text-lg font-light text-[rgba(212,175,120,0.75)]">
+              <span className="text-lg font-light text-[color:var(--public-readable-text,rgba(212,175,120,0.75))]">
                 {secondaryName}
               </span>
-              <span className="text-xs text-[rgba(190,170,140,0.55)]">
+              <span className="text-xs text-[color:var(--public-readable-text,rgba(190,170,140,0.55))]">
                 {isHighSecondary ? 'Secondary high' : 'Secondary low'}
               </span>
             </div>
 
-            <p className="text-xs text-[rgba(190,170,140,0.65)]">
+            <p className="text-xs text-[color:var(--public-readable-text,rgba(190,170,140,0.65))]">
               {AXIS_DESCRIPTIONS[secondary.axis]}
             </p>
 
             <div className="space-y-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-[rgba(165,185,150,0.6)]">Influence</span>
-                <span className="text-xs text-[rgba(212,175,120,0.7)]">
+                <span className="text-xs text-[color:var(--public-readable-text,rgba(165,185,150,0.6))]">Influence</span>
+                <span className="text-xs text-[color:var(--public-readable-text,rgba(212,175,120,0.7))]">
                   {secondaryIntensity}%
                 </span>
               </div>
-              <div className="h-2 rounded-full bg-[rgba(0,0,0,0.2)] overflow-hidden">
+              <div className="h-2 rounded-full bg-[rgba(var(--public-surface-channels,0,0,0),0.2)] overflow-hidden">
                 <div
                   className="h-full rounded-full bg-[rgba(212,175,120,0.5)]"
                   style={{ width: `${secondary.distance * 100}%` }}
@@ -133,8 +133,8 @@ export default function DominantAxisHighlight({
 
       {/* Profile hint */}
       <div className="rounded-lg bg-[rgba(212,175,120,0.08)] p-4 border border-[rgba(212,175,120,0.1)]">
-        <p className="flex gap-2 text-xs text-[rgba(190,170,140,0.7)] leading-5">
-          <InsightSparkIcon className="mt-0.5 h-4 w-4 text-[rgba(212,175,120,0.78)]" />
+        <p className="flex gap-2 text-xs text-[color:var(--public-readable-text,rgba(190,170,140,0.7))] leading-5">
+          <InsightSparkIcon className="mt-0.5 h-4 w-4 text-[color:var(--public-readable-text,rgba(212,175,120,0.78))]" />
           <span>This axis shows your strongest olfactory signature. Perfect fragrances will either amplify this or introduce meaningful contrasts.</span>
         </p>
       </div>

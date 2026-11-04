@@ -15,17 +15,17 @@ const config: Config = {
         },
         black: {
           // DEFAULT restores the core `black` color (and opacity modifiers like bg-black/75).
-          DEFAULT: '#000000',
+          DEFAULT: 'rgb(var(--public-black-rgb, 0 0 0) / <alpha-value>)',
           50: '#F5F5F5',
           100: '#E8E8E8',
           200: '#D1D1D1',
           300: '#B8B8B8',
-          400: '#808080',
-          500: '#404040',
-          600: '#2B2B2B',
-          700: '#1A1A1A',
-          800: '#0B0D0F',
-          900: '#000000',
+          400: 'rgb(var(--public-black-400-rgb, 128 128 128) / <alpha-value>)',
+          500: 'rgb(var(--public-black-500-rgb, 64 64 64) / <alpha-value>)',
+          600: 'rgb(var(--public-black-600-rgb, 43 43 43) / <alpha-value>)',
+          700: 'rgb(var(--public-black-700-rgb, 26 26 26) / <alpha-value>)',
+          800: 'rgb(var(--public-black-800-rgb, 11 13 15) / <alpha-value>)',
+          900: 'rgb(var(--public-black-rgb, 0 0 0) / <alpha-value>)',
         },
         gold: {
           // DEFAULT makes `gold` usable with opacity modifiers (e.g. border-gold/35).

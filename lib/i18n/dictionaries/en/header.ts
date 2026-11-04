@@ -7,7 +7,7 @@ const header = {
     collection: { label: 'YOUR COLLECTION', mobile: 'Your Collection', hint: 'Saved fragrances' },
     fragrances: { label: 'FRAGRANCES', mobile: 'Fragrance library', hint: 'Search 68,000+ perfumes' },
     faq: { label: 'FAQ', mobile: 'DNA & badges FAQ', hint: 'How confidence and badges work' },
-    articles: { label: 'ARTICLES', mobile: 'Fragrance as a passion', hint: 'Read fragrance insights' },
+    articles: { label: 'DISCOVER', mobile: 'Discover', hint: 'Explore fragrance knowledge, creators, and territories' },
   },
   signedInAs: 'Signed in as',
   myDnaProfile: 'My DNA Profile',
@@ -25,7 +25,8 @@ const header = {
   openDnaProfileAria: (badge: string) => `Open DNA profile, ${badge} badge`,
   language: 'Language',
   selectLanguage: 'Select language',
-  themeComingSoon: 'Dark mode active. Normal mode is coming soon.',
+  switchToNormal: 'Switch to Normal Mode',
+  switchToDark: 'Switch to Dark Mode',
 };
 
 export default header;

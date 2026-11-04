@@ -14,7 +14,7 @@ import SiteLogo from '@/app/components/SiteLogo';
 import LuxuryLoginButton from './LuxuryLoginButton';
 import LanguageSwitcher from './LanguageSwitcher';
 import ThemeToggle from './ThemeToggle';
-import { ACTIVE_PUBLIC_THEME_ASSETS } from '@/lib/theme/publicTheme';
+import { usePublicTheme } from '@/lib/theme/PublicThemeProvider';
 import { useAuth } from '@/lib/auth';
 import { useLanguage } from '@/lib/i18n';
 import { isAdminUser } from '@/lib/auth/adminAccess';
@@ -36,6 +36,7 @@ export function SiteHeader() {
   const router = useRouter();
   const { user, signOut, isLoading } = useAuth();
   const { t } = useLanguage();
+  const { assets } = usePublicTheme();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [confidence, setConfidence] = useState(0);
@@ -87,7 +88,7 @@ export function SiteHeader() {
         <div className="brand-logo-lock relative flex h-full flex-shrink-0 items-center">
           <div className="brand-logo-fixed relative z-[90] inline-block hover:opacity-80 transition-opacity">
             <div className="relative z-[120]">
-              <SiteLogo href={!isLoading && isAdminUser(user) ? '/studio' : '/'} imageSrc={ACTIVE_PUBLIC_THEME_ASSETS.logo} />
+              <SiteLogo href={!isLoading && isAdminUser(user) ? '/studio' : '/'} imageSrc={assets.logo} />
             </div>
           </div>
         </div>
@@ -105,7 +106,7 @@ export function SiteHeader() {
                 href={link.href}
                 className={`nav-link uppercase font-medium transition-all duration-300 ${
                   isActive ? 'active text-gold' : 'text-gray-400 hover:text-gold'
-                }`}
+                } ${link.key === 'fragrances' ? 'nav-encyclopedia-start' : ''}`}
               >
                 {t.header.nav[link.key].label}
               </Link>

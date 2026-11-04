@@ -98,14 +98,14 @@ export default function DNAVisualizer({
 
       {/* rings */}
       {computed.rings.map((r, i) => (
-        <circle key={i} cx={computed.cx} cy={computed.cy} r={r.r} fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth={1} />
+        <circle key={i} cx={computed.cx} cy={computed.cy} r={r.r} fill="none" stroke="var(--public-chart-grid,rgba(255,255,255,0.03))" strokeWidth={1} />
       ))}
 
       {/* axes lines & labels */}
       {computed.axesGeom.map((g) => (
         <g key={g.name}>
-          <line x1={computed.cx} y1={computed.cy} x2={g.x} y2={g.y} stroke="rgba(255,255,255,0.04)" strokeWidth={1} />
-          <text x={g.lx} y={g.ly} fill="#d9d1c3" fontSize={11} textAnchor={g.textAnchor as any} dominantBaseline="middle">
+          <line x1={computed.cx} y1={computed.cy} x2={g.x} y2={g.y} stroke="var(--public-chart-grid,rgba(255,255,255,0.04))" strokeWidth={1} />
+          <text x={g.lx} y={g.ly} fill="var(--public-chart-label,#d9d1c3)" fontSize={11} textAnchor={g.textAnchor as any} dominantBaseline="middle">
             {g.name}
           </text>
         </g>

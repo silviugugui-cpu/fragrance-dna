@@ -12,6 +12,7 @@ import { getOrCreateUserProfile, updateUserVector } from "@/lib/engine/userProfi
 import { getPhase1Flags } from "@/lib/intelligence/flags/phase1Flags";
 import { runGroundingDualWrite } from "@/lib/intelligence/grounding/groundingDualWrite";
 import { useLanguage } from "@/lib/i18n";
+import { usePublicTheme } from "@/lib/theme/PublicThemeProvider";
 import { PageShell, SectionHeader, PremiumButton } from "@/components/design-system";
 
 const TOKENS = [
@@ -35,6 +36,10 @@ export default function GroundingPage() {
   const router = useRouter();
   const { user, isLoading } = useAuth();
   const { t } = useLanguage();
+  const { assets, theme } = usePublicTheme();
+  const groundingBackground = (image: string) => theme === "normal"
+    ? `url('${image}')`
+    : `linear-gradient(160deg, rgba(9,9,10,0.44) 0%, rgba(13,11,9,0.36) 50%, rgba(9,9,10,0.44) 100%), url('${image}')`;
   const [isGroundingReady, setIsGroundingReady] = useState(false);
   const draggedTokenRef = useRef<string | null>(null);
   const [state, setState] = useState<Record<string, Zone>>(
@@ -238,7 +243,10 @@ export default function GroundingPage() {
               className="premium-card-dark bg-cover bg-center bg-no-repeat p-8 border-2 border-warm-400/30 hover:border-warm-400/60 transition-all min-h-96 flex flex-col"
               style={{
                 backgroundImage:
-                  "linear-gradient(160deg, rgba(9, 9, 10, 0.44) 0%, rgba(13, 11, 9, 0.36) 50%, rgba(9, 9, 10, 0.44) 100%), url('/Pictures/Grounding/Neutral%20Affinitie%20Balance.png')",
+                  groundingBackground(assets.groundingNeutral),
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
               }}
             >
               <div className="mb-6">
@@ -266,7 +274,10 @@ export default function GroundingPage() {
               className="premium-card-dark bg-cover bg-center bg-no-repeat p-8 border-2 border-emerald-400/30 hover:border-emerald-400/60 transition-all min-h-96 flex flex-col"
               style={{
                 backgroundImage:
-                  "linear-gradient(160deg, rgba(9, 9, 10, 0.44) 0%, rgba(13, 11, 9, 0.36) 50%, rgba(9, 9, 10, 0.44) 100%), url('/Pictures/Grounding/Attraction%20Patterns%20Love.png')",
+                  groundingBackground(assets.groundingLove),
+                backgroundSize: "cover",
+                backgroundPosition: "right center",
+                backgroundRepeat: "no-repeat",
               }}
             >
               <div className="mb-6">
@@ -294,7 +305,10 @@ export default function GroundingPage() {
               className="premium-card-dark bg-cover bg-center bg-no-repeat p-8 border-2 border-red-400/30 hover:border-red-400/60 transition-all min-h-96 flex flex-col"
               style={{
                 backgroundImage:
-                  "linear-gradient(160deg, rgba(9, 9, 10, 0.44) 0%, rgba(13, 11, 9, 0.36) 50%, rgba(9, 9, 10, 0.44) 100%), url('/Pictures/Grounding/Avoidance%20Patterns%20Avoid.png')",
+                  groundingBackground(assets.groundingAvoid),
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
               }}
             >
               <div className="mb-6">

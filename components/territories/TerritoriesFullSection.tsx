@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { territories, Territory } from '@/lib/data/territories';
 import { CloseGlyphIcon, ChevronRightGlyphIcon } from '@/components/design-system/FragranceIcons';
 import { useLanguage } from '@/lib/i18n';
+import { usePublicTheme } from '@/lib/theme/PublicThemeProvider';
 
 const TERRITORY_BACKGROUNDS: Record<string, string> = {
   'fresh-citrus':  '/Territory/Fresh citrus.bmp',
@@ -32,11 +33,11 @@ function TerritoryMapCard({ territory, isSelected, onClick }: TerritoryCardProps
     <button
       onClick={onClick}
       className={`
-        relative cursor-pointer overflow-hidden rounded-[16px] border p-6 transition-all duration-300
-        ${isSelected ? 'ring-2 ring-gold shadow-gold scale-105' : 'hover:shadow-gold hover:scale-102'}
+        territory-map-card relative flex min-w-0 cursor-pointer flex-col overflow-hidden rounded-[16px] border text-left transition-shadow duration-300
+        ${isSelected ? 'ring-2 ring-gold shadow-gold' : 'hover:shadow-gold'}
       `}
       style={{
-        background: 'rgba(7,8,12,0.88)',
+        background: 'rgba(var(--public-surface-channels,7,8,12),0.88)',
         borderColor: 'rgba(var(--public-champagne-channels,197,160,94),0.34)'
       }}
     >
@@ -46,25 +47,24 @@ function TerritoryMapCard({ territory, isSelected, onClick }: TerritoryCardProps
           src={bgImage}
           alt=""
           aria-hidden="true"
-          className="absolute inset-0 h-full w-full object-cover object-center opacity-30"
+          className="block aspect-[410/370] w-full shrink-0 object-cover object-center"
         />
       )}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-black/55 pointer-events-none" />
-
+      <div className="flex w-full min-w-0 flex-1 flex-col p-4">
       <div className="relative z-10 mb-3 flex items-start justify-between">
-        <h3 className="text-lg font-bold text-white">{display?.name ?? territory.name}</h3>
+        <h3 className="min-h-[2.8em] text-lg font-bold text-white">{display?.name ?? territory.name}</h3>
       </div>
 
       <div className="relative z-10 mb-3">
         <span
           className={`
-            rounded px-2 py-1 text-xs font-medium
+            inline-flex max-w-full rounded px-2 py-1 text-xs font-medium
             ${
               territory.intensity === 'light'
-                ? 'bg-[#5a1a2e] text-[#ffcab8]'
+                ? 'bg-[var(--public-rose-surface,#5a1a2e)] text-[color:var(--public-rose-ink,#ffcab8)]'
                 : territory.intensity === 'moderate'
-                  ? 'bg-[#4a2e0a] text-[color:var(--public-ink-secondary,#ffd488)]'
-                  : 'bg-[#4a0e0e] text-[#ffaaaa]'
+                  ? 'bg-[var(--public-amber-surface,#4a2e0a)] text-[color:var(--public-ink-secondary,#ffd488)]'
+                  : 'bg-[var(--public-red-surface,#4a0e0e)] text-[color:var(--public-red-ink,#ffaaaa)]'
             }
           `}
         >
@@ -76,14 +76,14 @@ function TerritoryMapCard({ territory, isSelected, onClick }: TerritoryCardProps
         </span>
       </div>
 
-      <p className="relative z-10 mb-4 line-clamp-2 text-left text-sm text-gray-400">{display?.description ?? territory.description}</p>
+      <p className="relative z-10 mb-4 min-h-[3.2em] line-clamp-2 text-left text-sm text-gray-400">{display?.description ?? territory.description}</p>
 
       <div className="relative z-10 mb-3 flex items-center justify-between">
         <span className="text-xs uppercase text-gray-500">{t.territories.card.versatility}</span>
-        <div className="mx-2 h-1 flex-1 overflow-hidden rounded-full bg-black-600">
+        <div className="mx-2 h-1 min-w-2 flex-1 overflow-hidden rounded-full bg-black-600">
           <div className="h-full bg-gradient-to-r from-gold to-warm-500" style={{ width: `${territory.versatility}%` }} />
         </div>
-        <span className="w-6 text-right text-xs font-medium text-gold">{territory.versatility}%</span>
+        <span className="shrink-0 text-right text-xs font-medium text-gold">{territory.versatility}%</span>
       </div>
 
       <div className="relative z-10 mb-4 flex flex-wrap gap-2">
@@ -94,7 +94,7 @@ function TerritoryMapCard({ territory, isSelected, onClick }: TerritoryCardProps
         ))}
       </div>
 
-      <div className="relative z-10 flex gap-1">
+      <div className="relative z-10 mt-auto flex flex-wrap gap-1">
         {['spring', 'summer', 'fall', 'winter'].map((season) => (
           <span
             key={season}
@@ -106,6 +106,7 @@ function TerritoryMapCard({ territory, isSelected, onClick }: TerritoryCardProps
             {(t.territories.seasonsShort[season] ?? season.slice(0, 3)).toUpperCase()}
           </span>
         ))}
+      </div>
       </div>
     </button>
   );
@@ -122,10 +123,10 @@ function TerritoryDetailPanel({ territory, onClose }: TerritoryDetailProps) {
   const bgImage = TERRITORY_BACKGROUNDS[territory.id];
   const intensityBadge =
     territory.intensity === 'light'
-      ? 'bg-[#5a1a2e] text-[#ffcab8]'
+      ? 'bg-[var(--public-rose-surface,#5a1a2e)] text-[color:var(--public-rose-ink,#ffcab8)]'
       : territory.intensity === 'moderate'
-        ? 'bg-[#4a2e0a] text-[color:var(--public-ink-secondary,#ffd488)]'
-        : 'bg-[#4a0e0e] text-[#ffaaaa]';
+        ? 'bg-[var(--public-amber-surface,#4a2e0a)] text-[color:var(--public-ink-secondary,#ffd488)]'
+        : 'bg-[var(--public-red-surface,#4a0e0e)] text-[color:var(--public-red-ink,#ffaaaa)]';
   const intensityLabel =
     territory.intensity === 'intense'
       ? t.territories.intensity.high
@@ -133,8 +134,8 @@ function TerritoryDetailPanel({ territory, onClose }: TerritoryDetailProps) {
 
   return (
     <div
-      className="relative overflow-hidden rounded-[30px] border border-gold/35 bg-[#0a0a0c]"
-      style={{ boxShadow: '0 26px 54px rgba(0,0,0,0.5), inset 0 1px 0 rgba(var(--public-champagne-channels,255,226,162),0.14)' }}
+      className="relative overflow-hidden rounded-[30px] border border-gold/35 bg-[var(--public-surface,#0a0a0c)]"
+      style={{ boxShadow: 'var(--public-panel-shadow, 0 26px 54px rgba(0,0,0,0.5), inset 0 1px 0 rgba(var(--public-champagne-channels,255,226,162),0.14))' }}
     >
       <button
         onClick={onClose}
@@ -150,7 +151,7 @@ function TerritoryDetailPanel({ territory, onClose }: TerritoryDetailProps) {
           <div className="overflow-hidden rounded-[22px] border border-gold/30 shadow-[0_18px_40px_rgba(0,0,0,0.5)]">
             {bgImage ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={bgImage} alt={t.territories.detail.artworkAlt(display?.name ?? territory.name)} className="aspect-[410/370] w-full scale-105 object-cover" />
+              <img src={bgImage} alt={t.territories.detail.artworkAlt(display?.name ?? territory.name)} className="aspect-[410/370] w-full object-cover" />
             ) : (
               <div className="aspect-[410/370] w-full" style={{ backgroundColor: territory.color }} />
             )}
@@ -231,6 +232,7 @@ function TerritoryDetailPanel({ territory, onClose }: TerritoryDetailProps) {
 
 export default function TerritoriesFullSection({ embedded = false }: { embedded?: boolean }) {
   const { t } = useLanguage();
+  const { assets, theme } = usePublicTheme();
   const [selectedTerritoryId, setSelectedTerritoryId] = useState<string | null>(null);
   const [filterIntensity, setFilterIntensity] = useState<string | null>(null);
   const [filterSeason, setFilterSeason] = useState<string | null>(null);
@@ -263,35 +265,29 @@ export default function TerritoriesFullSection({ embedded = false }: { embedded?
           className="relative overflow-hidden rounded-[30px] bg-black p-0"
           style={{
             border: '1px solid rgba(var(--public-champagne-channels,197,160,94),0.5)',
-            boxShadow: '0 26px 54px rgba(0,0,0,0.58), inset 0 1px 0 rgba(var(--public-champagne-channels,255,226,162),0.2), inset 0 -1px 0 rgba(var(--public-champagne-channels,255,235,194),0.08)',
+            boxShadow: 'var(--public-panel-shadow, 0 26px 54px rgba(0,0,0,0.58), inset 0 1px 0 rgba(var(--public-champagne-channels,255,226,162),0.2), inset 0 -1px 0 rgba(var(--public-champagne-channels,255,235,194),0.08))',
           }}
         >
-          <div className="absolute inset-0 overflow-hidden rounded-[30px]">
+          <div className="relative grid min-h-[640px] grid-rows-[auto_1fr] overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/Territory/Territory.png" alt={t.territories.backgroundAlt} className="absolute inset-0 h-full w-full object-cover object-[center_65%]" />
-          </div>
-
-          <div
-            className="absolute inset-0"
-            style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0.78), rgba(0,0,0,0.58), rgba(0,0,0,0.7))' }}
-          />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(212,175,120,0.16),transparent_42%),linear-gradient(90deg,rgba(0,0,0,0.36)_0%,rgba(0,0,0,0.14)_24%,rgba(0,0,0,0.1)_76%,rgba(0,0,0,0.4)_100%)]" />
-
-          <div className="relative z-10 px-5 py-6 text-center md:px-8 md:py-8 lg:px-10 lg:py-10">
-            <div className="mx-auto max-w-3xl py-4 md:py-8">
-              <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-gold">{t.territories.fullSection.kicker}</p>
-              <h2 className="text-3xl font-semibold leading-tight text-[color:var(--public-ink-secondary,#d8c49d)] drop-shadow-[0_6px_18px_rgba(0,0,0,0.55)] md:text-5xl">
+            <img src={assets.territoryHero} alt={t.territories.backgroundAlt} className="absolute inset-0 block h-full w-full object-cover" />
+            <div
+              className="relative z-10 col-start-1 row-start-2 mx-auto w-full max-w-3xl self-end px-5 py-6 text-center md:px-8 md:py-10"
+              style={{ color: theme === 'normal' ? '#30302d' : '#f5dfc5', textShadow: theme === 'normal' ? '0 1px 4px #fff, 0 1px 2px #fff' : '0 2px 6px #000, 0 1px 3px #000' }}
+            >
+              <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em]">{t.territories.fullSection.kicker}</p>
+              <h2 className="text-3xl font-semibold leading-tight md:text-5xl" style={{ textShadow: 'inherit' }}>
                 {t.territories.fullSection.title}
               </h2>
-              <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-[color:var(--public-ink-primary,#f0e0bd)] md:text-lg">
+              <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed md:text-lg">
                 {t.territories.fullSection.subtitle}
               </p>
             </div>
-
-            <div className="mx-auto mt-8 flex flex-wrap items-start justify-center gap-5 md:gap-8 lg:gap-10">
-              <div className="w-fit max-w-full rounded-[22px] border border-[rgba(197,160,94,0.2)] bg-black/50 p-4 shadow-[0_18px_36px_rgba(0,0,0,0.3)] backdrop-blur-md md:p-5">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--public-ink-secondary,#d9c299)]">{t.territories.filters.byIntensity}</p>
-                <div className="flex flex-wrap justify-center gap-2 [&>button]:min-h-[44px]">
+          <div className="relative z-10 col-start-1 row-start-1 px-5 py-6 text-center md:px-8 md:py-8 lg:px-10 lg:py-10">
+            <div className="mx-auto grid min-w-0 grid-cols-2 gap-2 sm:gap-5">
+              <div className="territory-filter-panel min-w-0 rounded-[22px] border border-[rgba(197,160,94,0.2)] bg-black/50 p-2 shadow-[0_18px_36px_rgba(0,0,0,0.3)] backdrop-blur-md sm:p-4 md:p-5">
+                <p className="mb-3 break-words text-xs font-semibold uppercase tracking-[0.08em] text-[color:var(--public-ink-secondary,#d9c299)] sm:tracking-[0.22em]">{t.territories.filters.byIntensity}</p>
+                <div className="flex flex-wrap justify-center gap-2 [&>button]:min-h-[44px] [&>button]:max-w-full [&>button]:break-words">
                   <button
                     onClick={() => setFilterIntensity(null)}
                     aria-pressed={filterIntensity === null}
@@ -318,9 +314,9 @@ export default function TerritoriesFullSection({ embedded = false }: { embedded?
                 </div>
               </div>
 
-              <div className="w-fit max-w-full rounded-[22px] border border-[rgba(197,160,94,0.2)] bg-black/50 p-4 shadow-[0_18px_36px_rgba(0,0,0,0.3)] backdrop-blur-md md:p-5">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--public-ink-secondary,#d9c299)]">{t.territories.filters.bySeason}</p>
-                <div className="flex flex-wrap justify-center gap-2 [&>button]:min-h-[44px]">
+              <div className="territory-filter-panel min-w-0 rounded-[22px] border border-[rgba(197,160,94,0.2)] bg-black/50 p-2 shadow-[0_18px_36px_rgba(0,0,0,0.3)] backdrop-blur-md sm:p-4 md:p-5">
+                <p className="mb-3 break-words text-xs font-semibold uppercase tracking-[0.08em] text-[color:var(--public-ink-secondary,#d9c299)] sm:tracking-[0.22em]">{t.territories.filters.bySeason}</p>
+                <div className="flex flex-wrap justify-center gap-2 [&>button]:min-h-[44px] [&>button]:max-w-full [&>button]:break-words">
                   <button
                     onClick={() => setFilterSeason(null)}
                     aria-pressed={filterSeason === null}
@@ -346,13 +342,14 @@ export default function TerritoriesFullSection({ embedded = false }: { embedded?
                   ))}
                 </div>
               </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       <section className={`relative z-10 ${sectionWidth} pt-10 md:pt-14`}>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,240px),1fr))] gap-4">
           {filteredTerritories.map((territory) => (
             <TerritoryMapCard
               key={territory.id}

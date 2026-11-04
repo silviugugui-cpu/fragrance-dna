@@ -14,7 +14,7 @@ export default function AuthLayout({
     <div className="min-h-screen flex flex-col bg-black">
       {/* Background decoration */}
       <div className="fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-black via-black to-warm-900" />
+        <div className="absolute inset-0" style={{ background: 'var(--public-auth-background, linear-gradient(to bottom right, #000, #000, #4d433a))' }} />
         <div className="absolute top-0 right-0 w-96 h-96 bg-gold/5 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-warm/5 rounded-full blur-3xl" />
         <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-gold/3 rounded-full blur-3xl transform -translate-x-1/2 -translate-y-1/2" />

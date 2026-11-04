@@ -13,7 +13,7 @@ const articles: Dictionary['articles'] = {
     kicker: 'Essencial saber',
     title: 'Artigos de Essencial saber',
     intro:
-      'Explore conhecimento estruturado sobre perfumaria, organizado por categoria. Selecione uma secção e os artigos abrem logo abaixo, nesta mesma página.',
+      'Explore conhecimento estruturado sobre perfumaria, organizado por categoria.',
     sectionLabel: 'Secção',
     nowReading: 'Em leitura',
     articleCount: (count) => `${count} artigos`,
@@ -299,7 +299,7 @@ const articles: Dictionary['articles'] = {
   perfumers: {
     kicker: 'Criadores de perfume',
     title: 'Perfumistas e ADN criativo',
-    intro: 'Explore os estilos de assinatura dos criadores, as suas filosofias de perfumaria e os perfis de ADN nos eixos-chave.',
+    intro: 'Explore os estilos de assinatura dos criadores e as suas filosofias de perfumaria.',
     iconicFragrances: 'Perfumes icónicos',
     clusters: {
       'FRESH ARCHITECTS': 'ARQUITETOS DA FRESCURA',

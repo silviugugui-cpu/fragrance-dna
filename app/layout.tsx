@@ -6,6 +6,8 @@ import { AuthProvider } from '@/lib/auth';
 import { DEFAULT_LOCALE, LOCALE_COOKIE, LanguageProvider, isLocale } from '@/lib/i18n';
 import RootAppFrame from '@/components/design-system/RootAppFrame';
 import { BRAND_ASSETS } from '@/lib/branding';
+import { DEFAULT_PUBLIC_THEME, PUBLIC_THEME_COOKIE, isPublicTheme } from '@/lib/theme/publicTheme';
+import { PublicThemeProvider } from '@/lib/theme/PublicThemeProvider';
 
 const greatVibes = Great_Vibes({
   weight: '400',
@@ -56,13 +58,17 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const cookieLocale = cookies().get(LOCALE_COOKIE)?.value;
   const locale = isLocale(cookieLocale) ? cookieLocale : DEFAULT_LOCALE;
+  const cookieTheme = cookies().get(PUBLIC_THEME_COOKIE)?.value;
+  const theme = isPublicTheme(cookieTheme) ? cookieTheme : DEFAULT_PUBLIC_THEME;
 
   return (
-    <html lang={locale} suppressHydrationWarning className={`${greatVibes.variable} ${inter.variable}`}>
+    <html lang={locale} data-public-theme={theme} suppressHydrationWarning className={`${greatVibes.variable} ${inter.variable}`}>
       <body>
         <LanguageProvider initialLocale={cookieLocale}>
           <AuthProvider>
-            <RootAppFrame>{children}</RootAppFrame>
+            <PublicThemeProvider initialTheme={theme}>
+              <RootAppFrame>{children}</RootAppFrame>
+            </PublicThemeProvider>
           </AuthProvider>
         </LanguageProvider>
       </body>

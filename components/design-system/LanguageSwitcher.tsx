@@ -80,7 +80,7 @@ export function LanguageSwitcher({ variant = 'compact', className = '' }: Langua
         <div
           role="listbox"
           aria-label={t.header.selectLanguage}
-          className="absolute left-0 top-full z-[130] mt-2 flex flex-col items-stretch gap-1 whitespace-nowrap rounded-2xl border border-gold/40 bg-[#0b0b0b] px-2 py-1.5 shadow-lg shadow-black/80 md:flex-row md:items-center md:rounded-full"
+          className="absolute left-0 top-full z-[130] mt-2 flex flex-col items-stretch gap-1 whitespace-nowrap rounded-2xl border border-gold/40 bg-[var(--public-surface,#0b0b0b)] px-2 py-1.5 shadow-lg shadow-black/80 md:flex-row md:items-center md:rounded-full"
         >
           {LOCALES.map((code) => {
             const isActive = code === locale;

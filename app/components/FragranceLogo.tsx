@@ -18,7 +18,7 @@ export default function FragranceLogo({
           fill
           className="object-contain"
           sizes={`${dims}px`}
-          priority={false}
+          priority={size === 'navbar'}
         />
       </div>
     </div>

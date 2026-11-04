@@ -34,7 +34,7 @@ const articles = {
     kicker: 'Need to Know',
     title: 'Articles in Need to Know',
     intro:
-      'Explore structured fragrance knowledge by category. Select a section and the articles open below, on this same page.',
+      'Explore structured fragrance knowledge by category.',
     sectionLabel: 'Section',
     nowReading: 'Now reading',
     articleCount: (count: number) => `${count} articles`,
@@ -320,7 +320,7 @@ const articles = {
   perfumers: {
     kicker: 'Perfume Creators',
     title: 'Perfumers and Creative DNA',
-    intro: 'Explore signature creator styles, perfumery philosophies, and DNA profiles across key axes.',
+    intro: 'Explore signature creator styles and perfumery philosophies.',
     iconicFragrances: 'Iconic Fragrances',
     clusters: {
       'FRESH ARCHITECTS': 'FRESH ARCHITECTS',

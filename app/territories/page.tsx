@@ -8,6 +8,7 @@ import { PremiumButton } from '@/components/design-system/PremiumButton';
 import { territories, Territory } from '@/lib/data/territories';
 import { CloseGlyphIcon, ChevronRightGlyphIcon } from '@/components/design-system/FragranceIcons';
 import { useLanguage } from '@/lib/i18n';
+import { usePublicTheme } from '@/lib/theme/PublicThemeProvider';
 
 interface TerritoryCardProps {
   territory: Territory;
@@ -233,6 +234,7 @@ const TerritoryDetailPanel: React.FC<TerritoryDetailProps> = ({ territory, onClo
 
 export default function TerritoriesPage() {
   const { t } = useLanguage();
+  const { assets } = usePublicTheme();
   const [selectedTerritoryId, setSelectedTerritoryId] = useState<string | null>(null);
   const [filterIntensity, setFilterIntensity] = useState<string | null>(null);
   const [filterSeason, setFilterSeason] = useState<string | null>(null);
@@ -257,7 +259,7 @@ export default function TerritoriesPage() {
           <div className="premium-card-dark relative overflow-hidden border-gold/20 p-0 min-h-[700px] md:min-h-[740px]">
             <div className="absolute inset-2 md:inset-3 overflow-hidden rounded-[28px]">
               <Image
-                src="/Territory/Territory.png"
+                src={assets.territoryHero}
                 alt={t.territories.backgroundAlt}
                 fill
                 priority
@@ -266,7 +268,7 @@ export default function TerritoriesPage() {
             </div>
 
             <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/55 to-black/78" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(212,175,120,0.18),transparent_44%),linear-gradient(90deg,rgba(0,0,0,0.34)_0%,rgba(0,0,0,0.12)_22%,rgba(0,0,0,0.08)_78%,rgba(0,0,0,0.38)_100%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(212,175,120,0.18),transparent_44%),linear-gradient(90deg,rgba(var(--public-surface-channels,0,0,0),0.34)_0%,rgba(var(--public-surface-channels,0,0,0),0.12)_22%,rgba(var(--public-surface-channels,0,0,0),0.08)_78%,rgba(var(--public-surface-channels,0,0,0),0.38)_100%)]" />
 
             <div className="relative z-10 flex min-h-[700px] md:min-h-[740px] items-start pt-2 md:pt-3">
               <div className="w-full max-w-5xl px-5 py-3 md:px-10 md:py-4 mx-auto text-center">
@@ -303,7 +305,7 @@ export default function TerritoriesPage() {
           <div className="premium-card-dark relative overflow-hidden border-gold/20 p-0">
             <div className="absolute inset-0">
               <Image
-                src="/Territory/Territory.png"
+                src={assets.territoryHero}
                 alt={t.territories.backgroundAlt}
                 fill
                 aria-hidden="true"

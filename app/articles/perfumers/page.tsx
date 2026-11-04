@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import ArticlesRail from '../ArticlesRail';
+import ArticlesIntroHero from '../ArticlesIntroHero';
 import { usePathname } from 'next/navigation';
 import { perfumers, type PerfumerDnaKey } from '@/lib/data/perfumers';
 import { articlesMenuItems } from '../articlesMenu';
@@ -16,22 +17,7 @@ export default function PerfumersPage() {
   return (
     <main className="relative pb-16 pt-8 lg:pt-10">
       <section className="articles-intro-wrap relative z-10 mx-auto w-[90vw] max-w-[1600px]">
-        <div
-          className="rounded-[28px] border border-[rgba(var(--public-champagne-channels,159,123,68),0.45)] p-6 sm:p-8 lg:p-10"
-          style={{
-            background:
-              'radial-gradient(circle at 12% 12%, rgba(250,223,164,0.17), transparent 40%), radial-gradient(circle at 84% 30%, rgba(176,118,48,0.22), transparent 42%), linear-gradient(135deg, rgba(11,11,11,0.93), rgba(22,16,11,0.9))',
-            boxShadow: '0 30px 58px rgba(0,0,0,0.55), inset 0 1px 0 rgba(var(--public-champagne-channels,248,221,163),0.2)',
-          }}
-        >
-          <p className="font-articles-body text-xs uppercase tracking-[0.28em] text-[rgba(var(--public-champagne-channels,216,188,131),0.85)]">{t.articles.perfumers.kicker}</p>
-          <h1 className="mt-3 font-articles-heading text-[clamp(1.75rem,3.1vw,3.2rem)] leading-[1.08] text-[color:var(--public-ink-primary,#f4deb2)]">
-            {t.articles.perfumers.title}
-          </h1>
-          <p className="mt-4 max-w-[70ch] font-articles-body text-[1.01rem] leading-relaxed text-[color:var(--public-ink-primary,#e4d8bf)]">
-            {t.articles.perfumers.intro}
-          </p>
-        </div>
+        <ArticlesIntroHero imageSrc="/Pictures/Smels/perfumers-atelier-pop-art-hero-2x.jpg" title={t.articles.perfumers.intro} />
       </section>
 
       <section className="relative z-10 mx-auto mt-4 grid w-[90vw] max-w-[1600px] gap-4 lg:grid-cols-3">
@@ -67,8 +53,8 @@ export default function PerfumersPage() {
               {perfumers.map((perfumer) => (
                 <article
                   key={perfumer.name}
-                  className="rounded-3xl border border-[rgba(var(--public-champagne-channels,156,120,65),0.35)] bg-[rgba(10,10,10,0.45)] p-5 sm:p-6"
-                  style={{ boxShadow: '0 14px 26px rgba(0,0,0,0.35), inset 0 1px 0 rgba(var(--public-champagne-channels,255,228,177),0.14)' }}
+                  className="rounded-3xl border border-[rgba(var(--public-champagne-channels,156,120,65),0.35)] bg-[rgba(var(--public-surface-channels,10,10,10),0.45)] p-5 sm:p-6"
+                  style={{ boxShadow: 'var(--public-panel-shadow, 0 14px 26px rgba(0,0,0,0.35), inset 0 1px 0 rgba(var(--public-champagne-channels,255,228,177),0.14))' }}
                 >
                   <h2 className="font-articles-heading text-[1.4rem] leading-tight text-[color:var(--public-ink-primary,#f2ddb1)]">{perfumer.name}</h2>
                   <p className="mt-2 inline-flex rounded-full border border-[rgba(var(--public-champagne-channels,176,138,83),0.45)] bg-black/25 px-2.5 py-1 font-articles-body text-[10px] uppercase tracking-[0.18em] text-[color:var(--public-ink-secondary,#d8be8a)]">
@@ -103,7 +89,7 @@ export default function PerfumersPage() {
                           <span className="font-articles-body text-[color:var(--public-ink-secondary,#d6be91)]">{t.common.axes[label] ?? label}</span>
                           <span className="font-articles-body text-[color:var(--public-ink-primary,#f0ddb8)]">{value}</span>
                         </div>
-                        <div className="h-2 rounded-full bg-[#2a1f12]">
+                        <div className="h-2 rounded-full bg-[var(--public-surface,#2a1f12)]">
                           <div
                             className="h-2 rounded-full bg-gradient-to-r from-[#a7772f] via-[#c99a52] to-[#f2ce92]"
                             style={{ width: `${value}%` }}

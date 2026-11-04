@@ -13,7 +13,7 @@ const articles: Dictionary['articles'] = {
     kicker: 'De știut',
     title: 'Articole din secțiunea De știut',
     intro:
-      'Explorează cunoștințe structurate despre parfumuri, organizate pe categorii. Alege o secțiune, iar articolele se deschid mai jos, chiar pe această pagină.',
+      'Explorează cunoștințe structurate despre parfumuri, organizate pe categorii.',
     sectionLabel: 'Secțiune',
     nowReading: 'Citești acum',
     articleCount: (count) => `${count} articole`,
@@ -299,7 +299,7 @@ const articles: Dictionary['articles'] = {
   perfumers: {
     kicker: 'Creatori de parfumuri',
     title: 'Parfumieri și ADN creativ',
-    intro: 'Explorează stilurile de semnătură ale creatorilor, filosofiile lor de parfumerie și profilurile ADN pe axele-cheie.',
+    intro: 'Explorează stilurile de semnătură ale creatorilor și filosofiile lor de parfumerie.',
     iconicFragrances: 'Parfumuri iconice',
     clusters: {
       'FRESH ARCHITECTS': 'ARHITECȚII PROSPEȚIMII',

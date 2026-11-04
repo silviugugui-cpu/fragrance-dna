@@ -18,10 +18,10 @@ export default function ConfidenceProgressionChart({
   if (snapshots.length === 0) {
     return (
       <div className="glass-card p-8">
-        <p className="text-sm uppercase tracking-[0.3em] text-[rgba(165,185,150,0.85)]">
+        <p className="text-sm uppercase tracking-[0.3em] text-[color:var(--public-readable-text,rgba(165,185,150,0.85))]">
           {title}
         </p>
-        <p className="mt-4 text-[rgba(190,170,140,0.65)]">
+        <p className="mt-4 text-[color:var(--public-readable-text,rgba(190,170,140,0.65))]">
           No evolution data yet. Start by grounding your scent identity.
         </p>
       </div>
@@ -61,16 +61,16 @@ export default function ConfidenceProgressionChart({
   return (
     <div className="glass-card p-8 space-y-6">
       <div className="space-y-2">
-        <p className="text-sm uppercase tracking-[0.3em] text-[rgba(165,185,150,0.85)]">
+        <p className="text-sm uppercase tracking-[0.3em] text-[color:var(--public-readable-text,rgba(165,185,150,0.85))]">
           {title}
         </p>
-        <p className="text-[rgba(190,170,140,0.65)] text-sm">
+        <p className="text-[color:var(--public-readable-text,rgba(190,170,140,0.65))] text-sm">
           {snapshots.length} interactions • Trend: <span className={trend === 'up' ? 'text-green-400' : trend === 'down' ? 'text-orange-400' : 'text-blue-400'}>{trend}</span>
         </p>
       </div>
 
       <div className="overflow-x-auto">
-        <svg width={chartWidth} height={chartHeight} className="text-[rgba(212,175,120,0.5)]">
+        <svg width={chartWidth} height={chartHeight} className="text-[color:var(--public-readable-text,rgba(212,175,120,0.5))]">
           {/* Grid lines */}
           {[0, 0.25, 0.5, 0.75, 1].map((ratio) => (
             <line
@@ -79,7 +79,7 @@ export default function ConfidenceProgressionChart({
               y1={chartHeight - ratio * (chartHeight - 40) - 20}
               x2={chartWidth - 20}
               y2={chartHeight - ratio * (chartHeight - 40) - 20}
-              stroke="rgba(165,185,150,0.1)"
+              stroke="var(--public-chart-grid,rgba(165,185,150,0.1))"
               strokeWidth="1"
               strokeDasharray="4,4"
             />
@@ -119,14 +119,14 @@ export default function ConfidenceProgressionChart({
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-[rgba(165,185,150,0.7)]">Starting</p>
-          <p className="text-xl font-semibold text-[rgba(212,175,120,0.95)]">
+          <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--public-readable-text,rgba(165,185,150,0.7))]">Starting</p>
+          <p className="text-xl font-semibold text-[color:var(--public-readable-text,rgba(212,175,120,0.95))]">
             {points[0].confidence.toFixed(0)}%
           </p>
         </div>
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-[rgba(165,185,150,0.7)]">Current</p>
-          <p className="text-xl font-semibold text-[rgba(212,175,120,0.95)]">
+          <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--public-readable-text,rgba(165,185,150,0.7))]">Current</p>
+          <p className="text-xl font-semibold text-[color:var(--public-readable-text,rgba(212,175,120,0.95))]">
             {points[points.length - 1].confidence.toFixed(0)}%
           </p>
         </div>

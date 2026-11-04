@@ -134,15 +134,15 @@ export default function DnaRadar({
     <article className="glass-card p-6 md:p-8">
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div className="space-y-2">
-          <h2 className="text-sm uppercase tracking-[0.28em] text-[rgba(165,185,150,0.85)]">{t.dna.radar.signatureTitle}</h2>
-          <p className="text-sm text-[rgba(210,196,170,0.85)]">
+          <h2 className="text-sm uppercase tracking-[0.28em] text-[color:var(--public-readable-text,rgba(165,185,150,0.85))]">{t.dna.radar.signatureTitle}</h2>
+          <p className="text-sm text-[color:var(--public-readable-text,rgba(210,196,170,0.85))]">
             {t.dna.radar.signatureDescription}
           </p>
         </div>
-        <div className="space-y-2 text-xs uppercase tracking-[0.2em] text-[rgba(216,188,134,0.9)]">
+        <div className="space-y-2 text-xs uppercase tracking-[0.2em] text-[color:var(--public-readable-text,rgba(216,188,134,0.9))]">
           <div className="flex items-center justify-end gap-2">
             <span className="h-0.5 w-5 rounded bg-[rgba(108,196,219,0.96)]" aria-hidden />
-            <span className="text-[rgba(188,219,232,0.92)]">{t.dna.radar.groundingBaseline}</span>
+            <span className="text-[color:var(--public-readable-text,rgba(188,219,232,0.92))]">{t.dna.radar.groundingBaseline}</span>
           </div>
           <div className="flex items-center justify-end gap-2">
             <span className="h-0.5 w-5 rounded bg-[rgba(220,182,110,0.95)]" aria-hidden />
@@ -152,7 +152,7 @@ export default function DnaRadar({
       </div>
 
       {showWarning ? (
-        <div className="mt-4 inline-flex items-center rounded-full border border-[rgba(225,170,95,0.4)] bg-[rgba(225,170,95,0.12)] px-3 py-1 text-xs text-[rgba(255,222,170,0.95)]">
+        <div className="mt-4 inline-flex items-center rounded-full border border-[rgba(225,170,95,0.4)] bg-[rgba(225,170,95,0.12)] px-3 py-1 text-xs text-[color:var(--public-readable-text,rgba(255,222,170,0.95))]">
           {t.dna.radar.missingDataWarning}
         </div>
       ) : null}
@@ -168,7 +168,7 @@ export default function DnaRadar({
               </radialGradient>
             </defs>
 
-            <PolarGrid stroke="rgba(255,255,255,0.08)" />
+            <PolarGrid stroke="var(--public-chart-grid,rgba(255,255,255,0.08))" />
             <PolarAngleAxis
               dataKey="axis"
               tickLine={false}
@@ -184,12 +184,12 @@ export default function DnaRadar({
                   <g transform={`translate(${Number(tickProps.x ?? 0)},${Number(tickProps.y ?? 0)})`}>
                     <text
                       textAnchor={(tickProps.textAnchor as 'start' | 'middle' | 'end' | undefined) ?? 'middle'}
-                      fill="rgba(216,199,171,0.95)"
+                      fill="var(--public-chart-label,rgba(216,199,171,0.95))"
                       fontSize={12}
                       style={{ letterSpacing: '0.04em' }}
                     >
                       <tspan x="0" dy="0">{t.common.axes[axis] ?? axis}</tspan>
-                      <tspan x="0" dy="16" fill="rgba(228,186,112,0.95)">{score}</tspan>
+                      <tspan x="0" dy="16" fill="var(--public-chart-final,rgba(228,186,112,0.95))">{score}</tspan>
                     </text>
                   </g>
                 );
@@ -199,14 +199,14 @@ export default function DnaRadar({
               angle={90}
               domain={[MIN_DOMAIN, MAX_DOMAIN]}
               tickCount={5}
-              stroke="rgba(255,255,255,0.18)"
-              tick={{ fill: 'rgba(201,183,149,0.58)', fontSize: 10 }}
+              stroke="var(--public-chart-grid,rgba(255,255,255,0.18))"
+              tick={{ fill: 'var(--public-chart-label,rgba(201,183,149,0.58))', fontSize: 10 }}
             />
 
             <Radar
               name={t.dna.radar.groundingBaseline}
               dataKey="baseline"
-              stroke="rgba(108,196,219,0.95)"
+              stroke="var(--public-chart-baseline,rgba(108,196,219,0.95))"
               fill="rgba(108,196,219,0.08)"
               fillOpacity={0.12}
               strokeWidth={1.3}
@@ -215,7 +215,7 @@ export default function DnaRadar({
             <Radar
               name={t.dna.radar.finalDna}
               dataKey="final"
-              stroke="rgba(236,191,113,0.98)"
+              stroke="var(--public-chart-final,rgba(236,191,113,0.98))"
               fill={`url(#${finalGradientId})`}
               fillOpacity={1}
               strokeWidth={2.3}
@@ -225,7 +225,7 @@ export default function DnaRadar({
         </ResponsiveContainer>
       </div>
 
-      <p className="mt-2 text-xs text-[rgba(185,168,138,0.72)]">{t.dna.radar.scoresRange}</p>
+      <p className="mt-2 text-xs text-[color:var(--public-readable-text,rgba(185,168,138,0.72))]">{t.dna.radar.scoresRange}</p>
     </article>
   );
 }

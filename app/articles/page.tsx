@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import ArticlesRail from './ArticlesRail';
+import ArticlesIntroHero from './ArticlesIntroHero';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { articlesMenuItems } from './articlesMenu';
@@ -30,22 +31,7 @@ export default function ArticlesPage() {
   return (
     <main className="relative pb-16 pt-8 lg:pt-10">
       <section className="articles-intro-wrap relative z-10 mx-auto w-[90vw] max-w-[1600px]">
-        <div
-          className="rounded-[28px] border border-[rgba(var(--public-champagne-channels,159,123,68),0.45)] p-6 sm:p-8 lg:p-10"
-          style={{
-            background:
-              'radial-gradient(circle at 12% 12%, rgba(250,223,164,0.17), transparent 40%), radial-gradient(circle at 84% 30%, rgba(176,118,48,0.22), transparent 42%), linear-gradient(135deg, rgba(11,11,11,0.93), rgba(22,16,11,0.9))',
-            boxShadow: '0 30px 58px rgba(0,0,0,0.55), inset 0 1px 0 rgba(var(--public-champagne-channels,248,221,163),0.2)',
-          }}
-        >
-          <p className="font-articles-body text-xs uppercase tracking-[0.28em] text-[rgba(var(--public-champagne-channels,216,188,131),0.85)]">{t.articles.needToKnow.kicker}</p>
-          <h1 className="mt-3 font-articles-heading text-[clamp(1.75rem,3.1vw,3.2rem)] leading-[1.08] text-[color:var(--public-ink-primary,#f4deb2)]">
-            {t.articles.needToKnow.title}
-          </h1>
-          <p className="mt-4 max-w-[70ch] font-articles-body text-[1.01rem] leading-relaxed text-[color:var(--public-ink-primary,#e4d8bf)]">
-            {t.articles.needToKnow.intro}
-          </p>
-        </div>
+        <ArticlesIntroHero imageSrc="/Pictures/Smels/need-to-know-pop-art-hero-2x.jpg" title={t.articles.needToKnow.intro} />
       </section>
 
       <section className="relative z-10 mx-auto mt-4 grid w-[90vw] max-w-[1600px] gap-4 lg:grid-cols-3">
@@ -92,11 +78,11 @@ export default function ArticlesPage() {
                           style={{
                             borderColor: isActive ? 'rgba(var(--public-champagne-channels,243,210,147),0.9)' : 'rgba(var(--public-champagne-channels,168,129,70),0.45)',
                             background: isActive
-                              ? 'linear-gradient(160deg, rgba(35,25,13,0.96), rgba(16,13,10,0.98))'
-                              : 'linear-gradient(160deg, rgba(19,16,14,0.88), rgba(12,12,12,0.92))',
+                              ? 'linear-gradient(160deg, rgba(var(--public-surface-channels,35,25,13),0.96), rgba(var(--public-surface-channels,16,13,10),0.98))'
+                              : 'linear-gradient(160deg, rgba(var(--public-surface-channels,19,16,14),0.88), rgba(var(--public-surface-channels,12,12,12),0.92))',
                             boxShadow: isActive
-                              ? '0 16px 34px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,228,173,0.24)'
-                              : '0 10px 20px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,228,173,0.1)',
+                              ? 'var(--public-panel-shadow, 0 16px 34px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,228,173,0.24))'
+                              : 'var(--public-panel-shadow, 0 10px 20px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,228,173,0.1))',
                             transform: isActive ? 'translateY(-2px)' : 'translateY(0)',
                           }}
                         >
@@ -116,8 +102,8 @@ export default function ArticlesPage() {
                       className="rounded-[30px] border border-[rgba(var(--public-champagne-channels,159,123,68),0.45)] p-6 sm:p-8 lg:p-10"
                       style={{
                         background:
-                          'linear-gradient(170deg, rgba(18,14,11,0.96) 0%, rgba(12,10,9,0.98) 60%), radial-gradient(circle at 85% 8%, rgba(164,118,64,0.25), transparent 36%)',
-                        boxShadow: '0 30px 58px rgba(0,0,0,0.52), inset 0 1px 0 rgba(var(--public-champagne-channels,244,220,165),0.18)',
+                          'linear-gradient(170deg, rgba(var(--public-surface-channels,18,14,11),0.96) 0%, rgba(var(--public-surface-channels,12,10,9),0.98) 60%), radial-gradient(circle at 85% 8%, rgba(164,118,64,0.25), transparent 36%)',
+                        boxShadow: 'var(--public-panel-shadow, 0 30px 58px rgba(0,0,0,0.52), inset 0 1px 0 rgba(var(--public-champagne-channels,244,220,165),0.18))',
                       }}
                     >
                       <div className="border-b border-[rgba(var(--public-champagne-channels,170,132,71),0.35)] pb-5">
@@ -134,8 +120,8 @@ export default function ArticlesPage() {
                         {activeSection.articles.map((article) => (
                           <article
                             key={article.title}
-                            className="rounded-2xl border border-[rgba(var(--public-champagne-channels,156,120,65),0.35)] bg-[rgba(10,10,10,0.45)] p-5 sm:p-6"
-                            style={{ boxShadow: 'inset 0 1px 0 rgba(var(--public-champagne-channels,255,228,177),0.14)' }}
+                            className="rounded-2xl border border-[rgba(var(--public-champagne-channels,156,120,65),0.35)] bg-[rgba(var(--public-surface-channels,10,10,10),0.45)] p-5 sm:p-6"
+                            style={{ boxShadow: 'var(--public-panel-shadow, inset 0 1px 0 rgba(var(--public-champagne-channels,255,228,177),0.14))' }}
                           >
                             <h3 className="font-articles-heading text-[1.45rem] leading-tight text-[color:var(--public-ink-primary,#f2ddb1)]">{article.title}</h3>
                             <p className="mt-2 font-articles-body text-[1.05rem] font-semibold text-[color:var(--public-ink-muted,#caa46b)]">{article.subtitle}</p>

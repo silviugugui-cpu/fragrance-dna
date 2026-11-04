@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { ChevronRightGlyphIcon } from '@/components/design-system/FragranceIcons';
 import { useLanguage } from '@/lib/i18n';
-import { ACTIVE_PUBLIC_THEME_ASSETS } from '@/lib/theme/publicTheme';
+import { usePublicTheme } from '@/lib/theme/PublicThemeProvider';
 
 const JOURNEY_STEPS = [
   { key: 'discover', href: '/grounding' },
@@ -16,6 +16,7 @@ const JOURNEY_STEPS = [
 
 export default function HomePage() {
   const { t } = useLanguage();
+  const { assets } = usePublicTheme();
 
   return (
     <main className="homepage-shell relative pb-10 pt-5 lg:pt-8">
@@ -24,13 +25,13 @@ export default function HomePage() {
           className="hero-first-card relative w-full overflow-hidden rounded-[30px] bg-black"
           style={{
             border: '1px solid rgba(var(--public-champagne-channels,197,160,94),0.5)',
-            boxShadow: '0 26px 54px rgba(0,0,0,0.58), inset 0 1px 0 rgba(var(--public-champagne-channels,255,226,162),0.2), inset 0 -1px 0 rgba(var(--public-champagne-channels,255,235,194),0.08)',
+            boxShadow: 'var(--public-hero-shadow, 0 26px 54px rgba(0,0,0,0.58), inset 0 1px 0 rgba(var(--public-champagne-channels,255,226,162),0.2), inset 0 -1px 0 rgba(var(--public-champagne-channels,255,235,194),0.08))',
           }}
         >
           <div className="hero-first-visual">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={ACTIVE_PUBLIC_THEME_ASSETS.homeHero}
+              src={assets.homeHero}
               alt={t.home.heroImageAlt}
               className="block w-full h-auto"
             />

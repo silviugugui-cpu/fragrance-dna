@@ -109,8 +109,8 @@ function FragranceDetail({
         className="relative mt-6 w-full max-w-3xl rounded-[28px] border border-[rgba(var(--public-champagne-channels,159,123,68),0.55)] p-6 sm:p-8"
         style={{
           background:
-            'radial-gradient(circle at 15% 10%, rgba(250,223,164,0.14), transparent 42%), linear-gradient(165deg, rgba(20,15,10,0.98), rgba(11,10,9,0.99))',
-          boxShadow: '0 40px 80px rgba(0,0,0,0.65), inset 0 1px 0 rgba(var(--public-champagne-channels,248,221,163),0.22)',
+            'radial-gradient(circle at 15% 10%, rgba(250,223,164,0.14), transparent 42%), linear-gradient(165deg, rgba(var(--public-surface-channels,20,15,10),0.98), rgba(var(--public-surface-channels,11,10,9),0.99))',
+          boxShadow: 'var(--public-panel-shadow, 0 40px 80px rgba(0,0,0,0.65), inset 0 1px 0 rgba(var(--public-champagne-channels,248,221,163),0.22))',
         }}
         onClick={(event) => event.stopPropagation()}
       >
@@ -309,8 +309,8 @@ export default function FragranceLibraryPage() {
           className="rounded-[28px] border border-[rgba(var(--public-champagne-channels,159,123,68),0.45)] p-6 sm:p-8 lg:p-10"
           style={{
             background:
-              'radial-gradient(circle at 12% 12%, rgba(250,223,164,0.17), transparent 40%), radial-gradient(circle at 84% 30%, rgba(176,118,48,0.22), transparent 42%), linear-gradient(135deg, rgba(11,11,11,0.93), rgba(22,16,11,0.9))',
-            boxShadow: '0 30px 58px rgba(0,0,0,0.55), inset 0 1px 0 rgba(var(--public-champagne-channels,248,221,163),0.2)',
+              'radial-gradient(circle at 12% 12%, rgba(250,223,164,0.17), transparent 40%), radial-gradient(circle at 84% 30%, rgba(176,118,48,0.22), transparent 42%), linear-gradient(135deg, rgba(var(--public-surface-channels,11,11,11),0.93), rgba(var(--public-surface-channels,22,16,11),0.9))',
+            boxShadow: 'var(--public-panel-shadow, 0 30px 58px rgba(0,0,0,0.55), inset 0 1px 0 rgba(var(--public-champagne-channels,248,221,163),0.2))',
           }}
         >
           <p className="font-articles-body text-xs uppercase tracking-[0.28em] text-[rgba(var(--public-champagne-channels,216,188,131),0.85)]">{t.fragrances.hero.eyebrow}</p>
@@ -328,8 +328,8 @@ export default function FragranceLibraryPage() {
           className="relative z-10 w-full rounded-[30px] border border-[rgba(var(--public-champagne-channels,159,123,68),0.45)] p-6 sm:p-8"
           style={{
             background:
-              'linear-gradient(170deg, rgba(18,14,11,0.96) 0%, rgba(12,10,9,0.98) 60%), radial-gradient(circle at 85% 8%, rgba(164,118,64,0.25), transparent 36%)',
-            boxShadow: '0 30px 58px rgba(0,0,0,0.52), inset 0 1px 0 rgba(var(--public-champagne-channels,244,220,165),0.18)',
+              'linear-gradient(170deg, rgba(var(--public-surface-channels,18,14,11),0.96) 0%, rgba(var(--public-surface-channels,12,10,9),0.98) 60%), radial-gradient(circle at 85% 8%, rgba(164,118,64,0.25), transparent 36%)',
+            boxShadow: 'var(--public-panel-shadow, 0 30px 58px rgba(0,0,0,0.52), inset 0 1px 0 rgba(var(--public-champagne-channels,244,220,165),0.18))',
           }}
         >
           <label htmlFor="fragrance-search" className="font-articles-body text-xs uppercase tracking-[0.28em] text-[color:var(--public-ink-secondary,#d1b57d)]">
@@ -361,8 +361,8 @@ export default function FragranceLibraryPage() {
                     className="rounded-full border px-4 py-1.5 font-articles-body text-xs uppercase tracking-[0.14em] transition-all duration-300"
                     style={{
                       borderColor: isActive ? 'rgba(var(--public-champagne-channels,243,210,147),0.9)' : 'rgba(var(--public-champagne-channels,156,120,65),0.45)',
-                      color: isActive ? '#f4deb2' : '#b7955f',
-                      background: isActive ? 'rgba(45, 33, 18, 0.85)' : 'rgba(0, 0, 0, 0.3)',
+                      color: isActive ? 'var(--public-ink-primary,#f4deb2)' : 'var(--public-ink-muted,#b7955f)',
+                      background: isActive ? 'rgba(var(--public-surface-channels,45,33,18),0.85)' : 'rgba(var(--public-surface-channels,0,0,0),0.3)',
                     }}
                   >
                     {t.fragrances.categoryOptions[option.key]}
@@ -517,8 +517,8 @@ export default function FragranceLibraryPage() {
                 onClick={() => setSelected(fragrance)}
                 className="group rounded-3xl border border-[rgba(var(--public-champagne-channels,168,129,70),0.45)] p-5 text-left transition-all duration-300 hover:-translate-y-0.5 hover:border-[rgba(var(--public-champagne-channels,243,210,147),0.9)]"
                 style={{
-                  background: 'linear-gradient(160deg, rgba(19,16,14,0.88), rgba(12,12,12,0.92))',
-                  boxShadow: '0 10px 20px rgba(0,0,0,0.32), inset 0 1px 0 rgba(var(--public-champagne-channels,255,228,173),0.1)',
+                  background: 'linear-gradient(160deg, rgba(var(--public-surface-channels,19,16,14),0.88), rgba(var(--public-surface-channels,12,12,12),0.92))',
+                  boxShadow: 'var(--public-panel-shadow, 0 10px 20px rgba(0,0,0,0.32), inset 0 1px 0 rgba(var(--public-champagne-channels,255,228,173),0.1))',
                 }}
               >
                 <div className="overflow-hidden rounded-2xl border border-[rgba(var(--public-champagne-channels,156,120,65),0.3)] bg-black/40 p-3">

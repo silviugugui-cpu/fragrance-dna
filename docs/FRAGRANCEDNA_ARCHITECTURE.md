@@ -137,8 +137,8 @@ Never rely solely on popularity.
 
 ## Internationalization (i18n)
 
-The public site supports 7 languages: English (default), French, German,
-Spanish, Italian, Portuguese, and Romanian. The Studio admin area is
+The public site supports 7 languages, displayed in this order: English (default),
+Romanian, French, German, Spanish, Italian, and Portuguese. The Studio admin area is
 intentionally English-only.
 
 * `lib/i18n/config.ts` — locale list, labels, `NEXT_LOCALE` cookie name.
@@ -185,20 +185,39 @@ The user experience should feel:
 
 Avoid questionnaire-style interactions whenever possible.
 
-### Public theme preparation
+### Public themes
 
-The current public appearance is Dark Mode. `lib/theme/publicTheme.ts` is the
-typed registry for public theme assets (logo and homepage artwork); Normal Mode
-is explicitly unavailable (`null`) until its supplied assets and page styles are
-ready. Do not enable it by adding images alone: all public surfaces need a
-contrast and layout review first. No theme preference is persisted yet.
+The Need to Know and Perfume Creators intro panels display only their localized
+intro copy as the page's H1, without a separate kicker or redundant title.
+The public navigation labels this area Discover (localized in every language)
+on desktop and mobile; its existing `/articles` routes remain unchanged.
+Desktop navigation separates the personal journey through Your Collection from
+the encyclopedia links starting at Fragrances with a short, centered vertical
+divider using the public accent color.
+Their shared `ArticlesIntroHero` uses the supplied pop-art images from
+`public/Pictures/Smels` in both themes, without filters or stretching. Desktop
+headings occupy the artwork's clear upper-left area; mobile headings sit below
+the full image within the same card to preserve readability.
+Because these images are identical in both themes, their heading stays graphite
+(`#30302d`) in both modes. The mobile title surface stays ivory (`#fff1d6`)
+instead of changing to a dark background. Text on shared artwork must follow
+the image's contrast requirements, not the surrounding page theme.
 
-The public frame carries `data-theme="dark"` for future scoped theme styling.
-Studio has no public theme attribute or theme control and retains its own logo
-default. Public logo selection is passed explicitly from the public header.
-The disabled moon control in the header's top-right mirrors the language control
-at top-left, on desktop and mobile. Its localized accessible label explains that
-Normal Mode is not available yet; it does not pretend to switch to a partial theme.
+`lib/theme/publicTheme.ts` is the typed asset registry for Dark and Normal Mode.
+Dark remains the default for visitors without a preference. `PublicThemeProvider`
+shares the selected theme and assets across the public frame, header, and homepage.
+The header's top-right sun/moon button switches modes on desktop and mobile.
+Its action label is localized in all supported languages.
+On desktop, the language list opens below the full header box with a small gap;
+on mobile it retains its vertical dropdown below the language trigger.
+The `olfactive-public-theme` cookie stores the choice for one year and is read by
+the root layout so reloads render the correct theme and assets from the server,
+without first flashing the default theme.
+
+The public frame carries `data-theme="dark"` or `data-theme="normal"` and the
+document carries `data-public-theme` for the outer page background.
+Studio has no public theme attribute or theme control and retains its original
+dark background, typography, and shared-component color fallbacks.
 Header content reserves right-side space for this control so the account and
 mobile menu stay to its left, including when the account label must truncate.
 `lib/branding.ts` defines the only current logo kit, stored in
@@ -208,7 +227,29 @@ variants are available for previews, and the white/black transparent watermarks
 are reserved for future use on dark/light backgrounds respectively. Do not
 reintroduce older logos or apply watermark overlays without a product requirement.
 The shared logo default, including Studio, and social preview use this new kit.
-Normal Mode remains unavailable despite its logo assets being supplied.
+Normal Mode uses the supplied white minimal homepage artwork, the transparent
+graphite logo, and the same transparent confidence badges. Product and territory
+photographs retain their real colors. Grounding uses the supplied neutral-balance,
+attraction-love, and avoidance-avoid `white-mode-2x.jpg` backgrounds in Normal Mode,
+without overlay gradients. The theme asset registry maps all three zones;
+Dark Mode retains its original PNG backgrounds and contrast gradients.
+The Love background in both themes uses `cover` with a right-centered focal
+point, filling the card while preserving the artwork's natural proportions and
+prioritizing the checkmark side of the image. Never stretch the artwork.
+
+The shared Olfactive Territories section displays its overview artwork and card
+photographs without opacity reductions, filters, or overlay gradients in either
+theme. The overview kicker, title, and subtitle sit over the lower part of the
+overview image in champagne with text shadows for readability. Filter panels sit
+over the top of the overview image, above the heading in separate grid rows so
+wrapped mobile controls cannot overlap the copy. Individual card descriptions
+remain below their images on themed surfaces.
+Normal Mode uses the supplied `Territory-white.jpg` overview, with graphite
+overlay text and light text shadows; Dark Mode retains `Territory.png`.
+Territory cards use a container-sized grid with a 240px minimum target width,
+top-aligned equal-ratio images, and wrapping metadata. Filter panels use a
+two-column grid with wrapping buttons rather than intrinsic-width flex boxes,
+keeping the intensity and season panels side by side on desktop and mobile.
 
 Public Dark Mode typography uses champagne tokens scoped to `data-theme="dark"`:
 primary `#f5dfc5`, secondary `#e6c9a8`, muted `#c9ab8b`, and soft `#b89a7b`.
@@ -219,7 +260,18 @@ shadows resolve to public champagne tokens, with original values as Studio
 fallbacks. The login link uses the same secondary champagne as navigation.
 Gold-filled login submit buttons use a dark surface and champagne text/outline.
 Semantic error, warning, success, and chart colors are not recolored.
-Normal Mode will define its own inks.
+Normal Mode keeps a white page and homepage artwork, with ivory (`#faf7f0`),
+pale ochre (`#f5ead3`), and duck-egg (`#e9f2ef`) card surfaces.
+Journey cards alternate these colors; statistics and collection summary tiles
+use ochre and duck-egg, while inputs remain white. Grounding uses ochre for
+Neutral, duck-egg for Love, and a subtle clay tint for Avoid. Auth page gradients
+also use this light palette rather than retaining the original dark warm endpoint.
+Graphite text (`#30302d`, `#514b43`), readable muted inks (`#675f55`, `#695f53`),
+and restrained bronze accents provide contrast across every surface.
+Mobile page shells inherit the light page-background token, and the shared
+discovery frame's pseudo-element gradient uses ivory/duck-egg rather than black.
+Shared surface, utility, and chart tokens retain the original dark values as
+fallbacks. Semantic status colors use darker readable variants on light surfaces.
 
 ### Confidence badge artwork
 
@@ -239,8 +291,8 @@ It sits below the artwork and above the journey cards, left-aligned with their
 outer edge on desktop and mobile, with smaller champagne typography and no
 separate background or border.
 
-The homepage uses `public/Pictures/Pasi/front-page-black-minimal.png`, the
-supplied black minimal artwork without embedded text.
+The homepage uses `public/Pictures/Pasi/front-page-black-minimal.png` in Dark
+Mode and `front-page-white-minimal.png` in Normal Mode, both supplied without text.
 Six numbered journey cards with titles, explanations, and actions appear below
 the image inside the same bordered hero container on every screen.
 They use one column on mobile, two from 768px, and
@@ -261,15 +313,15 @@ and updates alignment on scrolling and resizing across all Articles pages.
 On smaller screens, the rail stays in the normal content flow.
 
 The mobile header logo uses a 120px by 90px frame (50% larger than 80px by 60px).
-The header stays 72px tall; the logo is offset downward and intentionally extends
+The header stays 72px tall; the logo uses a 12px downward translation and intentionally extends
 below its border without clipping, leaving the corner language control clear.
 The mobile navigation panel follows the header height.
-Mobile profile badges are 32px. The account label truncates when space is tight,
+Mobile profile badges are 2.5rem. The account label truncates when space is tight,
 while language and menu controls retain their space inside the header.
 
 ### Ambient visual effects
 
-The ambient particle canvas is mounted only on the homepage. Desktop animation
+The ambient particle canvas is mounted only on the Dark Mode homepage. Desktop animation
 uses 20-25 particles, at most 30 rendered frames per second, a device-pixel-ratio
 cap of 1.25, and no more than 12 unshadowed connections per frame.
 Narrow viewports (under 900px) and coarse-pointer devices show no ambient lights

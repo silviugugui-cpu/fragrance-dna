@@ -9,7 +9,7 @@ const header: Dictionary['header'] = {
     collection: { label: 'VOTRE COLLECTION', mobile: 'Votre collection', hint: 'Parfums enregistrés' },
     fragrances: { label: 'PARFUMS', mobile: 'Bibliothèque de parfums', hint: 'Plus de 68 000 parfums' },
     faq: { label: 'FAQ', mobile: 'FAQ ADN & badges', hint: 'Confiance et badges expliqués' },
-    articles: { label: 'ARTICLES', mobile: 'Le parfum comme passion', hint: 'Lire nos articles parfum' },
+    articles: { label: 'DÉCOUVRIR', mobile: 'Découvrir', hint: 'Explorez les savoirs, créateurs et territoires olfactifs' },
   },
   signedInAs: 'Connecté en tant que',
   myDnaProfile: 'Mon profil ADN',
@@ -27,7 +27,8 @@ const header: Dictionary['header'] = {
   openDnaProfileAria: (badge) => `Ouvrir le profil ADN, badge ${badge}`,
   language: 'Langue',
   selectLanguage: 'Choisir la langue',
-  themeComingSoon: 'Mode sombre actif. Le mode normal sera bientôt disponible.',
+  switchToNormal: 'Passer au mode normal',
+  switchToDark: 'Passer au mode sombre',
 };
 
 export default header;
