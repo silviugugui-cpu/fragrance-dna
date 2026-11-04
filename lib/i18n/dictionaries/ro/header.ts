@@ -27,6 +27,7 @@ const header: Dictionary['header'] = {
   openDnaProfileAria: (badge) => `Deschide profilul ADN, insigna ${badge}`,
   language: 'Limbă',
   selectLanguage: 'Selectează limba',
+  themeComingSoon: 'Modul întunecat este activ. Modul normal va fi disponibil în curând.',
 };
 
 export default header;

@@ -31,18 +31,18 @@ export default function ArticlesPage() {
     <main className="relative pb-16 pt-8 lg:pt-10">
       <section className="articles-intro-wrap relative z-10 mx-auto w-[90vw] max-w-[1600px]">
         <div
-          className="rounded-[28px] border border-[#9f7b44]/45 p-6 sm:p-8 lg:p-10"
+          className="rounded-[28px] border border-[rgba(var(--public-champagne-channels,159,123,68),0.45)] p-6 sm:p-8 lg:p-10"
           style={{
             background:
               'radial-gradient(circle at 12% 12%, rgba(250,223,164,0.17), transparent 40%), radial-gradient(circle at 84% 30%, rgba(176,118,48,0.22), transparent 42%), linear-gradient(135deg, rgba(11,11,11,0.93), rgba(22,16,11,0.9))',
-            boxShadow: '0 30px 58px rgba(0,0,0,0.55), inset 0 1px 0 rgba(248,221,163,0.2)',
+            boxShadow: '0 30px 58px rgba(0,0,0,0.55), inset 0 1px 0 rgba(var(--public-champagne-channels,248,221,163),0.2)',
           }}
         >
-          <p className="font-articles-body text-xs uppercase tracking-[0.28em] text-[#d8bc83]/85">{t.articles.needToKnow.kicker}</p>
-          <h1 className="mt-3 font-articles-heading text-[clamp(1.75rem,3.1vw,3.2rem)] leading-[1.08] text-[#f4deb2]">
+          <p className="font-articles-body text-xs uppercase tracking-[0.28em] text-[rgba(var(--public-champagne-channels,216,188,131),0.85)]">{t.articles.needToKnow.kicker}</p>
+          <h1 className="mt-3 font-articles-heading text-[clamp(1.75rem,3.1vw,3.2rem)] leading-[1.08] text-[color:var(--public-ink-primary,#f4deb2)]">
             {t.articles.needToKnow.title}
           </h1>
-          <p className="mt-4 max-w-[70ch] font-articles-body text-[1.01rem] leading-relaxed text-[#e4d8bf]">
+          <p className="mt-4 max-w-[70ch] font-articles-body text-[1.01rem] leading-relaxed text-[color:var(--public-ink-primary,#e4d8bf)]">
             {t.articles.needToKnow.intro}
           </p>
         </div>
@@ -55,7 +55,7 @@ export default function ArticlesPage() {
               <ArticlesRail>
 
                 <div>
-                  <p className="font-articles-body text-center text-[10px] uppercase tracking-[0.28em] text-[#d5b97f]">{t.articles.menu.passionMenu}</p>
+                  <p className="font-articles-body text-center text-[10px] uppercase tracking-[0.28em] text-[color:var(--public-ink-secondary,#d5b97f)]">{t.articles.menu.passionMenu}</p>
                 </div>
                 <div className="mt-6 flex flex-col gap-3">
                   {submenuItems.map((item) => {
@@ -68,8 +68,8 @@ export default function ArticlesPage() {
                         data-active={isActive ? 'true' : 'false'}
                         className="articles-rail-button w-full rounded-2xl border px-4 py-4 text-left transition-all duration-300"
                       >
-                        <p className="font-articles-heading text-[1.12rem] leading-tight text-[#f4ddb2]">{menuEntry.label}</p>
-                        <p className="mt-2 font-articles-body text-[10px] uppercase tracking-[0.2em] text-[#bb9660]">{menuEntry.hint}</p>
+                        <p className="font-articles-heading text-[1.12rem] leading-tight text-[color:var(--public-ink-primary,#f4ddb2)]">{menuEntry.label}</p>
+                        <p className="mt-2 font-articles-body text-[10px] uppercase tracking-[0.2em] text-[color:var(--public-ink-muted,#bb9660)]">{menuEntry.hint}</p>
                       </Link>
                     );
                   })}
@@ -90,7 +90,7 @@ export default function ArticlesPage() {
                           onClick={() => setSelectedSection(sectionId)}
                           className="rounded-3xl border p-5 text-left transition-all duration-300"
                           style={{
-                            borderColor: isActive ? 'rgba(243, 210, 147, 0.9)' : 'rgba(168, 129, 70, 0.45)',
+                            borderColor: isActive ? 'rgba(var(--public-champagne-channels,243,210,147),0.9)' : 'rgba(var(--public-champagne-channels,168,129,70),0.45)',
                             background: isActive
                               ? 'linear-gradient(160deg, rgba(35,25,13,0.96), rgba(16,13,10,0.98))'
                               : 'linear-gradient(160deg, rgba(19,16,14,0.88), rgba(12,12,12,0.92))',
@@ -100,10 +100,10 @@ export default function ArticlesPage() {
                             transform: isActive ? 'translateY(-2px)' : 'translateY(0)',
                           }}
                         >
-                          <p className="font-articles-body text-[11px] uppercase tracking-[0.24em] text-[#d4b67a]">{t.articles.needToKnow.sectionLabel}</p>
-                          <h2 className="mt-2 font-articles-heading text-[1.55rem] text-[#f5dfb4]">{section.title}</h2>
-                          <p className="mt-3 font-articles-body text-base leading-relaxed text-[#dacfb7]">{section.description}</p>
-                          <p className="mt-4 font-articles-body text-xs uppercase tracking-[0.2em] text-[#b7955f]">
+                          <p className="font-articles-body text-[11px] uppercase tracking-[0.24em] text-[color:var(--public-ink-secondary,#d4b67a)]">{t.articles.needToKnow.sectionLabel}</p>
+                          <h2 className="mt-2 font-articles-heading text-[1.55rem] text-[color:var(--public-ink-primary,#f5dfb4)]">{section.title}</h2>
+                          <p className="mt-3 font-articles-body text-base leading-relaxed text-[color:var(--public-ink-secondary,#dacfb7)]">{section.description}</p>
+                          <p className="mt-4 font-articles-body text-xs uppercase tracking-[0.2em] text-[color:var(--public-ink-muted,#b7955f)]">
                             {t.articles.needToKnow.articleCount(section.articles.length)}
                           </p>
                         </button>
@@ -113,19 +113,19 @@ export default function ArticlesPage() {
 
                   <section className="relative z-10 w-full">
                     <div
-                      className="rounded-[30px] border border-[#9f7b44]/45 p-6 sm:p-8 lg:p-10"
+                      className="rounded-[30px] border border-[rgba(var(--public-champagne-channels,159,123,68),0.45)] p-6 sm:p-8 lg:p-10"
                       style={{
                         background:
                           'linear-gradient(170deg, rgba(18,14,11,0.96) 0%, rgba(12,10,9,0.98) 60%), radial-gradient(circle at 85% 8%, rgba(164,118,64,0.25), transparent 36%)',
-                        boxShadow: '0 30px 58px rgba(0,0,0,0.52), inset 0 1px 0 rgba(244,220,165,0.18)',
+                        boxShadow: '0 30px 58px rgba(0,0,0,0.52), inset 0 1px 0 rgba(var(--public-champagne-channels,244,220,165),0.18)',
                       }}
                     >
-                      <div className="border-b border-[#aa8447]/35 pb-5">
-                        <p className="font-articles-body text-xs uppercase tracking-[0.28em] text-[#d1b57d]">{t.articles.needToKnow.nowReading}</p>
-                        <h2 className="mt-2 font-articles-heading text-[clamp(1.5rem,2.5vw,2.5rem)] text-[#f1dcaf]">
+                      <div className="border-b border-[rgba(var(--public-champagne-channels,170,132,71),0.35)] pb-5">
+                        <p className="font-articles-body text-xs uppercase tracking-[0.28em] text-[color:var(--public-ink-secondary,#d1b57d)]">{t.articles.needToKnow.nowReading}</p>
+                        <h2 className="mt-2 font-articles-heading text-[clamp(1.5rem,2.5vw,2.5rem)] text-[color:var(--public-ink-primary,#f1dcaf)]">
                           {activeSection.title}
                         </h2>
-                        <p className="mt-3 max-w-[75ch] font-articles-body text-[1rem] leading-relaxed text-[#dfd3ba]">
+                        <p className="mt-3 max-w-[75ch] font-articles-body text-[1rem] leading-relaxed text-[color:var(--public-ink-secondary,#dfd3ba)]">
                           {activeSection.intro}
                         </p>
                       </div>
@@ -134,26 +134,26 @@ export default function ArticlesPage() {
                         {activeSection.articles.map((article) => (
                           <article
                             key={article.title}
-                            className="rounded-2xl border border-[#9c7841]/35 bg-[rgba(10,10,10,0.45)] p-5 sm:p-6"
-                            style={{ boxShadow: 'inset 0 1px 0 rgba(255,228,177,0.14)' }}
+                            className="rounded-2xl border border-[rgba(var(--public-champagne-channels,156,120,65),0.35)] bg-[rgba(10,10,10,0.45)] p-5 sm:p-6"
+                            style={{ boxShadow: 'inset 0 1px 0 rgba(var(--public-champagne-channels,255,228,177),0.14)' }}
                           >
-                            <h3 className="font-articles-heading text-[1.45rem] leading-tight text-[#f2ddb1]">{article.title}</h3>
-                            <p className="mt-2 font-articles-body text-[1.05rem] font-semibold text-[#caa46b]">{article.subtitle}</p>
+                            <h3 className="font-articles-heading text-[1.45rem] leading-tight text-[color:var(--public-ink-primary,#f2ddb1)]">{article.title}</h3>
+                            <p className="mt-2 font-articles-body text-[1.05rem] font-semibold text-[color:var(--public-ink-muted,#caa46b)]">{article.subtitle}</p>
 
                             {article.callout && (
-                              <blockquote className="mt-4 whitespace-pre-line rounded-xl border border-[#b08a53]/45 bg-black/25 px-4 py-3 font-articles-body text-base leading-relaxed text-[#e4d7bc]">
+                              <blockquote className="mt-4 whitespace-pre-line rounded-xl border border-[rgba(var(--public-champagne-channels,176,138,83),0.45)] bg-black/25 px-4 py-3 font-articles-body text-base leading-relaxed text-[color:var(--public-ink-primary,#e4d7bc)]">
                                 {article.callout}
                               </blockquote>
                             )}
 
-                            <div className="mt-4 space-y-3 font-articles-body text-[0.98rem] leading-relaxed text-[#e3d7be]">
+                            <div className="mt-4 space-y-3 font-articles-body text-[0.98rem] leading-relaxed text-[color:var(--public-ink-primary,#e3d7be)]">
                               {article.paragraphs.map((paragraph) => (
                                 <p key={paragraph}>{paragraph}</p>
                               ))}
                             </div>
 
                             {article.bullets && article.bullets.length > 0 && (
-                              <ul className="mt-4 list-disc space-y-2 pl-5 font-articles-body text-[0.97rem] leading-relaxed text-[#dfd2b6] marker:text-[#c49a5e]">
+                              <ul className="mt-4 list-disc space-y-2 pl-5 font-articles-body text-[0.97rem] leading-relaxed text-[color:var(--public-ink-secondary,#dfd2b6)] marker:text-[color:var(--public-ink-muted,#c49a5e)]">
                                 {article.bullets.map((bullet) => (
                                   <li key={bullet}>{bullet}</li>
                                 ))}

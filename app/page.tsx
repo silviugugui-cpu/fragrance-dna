@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { ChevronRightGlyphIcon } from '@/components/design-system/FragranceIcons';
 import { useLanguage } from '@/lib/i18n';
-import AutoFitLabel from '@/components/design-system/AutoFitLabel';
+import { ACTIVE_PUBLIC_THEME_ASSETS } from '@/lib/theme/publicTheme';
 
 const JOURNEY_STEPS = [
   { key: 'discover', href: '/grounding' },
@@ -23,44 +23,23 @@ export default function HomePage() {
         <article
           className="hero-first-card relative w-full overflow-hidden rounded-[30px] bg-black"
           style={{
-            border: '1px solid rgba(197, 160, 94, 0.5)',
-            boxShadow: '0 26px 54px rgba(0,0,0,0.58), inset 0 1px 0 rgba(255,226,162,0.2), inset 0 -1px 0 rgba(255,235,194,0.08)',
+            border: '1px solid rgba(var(--public-champagne-channels,197,160,94),0.5)',
+            boxShadow: '0 26px 54px rgba(0,0,0,0.58), inset 0 1px 0 rgba(var(--public-champagne-channels,255,226,162),0.2), inset 0 -1px 0 rgba(var(--public-champagne-channels,255,235,194),0.08)',
           }}
         >
           <div className="hero-first-visual">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/Pictures/Pasi/Pasi.png?v=20260623b"
+              src={ACTIVE_PUBLIC_THEME_ASSETS.homeHero}
               alt={t.home.heroImageAlt}
               className="block w-full h-auto"
             />
           </div>
 
           <div className="hero-first-copy">
-            <h1>
-              {t.home.heroTitleLine1}{' '}
-              <span className="hero-title-suffix">- {t.home.heroSubtitle}</span>
-            </h1>
+            <h1>{t.home.heroSubtitle}</h1>
           </div>
 
-          <div className="hero-first-cta-row z-10">
-            <Link href="/grounding" className="hero-first-cta-link hero-first-cta-grounding inline-flex">
-              <span className="luxury-cta luxury-cta-hero-secondary w-full justify-center !rounded-full"><AutoFitLabel>{t.home.ctaStartGrounding}</AutoFitLabel></span>
-            </Link>
-            <Link href="/test" className="hero-first-cta-link hero-first-cta-test inline-flex">
-              <span className="luxury-cta luxury-cta-hero-secondary w-full justify-center !rounded-full"><AutoFitLabel>{t.home.ctaStartTest}</AutoFitLabel></span>
-            </Link>
-            <Link href="/dna" className="hero-first-cta-link hero-first-cta-dna inline-flex">
-              <span className="luxury-cta luxury-cta-hero-secondary w-full justify-center !rounded-full"><AutoFitLabel>{t.home.ctaEnterDna}</AutoFitLabel></span>
-            </Link>
-            <Link href="/dna#olfactory-territories" className="hero-first-cta-link hero-first-cta-territories inline-flex">
-              <span className="luxury-cta luxury-cta-hero-secondary w-full justify-center !rounded-full"><AutoFitLabel>{t.home.ctaTerritories}</AutoFitLabel></span>
-            </Link>
-            <Link href="/dna#your-recommendations" className="hero-first-cta-link hero-first-cta-recommendations inline-flex">
-              <span className="luxury-cta luxury-cta-hero-secondary w-full justify-center !rounded-full"><AutoFitLabel>{t.home.ctaRecommendations}</AutoFitLabel></span>
-            </Link>
-          </div>
-        </article>
         <nav className="homepage-mobile-journey" aria-label={t.home.journeyNavAria}>
           <ol>
             {JOURNEY_STEPS.map((step, index) => (
@@ -77,6 +56,7 @@ export default function HomePage() {
             ))}
           </ol>
         </nav>
+        </article>
       </section>
     </main>
   );

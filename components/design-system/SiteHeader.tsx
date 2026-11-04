@@ -13,6 +13,8 @@ import Image from 'next/image';
 import SiteLogo from '@/app/components/SiteLogo';
 import LuxuryLoginButton from './LuxuryLoginButton';
 import LanguageSwitcher from './LanguageSwitcher';
+import ThemeToggle from './ThemeToggle';
+import { ACTIVE_PUBLIC_THEME_ASSETS } from '@/lib/theme/publicTheme';
 import { useAuth } from '@/lib/auth';
 import { useLanguage } from '@/lib/i18n';
 import { isAdminUser } from '@/lib/auth/adminAccess';
@@ -80,11 +82,12 @@ export function SiteHeader() {
     <header className="site-header">
       <div className="header-inner">
         <LanguageSwitcher className="header-language-switcher" />
+        <ThemeToggle />
         {/* Logo */}
         <div className="brand-logo-lock relative flex h-full flex-shrink-0 items-center">
           <div className="brand-logo-fixed relative z-[90] inline-block hover:opacity-80 transition-opacity">
             <div className="relative z-[120]">
-              <SiteLogo href={!isLoading && isAdminUser(user) ? '/studio' : '/'} />
+              <SiteLogo href={!isLoading && isAdminUser(user) ? '/studio' : '/'} imageSrc={ACTIVE_PUBLIC_THEME_ASSETS.logo} />
             </div>
           </div>
         </div>

@@ -27,6 +27,7 @@ const header: Dictionary['header'] = {
   openDnaProfileAria: (badge) => `Abrir o perfil de ADN, emblema ${badge}`,
   language: 'Idioma',
   selectLanguage: 'Selecionar idioma',
+  themeComingSoon: 'Modo escuro ativo. O modo normal estará disponível em breve.',
 };
 
 export default header;

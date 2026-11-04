@@ -170,7 +170,19 @@ test('low CPU profile stays below 24 FPS and uses native CSS pixel resolution', 
   instance.dispose();
 });
 
-for (const options of [{ mobile: true }, { reduced: true }, { coarse: true }]) {
+for (const options of [{ mobile: true }, { coarse: true }]) {
+  test(`no ambient lights on mobile: ${JSON.stringify(options)}`, () => {
+    const instance = mount(options);
+    assert.equal(instance.frames.length, 0);
+    instance.advance(5000);
+    instance.visibility(false);
+    assert.equal(instance.frames.length, 0);
+    assert.equal(instance.pending.size, 0);
+    instance.dispose();
+  });
+}
+
+for (const options of [{ reduced: true }]) {
   test(`static background without scheduled animation: ${JSON.stringify(options)}`, () => {
     const instance = mount(options);
     assert.equal(instance.frames.length, 1);

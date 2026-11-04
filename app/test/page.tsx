@@ -619,7 +619,7 @@ export default function TestPage() {
                   key={item.step}
                   className="relative overflow-hidden rounded-[26px] border p-5 transition-all duration-300"
                   style={{
-                    borderColor: isCurrentStep ? 'rgba(243, 210, 147, 0.75)' : 'rgba(168, 129, 70, 0.32)',
+                    borderColor: isCurrentStep ? 'rgba(var(--public-champagne-channels,243,210,147),0.75)' : 'rgba(var(--public-champagne-channels,168,129,70),0.32)',
                     background: isCurrentStep
                       ? 'radial-gradient(circle at 12% 0%, rgba(250,223,164,0.12), transparent 42%), linear-gradient(160deg, rgba(32,24,14,0.95), rgba(14,12,10,0.97))'
                       : 'linear-gradient(160deg, rgba(19,16,14,0.9), rgba(11,11,12,0.94))',
@@ -629,7 +629,7 @@ export default function TestPage() {
                   }}
                 >
                   <div className="mb-4 flex items-center justify-between gap-2">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#c5a05e]">{t.test.step(item.step)}</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[color:var(--public-ink-muted,#c5a05e)]">{t.test.step(item.step)}</p>
                     {isCompletedStep ? (
                       <span className="rounded-full border border-emerald-300/35 bg-emerald-400/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-200">{t.test.completed}</span>
                     ) : isCurrentStep ? (
@@ -671,8 +671,8 @@ export default function TestPage() {
                               : 'border-white/10 bg-black/25 hover:-translate-y-0.5 hover:border-gold/40'
                           } ${isCompletedStep ? 'cursor-not-allowed opacity-50' : ''}`}
                         >
-                          <span className="block text-[10px] uppercase tracking-[0.22em] text-[#b7955f]">{optionIndex === 0 ? t.test.recommended : t.test.backup}</span>
-                          <span className="mt-2 block truncate font-display text-[1.05rem] leading-snug text-[#f2e3c2]">{option.displayName}</span>
+                          <span className="block text-[10px] uppercase tracking-[0.22em] text-[color:var(--public-ink-muted,#b7955f)]">{optionIndex === 0 ? t.test.recommended : t.test.backup}</span>
+                          <span className="mt-2 block truncate font-display text-[1.05rem] leading-snug text-[color:var(--public-ink-primary,#f2e3c2)]">{option.displayName}</span>
                           <span className="mt-1 block truncate text-xs uppercase tracking-[0.14em] text-gray-500">{option.brand || t.test.brandUnavailable}</span>
                         </button>
                       );

@@ -5,6 +5,7 @@ import './globals.css';
 import { AuthProvider } from '@/lib/auth';
 import { DEFAULT_LOCALE, LOCALE_COOKIE, LanguageProvider, isLocale } from '@/lib/i18n';
 import RootAppFrame from '@/components/design-system/RootAppFrame';
+import { BRAND_ASSETS } from '@/lib/branding';
 
 const greatVibes = Great_Vibes({
   weight: '400',
@@ -38,9 +39,9 @@ export const metadata: Metadata = {
     description: 'Decode your olfactive identity. Discover perfumes you truly love.',
     images: [
       {
-        url: '/Logo/logo-only-v2/preview.png',
-        width: 1200,
-        height: 893,
+        url: BRAND_ASSETS.dark.preview,
+        width: 2906,
+        height: 2164,
         alt: 'OlfactiveDNA',
       },
     ],

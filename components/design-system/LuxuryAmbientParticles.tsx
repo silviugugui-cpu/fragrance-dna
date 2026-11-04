@@ -88,8 +88,9 @@ export default function LuxuryAmbientParticles() {
     const coarsePointer = window.matchMedia('(pointer: coarse)');
     const narrowViewport = window.matchMedia('(max-width: 899px)');
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const shouldShow = () => !coarsePointer.matches && !narrowViewport.matches;
     const shouldAnimate = () =>
-      !coarsePointer.matches && !narrowViewport.matches && !reducedMotion.matches;
+      shouldShow() && !reducedMotion.matches;
 
     const getRenderProfile = (): RenderProfile => {
       const connection = navigator as Navigator & { connection?: { saveData?: boolean } };
@@ -197,6 +198,7 @@ export default function LuxuryAmbientParticles() {
     };
 
     const render = (timestamp: number) => {
+      if (!shouldShow()) return;
       ctx.clearRect(0, 0, width, height);
       const image = document.querySelector('.hero-first-card img');
       if (!image) return;
@@ -332,6 +334,7 @@ export default function LuxuryAmbientParticles() {
 
     const refresh = () => {
       stop();
+      canvas.style.display = shouldShow() ? 'block' : 'none';
       resize();
       lastRenderAt = -Infinity;
       if (document.hidden) return;
@@ -382,6 +385,7 @@ export default function LuxuryAmbientParticles() {
   return (
     <canvas
       ref={canvasRef}
+      className="homepage-ambient-particles"
       aria-hidden="true"
       style={{
         position: 'fixed',

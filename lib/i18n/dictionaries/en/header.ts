@@ -25,6 +25,7 @@ const header = {
   openDnaProfileAria: (badge: string) => `Open DNA profile, ${badge} badge`,
   language: 'Language',
   selectLanguage: 'Select language',
+  themeComingSoon: 'Dark mode active. Normal mode is coming soon.',
 };
 
 export default header;

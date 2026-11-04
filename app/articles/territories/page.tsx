@@ -22,7 +22,7 @@ export default function ArticlesTerritoriesPage() {
               <ArticlesRail>
 
                 <div>
-                  <p className="font-articles-body text-center text-[10px] uppercase tracking-[0.28em] text-[#d5b97f]">{t.articles.menu.passionMenu}</p>
+                  <p className="font-articles-body text-center text-[10px] uppercase tracking-[0.28em] text-[color:var(--public-ink-secondary,#d5b97f)]">{t.articles.menu.passionMenu}</p>
                 </div>
                 <div className="mt-6 flex flex-col gap-3">
                   {menuItems.map((item) => {
@@ -35,8 +35,8 @@ export default function ArticlesTerritoriesPage() {
                         data-active={isActive ? 'true' : 'false'}
                         className="articles-rail-button w-full rounded-2xl border px-4 py-4 text-left transition-all duration-300"
                       >
-                        <p className="font-articles-heading text-[1.12rem] leading-tight text-[#f4ddb2]">{menuEntry.label}</p>
-                        <p className="mt-2 font-articles-body text-[10px] uppercase tracking-[0.2em] text-[#bb9660]">{menuEntry.hint}</p>
+                        <p className="font-articles-heading text-[1.12rem] leading-tight text-[color:var(--public-ink-primary,#f4ddb2)]">{menuEntry.label}</p>
+                        <p className="mt-2 font-articles-body text-[10px] uppercase tracking-[0.2em] text-[color:var(--public-ink-muted,#bb9660)]">{menuEntry.hint}</p>
                       </Link>
                     );
                   })}

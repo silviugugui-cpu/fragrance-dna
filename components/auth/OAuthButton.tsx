@@ -56,12 +56,12 @@ export function OAuthButton({
 
   const providerConfig = {
     google: {
-      icon: <SearchLensIcon className="h-5 w-5 text-[#D4AF37]/80" />,
+      icon: <SearchLensIcon className="h-5 w-5 text-[rgba(var(--public-champagne-channels,212,175,55),0.8)]" />,
       label: t.auth.oauth.continueWith('Google'),
       bgGradient: '',
     },
     apple: {
-      icon: <AppleGlyphIcon className="h-5 w-5 text-[#D4AF37]/80" />,
+      icon: <AppleGlyphIcon className="h-5 w-5 text-[rgba(var(--public-champagne-channels,212,175,55),0.8)]" />,
       label: t.auth.oauth.continueWith('Apple'),
       bgGradient: '',
     },

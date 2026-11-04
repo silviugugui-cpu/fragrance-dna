@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import { SiteHeader } from "@/components/design-system/SiteHeader";
 import LuxuryAmbientParticles from "@/components/design-system/LuxuryAmbientParticles";
+import { ACTIVE_PUBLIC_THEME } from "@/lib/theme/publicTheme";
 
 interface RootAppFrameProps {
   children: ReactNode;
@@ -32,6 +33,7 @@ export function RootAppFrame({ children }: RootAppFrameProps) {
     <>
       {pathname === "/" ? <LuxuryAmbientParticles /> : null}
       <div
+        data-theme={isStudioRoute ? undefined : ACTIVE_PUBLIC_THEME}
         className={`page-shell content-layer ${isStudioRoute ? "studio-plain-workspace" : ""}`}
         style={
           isStudioRoute

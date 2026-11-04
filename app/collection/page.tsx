@@ -146,7 +146,7 @@ function TerritoryInsightSection() {
                   </span>
                 </div>
               </div>
-              <MapMarkerIcon className="h-7 w-7 text-[#D4AF37]/75" />
+              <MapMarkerIcon className="h-7 w-7 text-[rgba(var(--public-champagne-channels,212,175,55),0.75)]" />
             </div>
 
             {/* Coverage Bar */}
@@ -181,9 +181,9 @@ function TerritoryInsightSection() {
                 </h3>
               </div>
               {territoryInsights.diverse ? (
-                <CompassRoseIcon className="h-7 w-7 text-[#D4AF37]/75" />
+                <CompassRoseIcon className="h-7 w-7 text-[rgba(var(--public-champagne-channels,212,175,55),0.75)]" />
               ) : (
-                <SearchLensIcon className="h-7 w-7 text-[#D4AF37]/75" />
+                <SearchLensIcon className="h-7 w-7 text-[rgba(var(--public-champagne-channels,212,175,55),0.75)]" />
               )}
             </div>
 
@@ -245,7 +245,7 @@ export default function CollectionPage() {
       {collection.length === 0 && (
         <section className="py-16 text-center">
           <div className="premium-card-dark p-12 max-w-2xl mx-auto">
-            <BottleOutlineIcon className="mx-auto mb-4 h-9 w-9 text-[#D4AF37]/75" />
+            <BottleOutlineIcon className="mx-auto mb-4 h-9 w-9 text-[rgba(var(--public-champagne-channels,212,175,55),0.75)]" />
             <h3 className="text-xl font-bold text-white mb-2">{t.collection.page.emptyTitle}</h3>
             <p className="text-gray-400 mb-6">
               {t.collection.page.emptyDescription}

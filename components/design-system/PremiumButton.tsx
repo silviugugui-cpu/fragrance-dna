@@ -36,7 +36,7 @@ export function PremiumButton({
       disabled={disabled || isLoading}
       {...props}
     >
-      {isLoading && <HourglassGlyphIcon className="h-4 w-4 text-[#D4AF37]/80" />}
+      {isLoading && <HourglassGlyphIcon className="h-4 w-4 text-[rgba(var(--public-champagne-channels,212,175,55),0.8)]" />}
       {icon && !isLoading && <span>{icon}</span>}
       {children}
     </button>

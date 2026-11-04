@@ -185,14 +185,58 @@ The user experience should feel:
 
 Avoid questionnaire-style interactions whenever possible.
 
+### Public theme preparation
+
+The current public appearance is Dark Mode. `lib/theme/publicTheme.ts` is the
+typed registry for public theme assets (logo and homepage artwork); Normal Mode
+is explicitly unavailable (`null`) until its supplied assets and page styles are
+ready. Do not enable it by adding images alone: all public surfaces need a
+contrast and layout review first. No theme preference is persisted yet.
+
+The public frame carries `data-theme="dark"` for future scoped theme styling.
+Studio has no public theme attribute or theme control and retains its own logo
+default. Public logo selection is passed explicitly from the public header.
+The disabled moon control in the header's top-right mirrors the language control
+at top-left, on desktop and mobile. Its localized accessible label explains that
+Normal Mode is not available yet; it does not pretend to switch to a partial theme.
+Header content reserves right-side space for this control so the account and
+mobile menu stay to its left, including when the account label must truncate.
+`lib/branding.ts` defines the only current logo kit, stored in
+`public/Logo/new-logo`. Use the transparent champagne logo on dark backgrounds
+and transparent graphite logo on light backgrounds. The opaque black/white
+variants are available for previews, and the white/black transparent watermarks
+are reserved for future use on dark/light backgrounds respectively. Do not
+reintroduce older logos or apply watermark overlays without a product requirement.
+The shared logo default, including Studio, and social preview use this new kit.
+Normal Mode remains unavailable despite its logo assets being supplied.
+
+Public Dark Mode typography uses champagne tokens scoped to `data-theme="dark"`:
+primary `#f5dfc5`, secondary `#e6c9a8`, muted `#c9ab8b`, and soft `#b89a7b`.
+Warm editorial text references these tokens with its previous color as the
+fallback, so shared components retain their existing Studio appearance.
+Tailwind gold utilities, legacy warm text, box outlines, focus rings, and warm
+shadows resolve to public champagne tokens, with original values as Studio
+fallbacks. The login link uses the same secondary champagne as navigation.
+Gold-filled login submit buttons use a dark surface and champagne text/outline.
+Semantic error, warning, success, and chart colors are not recolored.
+Normal Mode will define its own inks.
+
 ### Homepage journey
 
-Desktop keeps five subdued, high-contrast links aligned between the six circles
-in the hero artwork; illumination is reserved for hover and keyboard focus.
-Their labels fit the available button width automatically after locale changes,
-resizing, and font loading, using the shared `AutoFitLabel` component.
-Below 1200px, the artwork is cropped to its decorative upper region and six
-numbered, text-based journey cards replace the small overlaid links. The cards
+The homepage heading displays only the localized `home.heroSubtitle`
+("Discover perfumes you truly love." in English), without the DNA prefix.
+It sits below the artwork and above the journey cards, left-aligned with their
+outer edge on desktop and mobile, with smaller champagne typography and no
+separate background or border.
+
+The homepage uses `public/Pictures/Pasi/front-page-black-minimal.png`, the
+supplied black minimal artwork without embedded text.
+Six numbered journey cards with titles, explanations, and actions appear below
+the image inside the same bordered hero container on every screen.
+They use one column on mobile, two from 768px, and
+three from 1200px, replacing the former desktop image-overlay links.
+The artwork's lower black negative space is cropped in a top-aligned 3:1 frame
+to bring the cards closer to the flowers without reducing the artwork scale. The cards
 use the same Grounding, Test, DNA, territory, and recommendation destinations.
 The standalone "Continue your journey" guide is no longer shown. Editorial
 territory exploration lives under the Articles menu at `/articles/territories`,
@@ -206,8 +250,10 @@ header container, not the inset logo. It retains its logo-based vertical positio
 and updates alignment on scrolling and resizing across all Articles pages.
 On smaller screens, the rail stays in the normal content flow.
 
-The mobile header logo is centered within its reserved slot without the desktop
-logo's translation, below the corner language control and contained in the header.
+The mobile header logo uses a 120px by 90px frame (50% larger than 80px by 60px).
+The header stays 72px tall; the logo is offset downward and intentionally extends
+below its border without clipping, leaving the corner language control clear.
+The mobile navigation panel follows the header height.
 Mobile profile badges are 32px. The account label truncates when space is tight,
 while language and menu controls retain their space inside the header.
 
@@ -216,8 +262,9 @@ while language and menu controls retain their space inside the header.
 The ambient particle canvas is mounted only on the homepage. Desktop animation
 uses 20-25 particles, at most 30 rendered frames per second, a device-pixel-ratio
 cap of 1.25, and no more than 12 unshadowed connections per frame.
-Narrow viewports (under 900px), coarse-pointer devices, and reduced-motion
-preferences receive a single static rendering instead. Preference and viewport
+Narrow viewports (under 900px) and coarse-pointer devices show no ambient lights
+and schedule no animation. Desktop reduced-motion preferences receive a single
+static rendering instead. Preference and viewport
 changes are applied immediately. Hidden tabs cancel all pending animation work;
 returning to the tab resumes only the appropriate static or animated mode.
 

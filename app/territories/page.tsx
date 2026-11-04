@@ -271,7 +271,7 @@ export default function TerritoriesPage() {
             <div className="relative z-10 flex min-h-[700px] md:min-h-[740px] items-start pt-2 md:pt-3">
               <div className="w-full max-w-5xl px-5 py-3 md:px-10 md:py-4 mx-auto text-center">
                 <div className="mx-auto max-w-4xl rounded-[28px] border border-white/10 bg-black/35 px-6 py-6 md:px-10 md:py-8 backdrop-blur-sm shadow-[0_22px_52px_rgba(0,0,0,0.35)]">
-                  <h1 className="text-3xl md:text-5xl font-bold text-[#d8c49d] leading-none drop-shadow-[0_6px_18px_rgba(0,0,0,0.55)]">
+                  <h1 className="text-3xl md:text-5xl font-bold text-[color:var(--public-ink-secondary,#d8c49d)] leading-none drop-shadow-[0_6px_18px_rgba(0,0,0,0.55)]">
                   {t.territories.pageTitle}
                   </h1>
                 </div>
@@ -318,7 +318,7 @@ export default function TerritoriesPage() {
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 items-stretch max-w-4xl mx-auto">
               {/* Filter by Intensity */}
                 <div className="rounded-[22px] border border-gold/16 bg-black/50 p-4 md:p-5 backdrop-blur-md shadow-[0_18px_36px_rgba(0,0,0,0.3)]">
-                <p className="text-xs font-semibold text-[#d9c299] uppercase mb-3 tracking-[0.22em]">{t.territories.filters.byIntensity}</p>
+                <p className="text-xs font-semibold text-[color:var(--public-ink-secondary,#d9c299)] uppercase mb-3 tracking-[0.22em]">{t.territories.filters.byIntensity}</p>
                 <div className="flex gap-2 flex-wrap">
                   <button
                     onClick={() => setFilterIntensity(null)}
@@ -348,7 +348,7 @@ export default function TerritoriesPage() {
 
               {/* Filter by Season */}
                 <div className="rounded-[22px] border border-gold/16 bg-black/50 p-4 md:p-5 backdrop-blur-md shadow-[0_18px_36px_rgba(0,0,0,0.3)]">
-                <p className="text-xs font-semibold text-[#d9c299] uppercase mb-3 tracking-[0.22em]">{t.territories.filters.bySeason}</p>
+                <p className="text-xs font-semibold text-[color:var(--public-ink-secondary,#d9c299)] uppercase mb-3 tracking-[0.22em]">{t.territories.filters.bySeason}</p>
                 <div className="flex gap-2 flex-wrap">
                   <button
                     onClick={() => setFilterSeason(null)}

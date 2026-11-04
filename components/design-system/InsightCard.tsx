@@ -19,7 +19,7 @@ export function InsightCard({
 }: InsightCardProps) {
   return (
     <div className={`insight-card ${className}`}>
-      {icon && <div className="insight-icon text-[#D4AF37]/80">{icon}</div>}
+      {icon && <div className="insight-icon text-[rgba(var(--public-champagne-channels,212,175,55),0.8)]">{icon}</div>}
       <div className="insight-title">{title}</div>
       <div className="insight-text">{text}</div>
     </div>

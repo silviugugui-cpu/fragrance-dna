@@ -37,7 +37,7 @@ function TerritoryMapCard({ territory, isSelected, onClick }: TerritoryCardProps
       `}
       style={{
         background: 'rgba(7,8,12,0.88)',
-        borderColor: 'rgba(197, 160, 94, 0.34)'
+        borderColor: 'rgba(var(--public-champagne-channels,197,160,94),0.34)'
       }}
     >
       {bgImage && (
@@ -63,7 +63,7 @@ function TerritoryMapCard({ territory, isSelected, onClick }: TerritoryCardProps
               territory.intensity === 'light'
                 ? 'bg-[#5a1a2e] text-[#ffcab8]'
                 : territory.intensity === 'moderate'
-                  ? 'bg-[#4a2e0a] text-[#ffd488]'
+                  ? 'bg-[#4a2e0a] text-[color:var(--public-ink-secondary,#ffd488)]'
                   : 'bg-[#4a0e0e] text-[#ffaaaa]'
             }
           `}
@@ -124,7 +124,7 @@ function TerritoryDetailPanel({ territory, onClose }: TerritoryDetailProps) {
     territory.intensity === 'light'
       ? 'bg-[#5a1a2e] text-[#ffcab8]'
       : territory.intensity === 'moderate'
-        ? 'bg-[#4a2e0a] text-[#ffd488]'
+        ? 'bg-[#4a2e0a] text-[color:var(--public-ink-secondary,#ffd488)]'
         : 'bg-[#4a0e0e] text-[#ffaaaa]';
   const intensityLabel =
     territory.intensity === 'intense'
@@ -134,7 +134,7 @@ function TerritoryDetailPanel({ territory, onClose }: TerritoryDetailProps) {
   return (
     <div
       className="relative overflow-hidden rounded-[30px] border border-gold/35 bg-[#0a0a0c]"
-      style={{ boxShadow: '0 26px 54px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,226,162,0.14)' }}
+      style={{ boxShadow: '0 26px 54px rgba(0,0,0,0.5), inset 0 1px 0 rgba(var(--public-champagne-channels,255,226,162),0.14)' }}
     >
       <button
         onClick={onClose}
@@ -262,8 +262,8 @@ export default function TerritoriesFullSection({ embedded = false }: { embedded?
         <div
           className="relative overflow-hidden rounded-[30px] bg-black p-0"
           style={{
-            border: '1px solid rgba(197, 160, 94, 0.5)',
-            boxShadow: '0 26px 54px rgba(0,0,0,0.58), inset 0 1px 0 rgba(255,226,162,0.2), inset 0 -1px 0 rgba(255,235,194,0.08)',
+            border: '1px solid rgba(var(--public-champagne-channels,197,160,94),0.5)',
+            boxShadow: '0 26px 54px rgba(0,0,0,0.58), inset 0 1px 0 rgba(var(--public-champagne-channels,255,226,162),0.2), inset 0 -1px 0 rgba(var(--public-champagne-channels,255,235,194),0.08)',
           }}
         >
           <div className="absolute inset-0 overflow-hidden rounded-[30px]">
@@ -280,17 +280,17 @@ export default function TerritoriesFullSection({ embedded = false }: { embedded?
           <div className="relative z-10 px-5 py-6 text-center md:px-8 md:py-8 lg:px-10 lg:py-10">
             <div className="mx-auto max-w-3xl py-4 md:py-8">
               <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-gold">{t.territories.fullSection.kicker}</p>
-              <h2 className="text-3xl font-semibold leading-tight text-[#d8c49d] drop-shadow-[0_6px_18px_rgba(0,0,0,0.55)] md:text-5xl">
+              <h2 className="text-3xl font-semibold leading-tight text-[color:var(--public-ink-secondary,#d8c49d)] drop-shadow-[0_6px_18px_rgba(0,0,0,0.55)] md:text-5xl">
                 {t.territories.fullSection.title}
               </h2>
-              <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-[#f0e0bd] md:text-lg">
+              <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-[color:var(--public-ink-primary,#f0e0bd)] md:text-lg">
                 {t.territories.fullSection.subtitle}
               </p>
             </div>
 
             <div className="mx-auto mt-8 flex flex-wrap items-start justify-center gap-5 md:gap-8 lg:gap-10">
               <div className="w-fit max-w-full rounded-[22px] border border-[rgba(197,160,94,0.2)] bg-black/50 p-4 shadow-[0_18px_36px_rgba(0,0,0,0.3)] backdrop-blur-md md:p-5">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#d9c299]">{t.territories.filters.byIntensity}</p>
+                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--public-ink-secondary,#d9c299)]">{t.territories.filters.byIntensity}</p>
                 <div className="flex flex-wrap justify-center gap-2 [&>button]:min-h-[44px]">
                   <button
                     onClick={() => setFilterIntensity(null)}
@@ -319,7 +319,7 @@ export default function TerritoriesFullSection({ embedded = false }: { embedded?
               </div>
 
               <div className="w-fit max-w-full rounded-[22px] border border-[rgba(197,160,94,0.2)] bg-black/50 p-4 shadow-[0_18px_36px_rgba(0,0,0,0.3)] backdrop-blur-md md:p-5">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#d9c299]">{t.territories.filters.bySeason}</p>
+                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--public-ink-secondary,#d9c299)]">{t.territories.filters.bySeason}</p>
                 <div className="flex flex-wrap justify-center gap-2 [&>button]:min-h-[44px]">
                   <button
                     onClick={() => setFilterSeason(null)}
