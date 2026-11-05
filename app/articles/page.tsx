@@ -53,9 +53,10 @@ export default function ArticlesPage() {
                         key={item.href}
                         href={item.href}
                         data-active={isActive ? 'true' : 'false'}
-                        className="articles-rail-button w-full rounded-2xl border px-4 py-4 text-left transition-all duration-300"
+                        aria-current={isActive ? 'page' : undefined}
+                        className="articles-rail-button"
                       >
-                        <p className="font-articles-heading text-[1.12rem] leading-tight text-[color:var(--public-ink-primary,#f4ddb2)]">{menuEntry.label}</p>
+                        <span>{menuEntry.label}</span>
                       </Link>
                     );
                   })}

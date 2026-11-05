@@ -78,8 +78,8 @@ export default function HousesClient({
                 const active = item.href === "/articles/houses";
                 return (
                   <Link key={item.href} href={item.href} aria-current={active ? "page" : undefined}
-                    data-active={active ? "true" : "false"} className="articles-rail-button rounded-2xl border px-4 py-4">
-                    <span className={`${heading} block text-lg`}>{entry.label}</span>
+                    data-active={active ? "true" : "false"} className="articles-rail-button">
+                    <span>{entry.label}</span>
                   </Link>
                 );
               })}

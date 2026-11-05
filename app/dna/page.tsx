@@ -234,12 +234,12 @@ export default function DnaPage() {
   );
 
   if (isAuthLoading || !dnaSession) {
-    return <PageShell><div className="main-container py-16 text-sm text-gray-300">{t.dna.loading}</div></PageShell>;
+    return <PageShell className="home-aligned-page"><div className="main-container py-16 text-sm text-gray-300">{t.dna.loading}</div></PageShell>;
   }
 
   if (finalVector === null) {
     return (
-      <PageShell>
+      <PageShell className="home-aligned-page">
         <section className="py-16">
           <div className="main-container">
             <div id="olfactory-territories" className="premium-card-dark mx-auto max-w-2xl scroll-mt-32 border border-gold/20 p-8 md:p-10">
@@ -268,7 +268,7 @@ export default function DnaPage() {
   }
 
   return (
-    <PageShell showBackgroundLayers>
+    <PageShell showBackgroundLayers className="home-aligned-page">
       {/* Hero Section */}
       <section className="py-12 md:py-16">
         <div className="main-container">

@@ -204,11 +204,11 @@ export default function GroundingPage() {
   };
 
   if (isLoading || !isGroundingReady) {
-    return <PageShell><div className="main-container py-16 text-sm text-gray-300">{t.grounding.loading}</div></PageShell>;
+    return <PageShell className="home-aligned-page"><div className="main-container py-16 text-sm text-gray-300">{t.grounding.loading}</div></PageShell>;
   }
 
   return (
-    <PageShell>
+    <PageShell className="home-aligned-page">
       {/* Interactive Zones Section */}
       <section className="py-12 md:py-16">
         <div className="main-container">

@@ -8,7 +8,7 @@ const auth = {
     createOne: 'Create one',
     forgotPassword: 'Forgot your password?',
     securityNote: 'Your security is our priority. All data is encrypted and protected.',
-    profileNote: 'Sign in to access your personal fragrance DNA profile and recommendations.',
+    profileNote: 'Sign in to access your personal OlfactiveDNA profile and recommendations.',
     genericError: 'Sign in failed. Please try again.',
   },
   signUp: {

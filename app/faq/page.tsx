@@ -1,30 +1,26 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
-import { PageShell, PremiumButton } from '@/components/design-system';
+import { PageShell } from '@/components/design-system';
 import { DNA_CONFIDENCE_BADGES } from '@/lib/dnaSession';
 import { useLanguage } from '@/lib/i18n';
+import { getDiscoveryCopy } from '@/lib/i18n/discoveryCopy';
+import ArticlesIntroHero from '@/app/articles/ArticlesIntroHero';
 
 export default function FaqPage() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
+  const discoveryCopy = getDiscoveryCopy(locale);
+  const faqItems = [
+    ...t.faq.items,
+    { question: discoveryCopy.seasonal, answer: discoveryCopy.seasonalHelp },
+  ];
 
   return (
-    <PageShell>
-      <section className="border-b border-white/10 py-12 md:py-16">
-        <div className="main-container">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-normal text-gold">{t.faq.kicker}</p>
-          <h1 className="max-w-3xl text-3xl font-semibold text-white md:text-5xl">{t.faq.title}</h1>
-          <p className="mt-5 max-w-2xl text-base leading-7 text-gray-300">
-            {t.faq.intro}
-          </p>
-          <div className="mt-7 flex flex-wrap gap-3">
-            <Link href="/grounding"><PremiumButton variant="primary" size="md">{t.faq.startWithGrounding}</PremiumButton></Link>
-            <Link href="/test"><PremiumButton variant="secondary" size="md">{t.faq.continueEvaluations}</PremiumButton></Link>
-          </div>
-        </div>
-      </section>
-
+    <PageShell className="home-aligned-page">
+      <h1 className="sr-only">{t.faq.faqTitle}</h1>
+      <div className="main-container pt-8">
+        <ArticlesIntroHero imageSrc="/images/faq-pop-art.png" sizes="(min-width: 1778px) 1600px, 90vw" />
+      </div>
       <section className="border-b border-white/10 py-10 md:py-14">
         <div className="main-container">
           <h2 className="mb-6 text-xl font-semibold text-white md:text-2xl">{t.faq.badgeLevelsTitle}</h2>
@@ -46,7 +42,7 @@ export default function FaqPage() {
         <div className="main-container max-w-4xl">
           <h2 className="mb-5 text-xl font-semibold text-white md:text-2xl">{t.faq.faqTitle}</h2>
           <div className="divide-y divide-white/10 border-y border-white/10">
-            {t.faq.items.map((faq) => (
+            {faqItems.map((faq) => (
               <details key={faq.question} className="group py-5">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-medium text-white marker:hidden">
                   {faq.question}

@@ -19,7 +19,7 @@ export default function HomePage() {
   const { assets } = usePublicTheme();
 
   return (
-    <main className="homepage-shell relative pb-10 pt-5 lg:pt-8">
+    <main className="homepage-shell relative pb-10 pt-[0.72rem]">
       <section className="relative z-10 mx-auto w-[90vw] max-w-[1600px] pb-2">
         <article
           className="hero-first-card relative w-full overflow-hidden rounded-[30px] bg-black"

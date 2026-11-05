@@ -1,5 +1,5 @@
 const faq = {
-  kicker: 'FRAGRANCEDNA GUIDE',
+  kicker: 'OlfactiveDNA GUIDE',
   title: 'Your profile, confidence and badges',
   intro:
     'A clear guide to how Grounding starts your DNA, how committed fragrance feedback refines it, and what each confidence badge represents.',

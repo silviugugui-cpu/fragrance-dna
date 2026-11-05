@@ -1,7 +1,7 @@
 import type { Dictionary } from '../en';
 
 const faq: Dictionary['faq'] = {
-  kicker: 'GUIDE FRAGRANCEDNA',
+  kicker: 'GUIDE OlfactiveDNA',
   title: 'Votre profil, votre confiance et vos badges',
   intro:
     'Un guide clair pour comprendre comment l’Ancrage initialise votre ADN, comment vos retours validés l’affinent et ce que représente chaque badge de confiance.',

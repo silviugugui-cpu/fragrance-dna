@@ -1,7 +1,7 @@
 import type { Dictionary } from '../en';
 
 const faq: Dictionary['faq'] = {
-  kicker: 'FRAGRANCEDNA-LEITFADEN',
+  kicker: 'OlfactiveDNA-LEITFADEN',
   title: 'Ihr Profil, Ihre Konfidenz und Ihre Abzeichen',
   intro:
     'Ein klarer Leitfaden dazu, wie das Grounding Ihre DNA startet, wie bestätigtes Duft-Feedback sie verfeinert und was jedes Konfidenz-Abzeichen bedeutet.',

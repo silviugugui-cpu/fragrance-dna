@@ -1,6 +1,8 @@
 import Image from 'next/image';
 
-export default function ArticlesIntroHero({ imageSrc, title }: { imageSrc: string; title?: string }) {
+export default function ArticlesIntroHero({
+  imageSrc, title, sizes = '(min-width: 1778px) 1346px, (min-width: 1024px) calc(90vw - 254px), 90vw',
+}: { imageSrc: string; title?: string; sizes?: string }) {
   return (
     <div
       className="relative overflow-hidden rounded-[28px] border border-[rgba(var(--public-champagne-channels,159,123,68),0.45)]"
@@ -12,7 +14,7 @@ export default function ArticlesIntroHero({ imageSrc, title }: { imageSrc: strin
           alt=""
           fill
           priority
-          sizes="(min-width: 1778px) 1346px, (min-width: 1024px) calc(90vw - 254px), 90vw"
+          sizes={sizes}
           className="object-cover object-top"
         />
       </div>

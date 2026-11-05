@@ -338,8 +338,8 @@ export default function FragranceLibraryClient({ initialQuery }: { initialQuery:
                 const entry = t.articles.menu.items[item.key];
                 const active = item.href === '/fragrances';
                 return (
-                  <Link key={item.key} href={item.href} aria-current={active ? 'page' : undefined} data-active={String(active)} className="articles-rail-button rounded-2xl border px-4 py-4">
-                    <p className="font-articles-heading text-lg">{entry.label}</p>
+                  <Link key={item.key} href={item.href} aria-current={active ? 'page' : undefined} data-active={String(active)} className="articles-rail-button">
+                    <span>{entry.label}</span>
                   </Link>
                 );
               })}
@@ -489,7 +489,6 @@ export default function FragranceLibraryClient({ initialQuery }: { initialQuery:
 
             </div>
             <div className="mt-4"><FragranceBadgeFilters filters={badgeFilters} onChange={setBadgeFilters} anchored /></div>
-            <p className="mt-3 text-sm text-[color:var(--public-ink-secondary,#dacfb7)]">{getDiscoveryCopy(locale).seasonalHelp}</p>
 
             {hasActiveFilters && (
               <button

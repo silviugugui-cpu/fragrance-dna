@@ -1,7 +1,7 @@
 import type { Dictionary } from '../en';
 
 const faq: Dictionary['faq'] = {
-  kicker: 'GUÍA FRAGRANCEDNA',
+  kicker: 'GUÍA OlfactiveDNA',
   title: 'Tu perfil, tu confianza y tus insignias',
   intro:
     'Una guía clara sobre cómo el Grounding inicia tu ADN, cómo lo afinan tus valoraciones confirmadas y qué representa cada insignia de confianza.',

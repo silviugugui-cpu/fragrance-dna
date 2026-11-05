@@ -575,6 +575,26 @@ select {
   padding-bottom: 1.25rem;
 }
 
+.page-shell.home-aligned-page {
+  padding-top: 0;
+}
+
+.home-aligned-page > .content-layer > .discover-page-frame {
+  padding-top: 0;
+}
+
+.home-aligned-page > .content-layer > .discover-page-frame > :first-child:not(.sr-only),
+.home-aligned-page > .content-layer > .discover-page-frame > .sr-only + * {
+  padding-top: 1.25rem;
+}
+
+@media (min-width: 1024px) {
+  .home-aligned-page > .content-layer > .discover-page-frame > :first-child:not(.sr-only),
+  .home-aligned-page > .content-layer > .discover-page-frame > .sr-only + * {
+    padding-top: 2rem;
+  }
+}
+
 .discover-page-frame::before {
   content: '';
   position: absolute;
@@ -829,7 +849,7 @@ html[data-public-theme='normal']:not(.studio-full-viewport) body {
   box-shadow: 0 12px 32px rgba(71, 57, 39, 0.08);
 }
 
-.page-shell[data-theme='normal'] :is(.header-language-switcher > button, .header-theme-toggle, .mobile-menu-btn, .mobile-nav-link, .articles-rail-button, .homepage-mobile-journey li a, .form-input, .form-textarea, .territory-label) {
+.page-shell[data-theme='normal'] :is(.header-language-switcher > button, .header-theme-toggle, .mobile-menu-btn, .mobile-nav-link, .homepage-mobile-journey li a, .form-input, .form-textarea, .territory-label) {
   background: var(--public-surface);
   color: var(--public-ink-secondary);
 }
@@ -838,7 +858,7 @@ html[data-public-theme='normal']:not(.studio-full-viewport) body {
   background: var(--public-surface-ochre);
 }
 
-.page-shell[data-theme='normal'] :is(.homepage-mobile-journey li:nth-child(3n + 2) a, [data-zone='love'], .mobile-nav-link.active, .articles-rail-button[data-active='true']) {
+.page-shell[data-theme='normal'] :is(.homepage-mobile-journey li:nth-child(3n + 2) a, [data-zone='love'], .mobile-nav-link.active) {
   background: var(--public-surface-duck-egg);
 }
 
@@ -850,7 +870,7 @@ html[data-public-theme='normal']:not(.studio-full-viewport) body {
   background: #f7eeea;
 }
 
-.page-shell[data-theme='normal'] :is(.articles-rail-button[data-active='true'], .articles-rail-button:hover, .homepage-mobile-journey li a:hover, .homepage-mobile-journey li a:focus-visible, .mobile-nav-link:hover, .premium-card:hover) {
+.page-shell[data-theme='normal'] :is(.homepage-mobile-journey li a:hover, .homepage-mobile-journey li a:focus-visible, .mobile-nav-link:hover, .premium-card:hover) {
   background: var(--public-surface-hover);
 }
 
@@ -1133,20 +1153,55 @@ html[data-public-theme='normal']:not(.studio-full-viewport) body {
 }
 
 .articles-rail-button {
-  border-color: rgba(var(--public-champagne-channels,212,175,120),0.32);
-  background: rgba(9, 9, 12, 0.72);
-  color: #9ca3af;
+  display: block;
+  padding: 0.75rem 0;
+  color: var(--nav-text-color);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  line-height: 1.65;
+  text-align: left;
+  text-transform: uppercase;
+  text-decoration: none;
 }
 
-.articles-rail-button:hover {
-  border-color: rgba(var(--public-champagne-channels,240,202,138),0.68);
-  color: var(--public-ink-secondary,#d4af78);
+.articles-rail-button > :first-child {
+  position: relative;
+  display: inline;
+  font: inherit;
+  color: inherit;
 }
 
+/* An inline containing block ends at the last wrapped line. */
+.articles-rail-button > :first-child::after {
+  position: absolute;
+  right: 0;
+  bottom: -0.3em;
+  left: 0;
+  height: 2px;
+  background: currentColor;
+  content: '';
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.24s ease;
+}
+
+.articles-rail-button:hover,
+.articles-rail-button:focus-visible,
 .articles-rail-button[data-active='true'] {
-  border-color: rgba(var(--public-champagne-channels,240,202,138),0.85);
-  background: rgba(23, 20, 15, 0.9);
-  box-shadow: inset 0 1px 0 rgba(var(--public-champagne-channels,255,231,180),0.16);
+  color: var(--gold-highlight);
+}
+
+.articles-rail-button:hover > :first-child::after,
+.articles-rail-button:focus-visible > :first-child::after,
+.articles-rail-button[data-active='true'] > :first-child::after {
+  transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .articles-rail-button > :first-child::after {
+    transition: none;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -1786,8 +1841,6 @@ html[data-public-theme='normal']:not(.studio-full-viewport) body {
 
       &.active {
         color: var(--gold-primary);
-        border-bottom: 2px solid var(--gold-primary);
-        padding-bottom: 2px;
       }
     }
   }
@@ -1803,6 +1856,7 @@ html[data-public-theme='normal']:not(.studio-full-viewport) body {
     }
 
     &:hover::after,
+    &:focus-visible::after,
     &.active::after {
       @apply w-full;
     }

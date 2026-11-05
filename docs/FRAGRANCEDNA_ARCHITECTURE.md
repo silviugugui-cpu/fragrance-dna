@@ -71,6 +71,16 @@ or generated page inventory is maintained.
 The Discover sidebar shows localized section titles only, without subtitle
 hints, consistently across its overview, fragrance library, perfumers, houses,
 territories and occasions.
+Sidebar navigation uses unboxed uppercase text, matching the header navigation.
+Hover, keyboard focus and the selected section underline only the final wrapped
+line; selection also exposes `aria-current="page"`.
+Header navigation uses a single pseudo-element underline for hover, keyboard
+focus and the active section, with no second bottom-border underline.
+Grounding, Test, DNA, Collection and FAQ use `home-aligned-page` to avoid stacking
+PageShell, frame and first-section top padding. Their first content starts at the
+content offset: 1.25rem on small screens and 2rem from 1024px.
+The homepage card starts 0.72rem below the header, matching the visible
+`discover-page-frame` outline rather than its inner content padding.
 The territory label is "Olfactive Territories" (localized). Perfumer cards and
 profiles display the top-tier creation count only; evaluated counts remain
 internal ranking inputs. The directory retains search and sorting without a
@@ -101,10 +111,21 @@ Library filter menus are positioned directly below their controls with bounded,
 scrollable lists, including searchable brand suggestions and badge filters.
 They retain keyboard selection and Escape/outside dismissal; other form-based
 badge filters retain native selects for GET submission.
+The localized seasonal-cue methodology appears in FAQ rather than below the
+fragrance library filters.
+FAQ opens with `/images/faq-pop-art.png` in the shared compact, top-aligned
+image-only hero, followed directly by confidence badges and FAQ entries.
+The former guide introduction and Grounding/evaluation CTAs are not displayed;
+a screen-reader-only page heading preserves the accessible document structure.
+User-facing product branding is OlfactiveDNA in every locale. Legacy storage
+keys, database filenames and event identifiers remain unchanged for compatibility.
 
 ---
 
 ## Collection Architecture
+
+Your Collection opens with `/images/your-collection-pop-art.png` in the shared
+compact, image-only hero, before the existing title and collection widgets.
 
 Collection stores references to fragrances.
 

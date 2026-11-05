@@ -11,6 +11,7 @@ import { EMPTY_COLLECTION } from '@/lib/collection/storage';
 import { useResolvedCollection } from '@/lib/collection/useResolvedCollection';
 import { useLanguage } from '@/lib/i18n';
 import CollectionManager from '@/components/collection/CollectionManager';
+import ArticlesIntroHero from '@/app/articles/ArticlesIntroHero';
 import { collectionTerritoryCoverage } from '@/lib/collection/territoryCoverage';
 import { getPriorityCopy } from '@/lib/i18n/priorityCopy';
 import { classificationBasisLabel, getEvidenceCopy } from '@/lib/i18n/evidenceCopy';
@@ -193,11 +194,13 @@ export default function CollectionPage() {
   const collection = useSyncExternalStore(subscribeToCollection, loadCollection, () => EMPTY_COLLECTION);
 
   return (
-    <PageShell showBackgroundLayers>
+    <PageShell showBackgroundLayers className="home-aligned-page">
+      <div className="main-container">
+        <ArticlesIntroHero imageSrc="/images/your-collection-pop-art.png" sizes="(min-width: 1778px) 1600px, 90vw" />
+      </div>
       {/* Header */}
       <section className="py-12">
         <div className="main-container text-center">
-          <p className="text-gold text-sm font-semibold uppercase mb-2">{t.collection.page.eyebrow}</p>
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{t.collection.page.title}</h1>
           <p className="text-lg text-gray-400 max-w-2xl mx-auto">
             {t.collection.page.description}

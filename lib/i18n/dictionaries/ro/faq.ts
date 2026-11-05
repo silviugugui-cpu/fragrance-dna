@@ -1,7 +1,7 @@
 import type { Dictionary } from '../en';
 
 const faq: Dictionary['faq'] = {
-  kicker: 'GHID FRAGRANCEDNA',
+  kicker: 'GHID OlfactiveDNA',
   title: 'Profilul tău, încrederea și insignele',
   intro:
     'Un ghid clar despre cum Grounding îți pornește ADN-ul, cum îl rafinează feedbackul confirmat și ce reprezintă fiecare insignă de încredere.',

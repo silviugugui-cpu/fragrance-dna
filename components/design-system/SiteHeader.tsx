@@ -106,7 +106,7 @@ export function SiteHeader() {
                 href={link.href}
                 className={`nav-link uppercase font-medium transition-all duration-300 ${
                   isActive ? 'active text-gold' : 'text-gray-400 hover:text-gold'
-                } ${link.key === 'faq' ? 'nav-encyclopedia-start' : ''}`}
+                } ${link.key === 'collection' ? 'nav-encyclopedia-start' : ''}`}
               >
                 {t.header.nav[link.key].label}
               </Link>

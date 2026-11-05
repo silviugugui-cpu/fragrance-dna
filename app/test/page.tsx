@@ -156,16 +156,16 @@ export default function TestPage() {
   let canSubmit = false;
   if (draft) { try { validateEvaluation(draft); canSubmit = true; } catch { /* Incomplete drafts are expected. */ } }
 
-  if (fatal) return <PageShell><div role="alert" className="main-container py-16">{fatal === "pool" ? t.test.poolUnavailable : copy.loadError}
+  if (fatal) return <PageShell className="home-aligned-page"><div role="alert" className="main-container py-16">{fatal === "pool" ? t.test.poolUnavailable : copy.loadError}
     <button type="button" className="ml-3 underline" onClick={() => {
       if (fatal === "load" && user?.id) void hydratePersistentUserProfile();
       else window.location.reload();
     }}>{copy.retry}</button>
   </div></PageShell>;
-  if (authLoading || !session || !profiles) return <PageShell><p className="main-container py-16">{t.test.loadingProfile}</p></PageShell>;
-  if (grounding.love.length + grounding.redFlag.length < 2) return <PageShell><section className="main-container py-16"><h1 className="text-2xl">{t.test.groundingRequiredTitle}</h1><p className="my-4">{t.test.groundingRequiredDescription}</p><Link className="text-gold underline" href="/grounding">{t.test.beginGrounding}</Link></section></PageShell>;
+  if (authLoading || !session || !profiles) return <PageShell className="home-aligned-page"><p className="main-container py-16">{t.test.loadingProfile}</p></PageShell>;
+  if (grounding.love.length + grounding.redFlag.length < 2) return <PageShell className="home-aligned-page"><section className="main-container py-16"><h1 className="text-2xl">{t.test.groundingRequiredTitle}</h1><p className="my-4">{t.test.groundingRequiredDescription}</p><Link className="text-gold underline" href="/grounding">{t.test.beginGrounding}</Link></section></PageShell>;
   const projection = session.preferenceProjection;
-  return <PageShell><main className="main-container py-10 md:py-14">
+  return <PageShell className="home-aligned-page"><main className="main-container py-10 md:py-14">
     <h1 className="max-w-3xl text-3xl font-semibold md:text-4xl">{copy.title}</h1>
     <p className="my-5 max-w-3xl text-gray-300">{copy.intro}</p>
     <p className="text-sm">{copy.complete}: <strong data-completed-count>{session.answeredOrder.length}</strong> · {t.test.dnaConfidenceLevel}: {projection?.confidence ?? 0}% · {getDnaConfidenceBadge(projection?.confidence ?? 0).label}</p>
