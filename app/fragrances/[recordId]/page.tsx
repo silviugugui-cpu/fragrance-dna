@@ -34,6 +34,5 @@ export default function FragrancePage({ params }: Props) {
   return <FragranceProfileClient
     fragrance={toPublicFragrance(found.record)}
     credits={details?.creatorCredits ?? []}
-    sourceUrl={details?.sourceUrl ?? (found.record.externalUrl && /^https?:\/\//.test(found.record.externalUrl) ? found.record.externalUrl : null)}
   />;
 }

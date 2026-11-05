@@ -10,8 +10,8 @@ import FragranceBadges from "@/components/FragranceBadges";
 import FragranceRelationships from "@/components/FragranceRelationships";
 import PerfumerCredits from "@/components/PerfumerCredits";
 
-export default function FragranceProfileClient({ fragrance, credits, sourceUrl }: {
-  fragrance: PublicFragrance; credits: CreatorCredit[]; sourceUrl: string | null;
+export default function FragranceProfileClient({ fragrance, credits }: {
+  fragrance: PublicFragrance; credits: CreatorCredit[];
 }) {
   const { locale, t } = useLanguage();
   const copy = getFragrancePageCopy(locale);
@@ -64,7 +64,6 @@ export default function FragranceProfileClient({ fragrance, credits, sourceUrl }
             <div key={axis} className="flex justify-between gap-4 border-b border-current pb-2"><dt>{t.common.axes[axis] ?? axis}</dt><dd>{value}</dd></div>)}</dl>
         </section>}
         <div className={muted}><FragranceRelationships relationships={fragrance.relationships} /></div>
-        {sourceUrl && <a href={sourceUrl} target="_blank" rel="noopener noreferrer" className={`mt-6 inline-block text-sm underline underline-offset-4 ${muted}`}>{copy.source}</a>}
       </article>
     </main>
   );

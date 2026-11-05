@@ -52,6 +52,8 @@ separate canonical record ID for navigation. House catalogs and relationship
 references link to the same profiles. Relationship mapping uses exact normalized
 canonical brand/perfume keys, not fuzzy matches or source URLs. Evidence and
 attribution links remain secondary, explicitly labeled external citations.
+Individual fragrance profiles do not display a generic import "Source" link or
+send its URL to the client. Import provenance remains stored in SQLite.
 Known perfumer names link to their internal profiles; unknown creators stay text.
 Profiles are rendered on demand from the canonical SQLite, including available
 notes, accords, creators, badges and documented relationships. No second catalog
