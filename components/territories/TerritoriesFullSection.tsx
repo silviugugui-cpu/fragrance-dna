@@ -218,7 +218,7 @@ function TerritoryDetailPanel({ territory, onClose }: TerritoryDetailProps) {
                 <h3 className="mb-3 text-sm font-bold uppercase text-gold">{t.territories.detail.seasons}</h3>
                 <div className="flex flex-wrap gap-2">
                   {territory.season.map((season) => (
-                    <span key={season} className="rounded bg-gold-900 px-3 py-1 text-sm text-gold-200">
+                    <span key={season} className="rounded border border-current bg-[var(--public-surface,#0a0a0c)] px-3 py-1 text-sm text-[color:var(--public-ink-primary,#f5dfc5)]">
                       {t.territories.seasons[season] ?? season.charAt(0).toUpperCase() + season.slice(1)}
                     </span>
                   ))}
@@ -271,10 +271,10 @@ export default function TerritoriesFullSection({ embedded = false }: { embedded?
             boxShadow: 'var(--public-panel-shadow, 0 26px 54px rgba(0,0,0,0.58), inset 0 1px 0 rgba(var(--public-champagne-channels,255,226,162),0.2), inset 0 -1px 0 rgba(var(--public-champagne-channels,255,235,194),0.08))',
           }}
         >
-          <div className="relative grid min-h-[640px] grid-rows-[auto_1fr] overflow-hidden">
+          <div className={`relative grid overflow-hidden ${embedded ? 'min-h-fit md:aspect-[2000/799.8]' : 'min-h-[640px] grid-rows-[auto_1fr]'}`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={assets.territoryHero} alt={t.territories.backgroundAlt} className="absolute inset-0 block h-full w-full object-cover" />
-            <div
+            <img src={embedded ? '/Territory/olfactive-territories-pop-art.png' : assets.territoryHero} alt={t.territories.backgroundAlt} className={`absolute inset-0 block h-full w-full object-cover ${embedded ? 'object-top' : ''}`} />
+            {!embedded && <div
               className="relative z-10 col-start-1 row-start-2 mx-auto w-full max-w-3xl self-end px-5 py-6 text-center md:px-8 md:py-10"
               style={{ color: theme === 'normal' ? '#30302d' : '#f5dfc5', textShadow: theme === 'normal' ? '0 1px 4px #fff, 0 1px 2px #fff' : '0 2px 6px #000, 0 1px 3px #000' }}
             >
@@ -286,7 +286,7 @@ export default function TerritoriesFullSection({ embedded = false }: { embedded?
                 {t.territories.fullSection.subtitle}
               </p>
               <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed">{copy.editorialHelp}</p>
-            </div>
+            </div>}
           <div className="relative z-10 col-start-1 row-start-1 px-5 py-6 text-center md:px-8 md:py-8 lg:px-10 lg:py-10">
             <div className="mx-auto grid min-w-0 grid-cols-2 gap-2 sm:gap-5">
               <div className="territory-filter-panel min-w-0 rounded-[22px] border border-[rgba(197,160,94,0.2)] bg-black/50 p-2 shadow-[0_18px_36px_rgba(0,0,0,0.3)] backdrop-blur-md sm:p-4 md:p-5">

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import ArticlesRail from './ArticlesRail';
 import ArticlesIntroHero from './ArticlesIntroHero';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { articlesMenuItems } from './articlesMenu';
 import { useLanguage } from '@/lib/i18n';
 import type { ArticleSectionId } from '@/lib/i18n/dictionaries/en/articles';
@@ -22,6 +22,7 @@ export default function ArticlesPage() {
   const pathname = usePathname();
   const { t } = useLanguage();
   const [selectedSection, setSelectedSection] = useState<ArticleSectionId>('scent-fundamentals');
+  const detailRef = useRef<HTMLElement>(null);
 
   const submenuItems = articlesMenuItems;
 
@@ -72,7 +73,15 @@ export default function ArticlesPage() {
                         <button
                           key={sectionId}
                           type="button"
-                          onClick={() => setSelectedSection(sectionId)}
+                          onClick={() => {
+                            setSelectedSection(sectionId);
+                            requestAnimationFrame(() => detailRef.current?.scrollIntoView({
+                              behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+                              block: 'start',
+                            }));
+                          }}
+                          aria-controls="need-to-know-detail"
+                          aria-pressed={isActive}
                           className="rounded-3xl border p-5 text-left transition-all duration-300"
                           style={{
                             borderColor: isActive ? 'rgba(var(--public-champagne-channels,243,210,147),0.9)' : 'rgba(var(--public-champagne-channels,168,129,70),0.45)',
@@ -96,7 +105,7 @@ export default function ArticlesPage() {
                     })}
                   </section>
 
-                  <section className="relative z-10 w-full">
+                  <section ref={detailRef} id="need-to-know-detail" className="relative z-10 w-full scroll-mt-40">
                     <div
                       className="rounded-[30px] border border-[rgba(var(--public-champagne-channels,159,123,68),0.45)] p-6 sm:p-8 lg:p-10"
                       style={{

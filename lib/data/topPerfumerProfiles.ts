@@ -107,6 +107,7 @@ export const topPerfumerProfiles: TopPerfumerProfile[] = [
   },
   {
     slug: 'jean-claude-ellena', name: 'Jean-Claude Ellena',
+    portraitPosition: '28% center',
     portraitUrl: 'https://www.fredericmalle.com/media/export/cms/perfumers/Perfumers_Landing_page/Jean-Claude_Ellena-Perfumer_LandingPage.jpg',
     portraitSourceUrl: 'https://www.fredericmalle.com/perfumer/jean-claude-ellena',
     biographySourceUrl: 'https://www.fredericmalle.com/perfumer/jean-claude-ellena',
@@ -140,6 +141,7 @@ export const topPerfumerProfiles: TopPerfumerProfile[] = [
   },
   {
     slug: 'daniela-andrier', name: 'Daniela Andrier',
+    portraitPosition: '90% center',
     portraitUrl: 'https://www.givaudan.com/sites/givaudanweb.int/files/2025-04/giv-daniela-andrier-800x800.webp',
     portraitSourceUrl: 'https://www.givaudan.com/media/media-releases/2025/daniela-andrier-receives-lifetime-achievement-perfumer-award',
     biographySourceUrl: 'https://www.givaudan.com/media/media-releases/2025/daniela-andrier-receives-lifetime-achievement-perfumer-award',

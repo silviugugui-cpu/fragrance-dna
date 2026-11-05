@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import ArticlesRail from '../articles/ArticlesRail';
+import ArticlesIntroHero from '../articles/ArticlesIntroHero';
+import AnchoredSelect from '@/components/design-system/AnchoredSelect';
 import { articlesMenuItems } from '../articles/articlesMenu';
 import { PerfumeImageWithFallback } from '@/components/design-system/PerfumeImageWithFallback';
 import { useLanguage } from '@/lib/i18n';
@@ -11,7 +13,6 @@ import { getFragranceHref } from '@/lib/fragranceNavigation';
 import FragranceRelationships from '@/components/FragranceRelationships';
 import FragranceBadges from '@/components/FragranceBadges';
 import FragranceBadgeFilters from '@/components/FragranceBadgeFilters';
-import { getPriorityCopy } from '@/lib/i18n/priorityCopy';
 import type { BadgeFilters } from '@/lib/fragranceBadges';
 import { getDiscoveryCopy } from '@/lib/i18n/discoveryCopy';
 import { isCueSeason, seasonalCueAccords } from '@/lib/seasonalCues';
@@ -222,8 +223,6 @@ function FragranceDetail({
 
 export default function FragranceLibraryClient({ initialQuery }: { initialQuery: string }) {
   const { t, locale } = useLanguage();
-  const copy = getPriorityCopy(locale);
-  const [region, setRegion] = useState('');
   const [query, setQuery] = useState(initialQuery);
   const [category, setCategory] = useState('');
   const [brand, setBrand] = useState('');
@@ -233,6 +232,9 @@ export default function FragranceLibraryClient({ initialQuery }: { initialQuery:
   const [era, setEra] = useState('');
   const [badgeFilters, setBadgeFilters] = useState<BadgeFilters>({});
   const [brandOptions, setBrandOptions] = useState<string[]>([]);
+  const [brandOptionsOpen, setBrandOptionsOpen] = useState(false);
+  const [activeBrandIndex, setActiveBrandIndex] = useState(-1);
+  const matchingBrands = brandOptions.filter((option) => option.toLocaleLowerCase(locale).includes(brand.trim().toLocaleLowerCase(locale)));
   const [results, setResults] = useState<PublicFragrance[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
@@ -244,10 +246,9 @@ export default function FragranceLibraryClient({ initialQuery }: { initialQuery:
     setQuery(initialQuery);
   }, [initialQuery]);
 
-  const hasActiveFilters = Boolean(region || category || brand || season || audience || accord || era || Object.values(badgeFilters).some(Boolean));
+  const hasActiveFilters = Boolean(category || brand || season || audience || accord || era || Object.values(badgeFilters).some(Boolean));
 
   const clearFilters = () => {
-    setRegion('');
     setCategory('');
     setBrand('');
     setSeason('');
@@ -290,7 +291,6 @@ export default function FragranceLibraryClient({ initialQuery }: { initialQuery:
       const params = new URLSearchParams({ limit: '36' });
       if (trimmed.length >= 2) params.set('q', trimmed);
       if (category) params.set('type', category);
-      if (region) params.set('region', region);
       if (brand) params.set('brand', brand);
       if (season) params.set('season', season);
       if (audience) params.set('audience', audience);
@@ -325,7 +325,7 @@ export default function FragranceLibraryClient({ initialQuery }: { initialQuery:
     }, 300);
 
     return () => window.clearTimeout(timeout);
-  }, [query, region, category, brand, season, audience, accord, era, badgeFilters, hasActiveFilters]);
+  }, [query, category, brand, season, audience, accord, era, badgeFilters, hasActiveFilters]);
 
   return (
     <main className="relative pb-16 pt-8 lg:pt-10">
@@ -348,22 +348,7 @@ export default function FragranceLibraryClient({ initialQuery }: { initialQuery:
         </aside>
         <div className="articles-content-column min-w-0">
       <section className="relative z-10 w-full">
-        <div
-          className="rounded-[28px] border border-[rgba(var(--public-champagne-channels,159,123,68),0.45)] p-6 sm:p-8 lg:p-10"
-          style={{
-            background:
-              'radial-gradient(circle at 12% 12%, rgba(250,223,164,0.17), transparent 40%), radial-gradient(circle at 84% 30%, rgba(176,118,48,0.22), transparent 42%), linear-gradient(135deg, rgba(var(--public-surface-channels,11,11,11),0.93), rgba(var(--public-surface-channels,22,16,11),0.9))',
-            boxShadow: 'var(--public-panel-shadow, 0 30px 58px rgba(0,0,0,0.55), inset 0 1px 0 rgba(var(--public-champagne-channels,248,221,163),0.2))',
-          }}
-        >
-          <p className="font-articles-body text-xs uppercase tracking-[0.28em] text-[rgba(var(--public-champagne-channels,216,188,131),0.85)]">{t.fragrances.hero.eyebrow}</p>
-          <h1 className="mt-3 font-articles-heading text-[clamp(1.75rem,3.1vw,3.2rem)] leading-[1.08] text-[color:var(--public-ink-primary,#f4deb2)]">
-            {t.fragrances.hero.title}
-          </h1>
-          <p className="mt-4 max-w-[70ch] font-articles-body text-[1.01rem] leading-relaxed text-[color:var(--public-ink-primary,#e4d8bf)]">
-            {t.fragrances.hero.description}
-          </p>
-        </div>
+        <ArticlesIntroHero imageSrc="/fragrances-library-pop-art.png" />
       </section>
 
       <section className="relative z-10 mt-4 w-full space-y-6">
@@ -389,13 +374,6 @@ export default function FragranceLibraryClient({ initialQuery }: { initialQuery:
           />
 
           <div className="mt-5 border-t border-[rgba(var(--public-champagne-channels,156,120,65),0.25)] pt-5">
-            <label className="mb-4 block text-sm">
-              <span className="mr-3">{copy.region}</span>
-              <select value={region} onChange={(event) => setRegion(event.target.value)} className="rounded-xl border border-current bg-[rgb(var(--public-surface-channels,21,18,13))] px-3 py-2">
-                <option value="">{copy.anyRegion}</option>
-                <option value="middle-east">{copy.middleEast}</option>
-              </select>
-            </label>
             <div className="flex flex-wrap items-center gap-2">
               <span className="mr-1 font-articles-body text-[11px] uppercase tracking-[0.24em] text-[color:var(--public-ink-muted,#b7955f)]">{t.fragrances.search.category}</span>
               {CATEGORY_OPTIONS.map((option) => {
@@ -422,98 +400,96 @@ export default function FragranceLibraryClient({ initialQuery }: { initialQuery:
             </div>
 
             <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-              <div className="xl:col-span-2">
+              <div className="relative xl:col-span-2">
                 <label htmlFor="filter-brand" className="font-articles-body text-[11px] uppercase tracking-[0.22em] text-[color:var(--public-ink-muted,#b7955f)]">
                   {t.fragrances.search.brand}
                 </label>
                 <input
                   id="filter-brand"
                   type="text"
-                  list="fragrance-brand-options"
+                  role="combobox"
+                  aria-autocomplete="list"
+                  aria-expanded={brandOptionsOpen && matchingBrands.length > 0}
+                  aria-controls="fragrance-brand-options"
+                  aria-activedescendant={brandOptionsOpen && activeBrandIndex >= 0 && activeBrandIndex < matchingBrands.length ? `fragrance-brand-option-${activeBrandIndex}` : undefined}
                   value={brand}
-                  onChange={(event) => setBrand(event.target.value)}
+                  onFocus={() => { setBrandOptionsOpen(true); setActiveBrandIndex(-1); }}
+                  onBlur={() => { setBrandOptionsOpen(false); setActiveBrandIndex(-1); }}
+                  onChange={(event) => { setBrand(event.target.value); setBrandOptionsOpen(true); setActiveBrandIndex(-1); }}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Escape') {
+                      setBrandOptionsOpen(false);
+                      setActiveBrandIndex(-1);
+                    } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                      event.preventDefault();
+                      setBrandOptionsOpen(true);
+                      const next = matchingBrands.length === 0 ? -1 : event.key === 'ArrowDown'
+                        ? Math.min(activeBrandIndex + 1, matchingBrands.length - 1)
+                        : Math.max(activeBrandIndex - 1, 0);
+                      setActiveBrandIndex(next);
+                      if (next >= 0) document.getElementById(`fragrance-brand-option-${next}`)?.scrollIntoView({ block: 'nearest' });
+                    } else if (event.key === 'Enter' && brandOptionsOpen && matchingBrands[activeBrandIndex]) {
+                      event.preventDefault();
+                      setBrand(matchingBrands[activeBrandIndex]);
+                      setBrandOptionsOpen(false);
+                      setActiveBrandIndex(-1);
+                    }
+                  }}
                   placeholder={t.fragrances.search.brandPlaceholder}
                   autoComplete="off"
                   className="mt-1.5 w-full rounded-xl border border-[rgba(var(--public-champagne-channels,156,120,65),0.45)] bg-black/40 px-3 py-2.5 font-articles-body text-sm text-[color:var(--public-ink-primary,#f1e3c4)] placeholder-[#8a7450] focus:border-[rgba(var(--public-champagne-channels,243,210,147),0.8)] focus:outline-none"
                 />
-                <datalist id="fragrance-brand-options">
-                  {brandOptions.map((brandOption) => (
-                    <option key={brandOption} value={brandOption} />
-                  ))}
-                </datalist>
+                {brandOptionsOpen && matchingBrands.length > 0 && (
+                  <ul id="fragrance-brand-options" role="listbox" aria-label={t.fragrances.search.brand}
+                    className="absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-y-auto rounded-xl border border-[rgba(var(--public-champagne-channels,156,120,65),0.65)] bg-[rgb(var(--public-surface-channels,21,18,13))] p-1 shadow-xl">
+                    {matchingBrands.map((brandOption, index) => (
+                      <li key={brandOption} id={`fragrance-brand-option-${index}`} role="option"
+                        aria-selected={brandOption === brand}
+                        onMouseDown={(event) => event.preventDefault()}
+                        onClick={() => { setBrand(brandOption); setBrandOptionsOpen(false); setActiveBrandIndex(-1); }}
+                        className={`cursor-pointer rounded-lg px-3 py-2 text-sm text-[color:var(--public-ink-primary,#f1e3c4)] hover:bg-white/10 ${activeBrandIndex === index ? 'bg-white/10' : ''}`}>
+                        {brandOption}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
 
               <div>
                 <label htmlFor="filter-season" className="font-articles-body text-[11px] uppercase tracking-[0.22em] text-[color:var(--public-ink-muted,#b7955f)]">
                   {t.fragrances.search.season}
                 </label>
-                <select
-                  id="filter-season"
-                  value={season}
-                  onChange={(event) => setSeason(event.target.value)}
-                  className="mt-1.5 w-full rounded-xl border border-[rgba(var(--public-champagne-channels,156,120,65),0.45)] bg-black/40 px-3 py-2.5 font-articles-body text-sm text-[color:var(--public-ink-primary,#f1e3c4)] focus:border-[rgba(var(--public-champagne-channels,243,210,147),0.8)] focus:outline-none"
-                >
-                  {SEASON_OPTIONS.map((option) => (
-                    <option key={option.value || 'any'} value={option.value}>{t.fragrances.seasonOptions[option.key]}</option>
-                  ))}
-                </select>
+                <AnchoredSelect id="filter-season" label={t.fragrances.search.season} value={season} onChange={setSeason} className="mt-1.5"
+                  options={SEASON_OPTIONS.map((option) => ({ value: option.value, label: t.fragrances.seasonOptions[option.key] }))} />
               </div>
 
               <div>
                 <label htmlFor="filter-audience" className="font-articles-body text-[11px] uppercase tracking-[0.22em] text-[color:var(--public-ink-muted,#b7955f)]">
                   {t.fragrances.search.audience}
                 </label>
-                <select
-                  id="filter-audience"
-                  value={audience}
-                  onChange={(event) => setAudience(event.target.value)}
-                  className="mt-1.5 w-full rounded-xl border border-[rgba(var(--public-champagne-channels,156,120,65),0.45)] bg-black/40 px-3 py-2.5 font-articles-body text-sm text-[color:var(--public-ink-primary,#f1e3c4)] focus:border-[rgba(var(--public-champagne-channels,243,210,147),0.8)] focus:outline-none"
-                >
-                  {AUDIENCE_OPTIONS.map((option) => (
-                    <option key={option.value || 'any'} value={option.value}>{t.fragrances.audienceOptions[option.key]}</option>
-                  ))}
-                </select>
+                <AnchoredSelect id="filter-audience" label={t.fragrances.search.audience} value={audience} onChange={setAudience} className="mt-1.5"
+                  options={AUDIENCE_OPTIONS.map((option) => ({ value: option.value, label: t.fragrances.audienceOptions[option.key] }))} />
               </div>
 
               <div>
                 <label htmlFor="filter-accord" className="font-articles-body text-[11px] uppercase tracking-[0.22em] text-[color:var(--public-ink-muted,#b7955f)]">
                   {t.fragrances.search.accord}
                 </label>
-                <select
-                  id="filter-accord"
-                  value={accord}
-                  onChange={(event) => setAccord(event.target.value)}
-                  className="mt-1.5 w-full rounded-xl border border-[rgba(var(--public-champagne-channels,156,120,65),0.45)] bg-black/40 px-3 py-2.5 font-articles-body text-sm text-[color:var(--public-ink-primary,#f1e3c4)] focus:border-[rgba(var(--public-champagne-channels,243,210,147),0.8)] focus:outline-none"
-                >
-                  <option value="">{t.fragrances.search.anyAccord}</option>
-                  {ACCORD_OPTIONS.map((accordOption) => (
-                    <option key={accordOption} value={accordOption}>
-                      {t.fragrances.accordLabels[accordOption] ?? capitalize(accordOption)}
-                    </option>
-                  ))}
-                </select>
+                <AnchoredSelect id="filter-accord" label={t.fragrances.search.accord} value={accord} onChange={setAccord} className="mt-1.5"
+                  options={[{ value: '', label: t.fragrances.search.anyAccord }, ...ACCORD_OPTIONS.map((option) => ({ value: option, label: t.fragrances.accordLabels[option] ?? capitalize(option) }))]} />
               </div>
 
               <div>
                 <label htmlFor="filter-era" className="font-articles-body text-[11px] uppercase tracking-[0.22em] text-[color:var(--public-ink-muted,#b7955f)]">
                   {t.fragrances.search.era}
                 </label>
-                <select
-                  id="filter-era"
-                  value={era}
-                  onChange={(event) => setEra(event.target.value)}
-                  className="mt-1.5 w-full rounded-xl border border-[rgba(var(--public-champagne-channels,156,120,65),0.45)] bg-black/40 px-3 py-2.5 font-articles-body text-sm text-[color:var(--public-ink-primary,#f1e3c4)] focus:border-[rgba(var(--public-champagne-channels,243,210,147),0.8)] focus:outline-none"
-                >
-                  {ERA_OPTIONS.map((option) => (
-                    <option key={option.value || 'any'} value={option.value}>{t.fragrances.eraOptions[option.key]}</option>
-                  ))}
-                </select>
+                <AnchoredSelect id="filter-era" label={t.fragrances.search.era} value={era} onChange={setEra} className="mt-1.5"
+                  options={ERA_OPTIONS.map((option) => ({ value: option.value, label: t.fragrances.eraOptions[option.key] }))} />
               </div>
 
             </div>
-            <div className="mt-4"><FragranceBadgeFilters filters={badgeFilters} onChange={setBadgeFilters} /></div>
+            <div className="mt-4"><FragranceBadgeFilters filters={badgeFilters} onChange={setBadgeFilters} anchored /></div>
             <p className="mt-3 text-sm text-[color:var(--public-ink-secondary,#dacfb7)]">{getDiscoveryCopy(locale).seasonalHelp}</p>
-            <p className="mt-3 text-xs text-[color:var(--public-ink-secondary,#dacfb7)]">{t.fragrances.badges.note}</p>
 
             {hasActiveFilters && (
               <button
@@ -536,11 +512,6 @@ export default function FragranceLibraryClient({ initialQuery }: { initialQuery:
                 {results.length === 0
                   ? t.fragrances.status.noMatches
                   : t.fragrances.status.found(results.length)}
-              </p>
-            )}
-            {!error && !isSearching && !hasSearched && (
-              <p className="font-articles-body text-sm text-[color:var(--public-ink-muted,#8a7450)]">
-                {t.fragrances.status.hint}
               </p>
             )}
           </div>

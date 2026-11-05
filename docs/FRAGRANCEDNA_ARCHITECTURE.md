@@ -71,6 +71,36 @@ or generated page inventory is maintained.
 The Discover sidebar shows localized section titles only, without subtitle
 hints, consistently across its overview, fragrance library, perfumers, houses,
 territories and occasions.
+The territory label is "Olfactive Territories" (localized). Perfumer cards and
+profiles display the top-tier creation count only; evaluated counts remain
+internal ranking inputs. The directory retains search and sorting without a
+minimum-creation filter. Directory portraits retain full-height cover crops
+with editorial focal positions that keep faces visible.
+Signature-work links carry a `fromPerfumer` slug so the fragrance's back link
+returns to that profile, including after reload or opening a new tab. The server
+accepts only known editorial perfumer slugs; other visits return to the library.
+Canonical fragrance metadata URLs exclude this navigation context.
+Need to Know, Perfumer Profiles and the fragrance library share a top-aligned introductory image crop:
+60% of the original 2000:1333 image height at unchanged width. Mobile titles
+remain below the image for readability; desktop titles stay overlaid.
+The library uses `/fragrances-library-pop-art.png` as an image-only banner,
+without a title, backing panel or introductory paragraph below.
+The houses directory and occasions page use the same compact, image-only hero
+with `/images/top-olfactive-houses-pop-art.png` and
+`/images/occasions-of-wear-pop-art.png`, respectively. Individual house pages
+retain their existing header without the directory banner.
+The occasions banner is the first content panel, followed by its title and
+introduction, then filters.
+The embedded Olfactive Territories hero uses the same desktop aspect ratio,
+with filters over the image and no introductory text. Small screens allow the
+filter panels to determine its height so all controls remain accessible.
+Selecting a Need to Know category scrolls to the updated reading panel, including
+reselecting the active category. Initial page entry does not scroll; reduced-motion
+preferences disable the smooth animation.
+Library filter menus are positioned directly below their controls with bounded,
+scrollable lists, including searchable brand suggestions and badge filters.
+They retain keyboard selection and Escape/outside dismissal; other form-based
+badge filters retain native selects for GET submission.
 
 ---
 

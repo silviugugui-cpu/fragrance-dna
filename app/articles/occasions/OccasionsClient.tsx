@@ -8,6 +8,7 @@ import { territories } from "@/lib/data/territories";
 import { filterOccasions, occasions, type OccasionFilters } from "@/lib/data/occasions";
 import { getOccasionCopy, getOccasionText, getOccasionNoteLabel } from "@/lib/data/occasionTranslations";
 import ArticlesRail from "../ArticlesRail";
+import ArticlesIntroHero from "../ArticlesIntroHero";
 import { articlesMenuItems } from "../articlesMenu";
 
 const initialFilters: OccasionFilters = { occasion: "", season: "", setting: "", time: "", territory: "" };
@@ -30,13 +31,6 @@ export default function OccasionsClient({ availableNotes }: { availableNotes: st
 
   return (
     <main lang={locale} className="relative mx-auto w-[90vw] max-w-[1600px] pb-16 pt-8 text-[color:var(--public-ink-primary,#f2ddb1)] lg:pt-10">
-      <section className="articles-intro-wrap mb-5">
-        <div className={`${panel} p-6 sm:p-10`}>
-        <p className="font-articles-body text-xs uppercase tracking-[0.2em]">{copy.menu}</p>
-        <h1 className="mt-3 font-articles-heading text-[clamp(2rem,4vw,3.8rem)] leading-tight">{copy.title}</h1>
-        <p className="mt-5 max-w-4xl font-articles-body leading-relaxed">{copy.intro}</p>
-        </div>
-      </section>
       <div className="grid gap-5 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-start lg:gap-0">
         <aside className="articles-brand-rail-shell">
           <ArticlesRail>
@@ -53,6 +47,16 @@ export default function OccasionsClient({ availableNotes }: { availableNotes: st
           </ArticlesRail>
         </aside>
         <div className="articles-content-column min-w-0">
+          <div className="mb-5">
+            <ArticlesIntroHero imageSrc="/images/occasions-of-wear-pop-art.png" />
+          </div>
+          <section className="mb-5">
+            <div className={`${panel} p-6 sm:p-10`}>
+              <p className="font-articles-body text-xs uppercase tracking-[0.2em]">{copy.menu}</p>
+              <h1 className="mt-3 font-articles-heading text-[clamp(2rem,4vw,3.8rem)] leading-tight">{copy.title}</h1>
+              <p className="mt-5 max-w-4xl font-articles-body leading-relaxed">{copy.intro}</p>
+            </div>
+          </section>
           <div className={`${panel} mb-5 p-5`}>
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {controls.map((control) => <label key={control.key} className="min-w-0 text-sm">

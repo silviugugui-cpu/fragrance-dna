@@ -6,11 +6,12 @@ import { readEditorialFragranceDetails } from "@/lib/database/curatedCatalog";
 import { toPublicFragrance } from "@/lib/database/publicFragrances";
 import { getFragranceHref, getFragranceSearchHref } from "@/lib/fragranceNavigation";
 import FragranceProfileClient from "./FragranceProfileClient";
+import { topPerfumerProfiles } from "@/lib/data/topPerfumerProfiles";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-type Props = { params: { recordId: string } };
+type Props = { params: { recordId: string }; searchParams: { fromPerfumer?: string | string[] } };
 const readFragrance = cache((routeId: string) => readCanonicalFragrance(decodeURIComponent(routeId)));
 
 export function generateMetadata({ params }: Props): Metadata {
@@ -27,12 +28,14 @@ export function generateMetadata({ params }: Props): Metadata {
   };
 }
 
-export default function FragrancePage({ params }: Props) {
+export default function FragrancePage({ params, searchParams }: Props) {
   const found = readFragrance(params.recordId);
   if (!found) redirect(getFragranceSearchHref("", decodeURIComponent(params.recordId).replace(/::/g, " ")));
   const details = readEditorialFragranceDetails(found.rowId);
+  const returnPerfumer = topPerfumerProfiles.find((profile) => profile.slug === searchParams.fromPerfumer);
   return <FragranceProfileClient
     fragrance={toPublicFragrance(found.record)}
     credits={details?.creatorCredits ?? []}
+    returnPerfumer={returnPerfumer ? { slug: returnPerfumer.slug, name: returnPerfumer.name } : undefined}
   />;
 }

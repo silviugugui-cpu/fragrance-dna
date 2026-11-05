@@ -5,11 +5,11 @@ const fragrances: Dictionary['fragrances'] = {
     all: 'Todas',
     niche: 'Nicho',
     designer: 'De diseñador',
-    dupe: 'Inspiración documentada',
+    dupe: 'Otros',
   },
   badges: {
     community: 'Valoración comunitaria',
-    popularity: 'Volumen de reseñas',
+    popularity: 'Popularidad',
     olfactive: 'Olfactive Score',
     any: 'Cualquier nivel',
     undefined: 'Sin definir',

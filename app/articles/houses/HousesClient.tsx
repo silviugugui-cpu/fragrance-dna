@@ -8,6 +8,7 @@ import type { DupeEvidence, EditorialHouse, readEditorialHouseCatalog } from "@/
 import { PerfumeImageWithFallback } from "@/components/design-system/PerfumeImageWithFallback";
 import { territories } from "@/lib/data/territories";
 import ArticlesRail from "../ArticlesRail";
+import ArticlesIntroHero from "../ArticlesIntroHero";
 import { articlesMenuItems } from "../articlesMenu";
 import FragranceBadges from "@/components/FragranceBadges";
 import FragranceBadgeFilters from "@/components/FragranceBadgeFilters";
@@ -86,6 +87,7 @@ export default function HousesClient({
           </ArticlesRail>
         </aside>
         <div className="articles-content-column min-w-0 space-y-6">
+          {!catalog && <ArticlesIntroHero imageSrc="/images/top-olfactive-houses-pop-art.png" />}
           <header className={panel}>
             {catalog && <Link href={directoryLink} className={`text-sm underline ${muted}`}>{copy.back}</Link>}
             <h1 className={`${heading} mt-3 text-3xl sm:text-5xl`}>{catalog?.house.name ?? copy.title}</h1>

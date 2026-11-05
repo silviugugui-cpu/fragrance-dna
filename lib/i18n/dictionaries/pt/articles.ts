@@ -319,7 +319,7 @@ const articles: Dictionary['articles'] = {
   },
   perfumers: {
     directory: {
-      eyebrow: 'Diretório de criadores', count: (shown, total) => `${shown} de ${total} perfumistas`,
+      eyebrow: 'TOP Perfumistas', count: (shown, total) => `${shown} de ${total} perfumistas`,
       intro: 'Descubra as pessoas por detrás de perfumes extraordinários, as suas abordagens criativas e criações emblemáticas.',
       search: 'Pesquisar perfumista', placeholder: 'Nome do perfumista', topCreations: 'Criações de destaque',
       all: 'Todos os perfumistas', sort: 'Ordenar por', name: 'Nome', view: 'Ver perfil',

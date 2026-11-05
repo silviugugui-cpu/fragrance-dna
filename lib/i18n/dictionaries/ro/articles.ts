@@ -331,7 +331,7 @@ const articles: Dictionary['articles'] = {
   },
   perfumers: {
     directory: {
-      eyebrow: 'Director de creatori', count: (shown, total) => `${shown} din ${total} parfumieri`,
+      eyebrow: 'TOP Parfumieri', count: (shown, total) => `${shown} din ${total} parfumieri`,
       intro: 'Descoperă oamenii din spatele parfumurilor remarcabile, abordările lor creative și creațiile reprezentative.',
       search: 'Caută parfumier', placeholder: 'Nume parfumier', topCreations: 'Creații în top',
       all: 'Toți parfumierii', sort: 'Sortează după', name: 'Nume', view: 'Vezi profilul',

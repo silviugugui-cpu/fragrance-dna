@@ -6,7 +6,7 @@ import type { EvidencedPerfumerProfile } from "@/lib/database/perfumerProfiles";
 import { getDiscoveryCopy } from "@/lib/i18n/discoveryCopy";
 import { getPerfumerText } from "@/lib/data/topPerfumerTranslations";
 import PerfumerPortrait from "../PerfumerPortrait";
-import { getFragranceHref } from "@/lib/fragranceNavigation";
+import { getPerfumerFragranceHref } from "@/lib/fragranceNavigation";
 import PerfumerCredits from "@/components/PerfumerCredits";
 import { getFragrancePageCopy } from "@/lib/i18n/fragrancePageCopy";
 
@@ -37,7 +37,6 @@ export default function PerfumerProfileClient({ profile }: { profile: EvidencedP
             <h1 className={`mt-3 font-articles-heading text-[clamp(2rem,4vw,3.6rem)] leading-tight ${ink}`}>{profile.name}</h1>
             <div className={`mt-5 flex flex-wrap gap-2 text-xs ${muted}`}>
               <span className="rounded-full border border-current px-3 py-1.5">{profile.topCreations} {discovery.top}</span>
-              <span className="rounded-full border border-current px-3 py-1.5">{profile.evaluatedCreations} {discovery.evaluated}</span>
             </div>
             <div data-perfumer-biography lang={locale} className={`mt-8 space-y-4 font-articles-body text-base leading-relaxed ${ink}`}>
               <p>{text.bio}</p>
@@ -53,8 +52,8 @@ export default function PerfumerProfileClient({ profile }: { profile: EvidencedP
           <ul className="mt-5">
             {profile.works.map((creation) => (
               <li key={creation.id} className={`flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-[color:var(--public-border,rgba(180,145,85,0.4))] py-3 ${ink}`}>
-                <Link href={getFragranceHref(creation.recordId, creation.brand, creation.name)} className="underline underline-offset-4">{creation.name}</Link>
-                <Link href={getFragranceHref(creation.recordId, creation.brand, creation.name)} className={`text-sm underline underline-offset-4 ${muted}`}>{creation.brand}</Link>
+                <Link href={getPerfumerFragranceHref(creation.recordId, creation.brand, creation.name, profile.slug)} className="underline underline-offset-4">{creation.name}</Link>
+                <Link href={getPerfumerFragranceHref(creation.recordId, creation.brand, creation.name, profile.slug)} className={`text-sm underline underline-offset-4 ${muted}`}>{creation.brand}</Link>
                 <span className={`w-full text-sm ${muted}`}><PerfumerCredits credits={creation.credits} /></span>
               </li>
             ))}

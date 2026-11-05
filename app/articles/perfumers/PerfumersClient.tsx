@@ -13,21 +13,19 @@ import { getDiscoveryCopy } from '@/lib/i18n/discoveryCopy';
 import { getPerfumerText } from '@/lib/data/topPerfumerTranslations';
 import PerfumerPortrait from './PerfumerPortrait';
 
-type CountFilter = 'all' | '15' | '25' | '50';
 type SortMode = 'count' | 'name';
 
 export default function PerfumersPage({ profiles }: { profiles: EvidencedPerfumerProfile[] }) {
   const pathname = usePathname();
   const { locale, t } = useLanguage();
   const [query, setQuery] = useState('');
-  const [minimum, setMinimum] = useState<CountFilter>('all');
   const [sort, setSort] = useState<SortMode>('count');
   const copy = t.articles.perfumers.directory;
   const discovery = getDiscoveryCopy(locale);
 
   const filteredProfiles = useMemo(() => {
-    return filterPerfumerProfiles(query, minimum === 'all' ? 0 : Number(minimum), sort, locale, profiles);
-  }, [minimum, query, sort, locale, profiles]);
+    return filterPerfumerProfiles(query, 0, sort, locale, profiles);
+  }, [query, sort, locale, profiles]);
 
   return (
     <main className="relative pb-16 pt-8 lg:pt-10">
@@ -61,30 +59,17 @@ export default function PerfumersPage({ profiles }: { profiles: EvidencedPerfume
               <div className="mb-5 rounded-3xl border border-[rgba(var(--public-champagne-channels,156,120,65),0.35)] bg-[rgba(var(--public-surface-channels,10,10,10),0.45)] p-5 sm:p-6">
                 <div className="flex flex-wrap items-end justify-between gap-4">
                   <div>
-                    <p className="font-articles-body text-[11px] uppercase tracking-[0.22em] text-[color:var(--public-ink-muted,#caa46b)]">{copy.eyebrow}</p>
-                    <p aria-live="polite" className="mt-2 font-articles-heading text-xl text-[color:var(--public-ink-primary,#f2ddb1)]">
-                      {copy.count(filteredProfiles.length, profiles.length)}
-                    </p>
+                    <h2 className="font-articles-heading text-xl text-[color:var(--public-ink-primary,#f2ddb1)]">{copy.eyebrow}</h2>
                   </div>
                   <p className="max-w-2xl font-articles-body text-sm leading-relaxed text-[color:var(--public-ink-secondary,#d9c7a2)]">
                     {copy.intro}
                   </p>
                 </div>
 
-                <div className="mt-5 grid gap-3 md:grid-cols-[minmax(220px,1fr)_200px_200px]">
+                <div className="mt-5 grid gap-3 md:grid-cols-[minmax(220px,1fr)_200px]">
                   <label className="font-articles-body text-xs uppercase tracking-[0.12em] text-[color:var(--public-ink-secondary,#d9c7a2)]">
                     <span className="mb-2 block">{copy.search}</span>
                     <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={copy.placeholder} className="w-full rounded-xl border border-[rgba(var(--public-champagne-channels,176,138,83),0.45)] bg-[rgba(var(--public-surface-channels,10,10,10),0.7)] px-3 py-2.5 normal-case tracking-normal text-[color:var(--public-ink-primary,#f2ddb1)] outline-none placeholder:text-[color:var(--public-ink-muted,#bb9660)] focus:border-[color:var(--public-ink-secondary,#e2c185)]" />
-                  </label>
-                  <label className="font-articles-body text-xs uppercase tracking-[0.12em] text-[color:var(--public-ink-secondary,#d9c7a2)]">
-                    <span className="mb-2 block">{discovery.top}</span>
-                    <select value={minimum} onChange={(event) => {
-                      const value = event.target.value;
-                      if (value === 'all' || value === '15' || value === '25' || value === '50') setMinimum(value);
-                    }} className="w-full rounded-xl border border-[rgba(var(--public-champagne-channels,176,138,83),0.45)] bg-[rgb(var(--public-surface-channels,21,18,13))] px-3 py-2.5 text-[color:var(--public-ink-primary,#f2ddb1)] outline-none focus:border-[color:var(--public-ink-secondary,#e2c185)]">
-                      <option value="all">{copy.all}</option>
-                      <option value="15">15+</option><option value="25">25+</option><option value="50">50+</option>
-                    </select>
                   </label>
                   <label className="font-articles-body text-xs uppercase tracking-[0.12em] text-[color:var(--public-ink-secondary,#d9c7a2)]">
                     <span className="mb-2 block">{copy.sort}</span>
@@ -121,7 +106,7 @@ export default function PerfumersPage({ profiles }: { profiles: EvidencedPerfume
                         <p lang={locale} className="mt-4 font-articles-body text-sm leading-relaxed text-[color:var(--public-ink-primary,#e4d7bc)]">{text.approach}</p>
                         <div className="mt-4 flex items-baseline gap-2">
                           <strong className="font-articles-heading text-3xl text-[color:var(--public-ink-primary,#f2ddb1)]">{profile.topCreations}</strong>
-                          <span className="font-articles-body text-xs uppercase tracking-[0.12em] text-[color:var(--public-ink-muted,#caa46b)]">{discovery.top} · {profile.evaluatedCreations} {discovery.evaluated}</span>
+                          <span className="font-articles-body text-xs uppercase tracking-[0.12em] text-[color:var(--public-ink-muted,#caa46b)]">{discovery.top}</span>
                         </div>
                         <div className="mt-4">
                           <p className="font-articles-body text-[10px] uppercase tracking-[0.2em] text-[color:var(--public-ink-muted,#caa46b)]">{discovery.works}</p>

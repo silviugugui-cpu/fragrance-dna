@@ -319,7 +319,7 @@ const articles: Dictionary['articles'] = {
   },
   perfumers: {
     directory: {
-      eyebrow: 'Annuaire des créateurs', count: (shown, total) => `${shown} parfumeurs sur ${total}`,
+      eyebrow: 'TOP Parfumeurs', count: (shown, total) => `${shown} parfumeurs sur ${total}`,
       intro: 'Découvrez les créateurs de parfums remarquables, leurs démarches créatives et leurs compositions emblématiques.',
       search: 'Rechercher un parfumeur', placeholder: 'Nom du parfumeur', topCreations: 'Créations en tête',
       all: 'Tous les parfumeurs', sort: 'Trier par', name: 'Nom', view: 'Voir le profil',

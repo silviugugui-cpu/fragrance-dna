@@ -11,8 +11,9 @@ import FragranceRelationships from "@/components/FragranceRelationships";
 import PerfumerCredits from "@/components/PerfumerCredits";
 import { getPerfumeImageCandidates } from "@/lib/design/perfumeImage";
 
-export default function FragranceProfileClient({ fragrance, credits }: {
+export default function FragranceProfileClient({ fragrance, credits, returnPerfumer }: {
   fragrance: PublicFragrance; credits: CreatorCredit[];
+  returnPerfumer?: { slug: string; name: string };
 }) {
   const { locale, t } = useLanguage();
   const copy = getFragrancePageCopy(locale);
@@ -27,7 +28,7 @@ export default function FragranceProfileClient({ fragrance, credits }: {
   const muted = "text-[color:var(--public-ink-secondary,#dacfb7)]";
   return (
     <main className="relative mx-auto w-[90vw] max-w-[1100px] pb-16 pt-8 lg:pt-10">
-      <Link href="/fragrances" className={`mb-5 inline-block rounded-full border border-current px-4 py-2 text-sm ${muted}`}>&larr; {copy.back}</Link>
+      <Link href={returnPerfumer ? `/articles/perfumers/${returnPerfumer.slug}` : "/fragrances"} className={`mb-5 inline-block rounded-full border border-current px-4 py-2 text-sm ${muted}`}>&larr; {returnPerfumer?.name ?? copy.back}</Link>
       <article className="rounded-[28px] border border-[color:var(--public-border,rgba(180,145,85,0.4))] bg-[rgba(var(--public-surface-channels,20,15,10),0.95)] p-6 sm:p-9">
         <div className="grid gap-8 sm:grid-cols-[220px_minmax(0,1fr)]">
           <PerfumeImageWithFallback candidates={getPerfumeImageCandidates(fragrance)}

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import Database from "better-sqlite3";
-import { getFragranceHref, getFragranceSearchHref } from "../lib/fragranceNavigation";
+import { getFragranceHref, getFragranceSearchHref, getPerfumerFragranceHref } from "../lib/fragranceNavigation";
 import { getFragranceReferenceHref, readCanonicalFragrance } from "../lib/database/fragrancePages";
 import { toPublicFragrance } from "../lib/database/publicFragrances";
 import { getMasterFragranceDatabase, searchMasterFragrances } from "../lib/database/masterFragranceDatabase";
@@ -16,6 +16,16 @@ test("URL builder encodes internal IDs and never substitutes an external destina
   assert.equal(getFragranceHref(null, "Brand", "Perfume"), "/fragrances?q=Brand+Perfume");
   assert.equal(getFragranceHref("https://www.fragrantica.com/perfume/123", "Brand", "Perfume"), "/fragrances?q=Brand+Perfume");
   assert.equal(new URL(getFragranceSearchHref("Hermès", "Un Jardin"), "http://localhost:3000").searchParams.get("q"), "Hermès Un Jardin");
+});
+
+test("perfumer navigation retains internal identity and search fallback with explicit return context", () => {
+  const href = new URL(getPerfumerFragranceHref("hermes::terre", "Hermès", "Terre", "jean-claude-ellena"), "http://localhost:3000");
+  assert.equal(decodeURIComponent(href.pathname), "/fragrances/hermes::terre");
+  assert.equal(href.searchParams.get("fromPerfumer"), "jean-claude-ellena");
+  const fallback = new URL(getPerfumerFragranceHref(null, "Hermès", "Terre", "jean-claude-ellena"), "http://localhost:3000");
+  assert.equal(fallback.pathname, "/fragrances");
+  assert.equal(fallback.searchParams.get("q"), "Hermès Terre");
+  assert.equal(fallback.searchParams.get("fromPerfumer"), "jean-claude-ellena");
 });
 
 test("indexed record IDs, canonical keys and editorial aliases resolve without using external IDs", () => {

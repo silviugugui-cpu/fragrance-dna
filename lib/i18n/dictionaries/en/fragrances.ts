@@ -3,11 +3,11 @@
     all: 'All',
     niche: 'Niche',
     designer: 'Designer',
-    dupe: 'Documented inspiration',
+    dupe: 'Other',
   },
   badges: {
     community: 'Community appreciation',
-    popularity: 'Review volume',
+    popularity: 'Popularity',
     olfactive: 'Olfactive Score',
     any: 'Any level',
     undefined: 'Undefined',

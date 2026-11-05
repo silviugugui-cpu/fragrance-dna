@@ -352,7 +352,7 @@ const articles = {
   },
   perfumers: {
     directory: {
-      eyebrow: 'Creator directory',
+      eyebrow: 'TOP Parfumers',
       count: (shown: number, total: number) => `${shown} of ${total} perfumers`,
       intro: 'Discover the people behind remarkable fragrances, their creative approaches and signature creations.',
       search: 'Search perfumer', placeholder: 'Perfumer name', topCreations: 'Top creations',
