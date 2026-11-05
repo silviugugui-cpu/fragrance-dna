@@ -14,28 +14,16 @@ import { runGroundingDualWrite } from "@/lib/intelligence/grounding/groundingDua
 import { useLanguage } from "@/lib/i18n";
 import { usePublicTheme } from "@/lib/theme/PublicThemeProvider";
 import { PageShell, SectionHeader, PremiumButton } from "@/components/design-system";
+import { GROUNDING_TOKENS as TOKENS, emptyGroundingState, restoreGroundingState, groundingChoices, type GroundingZone as Zone } from "@/lib/engine/groundingPreferences";
+import { getPriorityCopy } from "@/lib/i18n/priorityCopy";
 
-const TOKENS = [
-  "Fresh & Citrusy",
-  "Sweet & Gourmand",
-  "Woody & Dry",
-  "Clean & Soapy",
-  "Spicy & Warm",
-  "Green & Natural",
-  "Dark & Smoky",
-  "Soft & Powdery",
-  "Floral & Rosy",
-  "Fruity & Cherry",
-  "Creamy & Coconut",
-  "Marine & Aquatic",
-];
-
-type Zone = "love" | "neutral" | "hate";
 
 export default function GroundingPage() {
   const router = useRouter();
   const { user, isLoading } = useAuth();
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
+  const copy = getPriorityCopy(locale);
+  const [loadError, setLoadError] = useState(false);
   const { assets, theme } = usePublicTheme();
   const groundingBackground = (image: string) => theme === "normal"
     ? `url('${image}')`
@@ -43,23 +31,21 @@ export default function GroundingPage() {
   const [isGroundingReady, setIsGroundingReady] = useState(false);
   const draggedTokenRef = useRef<string | null>(null);
   const [state, setState] = useState<Record<string, Zone>>(
-    Object.fromEntries(TOKENS.map((token) => [token, "neutral"]))
+    emptyGroundingState()
   );
 
   useEffect(() => {
     if (isLoading) return;
+    setState(emptyGroundingState());
+    setLoadError(false);
     try {
       const stored = localStorage.getItem(getUserScopedStorageKey("fragrance_grounding", user?.id));
       if (stored) {
-        const parsed = JSON.parse(stored) as { love?: string[]; neutral?: string[]; red_flag?: string[] };
-        const nextState: Record<string, Zone> = Object.fromEntries(TOKENS.map((token) => [token, "neutral"]));
-        parsed.love?.forEach((token) => { if (TOKENS.includes(token)) nextState[token] = "love"; });
-        parsed.neutral?.forEach((token) => { if (TOKENS.includes(token)) nextState[token] = "neutral"; });
-        parsed.red_flag?.forEach((token) => { if (TOKENS.includes(token)) nextState[token] = "hate"; });
-        setState(nextState);
+        setState(restoreGroundingState(JSON.parse(stored)));
       }
-    } catch {
-      setState(Object.fromEntries(TOKENS.map((token) => [token, "neutral"])));
+    } catch (error) {
+      console.error("Unable to restore grounding preferences", error);
+      setLoadError(true);
     }
     setIsGroundingReady(true);
   }, [isLoading, user?.id]);
@@ -73,7 +59,7 @@ export default function GroundingPage() {
   const hateTokens = Object.entries(state)
     .filter(([, zone]) => zone === "hate")
     .map(([token]) => token);
-  const movedFromNeutralCount = TOKENS.length - neutralTokens.length;
+  const movedFromNeutralCount = loveTokens.length + hateTokens.length;
   const canContinueToTest = movedFromNeutralCount >= 2;
 
   function setTokenZone(token: string, zone: Zone) {
@@ -117,6 +103,15 @@ export default function GroundingPage() {
       >
         <button
           type="button"
+          onClick={() => setTokenZone(token, "unrated")}
+          className="px-2 py-2 text-xs"
+          aria-label={`${copy.unrated}: ${tokenLabel}`}
+          title={copy.unrated}
+        >
+          ?
+        </button>
+        <button
+          type="button"
           onClick={() => setTokenZone(token, "hate")}
           className="h-full border-r border-red-400/50 bg-red-500/20 px-2 py-2 text-xs font-bold text-red-300 hover:bg-red-500/35"
           aria-label={t.grounding.moveToAvoidAria(tokenLabel)}
@@ -147,23 +142,11 @@ export default function GroundingPage() {
   }
 
   function buildEngineInput() {
-    const love = loveTokens;
-    const neutral = neutralTokens;
-    const hate = hateTokens;
-
-    return {
-      love,
-      neutral,
-      red_flag: hate,
-      strength: {
-        loveWeight: 1.0,
-        neutralWeight: 0.3,
-        hateWeight: -1.2,
-      },
-    };
+    return groundingChoices(state);
   }
 
   async function finish() {
+    if (!canContinueToTest) return;
     const engineInput = buildEngineInput();
     const seed = buildSeed(engineInput);
     const userVector = buildUserVector(seed);
@@ -179,7 +162,7 @@ export default function GroundingPage() {
       redFlag: engineInput.red_flag,
     });
     const profile = getOrCreateUserProfile(user?.id);
-    const updatedProfile = updateUserVector(profile, groundingSession.currentVector, groundingSession.summary?.confidenceScore ?? 0);
+    const updatedProfile = updateUserVector(profile, groundingSession.currentVector, groundingSession.summary?.confidenceScore ?? 0, groundingSession.answeredOrder.length);
 
     const phase1Flags = getPhase1Flags();
     if (phase1Flags.eventsWriteEnabled || phase1Flags.phase1ShadowValidation) {
@@ -214,6 +197,7 @@ export default function GroundingPage() {
   }
 
   const groupedTokens: Record<Zone, string[]> = {
+    unrated: TOKENS.filter((token) => state[token] === "unrated"),
     love: loveTokens,
     neutral: neutralTokens,
     hate: hateTokens,
@@ -233,6 +217,12 @@ export default function GroundingPage() {
             description={t.grounding.sectionDescription}
             className="mb-10"
           />
+          <p className="mb-6 text-sm text-gray-300">{copy.groundingHelp}</p>
+          {loadError && <p role="alert" className="mb-4 text-red-300">{copy.loadError}</p>}
+          <div data-zone="unrated" className="premium-card-dark mb-6 p-6" onDragOver={(event) => event.preventDefault()} onDrop={(event) => handleTokenDrop(event, "unrated")}>
+            <h3 className="mb-4 text-xl font-bold">{copy.unrated}</h3>
+            <div className="flex flex-wrap gap-2">{groupedTokens.unrated.map((token) => renderTokenControl(token, "neutral"))}</div>
+          </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Neutral Zone */}

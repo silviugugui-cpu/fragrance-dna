@@ -36,8 +36,24 @@ Collection Reinforcement is optional and contributes additional behavior evidenc
 3. Recommendation interaction state
 
 ## Fusion Principle
-Current DNA is derived from Grounding DNA and Behavior DNA with dynamic confidence weights.
-Grounding influence may decrease with confidence growth but never reaches zero.
+Current DNA uses explicit Grounding choices as initial per-attribute priors.
+Love is positive, Avoid negative, explicit Neutral zero; unrated is absent.
+A submitted, explicit attribute-liking answer replaces its prior, including when
+it contradicts Grounding. The conflict is recorded as resolved by newer direct
+evidence. Unconfirmed attributes retain their priors.
+
+Schema-version 2 evaluations keep three independent signals:
+- Perception (0-3) records noticeability, never liking or preference confidence.
+- Explicit attribute liking (-2 to 2) updates that attribute's preference.
+- Overall fragrance liking (-2 to 2) informs composition/similarity ranking,
+  never all constituent notes.
+
+Preference confidence depends only on explicit attribute-liking evidence and
+its consistency. "Not noticed" and "unable" cannot lower an affinity.
+The latest direct liking is the effective affinity; repeated consistent answers
+increase confidence, while conflicting recent answers reopen adaptive questions.
+Historical sliders are archived as `legacy-intensity` perception, not preference.
+Legacy vector/confidence/history projections remain archived, not active DNA.
 
 ## Constraints
 1. Context never mutates DNA directly.

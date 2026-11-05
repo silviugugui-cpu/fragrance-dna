@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { resolveCanonicalAttribute } from "@/lib/intelligence/attributes";
-import { readAllMasterFragrances, type MasterFragranceRecord } from "@/lib/database/masterFragranceDatabase";
+import { type MasterFragranceRecord } from "@/lib/database/masterFragranceDatabase";
+import { readPurchaseRecommendationFragrances } from "@/lib/database/curatedCatalog";
 import { getDictionary } from "@/lib/i18n/getDictionary";
 import type { OlfactoryVector } from "@/lib/types";
+import { parseBadgeFilters, type BadgeFilters } from "@/lib/fragranceBadges";
+import { parseEvaluationRecords } from "@/lib/test/evaluationSession";
+import { projectPreferences, preferenceCompatibility, knownAttributeIds } from "@/lib/test/preferenceLearning";
 
 export const dynamic = "force-dynamic";
 
@@ -41,37 +45,6 @@ const getEvidence = (record: MasterFragranceRecord) => {
   return [...attributes.values()].filter((attribute): attribute is NonNullable<typeof attribute> => Boolean(attribute));
 };
 
-const buildCandidateVector = (attributes: NonNullable<ReturnType<typeof resolveCanonicalAttribute>>[]): OlfactoryVector => {
-  const result = {} as OlfactoryVector;
-  for (const axis of AXES) {
-    const values = attributes
-      .map((attribute) => attribute.vectorMapping[axis])
-      .filter((value): value is number => typeof value === "number");
-    result[axis] = values.length > 0
-      ? clamp01(values.reduce((sum, value) => sum + value, 0) / values.length)
-      : 0.5;
-  }
-  return result;
-};
-
-const scoreVector = (user: OlfactoryVector, candidate: OlfactoryVector): number => {
-  const averageDifference = AXES.reduce((sum, axis) => sum + Math.abs(user[axis] - candidate[axis]), 0) / AXES.length;
-  return clamp01(1 - averageDifference);
-};
-
-const resolveGroundingIds = (values: string[]): Set<string> => {
-  const resolved = new Set<string>();
-  for (const value of values) {
-    const definition = resolveCanonicalAttribute(value);
-    const expanded = definition?.metadata.groundingExpansionTokens ?? [value];
-    for (const token of expanded) {
-      const attribute = resolveCanonicalAttribute(token);
-      if (attribute) resolved.add(attribute.canonicalAttributeId);
-    }
-  }
-  return resolved;
-};
-
 export async function POST(request: Request) {
   let payload: Record<string, unknown>;
   try {
@@ -84,20 +57,51 @@ export async function POST(request: Request) {
   if (!userVector) {
     return NextResponse.json({ error: "A complete user DNA vector is required." }, { status: 400 });
   }
+  let badgeFilters: BadgeFilters;
+  try {
+    const raw = payload.badgeFilters;
+    if (raw !== undefined && (!raw || typeof raw !== "object" || Array.isArray(raw))) {
+      throw new Error("Invalid badge filters.");
+    }
+    const input = (raw ?? {}) as Record<string, unknown>;
+    badgeFilters = parseBadgeFilters({ get: (name) => {
+      const value = input[name];
+      if (value !== undefined && typeof value !== "string") throw new Error("Invalid badge filter value.");
+      return value ?? null;
+    } });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Invalid badge filters." }, { status: 400 });
+  }
 
   const ownedIds = new Set(toStringList(payload.ownedFragranceIds).slice(0, 1000));
   const grounding = payload.groundingProfile && typeof payload.groundingProfile === "object"
     ? payload.groundingProfile as Record<string, unknown>
     : {};
-  const lovedIds = resolveGroundingIds(toStringList(grounding.love));
-  const avoidedIds = resolveGroundingIds(toStringList(grounding.redFlag));
+  let preferenceProjection: ReturnType<typeof projectPreferences>;
+  try {
+    const records = parseEvaluationRecords(payload.evaluations ?? []);
+    const known = knownAttributeIds();
+    if (records.length > 2000 || records.some((record) => record.attributeIds.some((id) => !known.has(id)))) throw new Error("Invalid preference evidence.");
+    preferenceProjection = projectPreferences(records, {
+      love: toStringList(grounding.love), neutral: toStringList(grounding.neutral), redFlag: toStringList(grounding.redFlag),
+    });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Invalid preference evidence." }, { status: 400 });
+  }
   const requestedLimit = Number(payload.limit ?? 30);
   const limit = Number.isFinite(requestedLimit) ? Math.max(1, Math.min(100, Math.floor(requestedLimit))) : 30;
   // Localized explanation templates; defaults to English for unknown/missing locales.
   const dictionary = getDictionary(typeof payload.locale === "string" ? payload.locale : undefined).recommendations;
 
   const recordsById = new Map<string, MasterFragranceRecord>();
-  for (const record of readAllMasterFragrances()) {
+  let candidates: MasterFragranceRecord[];
+  try {
+    candidates = readPurchaseRecommendationFragrances(badgeFilters);
+  } catch (error: unknown) {
+    console.error("[recommendations] Selected catalog unavailable.", error);
+    return NextResponse.json({ error: "The selected fragrance catalog is unavailable." }, { status: 503 });
+  }
+  for (const record of candidates) {
     const id = getRecordId(record);
     if (!id || ownedIds.has(id)) continue;
     const current = recordsById.get(id);
@@ -107,11 +111,10 @@ export async function POST(request: Request) {
 
   const ranked = [...recordsById.entries()].flatMap(([id, record]) => {
     const evidence = getEvidence(record);
-    if (evidence.length < 3 || evidence.some((attribute) => avoidedIds.has(attribute.canonicalAttributeId))) return [];
+    if (evidence.length < 3) return [];
 
-    const candidateVector = buildCandidateVector(evidence);
-    const lovedMatches = evidence.filter((attribute) => lovedIds.has(attribute.canonicalAttributeId));
-    const score = clamp01(scoreVector(userVector, candidateVector) + Math.min(0.1, lovedMatches.length * 0.025));
+    const lovedMatches = evidence.filter((attribute) => (preferenceProjection.attributes[attribute.canonicalAttributeId]?.affinity ?? 0) > 0);
+    const score = preferenceCompatibility(evidence.map((attribute) => attribute.canonicalAttributeId), id, preferenceProjection);
     const matchedAttributes = evidence.map((attribute) => attribute.displayName).slice(0, 5);
     const explanation = lovedMatches.length > 0
       ? dictionary.explanationAligned(lovedMatches.map((attribute) => attribute.displayName).slice(0, 3).join(", "))
@@ -123,6 +126,7 @@ export async function POST(request: Request) {
       brand: String(record.brand ?? "").trim(),
       imageUrl: String(record.imageUrl ?? "").trim(),
       localImagePath: String(record.localImagePath ?? "").trim(),
+      badges: record.badges,
       score,
       matchedAttributes,
       explanation,

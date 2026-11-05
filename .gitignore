@@ -48,4 +48,5 @@ public/Scents/
 # Locally managed image libraries (too large for git; served locally only)
 public/images/master-db/
 public/images/product-photos/
+public/images/perfumes/
 .env*

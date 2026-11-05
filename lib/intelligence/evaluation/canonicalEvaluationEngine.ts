@@ -68,10 +68,14 @@ export function buildCanonicalBehaviorEventInputs(input: {
   fragranceId: string;
   answerDimensions: Record<string, number>;
   source: CanonicalEvaluationSource;
+  semantics?: "explicit-liking";
 }): Array<{
   eventType: CanonicalBehaviorEventType;
   payload: AttributeBehaviorSignalPayload | PreferenceStrengthChangedPayload;
 }> {
+  // Old answerDimensions are intensity observations; only a labelled liking
+  // contract may emit preference events through this compatibility adapter.
+  if (input.semantics !== "explicit-liking") return [];
   const items: Array<{
     eventType: CanonicalBehaviorEventType;
     payload: AttributeBehaviorSignalPayload | PreferenceStrengthChangedPayload;

@@ -21,22 +21,22 @@ const faq: Dictionary['faq'] = {
     {
       question: 'Cum începe profilul meu?',
       answer:
-        'Grounding înregistrează familiile olfactive pe care le iubești, față de care ești neutru sau pe care le eviți și îți creează profilul ADN inițial. Vezi recomandări imediat. Sunt necesare cel puțin două preferințe „Iubesc” sau „Evit” înainte de a începe un lot de diagnostic.',
+        'Grounding pornește de la alegerile explicite „Iubesc” și „Evit”. Neutral nu are influență pozitivă sau negativă, iar familiile neevaluate rămân necunoscute. Ai nevoie de două alegeri Iubesc sau Evit pentru test. Răspunsurile directe despre plăcere pot corecta aceste preferințe inițiale.',
     },
     {
       question: 'Cum funcționează evaluările de parfumuri?',
       answer:
-        'Fiecare lot adaptiv oferă până la șase parfumuri, cu o opțiune recomandată și una de rezervă acolo unde este disponibilă. Alege parfumul pe care îl poți evalua și notează fiecare caracteristică afișată. Răspunsurile tale afectează profilul doar după ce confirmi evaluarea.',
+        'Evaluezi parfumul per ansamblu, apoi maximum două caracteristici adaptive: cât de sesizabile au fost și, dacă le-ai sesizat, dacă ți-au plăcut. Nesesizat nu înseamnă displăcut. Doar plăcerea explicită a caracteristicii îi rafinează preferința și încrederea; plăcerea generală influențează separat potrivirea compozițiilor. Următorul parfum este ales după trimitere. Imposibilitatea de a evalua nu adaugă dovezi sau evaluări finalizate.',
     },
     {
-      question: 'Modificările provizorii ale cursoarelor îmi afectează insigna?',
+      question: 'Răspunsurile netrimise îmi afectează insigna?',
       answer:
-        'Nu. Modificările cursoarelor rămân o ciornă până când confirmi. Răspunsurile neconfirmate nu îți schimbă încrederea ADN, insigna actuală sau recomandările.',
+        'Nu. Răspunsurile parțiale sunt salvate pentru reluare, dar nu schimbă preferințele, încrederea, insigna sau recomandările înainte de trimitere. Sliderele vechi rămân istoric de percepție, nu dovezi de plăcere sau neplăcere.',
     },
     {
       question: 'Pot să mă opresc și să continui mai târziu?',
       answer:
-        'Da. Parfumul selectat, poziția în lot, evaluările finalizate și profilul sunt salvate în contul tău. Te poți opri după orice evaluare confirmată și poți relua mai târziu.',
+        'Da. Parfumul curent și răspunsurile parțiale sunt salvate în acest browser și sincronizate în cont când ești autentificat. Evaluările finalizate rămân salvate. Dacă salvarea eșuează, reîncearcă înainte să pleci.',
     },
     {
       question: 'Ce înseamnă nivelurile insignelor?',

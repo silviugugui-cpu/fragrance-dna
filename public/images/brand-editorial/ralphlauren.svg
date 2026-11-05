@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-label="Abstract editorial scent composition for Ralph Lauren">
+<defs>
+  <radialGradient id="bg"><stop stop-color="#272219"/><stop offset="1" stop-color="#080807"/></radialGradient>
+  <radialGradient id="glow"><stop stop-color="#fff0be"/><stop offset=".45" stop-color="#D8C07D" stop-opacity=".82"/><stop offset="1" stop-color="#D8C07D" stop-opacity="0"/></radialGradient>
+  <linearGradient id="petal" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#FFF2CF" stop-opacity=".82"/><stop offset=".55" stop-color="#D8C07D" stop-opacity=".55"/><stop offset="1" stop-color="#524332" stop-opacity=".2"/></linearGradient>
+  <filter id="soft"><feGaussianBlur stdDeviation="15"/></filter>
+</defs>
+<rect width="800" height="1000" fill="url(#bg)"/>
+<circle cx="390" cy="459" r="250" fill="url(#glow)" opacity=".19" filter="url(#soft)"/>
+<circle cx="348" cy="459" r="128" fill="none" stroke="#D8C07D" stroke-width="8" opacity="0.5"/><circle cx="390" cy="497" r="91" fill="none" stroke="#D8C07D" stroke-width="7" opacity="0.62"/><circle cx="432" cy="459" r="56" fill="none" stroke="#D8C07D" stroke-width="6" opacity="0.74"/><path d="M418.0 459.0L510.0 459.0" stroke="#D8C07D" stroke-width="2" opacity=".38"/><path d="M414.2 473.0L493.9 519.0" stroke="#D8C07D" stroke-width="2" opacity=".38"/><path d="M404.0 483.2L450.0 562.9" stroke="#D8C07D" stroke-width="2" opacity=".38"/><path d="M390.0 487.0L390.0 579.0" stroke="#D8C07D" stroke-width="2" opacity=".38"/><path d="M376.0 483.2L330.0 562.9" stroke="#D8C07D" stroke-width="2" opacity=".38"/><path d="M365.8 473.0L286.1 519.0" stroke="#D8C07D" stroke-width="2" opacity=".38"/><path d="M362.0 459.0L270.0 459.0" stroke="#D8C07D" stroke-width="2" opacity=".38"/><path d="M365.8 445.0L286.1 399.0" stroke="#D8C07D" stroke-width="2" opacity=".38"/><path d="M376.0 434.8L330.0 355.1" stroke="#D8C07D" stroke-width="2" opacity=".38"/><path d="M390.0 431.0L390.0 339.0" stroke="#D8C07D" stroke-width="2" opacity=".38"/><path d="M404.0 434.8L450.0 355.1" stroke="#D8C07D" stroke-width="2" opacity=".38"/><path d="M414.2 445.0L493.9 399.0" stroke="#D8C07D" stroke-width="2" opacity=".38"/>
+<rect x="38" y="38" width="724" height="924" rx="8" fill="none" stroke="#FCCB5F" stroke-opacity=".34"/>
+<path d="M64 868 H736" stroke="#FCCB5F" stroke-opacity=".38"/>
+<circle cx="400" cy="916" r="4" fill="#FCCB5F" opacity=".8"/>
+</svg>

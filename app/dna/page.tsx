@@ -8,7 +8,7 @@ import { getOrCreateUserProfile } from '@/lib/engine/userProfileManager';
 import { PageShell, SectionHeader, StatCard, PremiumButton } from '@/components/design-system';
 import { AscendGlyphIcon, DescendGlyphIcon } from '@/components/design-system/FragranceIcons';
 import { calculateTerritoryAffinities } from '@/lib/engine/territoryAffinities';
-import { perfumers, type PerfumerDnaKey } from '@/lib/data/perfumers';
+import { getDiscoveryCopy } from '@/lib/i18n/discoveryCopy';
 import type { DNASessionState, OlfactoryVector, UserDNAProfile } from '@/lib/types';
 import { useLanguage } from '@/lib/i18n';
 import type { Dictionary } from '@/lib/i18n/dictionaries/en';
@@ -16,18 +16,6 @@ import { RecommendationsClient } from '@/app/results/RecommendationsClient';
 
 const SHIFT_MINIMAL_THRESHOLD = 8;
 const SHIFT_MODERATE_THRESHOLD = 16;
-
-type PerfumerAxisDiff = {
-  axis: PerfumerDnaKey;
-  diff: number;
-};
-
-type PerfumerMatch = {
-  name: string;
-  score: number;
-  reason: string;
-  cluster: string;
-};
 
 const PREVIEW_VECTOR: OlfactoryVector = {
   freshness: 0.7,
@@ -124,40 +112,6 @@ function clampScore(value: number): number {
   return Math.max(0, Math.min(100, value));
 }
 
-function buildPerfumerReason(axisDiffs: PerfumerAxisDiff[], dict: Dictionary['dna']): string {
-  const best = axisDiffs[0];
-  const secondBest = axisDiffs[1];
-
-  if (!best || !secondBest) {
-    return dict.perfumerReasonBalanced;
-  }
-
-  return dict.perfumerReasonHigh(
-    dict.perfumerAxisReason[best.axis] ?? best.axis,
-    dict.perfumerAxisReason[secondBest.axis] ?? secondBest.axis,
-  );
-}
-
-function computePerfumerMatchScore(
-  userDna: Record<PerfumerDnaKey, number>,
-  perfumerDna: Record<PerfumerDnaKey, number>
-): { score: number; axisDiffs: PerfumerAxisDiff[] } {
-  const axes: PerfumerDnaKey[] = ['Freshness', 'Complexity', 'Elegance', 'Presence', 'Luxury'];
-
-  const axisDiffs = axes
-    .map((axis) => ({
-      axis,
-      diff: Math.abs(userDna[axis] - perfumerDna[axis]),
-    }))
-    .sort((left, right) => left.diff - right.diff);
-
-  const totalDistance = axisDiffs.reduce((sum, item) => sum + item.diff, 0);
-  const normalizedDistance = (totalDistance / (axes.length * 100)) * 100;
-  const score = clampScore(Math.round(100 - normalizedDistance));
-
-  return { score, axisDiffs };
-}
-
 function buildNarrative(
   dominant: Array<{ axis: DnaAxis; value: number }>,
   positive: Array<{ axis: DnaAxis; delta: number }>,
@@ -182,7 +136,8 @@ function buildNarrative(
 
 export default function DnaPage() {
   const { user, isLoading: isAuthLoading } = useAuth();
-  const { t } = useLanguage();
+  const { locale, t } = useLanguage();
+  const discoveryCopy = getDiscoveryCopy(locale);
   const [dnaSession, setDnaSession] = useState<DNASessionState | null>(null);
   const [userProfile, setUserProfile] = useState<UserDNAProfile | null>(null);
   const [groundingVector, setGroundingVector] = useState<OlfactoryVector | null>(null);
@@ -235,7 +190,11 @@ export default function DnaPage() {
 
   const hasTestEvidence = (dnaSession?.answeredOrder.length ?? 0) > 0;
   const hasProfileEvidence = (userProfile?.totalInteractions ?? 0) > 0;
-  const finalVector = hasTestEvidence
+  const hasVersionedEvidence = Boolean(dnaSession?.evaluationState && (
+    dnaSession.answeredOrder.length || Object.keys(dnaSession.preferenceProjection?.attributes ?? {}).length));
+  const finalVector = dnaSession?.schemaVersion === 2
+    ? hasVersionedEvidence ? dnaSession.currentVector : null
+    : hasTestEvidence
     ? summary?.finalVector ?? dnaSession?.currentVector ?? null
     : hasProfileEvidence ? userProfile?.dnaVector ?? groundingVector : groundingVector;
   const finalConfidence = summary?.confidenceScore ?? userProfile?.confidenceLevel ?? 0;
@@ -307,35 +266,6 @@ export default function DnaPage() {
     () => buildNarrative(dominantAxes, positiveChanges, negativeChanges, t.dna, t.common.axes),
     [dominantAxes, positiveChanges, negativeChanges, t]
   );
-
-  const perfumerMatches = useMemo<PerfumerMatch[]>(() => {
-    const userPerfumerAxes: Record<PerfumerDnaKey, number> = {
-      Freshness: toScore(finalAxisValues.Freshness),
-      Complexity: toScore(finalAxisValues.Complexity),
-      Elegance: toScore(finalAxisValues.Elegance),
-      Presence: toScore(finalAxisValues.Presence),
-      Luxury: toScore(finalAxisValues.Luxury),
-    };
-
-    return perfumers
-      .map((perfumer) => {
-        const { score, axisDiffs } = computePerfumerMatchScore(userPerfumerAxes, perfumer.dna);
-        return {
-          name: perfumer.name,
-          score,
-          reason: buildPerfumerReason(axisDiffs, t.dna),
-          cluster: perfumer.cluster,
-        };
-      })
-      .sort((left, right) => {
-        if (right.score !== left.score) {
-          return right.score - left.score;
-        }
-
-        return left.name.localeCompare(right.name);
-      })
-      .slice(0, 3);
-  }, [finalAxisValues, t]);
 
   if (isAuthLoading || !dnaSession) {
     return <PageShell><div className="main-container py-16 text-sm text-gray-300">{t.dna.loading}</div></PageShell>;
@@ -431,29 +361,15 @@ export default function DnaPage() {
         </div>
       </section>
 
-      {/* Perfumer Affinity */}
       <section className="py-12 md:py-16 border-b border-black-600">
         <div className="main-container">
           <SectionHeader
-            label={t.dna.perfumerAffinityLabel}
-            title={t.dna.perfumerMatchesTitle}
-            description={t.dna.perfumerMatchesDescription}
+            label={discoveryCopy.profile}
+            title={discoveryCopy.profiles}
+            description={discoveryCopy.profileHint}
             className="mb-8"
           />
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-            {perfumerMatches.map((match) => (
-              <article key={match.name} className="premium-card-dark p-6">
-                <p className="text-xs uppercase tracking-[0.22em] text-gold/80">{match.cluster}</p>
-                <h3 className="mt-3 text-2xl font-bold text-white">{match.name}</h3>
-                <div className="mt-5 flex items-end gap-2">
-                  <span className="text-4xl font-bold text-gold">{match.score}%</span>
-                  <span className="pb-1 text-xs uppercase tracking-[0.18em] text-gray-400">{t.dna.matchLabel}</span>
-                </div>
-                <p className="mt-4 text-sm leading-relaxed text-gray-300">{match.reason}</p>
-              </article>
-            ))}
-          </div>
+          <a href="/articles/perfumers" className="text-gold underline underline-offset-4">{discoveryCopy.profiles} →</a>
         </div>
       </section>
 
@@ -599,10 +515,6 @@ export default function DnaPage() {
           <p className="mb-3 max-w-3xl text-sm text-gray-300">
             {t.dna.territoriesDescription}
           </p>
-          <p className="mb-8 text-xs text-gray-400">
-            {t.dna.territoriesNote(finalConfidence)}
-          </p>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {territoryAffinities.map(({ territory, score, contributions }, index) => (
               <div key={territory.id} className="premium-card-dark p-6">

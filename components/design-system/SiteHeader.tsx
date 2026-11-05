@@ -26,7 +26,6 @@ const NAV_LINKS = [
   { href: '/test', key: 'test' },
   { href: '/dna', key: 'dna' },
   { href: '/collection', key: 'collection' },
-  { href: '/fragrances', key: 'fragrances' },
   { href: '/faq', key: 'faq' },
   { href: '/articles', key: 'articles' },
 ] as const;
@@ -99,14 +98,15 @@ export function SiteHeader() {
           aria-label="Primary navigation"
         >
           {NAV_LINKS.map((link) => {
-            const isActive = pathname === link.href;
+            const isActive = pathname === link.href
+              || (link.key === 'articles' && (pathname.startsWith('/articles/') || pathname === '/fragrances'));
             return (
               <Link
                 key={link.href}
                 href={link.href}
                 className={`nav-link uppercase font-medium transition-all duration-300 ${
                   isActive ? 'active text-gold' : 'text-gray-400 hover:text-gold'
-                } ${link.key === 'fragrances' ? 'nav-encyclopedia-start' : ''}`}
+                } ${link.key === 'faq' ? 'nav-encyclopedia-start' : ''}`}
               >
                 {t.header.nav[link.key].label}
               </Link>
@@ -213,7 +213,8 @@ export function SiteHeader() {
           <div id="mobile-primary-nav" className="mobile-nav-panel md:hidden">
             <nav className="mobile-nav-list" aria-label="Mobile primary navigation">
               {NAV_LINKS.map((link) => {
-                const isActive = pathname === link.href;
+                const isActive = pathname === link.href
+                  || (link.key === 'articles' && (pathname.startsWith('/articles/') || pathname === '/fragrances'));
                 return (
                   <Link
                     key={link.href}

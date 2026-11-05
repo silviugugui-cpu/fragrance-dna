@@ -41,6 +41,17 @@ export type DriftSnapshot = {
 };
 
 export type UserDNAProfile = {
+  preferenceSchemaVersion?: 2;
+  legacyPreferenceProjection?: {
+    dnaVector: OlfactoryVector;
+    confidenceLevel: number;
+    totalInteractions: number;
+    compatibilityHeatmap: Record<string, number>;
+    identityDriftHistory: DriftSnapshot[];
+    scentAffinityClusters: OlfactoryVector[];
+    dnaStabilityIndex: number;
+    evolutionStage: EvolutionStage;
+  };
   userId: string; // or generated ID
   createdAt: number;
   updatedAt: number;
@@ -195,6 +206,15 @@ export type DNASessionSnapshot = {
 };
 
 export type DNASessionState = {
+  schemaVersion?: 2;
+  evaluationState?: {
+    schemaVersion: 2;
+    records: import("./test/preferenceLearning").FragranceEvaluation[];
+    draft: import("./test/preferenceLearning").EvaluationDraft | null;
+    legacyPerception: { answers: Record<string, AnswerRecord>; answeredOrder: string[]; source: "legacy-intensity" };
+    legacyProjection?: { currentVector: OlfactoryVector; summary?: DNASummary; behaviorProjection?: BehaviorProjectionState; snapshots: DNASessionSnapshot[] };
+  };
+  preferenceProjection?: import("./test/preferenceLearning").LearningProjection;
   answers: Record<string, AnswerRecord>;
   behaviorProjection?: BehaviorProjectionState;
   answeredOrder: string[];

@@ -11,7 +11,7 @@ import { loadEnvConfig } from "@next/env";
 const ROOT = process.cwd();
 loadEnvConfig(ROOT);
 const PUBLIC_DIRECTORY = path.join(ROOT, "public");
-const IMAGE_DIRECTORY = path.join(PUBLIC_DIRECTORY, "images", "ai-generated-perfumes");
+const IMAGE_DIRECTORY = path.join(PUBLIC_DIRECTORY, "images", "perfumes");
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
 interface Arguments {
@@ -52,7 +52,7 @@ const parseArguments = (args: string[]): Arguments => {
     }
   }
 
-  if (mode === null) throw new Error("Usage: --list [--limit 1..3] | --link --record-id ID --image-path /images/ai-generated-perfumes/ID.png");
+  if (mode === null) throw new Error("Usage: --list [--limit 1..3] | --link --record-id ID --image-path /images/perfumes/ai-generated-perfumes--ID.png");
   if (mode === "link" && (!recordId || !imagePath)) {
     throw new Error("--link requires both --record-id and --image-path.");
   }
@@ -67,7 +67,7 @@ const toText = (value: unknown): string => String(value ?? "").trim();
 
 const resolveImagePath = (localImagePath: string): string | null => {
   const normalizedPath = localImagePath.replace(/\\/g, "/");
-  if (!normalizedPath.startsWith("/images/ai-generated-perfumes/") || !normalizedPath.endsWith(".png")) {
+  if (!normalizedPath.startsWith("/images/perfumes/ai-generated-perfumes--") || !normalizedPath.endsWith(".png")) {
     return null;
   }
 
@@ -77,7 +77,7 @@ const resolveImagePath = (localImagePath: string): string | null => {
 
 const getImagePathForRecord = (recordId: string): string => {
   const digest = createHash("sha256").update(recordId).digest("hex").slice(0, 32);
-  return `/images/ai-generated-perfumes/${digest}.png`;
+  return `/images/perfumes/ai-generated-perfumes--${digest}.png`;
 };
 
 const isValidPng = (image: Buffer): boolean => {
@@ -119,7 +119,7 @@ const listCandidates = (limit: number): void => {
 const linkGeneratedImage = (recordId: string, localImagePath: string): void => {
   const resolvedPath = resolveImagePath(localImagePath);
   if (resolvedPath === null) {
-    throw new Error("Image path must be a PNG inside /images/ai-generated-perfumes/.");
+    throw new Error("Image path must be an AI-generated PNG inside /images/perfumes/.");
   }
   if (localImagePath !== getImagePathForRecord(recordId)) {
     throw new Error("Image path does not match the deterministic filename for this fragrance.");

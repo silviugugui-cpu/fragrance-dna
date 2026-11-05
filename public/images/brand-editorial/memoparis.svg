@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-label="Abstract editorial scent composition for Memo Paris">
+<defs>
+  <radialGradient id="bg"><stop stop-color="#272219"/><stop offset="1" stop-color="#080807"/></radialGradient>
+  <radialGradient id="glow"><stop stop-color="#fff0be"/><stop offset=".45" stop-color="#9D9B70" stop-opacity=".82"/><stop offset="1" stop-color="#9D9B70" stop-opacity="0"/></radialGradient>
+  <linearGradient id="petal" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#FFF2CF" stop-opacity=".82"/><stop offset=".55" stop-color="#9D9B70" stop-opacity=".55"/><stop offset="1" stop-color="#524332" stop-opacity=".2"/></linearGradient>
+  <filter id="soft"><feGaussianBlur stdDeviation="15"/></filter>
+</defs>
+<rect width="800" height="1000" fill="url(#bg)"/>
+<circle cx="412" cy="442" r="250" fill="url(#glow)" opacity=".19" filter="url(#soft)"/>
+<path d="M245 381 C210 281, 365 266, 310 391 C280 426, 250 411, 245 381Z" fill="url(#petal)" opacity=".5" transform="rotate(55 245 381)"/><path d="M245 381 Q280 341 305 383" stroke="#9D9B70" opacity=".75" fill="none"/><path d="M290 448 C255 348, 410 333, 355 458 C325 493, 295 478, 290 448Z" fill="url(#petal)" opacity=".5" transform="rotate(-55 290 448)"/><path d="M290 448 Q325 408 350 450" stroke="#9D9B70" opacity=".75" fill="none"/><path d="M335 515 C300 415, 455 400, 400 525 C370 560, 340 545, 335 515Z" fill="url(#petal)" opacity=".5" transform="rotate(55 335 515)"/><path d="M335 515 Q370 475 395 517" stroke="#9D9B70" opacity=".75" fill="none"/><path d="M380 402 C345 302, 500 287, 445 412 C415 447, 385 432, 380 402Z" fill="url(#petal)" opacity=".5" transform="rotate(-55 380 402)"/><path d="M380 402 Q415 362 440 404" stroke="#9D9B70" opacity=".75" fill="none"/><path d="M425 469 C390 369, 545 354, 490 479 C460 514, 430 499, 425 469Z" fill="url(#petal)" opacity=".5" transform="rotate(55 425 469)"/><path d="M425 469 Q460 429 485 471" stroke="#9D9B70" opacity=".75" fill="none"/><path d="M470 536 C435 436, 590 421, 535 546 C505 581, 475 566, 470 536Z" fill="url(#petal)" opacity=".5" transform="rotate(-55 470 536)"/><path d="M470 536 Q505 496 530 538" stroke="#9D9B70" opacity=".75" fill="none"/><path d="M515 423 C480 323, 635 308, 580 433 C550 468, 520 453, 515 423Z" fill="url(#petal)" opacity=".5" transform="rotate(55 515 423)"/><path d="M515 423 Q550 383 575 425" stroke="#9D9B70" opacity=".75" fill="none"/><path d="M560 490 C525 390, 680 375, 625 500 C595 535, 565 520, 560 490Z" fill="url(#petal)" opacity=".5" transform="rotate(-55 560 490)"/><path d="M560 490 Q595 450 620 492" stroke="#9D9B70" opacity=".75" fill="none"/>
+<rect x="38" y="38" width="724" height="924" rx="8" fill="none" stroke="#FCCB5F" stroke-opacity=".34"/>
+<path d="M64 868 H736" stroke="#FCCB5F" stroke-opacity=".38"/>
+<circle cx="400" cy="916" r="4" fill="#FCCB5F" opacity=".8"/>
+</svg>

@@ -1,6 +1,9 @@
 import Database from "better-sqlite3";
 import fs from "node:fs";
 import path from "node:path";
+import type { BadgeFilters, FragranceBadges } from "../fragranceBadges";
+import { fragranceBadgeSchema, badgeFilterSql, badgesFromColumns, type BadgeColumns } from "./fragranceBadgeStorage";
+import { INSPIRATION_SQL } from "../fragranceClassification";
 
 export interface MasterFragranceRecord {
   [key: string]: unknown;
@@ -28,6 +31,7 @@ export interface MasterFragranceRecord {
   description?: string;
   userDnaTestEnabled?: boolean;
   userDnaProfiles?: UserDnaProfileRecord[];
+  badges?: FragranceBadges;
 }
 
 export interface UserDnaProfileRecord {
@@ -76,6 +80,7 @@ const schemaSql = `
     record_json TEXT NOT NULL
   );
   CREATE INDEX IF NOT EXISTS idx_fragrances_record_id ON fragrances(record_id);
+  ${fragranceBadgeSchema}
   CREATE INDEX IF NOT EXISTS idx_fragrances_canonical_key ON fragrances(canonical_key);
   CREATE INDEX IF NOT EXISTS idx_fragrances_brand ON fragrances(brand COLLATE NOCASE);
   CREATE INDEX IF NOT EXISTS idx_fragrances_perfume ON fragrances(perfume COLLATE NOCASE);
@@ -266,9 +271,11 @@ export const readMasterFragrancesByRecordIds = (recordIds: string[]): MasterFrag
   if (ids.length === 0) return [];
   const placeholders = ids.map(() => "?").join(", ");
   const rows = getMasterFragranceDatabase()
-    .prepare(`SELECT record_json FROM fragrances WHERE record_id IN (${placeholders}) OR canonical_key IN (${placeholders}) ORDER BY row_id`)
-    .all(...ids, ...ids) as Array<{ record_json: string }>;
-  return rows.map((row) => JSON.parse(row.record_json) as MasterFragranceRecord);
+    .prepare(`SELECT record_json, b.community_level, b.popularity_level, b.olfactive_level
+      FROM fragrances LEFT JOIN fragrance_badges b ON b.row_id = fragrances.row_id
+      WHERE record_id IN (${placeholders}) OR canonical_key IN (${placeholders}) ORDER BY fragrances.row_id`)
+    .all(...ids, ...ids) as Array<{ record_json: string } & BadgeColumns>;
+  return rows.map((row) => ({ ...JSON.parse(row.record_json) as MasterFragranceRecord, badges: badgesFromColumns(row) }));
 };
 
 export const readMasterFragranceRecordsForCollection = (recordIds: string[]): MasterFragranceRecord[] => {
@@ -412,14 +419,17 @@ export const getMasterDatabaseSearchResult = (searchText: string, limit = 50): M
   if (terms.length === 0) return [];
   const match = terms.map((term) => `"${term.replace(/"/g, "")}"*`).join(" AND ");
   const rows = getMasterFragranceDatabase().prepare(`
-    SELECT fragrances.record_json
+    SELECT fragrances.record_json, b.community_level, b.popularity_level, b.olfactive_level
     FROM fragrance_search JOIN fragrances ON fragrances.row_id = fragrance_search.rowid
+    LEFT JOIN fragrance_badges b ON b.row_id = fragrances.row_id
     WHERE fragrance_search MATCH ? ORDER BY rank LIMIT ?
-  `).all(match, Math.max(1, Math.min(500, limit))) as Array<{ record_json: string }>;
-  return rows.map((row) => JSON.parse(row.record_json) as MasterFragranceRecord);
+  `).all(match, Math.max(1, Math.min(500, limit))) as Array<{ record_json: string } & BadgeColumns>;
+  return rows.map((row) => ({ ...JSON.parse(row.record_json) as MasterFragranceRecord, badges: badgesFromColumns(row) }));
 };
 
 export interface FragranceSearchFilters {
+  inspiredBy?: boolean;
+  originRegion?: string;
   query?: string;
   brandType?: string;
   brand?: string;
@@ -429,11 +439,13 @@ export interface FragranceSearchFilters {
   yearFrom?: number;
   yearTo?: number;
   minRating?: number;
+  badges?: BadgeFilters;
 }
 
 const hasAnyFilterCriteria = (filters: FragranceSearchFilters): boolean =>
   Boolean(
     filters.query?.trim() ||
+    filters.inspiredBy || filters.originRegion ||
     filters.brandType ||
     filters.brand ||
     filters.gender ||
@@ -441,7 +453,8 @@ const hasAnyFilterCriteria = (filters: FragranceSearchFilters): boolean =>
     (filters.anyAccords && filters.anyAccords.length > 0) ||
     filters.yearFrom !== undefined ||
     filters.yearTo !== undefined ||
-    filters.minRating !== undefined,
+    filters.minRating !== undefined ||
+    Object.values(filters.badges ?? {}).some(Boolean),
   );
 
 // Some sources rate on a 0-10 scale; normalize everything to the 0-5 scale.
@@ -476,6 +489,11 @@ export const searchMasterFragrances = (
     where.push("fragrances.brand_type = ?");
     params.push(filters.brandType);
   }
+  if (filters.inspiredBy) where.push(INSPIRATION_SQL);
+  if (filters.originRegion) {
+    where.push("json_extract(fragrances.record_json, '$.originRegion') = ?");
+    params.push(filters.originRegion);
+  }
   if (filters.brand) {
     where.push("fragrances.brand = ? COLLATE NOCASE");
     params.push(filters.brand);
@@ -506,18 +524,24 @@ export const searchMasterFragrances = (
     where.push(`fragrances.rating <> '' AND ${NORMALIZED_RATING_SQL} >= ?`);
     params.push(filters.minRating);
   }
+  const badgeFilters = badgeFilterSql(filters.badges ?? {});
+  where.push(...badgeFilters.clauses);
+  params.push(...badgeFilters.params);
 
   const rows = getMasterFragranceDatabase().prepare(`
-    SELECT fragrances.record_json
-    FROM fragrances ${join}
+    SELECT fragrances.record_json, b.community_level, b.popularity_level, b.olfactive_level
+    FROM fragrances ${join} LEFT JOIN fragrance_badges b ON b.row_id = fragrances.row_id
     WHERE ${where.join(" AND ")}
     ORDER BY ${orderBy}
     LIMIT ?
-  `).all(...params, Math.max(1, Math.min(200, limit))) as Array<{ record_json: string }>;
-  return rows.map((row) => JSON.parse(row.record_json) as MasterFragranceRecord);
+  `).all(...params, Math.max(1, Math.min(200, limit))) as Array<{ record_json: string } & BadgeColumns>;
+  return rows.map((row) => ({ ...JSON.parse(row.record_json) as MasterFragranceRecord, badges: badgesFromColumns(row) }));
 };
 
 export const listMasterFragranceBrands = (brandType?: string): string[] => {
+  if (brandType === "inspired_by") {
+    return (getMasterFragranceDatabase().prepare(`SELECT DISTINCT brand FROM fragrances WHERE ${INSPIRATION_SQL} AND brand <> '' ORDER BY brand COLLATE NOCASE`).all() as Array<{ brand: string }>).map((row) => row.brand);
+  }
   const rows = brandType
     ? getMasterFragranceDatabase().prepare(
         "SELECT DISTINCT brand FROM fragrances WHERE brand_type = ? AND brand <> '' ORDER BY brand COLLATE NOCASE",

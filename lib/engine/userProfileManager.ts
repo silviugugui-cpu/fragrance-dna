@@ -1,9 +1,25 @@
 import { UserDNAProfile, OlfactoryVector, EvolutionStage, DriftSnapshot } from "@/lib/types";
 import { getBrowserUserId, getUserScopedStorageKey } from "@/lib/auth/userScope";
 import { persistUserProfilePatch } from "@/lib/auth/persistentProfile";
+import { loadDnaSession } from "@/lib/dnaSession";
 
 const STORAGE_KEY = "fragrance_user_profile";
 const MAX_DRIFT_HISTORY = 50; // Keep last 50 snapshots
+const PROFILE_AXES = ["freshness", "warmth", "sweetness", "darkness", "cleanliness", "elegance"] as const;
+
+function parseStoredProfile(raw: string): UserDNAProfile {
+  const profile = JSON.parse(raw) as UserDNAProfile | null;
+  if (!profile || typeof profile !== "object" || typeof profile.userId !== "string"
+    || !profile.dnaVector || PROFILE_AXES.some((axis) => !Number.isFinite(profile.dnaVector[axis]) || profile.dnaVector[axis] < 0 || profile.dnaVector[axis] > 1)
+    || !Number.isFinite(profile.confidenceLevel) || !Number.isFinite(profile.totalInteractions)
+    || !Array.isArray(profile.identityDriftHistory) || !Array.isArray(profile.scentAffinityClusters)
+    || !profile.compatibilityHeatmap || typeof profile.compatibilityHeatmap !== "object"
+    || !Number.isFinite(profile.dnaStabilityIndex)
+    || !["early", "forming", "stable", "refined"].includes(profile.evolutionStage)) {
+    throw new Error("Invalid saved DNA profile; original data was preserved.");
+  }
+  return profile;
+}
 
 /**
  * Initialize or retrieve user DNA profile
@@ -15,24 +31,51 @@ export function getOrCreateUserProfile(userId?: string): UserDNAProfile {
   try {
     const stored = localStorage.getItem(scopedStorageKey);
     if (stored) {
-      const profile = JSON.parse(stored) as UserDNAProfile;
-      if (profile.userId === scopedUserId) return profile;
+      const profile = parseStoredProfile(stored);
+      if (profile.userId === scopedUserId) return migratePreferenceProfile(profile);
     }
 
     const legacyStored = localStorage.getItem(STORAGE_KEY);
     if (legacyStored) {
-      const legacyProfile = JSON.parse(legacyStored) as UserDNAProfile;
+      const legacyProfile = parseStoredProfile(legacyStored);
       if (!userId || legacyProfile.userId === scopedUserId) {
         const migratedProfile = { ...legacyProfile, userId: scopedUserId };
         localStorage.setItem(scopedStorageKey, JSON.stringify(migratedProfile));
-        return migratedProfile;
+        return migratePreferenceProfile(migratedProfile);
       }
     }
   } catch (e) {
-    console.warn("Failed to load user profile from storage:", e);
+    console.error("Failed to load user profile; existing data was preserved:", e);
+    throw e;
   }
 
   return createDefaultProfile(scopedUserId);
+}
+
+function migratePreferenceProfile(profile: UserDNAProfile): UserDNAProfile {
+  const session = loadDnaSession(profile.userId);
+  if (profile.preferenceSchemaVersion === 2) {
+    const confidence = session.summary?.confidenceScore ?? 0;
+    if (JSON.stringify(profile.dnaVector) === JSON.stringify(session.currentVector)
+      && profile.confidenceLevel === confidence && profile.totalInteractions === session.answeredOrder.length) return profile;
+    const refreshed = { ...profile, dnaVector: session.currentVector, confidenceLevel: confidence,
+      totalInteractions: session.answeredOrder.length, updatedAt: Date.now() };
+    saveUserProfile(refreshed);
+    return refreshed;
+  }
+  const migrated: UserDNAProfile = {
+    ...profile,
+    preferenceSchemaVersion: 2,
+    legacyPreferenceProjection: { dnaVector: profile.dnaVector, confidenceLevel: profile.confidenceLevel,
+      totalInteractions: profile.totalInteractions, compatibilityHeatmap: profile.compatibilityHeatmap,
+      identityDriftHistory: profile.identityDriftHistory, scentAffinityClusters: profile.scentAffinityClusters,
+      dnaStabilityIndex: profile.dnaStabilityIndex, evolutionStage: profile.evolutionStage },
+    dnaVector: session.currentVector, confidenceLevel: session.summary?.confidenceScore ?? 0,
+    totalInteractions: session.answeredOrder.length, compatibilityHeatmap: {}, identityDriftHistory: [],
+    scentAffinityClusters: [], dnaStabilityIndex: 0, evolutionStage: determineEvolutionStage(session.answeredOrder.length, 0),
+  };
+  saveUserProfile(migrated);
+  return migrated;
 }
 
 /**
@@ -45,6 +88,7 @@ export function saveUserProfile(profile: UserDNAProfile): void {
     window.dispatchEvent(new CustomEvent("fragrance-user-profile-updated", { detail: profile }));
   } catch (e) {
     console.error("Failed to save user profile:", e);
+    throw e;
   }
 }
 
@@ -54,7 +98,8 @@ export function saveUserProfile(profile: UserDNAProfile): void {
 export function updateUserVector(
   profile: UserDNAProfile,
   newVector: OlfactoryVector,
-  confidenceLevel: number
+  confidenceLevel: number,
+  interactionCount = profile.totalInteractions + 1
 ): UserDNAProfile {
   const now = Date.now();
 
@@ -64,7 +109,7 @@ export function updateUserVector(
 
   // Determine evolution stage based on interaction count and stability
   const evolutionStage = determineEvolutionStage(
-    profile.totalInteractions + 1,
+    interactionCount,
     newStability
   );
 
@@ -87,7 +132,7 @@ export function updateUserVector(
     dnaStabilityIndex: newStability,
     evolutionStage,
     identityDriftHistory: updatedHistory,
-    totalInteractions: profile.totalInteractions + 1,
+    totalInteractions: interactionCount,
     lastInteractionAt: now,
     updatedAt: now,
   };
@@ -168,6 +213,7 @@ export function getEvolutionTimeline(
 
 function createDefaultProfile(userId: string): UserDNAProfile {
   return {
+    preferenceSchemaVersion: 2,
     userId,
     createdAt: Date.now(),
     updatedAt: Date.now(),

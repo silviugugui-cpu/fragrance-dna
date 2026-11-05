@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-label="Abstract editorial scent composition for Carolina Herrera">
+<defs>
+  <radialGradient id="bg"><stop stop-color="#272219"/><stop offset="1" stop-color="#080807"/></radialGradient>
+  <radialGradient id="glow"><stop stop-color="#fff0be"/><stop offset=".45" stop-color="#B79AB6" stop-opacity=".82"/><stop offset="1" stop-color="#B79AB6" stop-opacity="0"/></radialGradient>
+  <linearGradient id="petal" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#FFF2CF" stop-opacity=".82"/><stop offset=".55" stop-color="#B79AB6" stop-opacity=".55"/><stop offset="1" stop-color="#524332" stop-opacity=".2"/></linearGradient>
+  <filter id="soft"><feGaussianBlur stdDeviation="15"/></filter>
+</defs>
+<rect width="800" height="1000" fill="url(#bg)"/>
+<circle cx="408" cy="468" r="250" fill="url(#glow)" opacity=".19" filter="url(#soft)"/>
+<ellipse cx="497.0" cy="468.0" rx="34" ry="77" transform="rotate(0 497.0 468.0)" fill="url(#petal)" opacity=".62"/><ellipse cx="463.5" cy="537.6" rx="34" ry="77" transform="rotate(51 463.5 537.6)" fill="url(#petal)" opacity=".62"/><ellipse cx="388.2" cy="554.8" rx="34" ry="77" transform="rotate(102 388.2 554.8)" fill="url(#petal)" opacity=".62"/><ellipse cx="327.8" cy="506.6" rx="34" ry="77" transform="rotate(153 327.8 506.6)" fill="url(#petal)" opacity=".62"/><ellipse cx="327.8" cy="429.4" rx="34" ry="77" transform="rotate(204 327.8 429.4)" fill="url(#petal)" opacity=".62"/><ellipse cx="388.2" cy="381.2" rx="34" ry="77" transform="rotate(255 388.2 381.2)" fill="url(#petal)" opacity=".62"/><ellipse cx="463.5" cy="398.4" rx="34" ry="77" transform="rotate(306 463.5 398.4)" fill="url(#petal)" opacity=".62"/><circle cx="408" cy="468" r="36" fill="#B79AB6" opacity=".78"/>
+<rect x="38" y="38" width="724" height="924" rx="8" fill="none" stroke="#FCCB5F" stroke-opacity=".34"/>
+<path d="M64 868 H736" stroke="#FCCB5F" stroke-opacity=".38"/>
+<circle cx="400" cy="916" r="4" fill="#FCCB5F" opacity=".8"/>
+</svg>

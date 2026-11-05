@@ -10,15 +10,7 @@ import {
   type ReactNode,
 } from 'react';
 import { DEFAULT_LOCALE, LOCALE_COOKIE, isLocale, type Locale } from './config';
-import en, { type Dictionary } from './dictionaries/en';
-import fr from './dictionaries/fr';
-import de from './dictionaries/de';
-import es from './dictionaries/es';
-import it from './dictionaries/it';
-import pt from './dictionaries/pt';
-import ro from './dictionaries/ro';
-
-const DICTIONARIES: Record<Locale, Dictionary> = { en, fr, de, es, it, pt, ro };
+import { DICTIONARIES, type Dictionary } from './getDictionary';
 
 const LOCALE_STORAGE_KEY = 'fragrancedna-locale';
 
@@ -31,7 +23,7 @@ interface LanguageContextValue {
 const LanguageContext = createContext<LanguageContextValue>({
   locale: DEFAULT_LOCALE,
   setLocale: () => undefined,
-  t: en,
+  t: DICTIONARIES[DEFAULT_LOCALE],
 });
 
 function persistLocale(locale: Locale) {

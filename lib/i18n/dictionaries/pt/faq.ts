@@ -21,22 +21,22 @@ const faq: Dictionary['faq'] = {
     {
       question: 'Como começa o meu perfil?',
       answer:
-        'O Grounding regista as famílias olfativas que adora, que lhe são indiferentes ou que evita, e cria o seu perfil de ADN inicial. Vê recomendações de imediato. São necessárias pelo menos duas preferências «Adoro» ou «Evito» antes de iniciar um lote de diagnóstico.',
+        'O Grounding parte das escolhas explícitas Adoro e Evito. Neutro não tem influência positiva nem negativa; as famílias não avaliadas permanecem desconhecidas. São necessárias duas escolhas Adoro ou Evito para o teste. Respostas diretas podem corrigir estas preferências iniciais.',
     },
     {
       question: 'Como funcionam as avaliações de perfumes?',
       answer:
-        'Cada lote adaptativo oferece até seis perfumes, com uma opção recomendada e uma alternativa quando disponível. Escolha o perfume que consegue avaliar e classifique todas as características apresentadas. As suas respostas só afetam o perfil depois de confirmar a avaliação.',
+        'Avalie o perfume no geral e até duas características adaptativas: quanto as percebeu e, se notadas, se gostou delas. Não percebido nunca significa rejeição. Só o agrado explícito refina a preferência e confiança do atributo; a avaliação geral compara composições separadamente. O próximo perfume é escolhido após o envio. Não conseguir avaliar não acrescenta sinais nem avaliações completas.',
     },
     {
-      question: 'As alterações provisórias dos controlos afetam o meu distintivo?',
+      question: 'As respostas não enviadas afetam o meu distintivo?',
       answer:
-        'Não. As alterações dos controlos são um rascunho até confirmar. As respostas não confirmadas não alteram a sua confiança de ADN, o distintivo atual nem as recomendações.',
+        'Não. As respostas parciais são guardadas para retomar, mas não alteram preferências, confiança, distintivos ou recomendações antes do envio. Os antigos controlos continuam como histórico de perceção, nunca de agrado.',
     },
     {
       question: 'Posso parar e continuar mais tarde?',
       answer:
-        'Sim. O perfume selecionado, a posição no lote, as avaliações concluídas e o perfil ficam guardados na sua conta. Pode parar após qualquer avaliação confirmada e retomar mais tarde.',
+        'Sim. O perfume atual e as respostas parciais são guardados neste navegador e sincronizados com a conta quando tem sessão iniciada. As avaliações completas permanecem guardadas. Se o guardado falhar, tente novamente antes de sair.',
     },
     {
       question: 'O que significam os níveis de distintivo?',

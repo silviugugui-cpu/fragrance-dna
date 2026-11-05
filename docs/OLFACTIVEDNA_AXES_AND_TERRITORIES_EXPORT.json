@@ -1,0 +1,364 @@
+{
+  "schema_version": "1.0.0",
+  "document_type": "documentation_ai_handoff",
+  "product": "OlfactiveDNA",
+  "language": "ro",
+  "snapshot_date": "2026-11-05",
+  "purpose": "Documentarea axelor ADN si a logicii teritoriilor olfactive implementate in platforma. Nu contine date personale, secrete sau catalogul de parfumuri.",
+  "authority": {
+    "canonical_axis_names": "Identificatorii englezi sunt canonici; traducerile sunt numai etichete.",
+    "formulas": "Formulele de mai jos descriu proiectia implementata in dashboard, nu o validare stiintifica a personalitatii sau a preferintelor.",
+    "definitions": "Definitiile conceptuale in romana sunt explicatii editoriale pentru documentare, nu o ontologie stiintifica validata.",
+    "do_not_confuse": [
+      "ADN-ul unui parfum, vectorul de preferinte al utilizatorului si proiectia vizuala a dashboard-ului sunt reprezentari distincte.",
+      "Scorul unei axe nu este o probabilitate, o nota de calitate sau o masuratoare fizica.",
+      "Teritoriile sunt grupari editoriale exploratorii, nu o clasificare exhaustiva a parfumeriei.",
+      "Prezenta unui parfum si increderea in profilul utilizatorului nu sunt acelasi concept."
+    ]
+  },
+  "sources": [
+    { "path": "docs/FRAGRANCEDNA_ARCHITECTURE.md", "role": "Lista canonica de 11 axe si limitele euristicii teritoriale" },
+    { "path": "docs/USER_DNA_MODEL.md", "role": "Grounding, Behavior, Current DNA si principiile de invatare" },
+    { "path": "docs/FRAGRANCE_INTELLIGENCE_MODEL.md", "role": "Modelul canonic de cunostinte despre parfumuri" },
+    { "path": "lib/types.ts", "symbol": "OlfactoryVector", "role": "Vectorul intern cu sase dimensiuni" },
+    { "path": "components/dna/DnaRadar.tsx", "symbol": "DNA_AXES", "role": "Identificatori, ordine si normalizare radar" },
+    { "path": "app/dna/page.tsx", "symbol": "buildAxisValues", "role": "Formulele reale ale dashboard-ului si selectarea sursei de dovezi" },
+    { "path": "lib/data/territories.ts", "symbol": "territories", "role": "Catalogul editorial al celor zece teritorii" },
+    { "path": "lib/engine/territoryAffinities.ts", "symbol": "calculateTerritoryAffinities", "role": "Algoritmul de afinitate, aliasuri si validare" }
+  ],
+  "user_dna_learning": {
+    "sources": ["Grounding", "Adaptive Test", "Collection Reinforcement"],
+    "components": {
+      "grounding_dna": "Preferinte declarate initial; priorul profilului.",
+      "behavior_dna": "Dovezi din interactiuni si evaluari observate.",
+      "current_dna": "Combinatie a priorului si comportamentului, ponderata dinamic prin incredere."
+    },
+    "constraints": [
+      "Adaptive Test este mecanismul principal de descoperire.",
+      "Influenta Grounding poate scadea odata cu increderea, dar nu ajunge la zero.",
+      "Contextul si simpla apartenenta la colectie nu modifica direct ADN-ul.",
+      "Evaluarile din colectie pot rafina profilul prin pipeline-ul canonic de evenimente.",
+      "Profilul este derivat din proiectii si trebuie sa poata fi reconstruit prin replay."
+    ],
+    "scope": "Principii canonice; acest export nu specifica coeficientii motorului de invatare sau ai recomandarilor."
+  },
+  "internal_vector": {
+    "type": "OlfactoryVector",
+    "expected_scale": { "minimum": 0, "maximum": 1 },
+    "dimensions": [
+      { "id": "freshness", "meaning_ro": "Caracter proaspat, luminos, revigorant." },
+      { "id": "warmth", "meaning_ro": "Caracter cald, invaluitor." },
+      { "id": "sweetness", "meaning_ro": "Dulceata perceputa." },
+      { "id": "darkness", "meaning_ro": "Caracter intunecat, dens sau profund; descriptor perceptiv, nu culoare masurata." },
+      { "id": "cleanliness", "meaning_ro": "Impresie de curat si prospetime de tip clean; nu igiena sau siguranta." },
+      { "id": "elegance", "meaning_ro": "Impresie de eleganta si rafinament." }
+    ],
+    "dashboard_conversion": {
+      "function": "toScore",
+      "formula": "clamp(round(value <= 1 ? value * 100 : value), 0, 100)",
+      "missing_or_nan_value": 50,
+      "rounding": "JavaScript Math.round",
+      "formula_variable_convention": "freshness, warmth, sweetness, darkness, cleanliness si elegance din formulele axelor reprezinta valorile deja convertite in 0..100, nu vectorul brut 0..1.",
+      "warning": "Conversia tolereaza si valori peste 1 ca procente. Pentru exporturi si documentare noi, folositi explicit scala; nu amestecati 0..1 cu 0..100."
+    }
+  },
+  "canonical_axes": [
+    {
+      "id": "Freshness",
+      "label_ro": "Prospetime",
+      "definition_ro": "Dimensiunea perceptiva a prospetimii si luminozitatii olfactive.",
+      "low_ro": "Accent redus pe caracterul proaspat.",
+      "high_ro": "Accent puternic pe caracterul proaspat.",
+      "dashboard_formula": "freshness",
+      "dashboard_kind": "direct_vector_dimension"
+    },
+    {
+      "id": "Warmth",
+      "label_ro": "Caldura",
+      "definition_ro": "Dimensiunea perceptiva a caldurii olfactive, nu temperatura fizica.",
+      "low_ro": "Caracter mai putin cald.",
+      "high_ro": "Caracter cald pronuntat.",
+      "dashboard_formula": "warmth",
+      "dashboard_kind": "direct_vector_dimension"
+    },
+    {
+      "id": "Complexity",
+      "label_ro": "Complexitate",
+      "definition_ro": "Impresie de structura, profunzime si complexitate olfactiva.",
+      "low_ro": "Structura perceputa ca mai simpla.",
+      "high_ro": "Structura perceputa ca mai elaborata.",
+      "dashboard_formula": "round(elegance * 0.5 + darkness * 0.3 + warmth * 0.2)",
+      "dashboard_kind": "derived_proxy",
+      "caveat_ro": "Nu masoara numarul de ingrediente sau evolutia temporala reala a unui parfum."
+    },
+    {
+      "id": "Elegance",
+      "label_ro": "Eleganta",
+      "definition_ro": "Impresie de rafinament si compozitie eleganta.",
+      "low_ro": "Accent redus pe registrul elegant.",
+      "high_ro": "Accent puternic pe registrul elegant.",
+      "dashboard_formula": "elegance",
+      "dashboard_kind": "direct_vector_dimension"
+    },
+    {
+      "id": "Character",
+      "label_ro": "Caracter",
+      "definition_ro": "Impresie de personalitate olfactiva si expresivitate.",
+      "low_ro": "Caracter mai discret.",
+      "high_ro": "Caracter mai pronuntat.",
+      "dashboard_formula": "round(warmth * 0.42 + darkness * 0.4 + sweetness * 0.18)",
+      "dashboard_kind": "derived_proxy",
+      "caveat_ro": "Este un proxy construit din vector; nu masoara personalitatea psihologica."
+    },
+    {
+      "id": "Presence",
+      "label_ro": "Prezenta",
+      "definition_ro": "Conceptual, expresivitatea sau prezenta olfactiva a unui parfum.",
+      "low_ro": "Conceptual: prezenta discreta.",
+      "high_ro": "Conceptual: prezenta pronuntata.",
+      "dashboard_formula": "clamp(round(confidence), 0, 100)",
+      "dashboard_kind": "confidence_proxy",
+      "caveat_ro": "Dashboard-ul actual foloseste increderea in profil pentru aceasta axa. Nu interpreta valoarea afisata drept proiectie, siaj sau preferinta pentru parfumuri puternice.",
+      "excluded_from_territory_affinity": true
+    },
+    {
+      "id": "Comfort",
+      "label_ro": "Confort",
+      "definition_ro": "Impresie de confort olfactiv, blandete si familiaritate.",
+      "low_ro": "Caracter mai putin orientat spre confort.",
+      "high_ro": "Caracter confortabil pronuntat.",
+      "dashboard_formula": "round(cleanliness * 0.62 + sweetness * 0.38)",
+      "dashboard_kind": "derived_proxy",
+      "caveat_ro": "Nu reprezinta o masuratoare clinica a starii emotionale."
+    },
+    {
+      "id": "Uniqueness",
+      "label_ro": "Distinctivitate",
+      "definition_ro": "Impresie de distinctivitate sau identitate olfactiva neobisnuita.",
+      "low_ro": "Registru mai familiar.",
+      "high_ro": "Registru perceput ca mai distinct.",
+      "dashboard_formula": "round(darkness * 0.58 + elegance * 0.42)",
+      "dashboard_kind": "derived_proxy",
+      "caveat_ro": "Nu este o comparatie statistica a raritatii fata de intregul catalog."
+    },
+    {
+      "id": "Versatility",
+      "label_ro": "Versatilitate",
+      "definition_ro": "Conceptual, adaptabilitatea olfactiva la contexte diferite.",
+      "low_ro": "Caracter mai specific unui anumit registru.",
+      "high_ro": "Caracter mai adaptabil.",
+      "dashboard_formula": "clamp(round(100 - abs(warmth - freshness) * 0.6), 0, 100)",
+      "dashboard_kind": "derived_proxy",
+      "caveat_ro": "Implementarea masoara echilibrul dintre caldura si prospetime, nu adecvarea verificata la toate ocaziile. Cu intrari valide 0..100, intervalul rezultat este 40..100."
+    },
+    {
+      "id": "Luxury",
+      "label_ro": "Lux perceput",
+      "definition_ro": "Impresie estetica de opulenta si rafinament.",
+      "low_ro": "Accent redus pe registrul luxos.",
+      "high_ro": "Accent puternic pe registrul luxos.",
+      "dashboard_formula": "round(elegance * 0.68 + warmth * 0.32)",
+      "dashboard_kind": "derived_proxy",
+      "caveat_ro": "Nu masoara pretul, autenticitatea, calitatea ingredientelor sau statutul marcii."
+    },
+    {
+      "id": "Formality",
+      "label_ro": "Formalitate",
+      "definition_ro": "Impresie de caracter ingrijit, structurat si potrivit unui registru formal.",
+      "low_ro": "Registru mai relaxat.",
+      "high_ro": "Registru mai formal.",
+      "dashboard_formula": "round(elegance * 0.62 + cleanliness * 0.38)",
+      "dashboard_kind": "derived_proxy",
+      "caveat_ro": "Nu este o regula universala de eticheta sau adecvare profesionala."
+    }
+  ],
+  "axis_scale": {
+    "minimum": 0,
+    "maximum": 100,
+    "independent_scores": true,
+    "sum_must_equal_100": false,
+    "higher_is_better": false,
+    "opposite_axes": "Nu impune opozitii: Freshness si Warmth pot avea simultan valori mari.",
+    "data_quality_note": "Radarul poate completa puncte lipsa cu valori preview si afiseaza avertizare. Preview-urile nu sunt dovezi despre utilizator si nu trebuie exportate ca preferinte reale."
+  },
+  "territory_affinity_algorithm": {
+    "status": "implemented_exploratory_heuristic",
+    "profile_source_priority": [
+      "Daca answeredOrder.length > 0: summary.finalVector, apoi dnaSession.currentVector.",
+      "Altfel, daca userProfile.totalInteractions > 0: userProfile.dnaVector, apoi groundingVector.",
+      "Altfel: groundingVector.",
+      "Daca nu exista vector sustinut de dovezi, nu se afiseaza rezultate teritoriale."
+    ],
+    "input": "Valorile dashboard-ului, in scala 0..100.",
+    "legacy_descriptor_mapping": {
+      "Freshness": "Freshness",
+      "Warmth": "Warmth",
+      "Complexity": "Complexity",
+      "Comfort": "Comfort",
+      "Versatility": "Versatility",
+      "Refinement": "Elegance",
+      "Sensuality": "Comfort"
+    },
+    "mapping_caveats": [
+      "Refinement si Sensuality sunt descriptori legacy, nu axe canonice suplimentare.",
+      "Sensuality -> Comfort este un proxy provizoriu; nu inseamna echivalenta semantica.",
+      "Presence este eliminata inaintea maparii deoarece dashboard-ul o deriva din incredere."
+    ],
+    "steps": [
+      "Se parcurg toate cele zece teritorii din catalog.",
+      "Se elimina Presence din descriptorii teritoriului.",
+      "Se aplica maparea descriptorilor legacy catre axele canonice.",
+      "Se elimina axele duplicate dupa mapare: fiecare axa contribuie o singura data.",
+      "Fiecare valoare folosita trebuie sa fie un numar finit intre 0 si 100.",
+      "score = Math.round(suma valorilor axelor unice / numarul axelor unice).",
+      "Se sorteaza descrescator dupa score; egalitatile se rezolva cu territory.name.localeCompare.",
+      "Se returneaza teritoriul, scorul si contributia fiecarei axe."
+    ],
+    "errors": {
+      "unknown_descriptor": "Arunca eroare; nu foloseste mapare implicita.",
+      "invalid_axis_value": "Arunca eroare; nu completeaza in tacere scorul de afinitate.",
+      "null_input": "Returneaza lista vida."
+    },
+    "confidence": "Este afisata separat; nu ponderaza scorurile de afinitate.",
+    "not_used_in_affinity_score": ["season", "intensity", "versatility metadata", "color", "examples", "notes", "accords", "popularity"],
+    "effects": "Calcul read-only; nu modifica ADN-ul persistent, catalogul sau evaluarile.",
+    "interpretation": "Scor de afinitate exploratorie, nu probabilitate de recomandare sau procent de identitate. Scorurile nu trebuie sa insumeze 100.",
+    "known_limitation": "Teritorii diferite cu aceleasi axe efective primesc acelasi scor pentru orice profil; euristica nu le diferentiaza prin note sau acorduri."
+  },
+  "territories": [
+    {
+      "key": "freshCitrus", "id": "fresh-citrus", "name": "Fresh Citrus",
+      "label_ro": "Prospetime citrica",
+      "definition_ro": "Registru luminos si revigorant, construit editorial in jurul citricelor precum bergamota, lamaia, lime si grapefruit.",
+      "source_descriptors": ["Freshness", "Versatility", "Presence"],
+      "effective_affinity_axes": ["Freshness", "Versatility"],
+      "intensity": "light", "versatility_metadata": 85,
+      "season": ["spring", "summer"], "color": "#E8D966"
+    },
+    {
+      "key": "greenFresh", "id": "green-fresh", "name": "Green Fresh",
+      "label_ro": "Prospetime verde",
+      "definition_ro": "Registru vegetal, ierbos si aromatic, cu impresii de gradina, galbanum si plante aromatice.",
+      "source_descriptors": ["Freshness", "Complexity", "Presence"],
+      "effective_affinity_axes": ["Freshness", "Complexity"],
+      "intensity": "moderate", "versatility_metadata": 80,
+      "season": ["spring", "summer", "fall"], "color": "#9ACD32"
+    },
+    {
+      "key": "luxuryFresh", "id": "luxury-fresh", "name": "Luxury Fresh",
+      "label_ro": "Prospetime rafinata",
+      "definition_ro": "Registru proaspat cu impresie de profunzime si rafinament; denumirea luxury este editoriala, nu un prag de pret.",
+      "source_descriptors": ["Freshness", "Refinement", "Presence"],
+      "effective_affinity_axes": ["Freshness", "Elegance"],
+      "intensity": "light", "versatility_metadata": 90,
+      "season": ["spring", "summer", "fall"], "color": "#87CEEB"
+    },
+    {
+      "key": "honeyTobacco", "id": "honey-tobacco", "name": "Honey Tobacco",
+      "label_ro": "Miere si tutun",
+      "definition_ro": "Registru cald, usor condimentat, care contrasteaza dulceata mierii cu impresia uscata de frunza de tutun.",
+      "source_descriptors": ["Warmth", "Complexity", "Comfort"],
+      "effective_affinity_axes": ["Warmth", "Complexity", "Comfort"],
+      "intensity": "moderate", "versatility_metadata": 75,
+      "season": ["fall", "winter"], "color": "#CD853F"
+    },
+    {
+      "key": "richGourmand", "id": "rich-gourmand", "name": "Rich Gourmand",
+      "label_ro": "Gurmand bogat",
+      "definition_ro": "Registru dulce, invaluitor, cu impresii comestibile precum vanilie, caramel si ciocolata.",
+      "source_descriptors": ["Warmth", "Comfort", "Sensuality"],
+      "effective_affinity_axes": ["Warmth", "Comfort"],
+      "intensity": "intense", "versatility_metadata": 70,
+      "season": ["fall", "winter"], "color": "#D2691E"
+    },
+    {
+      "key": "leather", "id": "leather", "name": "Leather",
+      "label_ro": "Piele",
+      "definition_ro": "Registru construit in jurul acordurilor de piele, cu fatete uscate, afumate sau animalice.",
+      "source_descriptors": ["Complexity", "Sensuality", "Refinement"],
+      "effective_affinity_axes": ["Complexity", "Comfort", "Elegance"],
+      "intensity": "moderate", "versatility_metadata": 65,
+      "season": ["fall", "winter"], "color": "#8B4513"
+    },
+    {
+      "key": "woodyElegant", "id": "woody-elegant", "name": "Woody Elegant",
+      "label_ro": "Lemnos elegant",
+      "definition_ro": "Registru lemnos, uscat si rafinat, cu referinte editoriale la cedru, agarwood si santal.",
+      "source_descriptors": ["Refinement", "Presence", "Complexity"],
+      "effective_affinity_axes": ["Elegance", "Complexity"],
+      "intensity": "moderate", "versatility_metadata": 85,
+      "season": ["spring", "summer", "fall", "winter"], "color": "#556B2F"
+    },
+    {
+      "key": "amber", "id": "amber", "name": "Amber",
+      "label_ro": "Ambrat",
+      "definition_ro": "Registru cald si invaluitor, cu impresii de ambra, rasini si condimente.",
+      "source_descriptors": ["Warmth", "Sensuality", "Presence"],
+      "effective_affinity_axes": ["Warmth", "Comfort"],
+      "intensity": "intense", "versatility_metadata": 60,
+      "season": ["fall", "winter"], "color": "#D4A574"
+    },
+    {
+      "key": "musk", "id": "musk", "name": "Musk",
+      "label_ro": "Moscat",
+      "definition_ro": "Registru moale si intim, cu efect olfactiv de a doua piele si prezenta discreta.",
+      "source_descriptors": ["Sensuality", "Comfort", "Refinement"],
+      "effective_affinity_axes": ["Comfort", "Elegance"],
+      "intensity": "light", "versatility_metadata": 95,
+      "season": ["spring", "summer", "fall", "winter"], "color": "#A0826D"
+    },
+    {
+      "key": "floral", "id": "floral", "name": "Floral",
+      "label_ro": "Floral",
+      "definition_ro": "Registru centrat pe flori precum trandafir, iasomie, bujor si tuberoza, de la delicat la intens.",
+      "source_descriptors": ["Sensuality", "Complexity", "Refinement"],
+      "effective_affinity_axes": ["Comfort", "Complexity", "Elegance"],
+      "intensity": "moderate", "versatility_metadata": 80,
+      "season": ["spring", "summer"], "color": "#DB7093"
+    }
+  ],
+  "territory_metadata_notes": {
+    "season_vocabulary": { "spring": "primavara", "summer": "vara", "fall": "toamna", "winter": "iarna" },
+    "versatility_metadata": "Scor editorial static 0..100 al teritoriului; diferit de axa dinamica Versatility a utilizatorului.",
+    "intensity": "Eticheta editoriala light/moderate/intense; nu o masuratoare a proiectiei sau longevitatii.",
+    "fragrance_examples": "Exemplele comerciale din catalogul sursa au fost omise intentionat: sunt ilustrative, pot necesita corecturi de nume sau incadrare si nu reprezinta adevar de referinta validat.",
+    "same_score_groups": [
+      ["rich-gourmand", "amber"],
+      ["leather", "floral"]
+    ]
+  },
+  "worked_example": {
+    "synthetic_example_only": true,
+    "input_vector": { "freshness": 0.8, "warmth": 0.6, "sweetness": 0.5, "darkness": 0.4, "cleanliness": 0.7, "elegance": 0.9 },
+    "confidence": 55,
+    "dashboard_axes": {
+      "Freshness": 80, "Warmth": 60, "Complexity": 69, "Elegance": 90,
+      "Character": 50, "Presence": 55, "Comfort": 62, "Uniqueness": 61,
+      "Versatility": 88, "Luxury": 80, "Formality": 82
+    },
+    "affinity_scores_by_id": {
+      "fresh-citrus": 84, "green-fresh": 75, "luxury-fresh": 85,
+      "honey-tobacco": 64, "rich-gourmand": 61, "leather": 74,
+      "woody-elegant": 80, "amber": 61, "musk": 76, "floral": 74
+    },
+    "calculation_notes": [
+      "Green Fresh: round((80 + 69) / 2) = 75.",
+      "Rich Gourmand: Comfort si Sensuality devin aceeasi axa; round((60 + 62) / 2) = 61.",
+      "Presence = 55 nu intra in niciun scor teritorial.",
+      "Datele sunt sintetice, nu profilul unei persoane reale."
+    ]
+  },
+  "documentation_ai_instructions": [
+    "Documenteaza separat intentia conceptuala, formulele implementate si limitarile cunoscute.",
+    "Pastreaza exact identificatorii canonici, ordinea axelor si ID-urile teritoriilor.",
+    "Nu adauga axe noi precum Sensuality sau Refinement la lista canonica.",
+    "Nu descrie Presence din dashboard ca masuratoare a siajului.",
+    "Nu prezenta afinitatile drept probabilitati sau procente care trebuie sa insumeze 100.",
+    "Nu prezenta formulele euristice drept modele psihometrice sau stiintific validate.",
+    "Nu deduce automat ca un parfum apartine unui teritoriu numai din acest scor al utilizatorului.",
+    "Nu transforma descriptorii de note in reguli de clasificare implementate: motorul actual nu ii foloseste in calculul afinitatii.",
+    "Marcheaza orice imbunatatire propusa drept propunere, nu comportament deja implementat.",
+    "Nu trata exemplul sintetic sau valorile preview drept date reale.",
+    "Acesta este un snapshot pentru documentare, nu un catalog runtime sau o noua sursa de adevar."
+  ]
+}

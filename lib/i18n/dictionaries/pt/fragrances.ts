@@ -5,7 +5,19 @@ const fragrances: Dictionary['fragrances'] = {
     all: 'Todas',
     niche: 'Nicho',
     designer: 'Designer',
-    dupe: 'Dupe · Médio Oriente',
+    dupe: 'Inspiração documentada',
+  },
+  badges: {
+    community: 'Avaliação da comunidade',
+    popularity: 'Volume de avaliações',
+    olfactive: 'Olfactive Score',
+    any: 'Qualquer nível',
+    undefined: 'Indefinido',
+    communityLevels: ['Pouco apreciado', 'Moderadamente apreciado', 'Bem apreciado', 'Muito apreciado', 'Excecional'],
+    popularityLevels: ['Pouquíssimas avaliações', 'Poucas avaliações', 'Volume moderado', 'Muitas avaliações', 'Muitíssimas avaliações'],
+    olfactiveLevels: ['Por descobrir', 'Promissor', 'Notado', 'Favorito', 'Referência'],
+    note: 'Avaliações Fragrantica ou Parfumo do catálogo, não dados em tempo real nem votos próprios. As barras mostram níveis, não pontuações brutas. Volume não significa qualidade. Olfactive Score: 80% avaliação ajustada pela confiança e 20% volume relativo de avaliações, não compatibilidade ADN.',
+    level: (n: number) => `Nível ${n} de 5`,
   },
   seasonOptions: {
     any: 'Qualquer estação',
@@ -35,6 +47,7 @@ const fragrances: Dictionary['fragrances'] = {
     '3.5': '3,5+',
   },
   accordLabels: {
+    animalic: 'Animálico',
     woody: 'Amadeirado',
     citrus: 'Cítrico',
     sweet: 'Doce',

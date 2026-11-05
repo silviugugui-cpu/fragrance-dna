@@ -8,6 +8,7 @@ const TERRITORY_AXES: Record<string, DnaAxis> = {
   Complexity: 'Complexity',
   Comfort: 'Comfort',
   Versatility: 'Versatility',
+  Elegance: 'Elegance',
   Refinement: 'Elegance',
   Sensuality: 'Comfort',
 };

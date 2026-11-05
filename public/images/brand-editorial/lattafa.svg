@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-label="Abstract editorial scent composition for Lattafa">
+<defs>
+  <radialGradient id="bg"><stop stop-color="#272219"/><stop offset="1" stop-color="#080807"/></radialGradient>
+  <radialGradient id="glow"><stop stop-color="#fff0be"/><stop offset=".45" stop-color="#D8C07D" stop-opacity=".82"/><stop offset="1" stop-color="#D8C07D" stop-opacity="0"/></radialGradient>
+  <linearGradient id="petal" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#FFF2CF" stop-opacity=".82"/><stop offset=".55" stop-color="#D8C07D" stop-opacity=".55"/><stop offset="1" stop-color="#524332" stop-opacity=".2"/></linearGradient>
+  <filter id="soft"><feGaussianBlur stdDeviation="15"/></filter>
+</defs>
+<rect width="800" height="1000" fill="url(#bg)"/>
+<circle cx="364" cy="487" r="250" fill="url(#glow)" opacity=".19" filter="url(#soft)"/>
+<path d="M175 820 L196 820 L191 294 L179 269 Z" fill="#D8C07D" opacity="0.23"/><path d="M232 820 L257 820 L252 269 L236 244 Z" fill="#D8C07D" opacity="0.275"/><path d="M289 820 L318 820 L313 257 L293 232 Z" fill="#D8C07D" opacity="0.32"/><path d="M346 820 L379 820 L374 313 L350 288 Z" fill="#D8C07D" opacity="0.365"/><path d="M403 820 L424 820 L419 279 L407 254 Z" fill="#D8C07D" opacity="0.41000000000000003"/><path d="M460 820 L485 820 L480 262 L464 237 Z" fill="#D8C07D" opacity="0.45499999999999996"/><path d="M517 820 L546 820 L541 316 L521 291 Z" fill="#D8C07D" opacity="0.5"/><path d="M574 820 L607 820 L602 280 L578 255 Z" fill="#D8C07D" opacity="0.545"/><path d="M631 820 L652 820 L647 325 L635 300 Z" fill="#D8C07D" opacity="0.59"/><circle cx="364" cy="487" r="142" fill="none" stroke="#D8C07D" stroke-width="3" opacity=".56"/><circle cx="364" cy="487" r="98" fill="none" stroke="#D8C07D" stroke-width="2" opacity=".38"/>
+<rect x="38" y="38" width="724" height="924" rx="8" fill="none" stroke="#FCCB5F" stroke-opacity=".34"/>
+<path d="M64 868 H736" stroke="#FCCB5F" stroke-opacity=".38"/>
+<circle cx="400" cy="916" r="4" fill="#FCCB5F" opacity=".8"/>
+</svg>

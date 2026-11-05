@@ -1,9 +1,18 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+import ArticlesRail from '../articles/ArticlesRail';
+import { articlesMenuItems } from '../articles/articlesMenu';
 import { PerfumeImageWithFallback } from '@/components/design-system/PerfumeImageWithFallback';
 import { useLanguage } from '@/lib/i18n';
 import type { PublicFragrance } from '@/app/api/fragrances/search/route';
+import FragranceBadges from '@/components/FragranceBadges';
+import FragranceBadgeFilters from '@/components/FragranceBadgeFilters';
+import { getPriorityCopy } from '@/lib/i18n/priorityCopy';
+import type { BadgeFilters } from '@/lib/fragranceBadges';
+import { getDiscoveryCopy } from '@/lib/i18n/discoveryCopy';
+import { isCueSeason, seasonalCueAccords } from '@/lib/seasonalCues';
 
 const capitalize = (value: string): string => value.charAt(0).toUpperCase() + value.slice(1);
 
@@ -36,13 +45,6 @@ const ERA_OPTIONS = [
   { value: '2000s', key: '2000s' },
   { value: '1990s', key: '1990s' },
   { value: 'classics', key: 'classics' },
-] as const;
-
-const RATING_OPTIONS = [
-  { value: '', key: 'any' },
-  { value: '4.5', key: '4.5' },
-  { value: '4', key: '4' },
-  { value: '3.5', key: '3.5' },
 ] as const;
 
 const ACCORD_OPTIONS = [
@@ -78,12 +80,25 @@ function DetailRow({ label, value }: { label: string; value?: string }) {
   );
 }
 
+function SeasonalEvidence({ fragrance, season }: { fragrance: PublicFragrance; season: string }) {
+  const { locale, t } = useLanguage();
+  if (!isCueSeason(season)) return null;
+  const accords = seasonalCueAccords(fragrance.mainAccords, season);
+  if (!accords.length) return null;
+  const copy = getDiscoveryCopy(locale);
+  return <p className="mt-3 text-sm text-[color:var(--public-ink-secondary,#dacfb7)]">
+    {copy.seasonal} · {t.fragrances.seasonOptions[season]} — {copy.cueReason}: {accords.map((accord) => t.fragrances.accordLabels[accord] ?? accord).join(", ")}
+  </p>;
+}
+
 function FragranceDetail({
   fragrance,
   onClose,
+  season,
 }: {
   fragrance: PublicFragrance;
   onClose: () => void;
+  season: string;
 }) {
   const { t } = useLanguage();
 
@@ -140,15 +155,18 @@ function FragranceDetail({
               <DetailRow label={t.fragrances.detail.perfumer} value={fragrance.perfumer} />
               <DetailRow label={t.fragrances.detail.audience} value={fragrance.gender ? capitalize(fragrance.gender) : undefined} />
               <DetailRow label={t.fragrances.detail.category} value={fragrance.brandType} />
-              <DetailRow
-                label={t.fragrances.detail.communityRating}
-                value={
-                  fragrance.rating
-                    ? t.fragrances.detail.ratingValue(fragrance.rating, fragrance.voteCount)
-                    : undefined
-                }
-              />
             </dl>
+            <FragranceBadges badges={fragrance.badges} />
+            <SeasonalEvidence fragrance={fragrance} season={season} />
+            <p className="mt-3 text-xs text-[color:var(--public-ink-secondary,#dacfb7)]">{t.fragrances.badges.note}</p>
+            {fragrance.relationships?.map((relation) => (
+              <p key={`${relation.type}:${relation.source}`} className="mt-3 text-sm">
+                {relation.type === "resembles" ? t.articles.houses.similarity : t.articles.houses.brandClaim}:{" "}
+                <a href={relation.source} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">
+                  {relation.referenceBrand} · {relation.referencePerfume}
+                </a>
+              </p>
+            ))}
           </div>
         </div>
 
@@ -207,7 +225,9 @@ function FragranceDetail({
 }
 
 export default function FragranceLibraryPage() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
+  const copy = getPriorityCopy(locale);
+  const [region, setRegion] = useState('');
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('');
   const [brand, setBrand] = useState('');
@@ -215,7 +235,7 @@ export default function FragranceLibraryPage() {
   const [audience, setAudience] = useState('');
   const [accord, setAccord] = useState('');
   const [era, setEra] = useState('');
-  const [minRating, setMinRating] = useState('');
+  const [badgeFilters, setBadgeFilters] = useState<BadgeFilters>({});
   const [brandOptions, setBrandOptions] = useState<string[]>([]);
   const [results, setResults] = useState<PublicFragrance[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -224,16 +244,17 @@ export default function FragranceLibraryPage() {
   const [selected, setSelected] = useState<PublicFragrance | null>(null);
   const requestIdRef = useRef(0);
 
-  const hasActiveFilters = Boolean(category || brand || season || audience || accord || era || minRating);
+  const hasActiveFilters = Boolean(region || category || brand || season || audience || accord || era || Object.values(badgeFilters).some(Boolean));
 
   const clearFilters = () => {
+    setRegion('');
     setCategory('');
     setBrand('');
     setSeason('');
     setAudience('');
     setAccord('');
     setEra('');
-    setMinRating('');
+    setBadgeFilters({});
   };
 
   // Brand suggestions follow the selected category.
@@ -255,6 +276,7 @@ export default function FragranceLibraryPage() {
   useEffect(() => {
     const trimmed = query.trim();
     if (trimmed.length < 2 && !hasActiveFilters) {
+      requestIdRef.current++;
       setResults([]);
       setHasSearched(false);
       setIsSearching(false);
@@ -268,12 +290,15 @@ export default function FragranceLibraryPage() {
       const params = new URLSearchParams({ limit: '36' });
       if (trimmed.length >= 2) params.set('q', trimmed);
       if (category) params.set('type', category);
+      if (region) params.set('region', region);
       if (brand) params.set('brand', brand);
       if (season) params.set('season', season);
       if (audience) params.set('audience', audience);
       if (accord) params.set('accord', accord);
       if (era) params.set('era', era);
-      if (minRating) params.set('minRating', minRating);
+      for (const [family, code] of Object.entries(badgeFilters)) {
+        if (code) params.set(family, code);
+      }
 
       void fetch(`/api/fragrances/search?${params.toString()}`, { cache: 'no-store' })
         .then(async (response) => {
@@ -300,11 +325,30 @@ export default function FragranceLibraryPage() {
     }, 300);
 
     return () => window.clearTimeout(timeout);
-  }, [query, category, brand, season, audience, accord, era, minRating, hasActiveFilters]);
+  }, [query, region, category, brand, season, audience, accord, era, badgeFilters, hasActiveFilters]);
 
   return (
     <main className="relative pb-16 pt-8 lg:pt-10">
-      <section className="relative z-10 mx-auto w-[90vw] max-w-[1280px]">
+      <div className="relative z-10 mx-auto grid w-[90vw] max-w-[1600px] gap-5 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-start lg:gap-0">
+        <aside className="articles-brand-rail-shell">
+          <ArticlesRail>
+            <p className="text-center font-articles-body text-[10px] uppercase tracking-[0.28em] text-[color:var(--public-ink-secondary,#d5b97f)]">{t.articles.menu.passionMenu}</p>
+            <nav aria-label={t.articles.menu.passionMenu} className="mt-6 flex flex-col gap-3">
+              {articlesMenuItems.map((item) => {
+                const entry = t.articles.menu.items[item.key];
+                const active = item.href === '/fragrances';
+                return (
+                  <Link key={item.key} href={item.href} aria-current={active ? 'page' : undefined} data-active={String(active)} className="articles-rail-button rounded-2xl border px-4 py-4">
+                    <p className="font-articles-heading text-lg">{entry.label}</p>
+                    <p className="mt-2 font-articles-body text-[10px] uppercase tracking-[0.15em]">{entry.hint}</p>
+                  </Link>
+                );
+              })}
+            </nav>
+          </ArticlesRail>
+        </aside>
+        <div className="articles-content-column min-w-0">
+      <section className="relative z-10 w-full">
         <div
           className="rounded-[28px] border border-[rgba(var(--public-champagne-channels,159,123,68),0.45)] p-6 sm:p-8 lg:p-10"
           style={{
@@ -323,7 +367,7 @@ export default function FragranceLibraryPage() {
         </div>
       </section>
 
-      <section className="relative z-10 mx-auto mt-4 w-[90vw] max-w-[1280px] space-y-6">
+      <section className="relative z-10 mt-4 w-full space-y-6">
         <section
           className="relative z-10 w-full rounded-[30px] border border-[rgba(var(--public-champagne-channels,159,123,68),0.45)] p-6 sm:p-8"
           style={{
@@ -346,6 +390,13 @@ export default function FragranceLibraryPage() {
           />
 
           <div className="mt-5 border-t border-[rgba(var(--public-champagne-channels,156,120,65),0.25)] pt-5">
+            <label className="mb-4 block text-sm">
+              <span className="mr-3">{copy.region}</span>
+              <select value={region} onChange={(event) => setRegion(event.target.value)} className="rounded-xl border border-current bg-[rgb(var(--public-surface-channels,21,18,13))] px-3 py-2">
+                <option value="">{copy.anyRegion}</option>
+                <option value="middle-east">{copy.middleEast}</option>
+              </select>
+            </label>
             <div className="flex flex-wrap items-center gap-2">
               <span className="mr-1 font-articles-body text-[11px] uppercase tracking-[0.24em] text-[color:var(--public-ink-muted,#b7955f)]">{t.fragrances.search.category}</span>
               {CATEGORY_OPTIONS.map((option) => {
@@ -460,22 +511,10 @@ export default function FragranceLibraryPage() {
                 </select>
               </div>
 
-              <div>
-                <label htmlFor="filter-rating" className="font-articles-body text-[11px] uppercase tracking-[0.22em] text-[color:var(--public-ink-muted,#b7955f)]">
-                  {t.fragrances.search.minRating}
-                </label>
-                <select
-                  id="filter-rating"
-                  value={minRating}
-                  onChange={(event) => setMinRating(event.target.value)}
-                  className="mt-1.5 w-full rounded-xl border border-[rgba(var(--public-champagne-channels,156,120,65),0.45)] bg-black/40 px-3 py-2.5 font-articles-body text-sm text-[color:var(--public-ink-primary,#f1e3c4)] focus:border-[rgba(var(--public-champagne-channels,243,210,147),0.8)] focus:outline-none"
-                >
-                  {RATING_OPTIONS.map((option) => (
-                    <option key={option.value || 'any'} value={option.value}>{t.fragrances.ratingOptions[option.key]}</option>
-                  ))}
-                </select>
-              </div>
             </div>
+            <div className="mt-4"><FragranceBadgeFilters filters={badgeFilters} onChange={setBadgeFilters} /></div>
+            <p className="mt-3 text-sm text-[color:var(--public-ink-secondary,#dacfb7)]">{getDiscoveryCopy(locale).seasonalHelp}</p>
+            <p className="mt-3 text-xs text-[color:var(--public-ink-secondary,#dacfb7)]">{t.fragrances.badges.note}</p>
 
             {hasActiveFilters && (
               <button
@@ -509,7 +548,8 @@ export default function FragranceLibraryPage() {
         </section>
 
         {results.length > 0 && (
-          <section className="relative z-10 grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+          <section aria-label={season ? getDiscoveryCopy(locale).seasonal : t.fragrances.hero.title} className="relative z-10 grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+            {season && <h2 className="col-span-full text-xl">{getDiscoveryCopy(locale).seasonal}</h2>}
             {results.map((fragrance) => (
               <button
                 key={fragrance.id}
@@ -537,19 +577,22 @@ export default function FragranceLibraryPage() {
                 <p className="mt-2 font-articles-body text-xs uppercase tracking-[0.18em] text-[color:var(--public-ink-muted,#b7955f)]">
                   {[
                     fragrance.launchYear,
-                    fragrance.rating ? `★ ${fragrance.rating}` : undefined,
                     fragrance.brandType,
                   ]
                     .filter(Boolean)
                     .join(' · ')}
                 </p>
+                <FragranceBadges badges={fragrance.badges} />
+                <SeasonalEvidence fragrance={fragrance} season={season} />
               </button>
             ))}
           </section>
         )}
       </section>
 
-      {selected && <FragranceDetail fragrance={selected} onClose={() => setSelected(null)} />}
+        </div>
+      </div>
+      {selected && <FragranceDetail fragrance={selected} season={season} onClose={() => setSelected(null)} />}
     </main>
   );
 }

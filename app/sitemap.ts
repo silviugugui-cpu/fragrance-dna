@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next';
+import { topPerfumerProfiles } from '@/lib/data/topPerfumerProfiles';
 
 const BASE_URL = 'https://olfactivedna.com';
 
@@ -14,6 +15,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/territories', priority: 0.6 },
     { path: '/articles', priority: 0.6 },
     { path: '/articles/perfumers', priority: 0.5 },
+    ...topPerfumerProfiles.map(({ slug }) => ({ path: `/articles/perfumers/${slug}`, priority: 0.45 })),
+    { path: '/articles/houses', priority: 0.6 },
+    { path: '/articles/occasions', priority: 0.6 },
     { path: '/faq', priority: 0.5 },
   ];
 

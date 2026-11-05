@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-label="Abstract editorial scent composition for Chanel">
+<defs>
+  <radialGradient id="bg"><stop stop-color="#272219"/><stop offset="1" stop-color="#080807"/></radialGradient>
+  <radialGradient id="glow"><stop stop-color="#fff0be"/><stop offset=".45" stop-color="#B79AB6" stop-opacity=".82"/><stop offset="1" stop-color="#B79AB6" stop-opacity="0"/></radialGradient>
+  <linearGradient id="petal" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#FFF2CF" stop-opacity=".82"/><stop offset=".55" stop-color="#B79AB6" stop-opacity=".55"/><stop offset="1" stop-color="#524332" stop-opacity=".2"/></linearGradient>
+  <filter id="soft"><feGaussianBlur stdDeviation="15"/></filter>
+</defs>
+<rect width="800" height="1000" fill="url(#bg)"/>
+<circle cx="382" cy="509" r="250" fill="url(#glow)" opacity=".19" filter="url(#soft)"/>
+<ellipse cx="471.0" cy="509.0" rx="34" ry="77" transform="rotate(0 471.0 509.0)" fill="url(#petal)" opacity=".62"/><ellipse cx="437.5" cy="578.6" rx="34" ry="77" transform="rotate(51 437.5 578.6)" fill="url(#petal)" opacity=".62"/><ellipse cx="362.2" cy="595.8" rx="34" ry="77" transform="rotate(102 362.2 595.8)" fill="url(#petal)" opacity=".62"/><ellipse cx="301.8" cy="547.6" rx="34" ry="77" transform="rotate(153 301.8 547.6)" fill="url(#petal)" opacity=".62"/><ellipse cx="301.8" cy="470.4" rx="34" ry="77" transform="rotate(204 301.8 470.4)" fill="url(#petal)" opacity=".62"/><ellipse cx="362.2" cy="422.2" rx="34" ry="77" transform="rotate(255 362.2 422.2)" fill="url(#petal)" opacity=".62"/><ellipse cx="437.5" cy="439.4" rx="34" ry="77" transform="rotate(306 437.5 439.4)" fill="url(#petal)" opacity=".62"/><circle cx="382" cy="509" r="36" fill="#B79AB6" opacity=".78"/>
+<rect x="38" y="38" width="724" height="924" rx="8" fill="none" stroke="#FCCB5F" stroke-opacity=".34"/>
+<path d="M64 868 H736" stroke="#FCCB5F" stroke-opacity=".38"/>
+<circle cx="400" cy="916" r="4" fill="#FCCB5F" opacity=".8"/>
+</svg>

@@ -21,22 +21,22 @@ const faq: Dictionary['faq'] = {
     {
       question: 'Comment mon profil démarre-t-il ?',
       answer:
-        'L’Ancrage enregistre les familles olfactives que vous adorez, qui vous laissent neutre ou que vous évitez, et crée votre profil ADN initial. Vous voyez des recommandations immédiatement. Au moins deux préférences « J’adore » ou « J’évite » sont nécessaires avant de lancer une série diagnostique.',
+        'L’Ancrage utilise vos choix explicites J’adore et J’évite. Neutre n’a aucune influence positive ou négative ; les familles non évaluées restent inconnues. Deux choix J’adore ou J’évite permettent de commencer le test. Vos réponses directes peuvent corriger ces préférences initiales.',
     },
     {
       question: 'Comment fonctionnent les évaluations de parfums ?',
       answer:
-        'Chaque série adaptative propose jusqu’à six parfums, avec une option recommandée et une solution de repli lorsque c’est possible. Choisissez le parfum que vous pouvez évaluer et notez chaque caractéristique affichée. Vos réponses n’influencent le profil qu’après validation de l’évaluation.',
+        'Évaluez le parfum globalement, puis jusqu’à deux caractéristiques : leur perception et, si perçues, votre plaisir. Non perçu ne signifie jamais détesté. Seul le plaisir explicite affine une préférence et sa confiance ; l’avis global sert séparément à comparer les compositions. Le parfum suivant est choisi après envoi. Impossible à évaluer n’ajoute ni preuve ni évaluation complète.',
     },
     {
-      question: 'Les réglages provisoires des curseurs affectent-ils mon badge ?',
+      question: 'Les réponses non envoyées affectent-elles mon badge ?',
       answer:
-        'Non. Les réglages des curseurs restent un brouillon tant que vous ne validez pas. Les réponses non validées ne modifient ni votre confiance ADN, ni votre badge actuel, ni vos recommandations.',
+        'Non. Les réponses partielles sont sauvegardées pour reprise, sans modifier préférences, confiance, badge ou recommandations avant envoi. Les anciens curseurs restent un historique de perception, pas des préférences.',
     },
     {
       question: 'Puis-je m’arrêter et reprendre plus tard ?',
       answer:
-        'Oui. Le parfum sélectionné, votre position dans la série, les évaluations terminées et votre profil sont enregistrés sur votre compte. Vous pouvez vous arrêter après toute évaluation validée et reprendre plus tard.',
+        'Oui. Le parfum courant et les réponses partielles sont sauvegardés dans ce navigateur et synchronisés avec votre compte si vous êtes connecté. Les évaluations terminées sont conservées. En cas d’échec de sauvegarde, réessayez avant de partir.',
     },
     {
       question: 'Que signifient les niveaux de badge ?',

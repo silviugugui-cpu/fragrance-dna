@@ -26,7 +26,7 @@ const grounding: Dictionary['grounding'] = {
   sectionDescription: 'Arraste uma qualidade para Adoro, Neutro ou Evitar, ou use X, ✓ e o botão da qualidade para a posicionar.',
   neutralLabel: 'Afinidades neutras',
   neutralTitle: 'Equilíbrio',
-  neutralDescription: 'Estes sussurros acrescentam atmosfera sem exigir protagonismo, criando um rasto suave e equilibrado.',
+  neutralDescription: 'Escolha Neutro explicitamente se não tem preferência nem aversão. A escolha é guardada, mas não altera o ADN.',
   neutralEmpty: 'Sem qualidades em Neutro neste momento...',
   loveLabel: 'Padrões de atração',
   loveTitle: 'Adoro',

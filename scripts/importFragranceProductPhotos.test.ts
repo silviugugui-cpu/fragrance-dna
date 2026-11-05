@@ -30,7 +30,7 @@ function fixture() {
     source_page: "https://example.com/perfume",
     notes: "Supplied photograph",
   };
-  const saveManifest = (records = [record]) =>
+  const saveManifest = (records: object[] = [record]) =>
     fs.writeFileSync(path.join(input, "manifest.json"), JSON.stringify({
       schema_version: 1, record_count: records.length, records,
     }));
@@ -57,8 +57,9 @@ function fixture() {
   `).run(record.fragrance_id, record.fragrance_id, record.brand, record.perfume,
     original.imageUrl, JSON.stringify(original));
 
-  const run = (apply = true) => spawnSync(process.execPath, [
+  const run = (apply = true, imageDirectories: string[] = []) => spawnSync(process.execPath, [
     tsx, script, "--input", input, ...(apply ? ["--apply"] : []),
+    ...imageDirectories.flatMap((directory) => ["--images-dir", directory]),
   ], {
     cwd: directory,
     env: { ...process.env, FRAGRANCEDNA_SQLITE_PATH: databasePath, FRAGRANCEDNA_SQLITE_READONLY: "false", VERCEL: "" },
@@ -86,7 +87,7 @@ test("dry-run, canonical import, provenance, backup and idempotent reimport", ()
       local_image_path: string; image_url: string; record_json: string;
     };
     const record = JSON.parse(row.record_json);
-    assert.match(row.local_image_path, /^\/images\/product-photos\/[a-f0-9]{64}\.png$/);
+    assert.match(row.local_image_path, /^\/images\/perfumes\/product-photos--[a-f0-9]{64}\.png$/);
     assert.equal(record.localImagePath, row.local_image_path);
     assert.equal(record.userDnaProfiles[0].canonicalLocalImagePath, row.local_image_path);
     assert.equal(row.image_url, "https://example.com/existing.png");
@@ -101,12 +102,52 @@ test("dry-run, canonical import, provenance, backup and idempotent reimport", ()
     } finally { backup.close(); }
     const repeated = run();
     assert.equal(repeated.status, 0, repeated.stderr);
-    assert.equal(fs.readdirSync(path.join(directory, "public", "images", "product-photos")).length, 1);
+    assert.equal(fs.readdirSync(path.join(directory, "public", "images", "perfumes")).length, 1);
     assert.equal(database.prepare<[], { count: number }>("SELECT COUNT(*) AS count FROM fragrances").get()?.count, 1);
   } finally { fixtureData.cleanup(); }
 });
 
-for (const scenario of ["missing-id", "wrong-brand", "unsafe-path", "duplicate-id", "existing-image", "invalid-image"] as const) {
+test("imports an indexed transfer from split image directories into every canonical row", () => {
+  const fixtureData = fixture();
+  const { directory, database, record, saveManifest, run } = fixtureData;
+  try {
+    const images = path.join(directory, "part-01", "images");
+    fs.mkdirSync(images, { recursive: true });
+    fs.renameSync(path.join(directory, "transfer", "images", "photo.png"), path.join(images, "photo.png"));
+    saveManifest([{
+      canonical_key: record.fragrance_id,
+      record_ids_json: JSON.stringify([record.fragrance_id, "alternate-id"]),
+      brand: record.brand, perfume: record.perfume,
+      image_file: record.image_file, image_url: record.image_url,
+      image_source_url: record.source_page, image_rights_note: "Rights require review",
+      source_type: "supplied_product_image", status: "downloaded",
+    }]);
+    database.prepare(`
+      INSERT INTO fragrances (record_id, canonical_key, brand, perfume, record_json)
+      SELECT 'alternate-id', canonical_key, brand, perfume, record_json FROM fragrances
+    `).run();
+    const applied = run(true, [images]);
+    assert.equal(applied.status, 0, applied.stderr);
+    const rows = database.prepare("SELECT local_image_path, record_json FROM fragrances").all() as {
+      local_image_path: string; record_json: string;
+    }[];
+    assert.equal(rows.length, 2);
+    for (const row of rows) {
+      assert.match(row.local_image_path, /^\/images\/perfumes\/product-photos--[a-f0-9]{64}\.png$/);
+      assert.equal(JSON.parse(row.record_json).localImagePath, row.local_image_path);
+      assert.equal(JSON.parse(row.record_json).userDnaProfiles[0].canonicalLocalImagePath, row.local_image_path);
+    }
+    const report = JSON.parse(fs.readFileSync(
+      path.join(directory, "data", "generated", "product-photo-import-report.json"), "utf8",
+    ));
+    assert.equal(report.canonicalRows, 2);
+    assert.equal(report.records[0].notes, "Rights require review");
+    assert.equal(report.records[0].source_type, "supplied_product_image");
+    assert.equal(run(true, [images]).status, 0);
+  } finally { fixtureData.cleanup(); }
+});
+
+for (const scenario of ["missing-id", "wrong-brand", "unsafe-path", "duplicate-id", "existing-image", "invalid-image", "missing-image", "ambiguous-image", "not-downloaded"] as const) {
   test(`rejects ${scenario} before changing canonical image associations`, () => {
     const fixtureData = fixture();
     const { directory, database, record, saveManifest, run } = fixtureData;
@@ -117,8 +158,19 @@ for (const scenario of ["missing-id", "wrong-brand", "unsafe-path", "duplicate-i
       if (scenario === "duplicate-id") saveManifest([record, record]);
       if (scenario === "existing-image") database.prepare("UPDATE fragrances SET local_image_path = '/images/existing.png'").run();
       if (scenario === "invalid-image") fs.writeFileSync(path.join(directory, "transfer", "images", "photo.png"), "invalid");
+      if (scenario === "missing-image") fs.unlinkSync(path.join(directory, "transfer", "images", "photo.png"));
+      if (scenario === "not-downloaded") saveManifest([{
+        canonical_key: record.fragrance_id, status: "failed",
+      }]);
+      const imageDirectories: string[] = [];
+      if (scenario === "ambiguous-image") {
+        const second = path.join(directory, "second-images");
+        fs.mkdirSync(second);
+        fs.writeFileSync(path.join(second, "photo.png"), image);
+        imageDirectories.push(path.join(directory, "transfer", "images"), second);
+      }
       const before = database.prepare("SELECT record_json, local_image_path FROM fragrances").get();
-      const result = run();
+      const result = run(true, imageDirectories);
       assert.notEqual(result.status, 0);
       assert.match(result.stderr, /\[import-product-photos\]/);
       assert.deepEqual(database.prepare("SELECT record_json, local_image_path FROM fragrances").get(), before);

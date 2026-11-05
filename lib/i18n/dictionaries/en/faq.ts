@@ -19,22 +19,22 @@ const faq = {
     {
       question: 'How does my profile begin?',
       answer:
-        'Grounding records the olfactive families you love, feel neutral about, or avoid, and creates your initial DNA profile. You can see recommendations right away. At least two Love or Avoid preferences are needed before starting a diagnostic batch.',
+        'Grounding starts your profile from explicit Love and Avoid choices. Neutral has no positive or negative influence; unassessed families remain unknown. At least two Love or Avoid choices are needed to start the test. Direct liking answers can correct these initial preferences.',
     },
     {
       question: 'How do fragrance evaluations work?',
       answer:
-        'Each adaptive batch offers up to six fragrances, with a recommended option and a backup where available. Choose the fragrance you can evaluate and rate every displayed characteristic. Your answers affect the profile only after you commit the evaluation.',
+        'Rate the fragrance overall, then up to two adaptive characteristics: how noticeable each was and, if noticed, whether you liked it. Not noticed never means dislike. Only explicit attribute liking refines attribute preferences and their confidence; overall liking informs composition matching separately. The next fragrance is chosen after submission. Unable to evaluate adds no learning signal or completed evaluation.',
     },
     {
-      question: 'Do draft slider changes affect my badge?',
+      question: 'Do unfinished answers affect my badge?',
       answer:
-        'No. Slider changes are a draft until you commit. Uncommitted answers do not change your DNA confidence, current badge, or recommendations.',
+        'No. Draft answers are saved for resuming, but do not change preferences, confidence, badges or recommendations until submitted. Previous sliders remain perception history, never like/dislike evidence.',
     },
     {
       question: 'Can I stop and continue later?',
       answer:
-        'Yes. Your selected fragrance, batch position, completed evaluations, and profile are saved for your account. You can stop after any committed evaluation and resume later.',
+        'Yes. The current fragrance and partially answered questions are saved on this browser and synchronized to your account when signed in. Completed evaluations remain saved too. If saving fails, retry before leaving.',
     },
     {
       question: 'What do the badge levels mean?',

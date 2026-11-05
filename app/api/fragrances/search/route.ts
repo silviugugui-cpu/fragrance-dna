@@ -4,6 +4,9 @@ import {
   type FragranceSearchFilters,
   type MasterFragranceRecord,
 } from "@/lib/database/masterFragranceDatabase";
+import { parseBadgeFilters, type FragranceBadges } from "@/lib/fragranceBadges";
+import { publicBrandType, fragranceRelationships, type FragranceRelationship } from "@/lib/fragranceClassification";
+import { SEASON_ACCORDS, isCueSeason } from "@/lib/seasonalCues";
 
 export const dynamic = "force-dynamic";
 
@@ -11,21 +14,13 @@ export const dynamic = "force-dynamic";
 const BRAND_TYPES: Record<string, string> = {
   niche: "Niche",
   designer: "Designer",
-  dupe: "Dupe/Middle Eastern",
+  dupe: "inspired_by",
 };
 
 const AUDIENCES: Record<string, string> = {
   men: "for men",
   women: "for women",
   unisex: "for women and men",
-};
-
-// Seasons are derived from main accords, following common perfumery conventions.
-const SEASON_ACCORDS: Record<string, string[]> = {
-  spring: ["floral", "white floral", "green", "rose", "iris", "violet", "powdery", "lavender", "yellow floral", "tuberose"],
-  summer: ["citrus", "fresh", "aquatic", "marine", "ozonic", "tropical", "fresh spicy", "herbal", "salty"],
-  autumn: ["woody", "earthy", "mossy", "leather", "patchouli", "warm spicy", "soft spicy", "smoky", "oud"],
-  winter: ["vanilla", "sweet", "amber", "balsamic", "caramel", "honey", "cinnamon", "tobacco", "lactonic"],
 };
 
 const ERAS: Record<string, { yearFrom?: number; yearTo?: number }> = {
@@ -37,6 +32,8 @@ const ERAS: Record<string, { yearFrom?: number; yearTo?: number }> = {
 };
 
 export interface PublicFragrance {
+  originRegion?: string;
+  relationships?: FragranceRelationship[];
   id: string;
   brand: string;
   perfume: string;
@@ -44,8 +41,7 @@ export interface PublicFragrance {
   launchYear?: string;
   gender?: string;
   perfumer?: string;
-  rating?: string;
-  voteCount?: string;
+  badges?: FragranceBadges;
   mainAccords: string[];
   description?: string;
   imageUrl?: string;
@@ -58,26 +54,19 @@ const text = (value: unknown): string | undefined => {
   return normalized.length > 0 ? normalized : undefined;
 };
 
-// Some sources rate on a 0-10 scale; normalize display to the 0-5 scale.
-const normalizedRating = (value: unknown): string | undefined => {
-  const raw = Number.parseFloat(String(value ?? ""));
-  if (!Number.isFinite(raw) || raw <= 0) return undefined;
-  const scaled = raw > 5 ? raw / 2 : raw;
-  return (Math.round(scaled * 100) / 100).toString();
-};
-
 // Expose only consumer-facing fields; internal pipeline metadata
 // (source, confidence, status, fingerprints, external links) stays private.
 const toPublicFragrance = (record: MasterFragranceRecord): PublicFragrance => ({
   id: text(record.externalId) ?? text(record.canonicalKey) ?? `${record.brand}-${record.perfume}`,
   brand: text(record.brand) ?? "",
   perfume: text(record.perfume ?? record.name) ?? "",
-  brandType: text(record.brandType),
+  brandType: publicBrandType(record.brandType),
+  originRegion: text(record.originRegion),
+  relationships: fragranceRelationships(record.relationships),
   launchYear: text(record.launchYear),
   gender: text(record.gender),
   perfumer: text(record.perfumer),
-  rating: normalizedRating(record.rating),
-  voteCount: text(record.voteCount),
+  badges: record.badges,
   mainAccords: Array.isArray(record.mainAccords)
     ? record.mainAccords.map((accord) => String(accord)).filter(Boolean)
     : [],
@@ -92,13 +81,24 @@ export async function GET(request: NextRequest) {
   const query = searchParams.get("q")?.trim() ?? "";
 
   const filters: FragranceSearchFilters = { query };
+  try {
+    filters.badges = parseBadgeFilters(searchParams);
+  } catch (error: unknown) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Invalid badge filter" }, { status: 400 });
+  }
 
   const type = searchParams.get("type")?.trim().toLowerCase() ?? "";
   if (type) {
     if (!BRAND_TYPES[type]) {
       return NextResponse.json({ error: "Unknown category filter" }, { status: 400 });
     }
-    filters.brandType = BRAND_TYPES[type];
+    if (type === "dupe") filters.inspiredBy = true;
+    else filters.brandType = BRAND_TYPES[type];
+  }
+  const region = searchParams.get("region")?.trim() ?? "";
+  if (region) {
+    if (region !== "middle-east") return NextResponse.json({ error: "Unknown origin region" }, { status: 400 });
+    filters.originRegion = region;
   }
 
   const audience = searchParams.get("audience")?.trim().toLowerCase() ?? "";
@@ -111,7 +111,7 @@ export async function GET(request: NextRequest) {
 
   const season = searchParams.get("season")?.trim().toLowerCase() ?? "";
   if (season) {
-    if (!SEASON_ACCORDS[season]) {
+    if (!isCueSeason(season)) {
       return NextResponse.json({ error: "Unknown season filter" }, { status: 400 });
     }
     filters.anyAccords = SEASON_ACCORDS[season];

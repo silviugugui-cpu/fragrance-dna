@@ -5,7 +5,19 @@ const fragrances: Dictionary['fragrances'] = {
     all: 'Tous',
     niche: 'Niche',
     designer: 'Créateur',
-    dupe: 'Dupe · Moyen-Orient',
+    dupe: 'Inspiration documentée',
+  },
+  badges: {
+    community: 'Appréciation communautaire',
+    popularity: 'Volume des avis',
+    olfactive: 'Olfactive Score',
+    any: 'Tous les niveaux',
+    undefined: 'Non défini',
+    communityLevels: ['Peu apprécié', 'Modérément apprécié', 'Apprécié', 'Très apprécié', 'Exceptionnel'],
+    popularityLevels: ["Très peu d'avis", "Peu d'avis", "Volume modéré", "Beaucoup d'avis", "Très nombreux avis"],
+    olfactiveLevels: ['À découvrir', 'Prometteur', 'Remarqué', 'Favori', 'Référence'],
+    note: "Avis Fragrantica ou Parfumo du catalogue, sans actualisation en direct ni votes propres. Les barres indiquent des niveaux, pas des scores bruts. Le volume ne mesure pas la qualité. Olfactive Score : 80% appréciation ajustée selon la confiance et 20% volume relatif des avis, pas votre compatibilité ADN.",
+    level: (n: number) => `Niveau ${n} sur 5`,
   },
   seasonOptions: {
     any: 'Toute saison',
@@ -35,6 +47,7 @@ const fragrances: Dictionary['fragrances'] = {
     '3.5': '3,5+',
   },
   accordLabels: {
+    animalic: 'Animal',
     woody: 'Boisé',
     citrus: 'Agrumes',
     sweet: 'Sucré',

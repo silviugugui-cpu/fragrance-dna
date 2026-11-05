@@ -6,7 +6,7 @@ const test: Dictionary['test'] = {
   poolUnavailable: 'Der User-DNA-Duftpool ist nicht verfügbar.',
   groundingRequiredEyebrow: 'GROUNDING ERFORDERLICH',
   groundingRequiredTitle: 'Beginnen Sie mit Ihren Duftvorlieben',
-  groundingRequiredDescription: 'Platzieren Sie mindestens zwei Eigenschaften in Liebe oder Meiden, bevor Sie ein Diagnose-Set anfordern.',
+  groundingRequiredDescription: 'Platzieren Sie mindestens zwei Eigenschaften in Liebe oder Meiden, bevor Sie Ihre adaptiven Bewertungen beginnen.',
   beginGrounding: 'Grounding starten',
   preparingBatch: 'Ihr Diagnose-Set wird vorbereitet...',
   noEvaluableFragrances: 'Der User-DNA-Duftpool enthält keine bewertbaren Düfte.',

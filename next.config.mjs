@@ -25,6 +25,8 @@ const nextConfig = {
       "/api/studio/master-database/record": ["./data/generated/fragrancedna.sqlite"],
       "/api/test/user-dna-pool": ["./data/generated/fragrancedna.sqlite"],
       "/api/recommendations": ["./data/generated/fragrancedna.sqlite"],
+      "/articles/houses": ["./data/generated/fragrancedna.sqlite"],
+      "/articles/houses/[houseId]": ["./data/generated/fragrancedna.sqlite"],
       "/api/fragrances/search": ["./data/generated/fragrancedna.sqlite"],
       "/api/fragrances/brands": ["./data/generated/fragrancedna.sqlite"],
       "/api/downloads/user-flow-handoff": ["./docs/FRAGRANCEDNA_USER_FLOW_AND_NEON_HANDOFF_2026-10-19.json"],

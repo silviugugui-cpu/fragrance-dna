@@ -5,7 +5,19 @@ const fragrances: Dictionary['fragrances'] = {
     all: 'Toate',
     niche: 'Nișă',
     designer: 'Designer',
-    dupe: 'Dupe · Orientul Mijlociu',
+    dupe: 'Inspirație documentată',
+  },
+  badges: {
+    community: 'Scor comunitar',
+    popularity: 'Volumul evaluărilor',
+    olfactive: 'Olfactive Score',
+    any: 'Orice nivel',
+    undefined: 'Nedefinit',
+    communityLevels: ['Apreciere redusă', 'Apreciere moderată', 'Bine apreciat', 'Foarte apreciat', 'Excepțional'],
+    popularityLevels: ['Foarte puține evaluări', 'Puține evaluări', 'Volum moderat', 'Multe evaluări', 'Foarte multe evaluări'],
+    olfactiveLevels: ['De explorat', 'Promițător', 'Remarcat', 'Favorit', 'De referință'],
+    note: 'Evaluări Fragrantica sau Parfumo din snapshot-ul catalogului, nu date live sau voturi proprii. Barele arată niveluri, nu scoruri brute. Volumul evaluărilor nu reprezintă calitatea. Olfactive Score combină 80% apreciere ajustată după încredere și 20% volum relativ al evaluărilor; nu este compatibilitatea ADN.',
+    level: (n: number) => `Nivelul ${n} din 5`,
   },
   seasonOptions: {
     any: 'Orice anotimp',
@@ -35,6 +47,7 @@ const fragrances: Dictionary['fragrances'] = {
     '3.5': '3,5+',
   },
   accordLabels: {
+    animalic: 'Animalic',
     woody: 'Lemnos',
     citrus: 'Citric',
     sweet: 'Dulce',

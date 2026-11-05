@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-label="Abstract editorial scent composition for Maison Francis Kurkdjian">
+<defs>
+  <radialGradient id="bg"><stop stop-color="#272219"/><stop offset="1" stop-color="#080807"/></radialGradient>
+  <radialGradient id="glow"><stop stop-color="#fff0be"/><stop offset=".45" stop-color="#D18569" stop-opacity=".82"/><stop offset="1" stop-color="#D18569" stop-opacity="0"/></radialGradient>
+  <linearGradient id="petal" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#FFF2CF" stop-opacity=".82"/><stop offset=".55" stop-color="#D18569" stop-opacity=".55"/><stop offset="1" stop-color="#524332" stop-opacity=".2"/></linearGradient>
+  <filter id="soft"><feGaussianBlur stdDeviation="15"/></filter>
+</defs>
+<rect width="800" height="1000" fill="url(#bg)"/>
+<circle cx="401" cy="492" r="250" fill="url(#glow)" opacity=".19" filter="url(#soft)"/>
+<path d="M245 505 C210 405, 365 390, 310 515 C280 550, 250 535, 245 505Z" fill="url(#petal)" opacity=".5" transform="rotate(55 245 505)"/><path d="M245 505 Q280 465 305 507" stroke="#D18569" opacity=".75" fill="none"/><path d="M290 392 C255 292, 410 277, 355 402 C325 437, 295 422, 290 392Z" fill="url(#petal)" opacity=".5" transform="rotate(-55 290 392)"/><path d="M290 392 Q325 352 350 394" stroke="#D18569" opacity=".75" fill="none"/><path d="M335 459 C300 359, 455 344, 400 469 C370 504, 340 489, 335 459Z" fill="url(#petal)" opacity=".5" transform="rotate(55 335 459)"/><path d="M335 459 Q370 419 395 461" stroke="#D18569" opacity=".75" fill="none"/><path d="M380 526 C345 426, 500 411, 445 536 C415 571, 385 556, 380 526Z" fill="url(#petal)" opacity=".5" transform="rotate(-55 380 526)"/><path d="M380 526 Q415 486 440 528" stroke="#D18569" opacity=".75" fill="none"/><path d="M425 413 C390 313, 545 298, 490 423 C460 458, 430 443, 425 413Z" fill="url(#petal)" opacity=".5" transform="rotate(55 425 413)"/><path d="M425 413 Q460 373 485 415" stroke="#D18569" opacity=".75" fill="none"/><path d="M470 480 C435 380, 590 365, 535 490 C505 525, 475 510, 470 480Z" fill="url(#petal)" opacity=".5" transform="rotate(-55 470 480)"/><path d="M470 480 Q505 440 530 482" stroke="#D18569" opacity=".75" fill="none"/><path d="M515 367 C480 267, 635 252, 580 377 C550 412, 520 397, 515 367Z" fill="url(#petal)" opacity=".5" transform="rotate(55 515 367)"/><path d="M515 367 Q550 327 575 369" stroke="#D18569" opacity=".75" fill="none"/><path d="M560 434 C525 334, 680 319, 625 444 C595 479, 565 464, 560 434Z" fill="url(#petal)" opacity=".5" transform="rotate(-55 560 434)"/><path d="M560 434 Q595 394 620 436" stroke="#D18569" opacity=".75" fill="none"/>
+<rect x="38" y="38" width="724" height="924" rx="8" fill="none" stroke="#FCCB5F" stroke-opacity=".34"/>
+<path d="M64 868 H736" stroke="#FCCB5F" stroke-opacity=".38"/>
+<circle cx="400" cy="916" r="4" fill="#FCCB5F" opacity=".8"/>
+</svg>

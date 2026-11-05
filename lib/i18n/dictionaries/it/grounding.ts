@@ -26,7 +26,7 @@ const grounding: Dictionary['grounding'] = {
   sectionDescription: 'Trascina una qualità in Amore, Neutro o Da evitare, oppure usa X, ✓ e il pulsante della qualità per posizionarla.',
   neutralLabel: 'Affinità neutre',
   neutralTitle: 'Equilibrio',
-  neutralDescription: 'Questi sussurri aggiungono atmosfera senza pretendere i riflettori, creando una scia morbida ed equilibrata.',
+  neutralDescription: 'Scegli Neutro esplicitamente se non hai preferenze né avversioni. La scelta viene salvata senza modificare il DNA.',
   neutralEmpty: 'Nessuna qualità in Neutro al momento...',
   loveLabel: 'Schemi di attrazione',
   loveTitle: 'Amore',

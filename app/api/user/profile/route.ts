@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentSessionUser } from "@/lib/auth/serverSession";
 import { readPersistentUserProfile, upsertPersistentUserProfile, type PersistentUserProfile } from "@/lib/database/neonDatabase";
+import { parseEvaluationDraft, parseEvaluationRecords } from "@/lib/test/evaluationSession";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +33,18 @@ export async function PUT(request: Request) {
     const user = await getCurrentSessionUser();
     if (!user) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
     const payload = await request.json() as Record<string, unknown>;
+    if (payload.dnaSession && typeof payload.dnaSession === "object") {
+      const session = payload.dnaSession as { schemaVersion?: number; evaluationState?: { schemaVersion?: number; records?: unknown; draft?: unknown } };
+      if (session.schemaVersion === 2) {
+        try {
+          if (session.evaluationState?.schemaVersion !== 2) throw new Error("Missing versioned evaluation state.");
+          parseEvaluationRecords(session.evaluationState.records);
+          if (session.evaluationState.draft) parseEvaluationDraft(session.evaluationState.draft);
+        } catch (error: unknown) {
+          return NextResponse.json({ error: error instanceof Error ? error.message : "Invalid evaluation data." }, { status: 400 });
+        }
+      }
+    }
     const profile: PersistentUserProfile = {};
     for (const key of ALLOWED_FIELDS) {
       if (Object.prototype.hasOwnProperty.call(payload, key)) {

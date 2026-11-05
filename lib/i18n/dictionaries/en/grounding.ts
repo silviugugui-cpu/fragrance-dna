@@ -24,7 +24,7 @@
   sectionDescription: 'Drag a quality into Love, Neutral, or Avoid, or use X, ✓, and the quality button to place it.',
   neutralLabel: 'Neutral Affinities',
   neutralTitle: 'Balance',
-  neutralDescription: 'These whispers add atmosphere without demanding the spotlight, creating a soft, balanced trail.',
+  neutralDescription: 'Choose Neutral explicitly when you have no preference either way. Neutral choices are saved but do not shift your DNA.',
   neutralEmpty: 'No qualities in Neutral right now...',
   loveLabel: 'Attraction Patterns',
   loveTitle: 'Love',

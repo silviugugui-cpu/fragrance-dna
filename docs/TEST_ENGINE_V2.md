@@ -39,3 +39,41 @@ It reuses canonical attributes, canonical question generation, canonical behavio
 4. Maintenance
 
 Each stage tunes exploration rate, confidence thresholds, and stopping criteria.
+
+## Active evaluation contract (schema 2)
+
+`lib/test/preferenceLearning.ts` owns separate overall liking, perception,
+explicit attribute liking, projection replay and adaptive selection.
+`lib/test/evaluationSession.ts` validates persisted records/drafts and migrates
+legacy sessions without deleting raw slider answers or old projections.
+
+The active test loads only `/api/test/user-dna-pool` (canonical SQLite), selects
+one fragrance and at most two canonical attributes, and persists the next draft
+only after replaying the submitted record. Six-item preplanned batches are no
+longer used. Evaluated IDs and canonical duplicates, including unable attempts,
+are excluded. The initial candidate preferentially combines an unconfirmed Love
+prior and an uncertain attribute; unavailable combinations receive an explained
+learning-value fallback. Selection then balances compatibility, uncertainty,
+novelty and recent-brand diversity.
+
+Each fragrance requires overall liking or the explicit unable status.
+Per-attribute perception uses 0/1/2/3. Only noticed attributes require a separate
+liking answer (-2/-1/0/1/2). No sliders/default answers are submitted.
+Quality questions use localized adjectives, for example "How charismatic did
+you find it?", with Not at all / Slightly / Moderately / Very degree choices.
+Notes retain noticeability questions. Both use the same 0-3 perception contract
+and independently request liking only when the perceived degree is nonzero.
+Unable attempts contain no answers, do not count as complete, and do not update
+DNA. Three consistent explicit answers can retire a question; a subsequent
+explicit conflict reopens it.
+
+Records are append-only and idempotently validated by evaluation/canonical ID.
+Draft edits are not learning events. Partial drafts persist immediately in
+user-scoped localStorage and synchronize in order to the existing authenticated
+profile's `dnaSession` JSON field. Saving failures are surfaced with retry.
+There is no new database, service or authentication path.
+
+Legacy slider adapters emit no preference events and produce neutral preference
+projections. Collection reinforcement using old intensity-only payloads likewise
+cannot generate liking; a future entry point must supply this explicit schema
+to share the same learning semantics.

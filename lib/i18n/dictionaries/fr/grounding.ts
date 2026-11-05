@@ -26,7 +26,7 @@ const grounding: Dictionary['grounding'] = {
   sectionDescription: 'Glissez une qualité vers Coup de cœur, Neutre ou À éviter, ou utilisez X, ✓ et le bouton de la qualité pour la placer.',
   neutralLabel: 'Affinités neutres',
   neutralTitle: 'Équilibre',
-  neutralDescription: 'Ces murmures ajoutent de l’atmosphère sans réclamer la vedette, créant un sillage doux et équilibré.',
+  neutralDescription: 'Choisissez explicitement Neutre si vous ne préférez ni éviter ni aimer cette catégorie. Ce choix est enregistré sans modifier votre ADN.',
   neutralEmpty: 'Aucune qualité en Neutre pour le moment...',
   loveLabel: 'Schémas d’attraction',
   loveTitle: 'Coup de cœur',

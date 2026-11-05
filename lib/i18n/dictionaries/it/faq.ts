@@ -21,22 +21,22 @@ const faq: Dictionary['faq'] = {
     {
       question: 'Come inizia il mio profilo?',
       answer:
-        'Il Grounding registra le famiglie olfattive che ami, che ti lasciano neutrale o che eviti, e crea il tuo profilo DNA iniziale. Vedi subito le raccomandazioni. Servono almeno due preferenze «Amo» o «Evito» prima di avviare un lotto diagnostico.',
+        'Il Grounding parte dalle scelte esplicite Amo ed Evito. Neutrale non ha influenza positiva o negativa; le famiglie non valutate restano sconosciute. Servono due scelte Amo o Evito per il test. Le risposte dirette possono correggere queste preferenze iniziali.',
     },
     {
       question: 'Come funzionano le valutazioni dei profumi?',
       answer:
-        'Ogni lotto adattivo propone fino a sei profumi, con un’opzione consigliata e una di riserva quando disponibile. Scegli il profumo che puoi valutare e assegna un punteggio a ogni caratteristica mostrata. Le tue risposte influenzano il profilo solo dopo la conferma della valutazione.',
+        'Valuta il profumo nel complesso e fino a due caratteristiche adattive: quanto le hai percepite e, se notate, se ti sono piaciute. Non percepito non significa disprezzato. Solo il gradimento esplicito affina preferenza e fiducia dell’attributo; il giudizio generale confronta separatamente le composizioni. Il profumo successivo viene scelto dopo l’invio. Non valutabile non aggiunge segnali né valutazioni complete.',
     },
     {
-      question: 'Le modifiche provvisorie dei cursori influenzano il mio badge?',
+      question: 'Le risposte non inviate influenzano il mio badge?',
       answer:
-        'No. Le modifiche dei cursori restano una bozza finché non confermi. Le risposte non confermate non cambiano la tua fiducia DNA, il badge attuale o le raccomandazioni.',
+        'No. Le risposte parziali vengono salvate per riprendere, ma non cambiano preferenze, fiducia, badge o raccomandazioni prima dell’invio. I vecchi cursori restano uno storico di percezione, non di gradimento.',
     },
     {
       question: 'Posso fermarmi e continuare più tardi?',
       answer:
-        'Sì. Il profumo selezionato, la posizione nel lotto, le valutazioni completate e il profilo vengono salvati sul tuo account. Puoi fermarti dopo qualsiasi valutazione confermata e riprendere in seguito.',
+        'Sì. Il profumo attuale e le risposte parziali vengono salvati in questo browser e sincronizzati con il tuo account se hai effettuato l’accesso. Le valutazioni complete restano salvate. In caso di errore, riprova prima di uscire.',
     },
     {
       question: 'Cosa significano i livelli dei badge?',

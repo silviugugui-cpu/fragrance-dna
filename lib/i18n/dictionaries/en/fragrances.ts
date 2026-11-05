@@ -3,7 +3,19 @@
     all: 'All',
     niche: 'Niche',
     designer: 'Designer',
-    dupe: 'Dupe · Middle Eastern',
+    dupe: 'Documented inspiration',
+  },
+  badges: {
+    community: 'Community appreciation',
+    popularity: 'Review volume',
+    olfactive: 'Olfactive Score',
+    any: 'Any level',
+    undefined: 'Undefined',
+    communityLevels: ['Low appreciation', 'Moderate appreciation', 'Well liked', 'Highly liked', 'Exceptional'],
+    popularityLevels: ['Very few reviews', 'Few reviews', 'Moderate review volume', 'Many reviews', 'Very many reviews'],
+    olfactiveLevels: ['Discovery', 'Promising', 'Noticed', 'Favorite', 'Reference'],
+    note: 'Based on catalog snapshots of Fragrantica or Parfumo user reviews, not live data or our own votes. Bars show five ordinal levels, not raw scores. Review volume is not quality. Olfactive Score combines 80% confidence-adjusted community appreciation and 20% relative review volume; it is not your DNA match.',
+    level: (n: number) => `Level ${n} of 5`,
   },
   seasonOptions: {
     any: 'Any season',
@@ -33,6 +45,7 @@
     '3.5': '3.5+',
   },
   accordLabels: {
+    animalic: 'Animalic',
     woody: 'Woody',
     citrus: 'Citrus',
     sweet: 'Sweet',

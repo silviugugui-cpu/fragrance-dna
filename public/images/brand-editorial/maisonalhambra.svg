@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-label="Abstract editorial scent composition for Maison Alhambra">
+<defs>
+  <radialGradient id="bg"><stop stop-color="#272219"/><stop offset="1" stop-color="#080807"/></radialGradient>
+  <radialGradient id="glow"><stop stop-color="#fff0be"/><stop offset=".45" stop-color="#8CB7B1" stop-opacity=".82"/><stop offset="1" stop-color="#8CB7B1" stop-opacity="0"/></radialGradient>
+  <linearGradient id="petal" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#FFF2CF" stop-opacity=".82"/><stop offset=".55" stop-color="#8CB7B1" stop-opacity=".55"/><stop offset="1" stop-color="#524332" stop-opacity=".2"/></linearGradient>
+  <filter id="soft"><feGaussianBlur stdDeviation="15"/></filter>
+</defs>
+<rect width="800" height="1000" fill="url(#bg)"/>
+<circle cx="366" cy="499" r="250" fill="url(#glow)" opacity=".19" filter="url(#soft)"/>
+<ellipse cx="455.0" cy="499.0" rx="34" ry="77" transform="rotate(0 455.0 499.0)" fill="url(#petal)" opacity=".62"/><ellipse cx="421.5" cy="568.6" rx="34" ry="77" transform="rotate(51 421.5 568.6)" fill="url(#petal)" opacity=".62"/><ellipse cx="346.2" cy="585.8" rx="34" ry="77" transform="rotate(102 346.2 585.8)" fill="url(#petal)" opacity=".62"/><ellipse cx="285.8" cy="537.6" rx="34" ry="77" transform="rotate(153 285.8 537.6)" fill="url(#petal)" opacity=".62"/><ellipse cx="285.8" cy="460.4" rx="34" ry="77" transform="rotate(204 285.8 460.4)" fill="url(#petal)" opacity=".62"/><ellipse cx="346.2" cy="412.2" rx="34" ry="77" transform="rotate(255 346.2 412.2)" fill="url(#petal)" opacity=".62"/><ellipse cx="421.5" cy="429.4" rx="34" ry="77" transform="rotate(306 421.5 429.4)" fill="url(#petal)" opacity=".62"/><circle cx="366" cy="499" r="36" fill="#8CB7B1" opacity=".78"/>
+<rect x="38" y="38" width="724" height="924" rx="8" fill="none" stroke="#FCCB5F" stroke-opacity=".34"/>
+<path d="M64 868 H736" stroke="#FCCB5F" stroke-opacity=".38"/>
+<circle cx="400" cy="916" r="4" fill="#FCCB5F" opacity=".8"/>
+</svg>

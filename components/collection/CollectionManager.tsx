@@ -15,6 +15,9 @@ import { useResolvedCollection } from '@/lib/collection/useResolvedCollection';
 import { useLanguage } from '@/lib/i18n';
 import type { CollectionFilter, CollectionFragrance, CollectionFragranceView, CollectionSortKey } from '@/lib/collection';
 import type { MasterFragranceRecord } from '@/lib/database/masterFragranceDatabase';
+import FragranceBadges from '@/components/FragranceBadges';
+import FragranceBadgeFilters from '@/components/FragranceBadgeFilters';
+import { matchesBadgeFilters, type BadgeFilters } from '@/lib/fragranceBadges';
 
 type CollectionCatalogResult = {
   fragrance: {
@@ -96,6 +99,7 @@ export default function CollectionManager() {
   const [filter, setFilter] = useState<CollectionFilter>('all');
   const [brandFilter, setBrandFilter] = useState('all');
   const [sortBy, setSortBy] = useState<CollectionSortKey>('rating');
+  const [badgeFilters, setBadgeFilters] = useState<BadgeFilters>({});
   const [modal, setModal] = useState<ModalState>(null);
   const [addQuery, setAddQuery] = useState('');
   const [notification, setNotification] = useState<string | null>(null);
@@ -174,6 +178,7 @@ export default function CollectionManager() {
         if (filter === 'owned' && !item.owned) return false;
         if (filter === 'wishlist' && !item.wishlist) return false;
         if (brandFilter !== 'all' && item.brand !== brandFilter) return false;
+        if (!matchesBadgeFilters(item.badges, badgeFilters)) return false;
         if (!normalizedQuery) return true;
 
         const searchable = [item.name, item.brand, item.notes ?? ''].join(' ').toLowerCase();
@@ -187,7 +192,7 @@ export default function CollectionManager() {
         const rightRating = right.personalRating ?? -1;
         return rightRating - leftRating || left.name.localeCompare(right.name);
       });
-  }, [resolvedCollection, filter, brandFilter, query, sortBy]);
+  }, [resolvedCollection, filter, brandFilter, query, sortBy, badgeFilters]);
 
   const addSearchResults = useMemo(() => {
     return addRecords.map((record) => toCollectionCatalogResult(record, collection));
@@ -387,6 +392,7 @@ export default function CollectionManager() {
                     {fragrance.notes.join(' · ')}
                   </p>
                 ) : null}
+                <FragranceBadges badges={fragrance.canonicalRecord.badges} />
 
                 <div className="mt-5 flex flex-wrap gap-2">
                   <button
@@ -509,6 +515,8 @@ export default function CollectionManager() {
         ))}
       </div>
 
+      <FragranceBadgeFilters filters={badgeFilters} onChange={setBadgeFilters} />
+      <p className="text-xs text-[color:var(--public-ink-secondary,#dacfb7)]">{t.fragrances.badges.note}</p>
       {filteredCollection.length === 0 ? (
         <div className="glass-card p-12 text-center space-y-4">
           <p className="text-3xl font-light text-[color:var(--public-readable-text,rgba(242,229,199,0.95))]">
@@ -577,6 +585,7 @@ export default function CollectionManager() {
                         {fragrance.brand ?? 'Independent'}
                       </p>
                       <p className="mt-1 text-lg text-[color:var(--public-readable-text,rgba(242,229,199,0.95))]">{fragrance.name}</p>
+                      <FragranceBadges badges={fragrance.canonicalRecord.badges} />
                     </div>
                     <span className="text-xs uppercase tracking-[0.18em] text-[color:var(--public-readable-text,rgba(212,175,120,0.85))]">
                       {existing ? tm.alreadyAdded : tm.add}
@@ -702,7 +711,7 @@ function CollectionCard({
   onEdit,
   onRemove,
 }: {
-  item: CollectionFragrance;
+  item: CollectionFragranceView;
   onEdit: () => void;
   onRemove: () => void;
 }): JSX.Element {
@@ -727,6 +736,7 @@ function CollectionCard({
           <p className="text-sm uppercase tracking-[0.16em] text-[color:var(--public-readable-text,rgba(212,175,120,0.8))]">
             {tm.rating} {typeof item.personalRating === 'number' ? item.personalRating.toFixed(1) : '—'}
           </p>
+          <FragranceBadges badges={item.badges} />
         </div>
 
         <div className="flex flex-wrap gap-3 pt-4 border-t border-[rgba(212,175,120,0.12)]">

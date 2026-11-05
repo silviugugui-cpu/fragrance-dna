@@ -366,8 +366,8 @@ const toCanonicalKey = (brand: string, perfume: string): string =>
   `${normalizeText(brand)}::${normalizeText(perfume)}`;
 
 const MASTER_FRAGRANCE_DATABASE_PATH = getMasterFragranceDatabasePath();
-const MASTER_DB_LOCAL_IMAGES_DIR = path.join(process.cwd(), "public", "images", "master-db");
-const MASTER_DB_LOCAL_IMAGES_WEB_BASE = "/images/master-db";
+const MASTER_DB_LOCAL_IMAGES_DIR = path.join(process.cwd(), "public", "images", "perfumes");
+const MASTER_DB_LOCAL_IMAGES_WEB_BASE = "/images/perfumes";
 
 const MASTER_CACHE_TTL_MS = Math.max(
   1000,
@@ -458,7 +458,7 @@ const saveRemoteImageLocally = async (input: {
   const ext = imageExtFromContentType(imageResponse.headers.get("content-type")) ?? imageExtFromUrl(input.imageUrl);
   const left = slugify(input.recordId) || "record";
   const right = slugify(`${input.brand}-${input.perfume}`) || "fragrance";
-  const fileName = `${left}-${right}.${ext}`;
+  const fileName = `master-db--${left}-${right}.${ext}`;
   const localFsPath = path.join(MASTER_DB_LOCAL_IMAGES_DIR, fileName);
   const localWebPath = `${MASTER_DB_LOCAL_IMAGES_WEB_BASE}/${fileName}`;
 

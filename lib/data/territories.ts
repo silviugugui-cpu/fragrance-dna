@@ -84,7 +84,7 @@ export const territories: Record<string, Territory> = {
       'Refined composites',
       'Elegant presence'
     ],
-    dnaAxes: ['Freshness', 'Refinement', 'Presence'],
+    dnaAxes: ['Freshness', 'Elegance', 'Presence'],
     examples: [
       'Creed Virgin Island Water',
       'Hermès H24',
@@ -136,7 +136,7 @@ export const territories: Record<string, Territory> = {
       'Comforting character',
       'Rich character'
     ],
-    dnaAxes: ['Warmth', 'Comfort', 'Sensuality'],
+    dnaAxes: ['Warmth', 'Comfort'],
     examples: [
       'Givenchy Gentleman Reserve Privée',
       'Tom Ford Lost Cherry',
@@ -162,7 +162,7 @@ export const territories: Record<string, Territory> = {
       'Refined sensuality',
       'Sophisticated edge'
     ],
-    dnaAxes: ['Complexity', 'Sensuality', 'Refinement'],
+    dnaAxes: ['Complexity', 'Comfort', 'Elegance'],
     examples: [
       'Hermès Ombre Leather',
       'Dior Homme EDP',
@@ -188,7 +188,7 @@ export const territories: Record<string, Territory> = {
       'Clean and clear',
       'Durable presence'
     ],
-    dnaAxes: ['Refinement', 'Presence', 'Complexity'],
+    dnaAxes: ['Elegance', 'Presence', 'Complexity'],
     examples: [
       'Chanel No. 5 EDP',
       'Hermès Eau de Gentillesse',
@@ -214,7 +214,7 @@ export const territories: Record<string, Territory> = {
       'Oriental feel',
       'Lasting presence'
     ],
-    dnaAxes: ['Warmth', 'Sensuality', 'Presence'],
+    dnaAxes: ['Warmth', 'Comfort', 'Presence'],
     examples: [
       'Tom Ford Amber Absolute',
       'Hypnotic Poison',
@@ -240,7 +240,7 @@ export const territories: Record<string, Territory> = {
       'Intimate aura',
       'Subtle presence'
     ],
-    dnaAxes: ['Sensuality', 'Comfort', 'Refinement'],
+    dnaAxes: ['Comfort', 'Elegance'],
     examples: [
       'Maison Martin Margiela Beach Walk',
       'Replica Skin',
@@ -266,7 +266,7 @@ export const territories: Record<string, Territory> = {
       'Delicate to heady',
       'Emotional resonance'
     ],
-    dnaAxes: ['Sensuality', 'Complexity', 'Refinement'],
+    dnaAxes: ['Comfort', 'Complexity', 'Elegance'],
     examples: [
       'Chanel No. 5',
       'Lancôme La Vie Est Belle',

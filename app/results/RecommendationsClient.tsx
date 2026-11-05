@@ -10,6 +10,10 @@ import { loadCollection, addCollectionFragrance } from '@/lib/collection/storage
 import { buildSummary, loadDnaSession, loadGroundingVector } from '@/lib/dnaSession';
 import { useLanguage } from '@/lib/i18n';
 import type { DNASummary } from '@/lib/types';
+import FragranceBadges from '@/components/FragranceBadges';
+import FragranceBadgeFilters from '@/components/FragranceBadgeFilters';
+import type { BadgeFilters, FragranceBadges as Badges } from '@/lib/fragranceBadges';
+import { readGroundingPrior } from '@/lib/test/evaluationSession';
 
 type Recommendation = {
   fragranceId: string;
@@ -20,6 +24,7 @@ type Recommendation = {
   score: number;
   matchedAttributes: string[];
   explanation: string;
+  badges?: Badges;
 };
 
 type RecommendationState = 'loading' | 'ready' | 'incomplete' | 'error';
@@ -37,6 +42,7 @@ export function RecommendationsClient({ embedded = false }: RecommendationsClien
   const [summary, setSummary] = useState<DNASummary | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [wishlistIds, setWishlistIds] = useState<Set<string>>(new Set());
+  const [badgeFilters, setBadgeFilters] = useState<BadgeFilters>({});
 
   useEffect(() => {
     if (isAuthLoading) return;
@@ -48,12 +54,7 @@ export function RecommendationsClient({ embedded = false }: RecommendationsClien
     let groundingProfile = { love: [] as string[], neutral: [] as string[], redFlag: [] as string[] };
     if (rawGrounding) {
       try {
-        const parsed = JSON.parse(rawGrounding) as { love?: string[]; neutral?: string[]; red_flag?: string[] };
-        groundingProfile = {
-          love: parsed.love ?? [],
-          neutral: parsed.neutral ?? [],
-          redFlag: parsed.red_flag ?? [],
-        };
+        groundingProfile = readGroundingPrior(JSON.parse(rawGrounding));
       } catch {
         groundingProfile = { love: [], neutral: [], redFlag: [] };
       }
@@ -70,6 +71,8 @@ export function RecommendationsClient({ embedded = false }: RecommendationsClien
       };
     }
 
+    setStatus('loading');
+    setRecommendations([]);
     void fetch('/api/recommendations', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -79,6 +82,8 @@ export function RecommendationsClient({ embedded = false }: RecommendationsClien
         ownedFragranceIds: collection.filter((item) => item.owned).map((item) => item.fragranceId),
         limit: 30,
         locale,
+        badgeFilters,
+        evaluations: session.evaluationState?.records ?? [],
       }),
     })
       .then(async (response) => {
@@ -101,7 +106,7 @@ export function RecommendationsClient({ embedded = false }: RecommendationsClien
     return () => {
       active = false;
     };
-  }, [isAuthLoading, user?.id, locale]);
+  }, [isAuthLoading, user?.id, locale, badgeFilters]);
 
   useEffect(() => {
     if (!embedded || window.location.hash !== '#your-recommendations') return;
@@ -136,6 +141,10 @@ export function RecommendationsClient({ embedded = false }: RecommendationsClien
           <p className="mt-3 max-w-2xl text-base leading-7 text-gray-300">
             {tr.intro}
           </p>
+          <div className="mt-5">
+            <FragranceBadgeFilters filters={badgeFilters} onChange={setBadgeFilters} />
+            <p className="mt-3 text-xs text-gray-400">{t.fragrances.badges.note}</p>
+          </div>
           {summary ? (
             <div className="mt-6 flex flex-wrap gap-6 border-y border-white/10 py-4 text-sm">
               <span><strong className="text-white">{summary.answeredCount}</strong><span className="ml-2 text-gray-400">{tr.evaluations}</span></span>
@@ -180,6 +189,7 @@ export function RecommendationsClient({ embedded = false }: RecommendationsClien
                   <div className="min-w-0">
                     <p className="text-xs uppercase tracking-wider text-gray-500">{recommendation.brand || tr.fallbackBrand}</p>
                     <h2 className="mt-1 truncate text-lg font-semibold text-white">{recommendation.perfume || tr.unnamedFragrance}</h2>
+                    <FragranceBadges badges={recommendation.badges} />
                     <p className="mt-1 text-base leading-relaxed text-gray-400">{recommendation.explanation}</p>
                     {recommendation.matchedAttributes.length > 0 ? (
                       <p className="mt-2 text-xs text-gray-500">{tr.mappedCharacteristics} {recommendation.matchedAttributes.join(', ')}</p>

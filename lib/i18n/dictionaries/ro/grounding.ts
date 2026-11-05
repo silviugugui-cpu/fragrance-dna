@@ -26,7 +26,7 @@ const grounding: Dictionary['grounding'] = {
   sectionDescription: 'Trage o calitate în Ador, Neutru sau Evită, ori folosește X, ✓ și butonul calității pentru a o plasa.',
   neutralLabel: 'Afinități neutre',
   neutralTitle: 'Echilibru',
-  neutralDescription: 'Aceste șoapte adaugă atmosferă fără să ceară lumina reflectoarelor, creând o dâră blândă și echilibrată.',
+  neutralDescription: 'Alege explicit Neutru când nu ai o preferință într-un sens sau altul. Alegerea se salvează, dar nu deplasează ADN-ul.',
   neutralEmpty: 'Nicio calitate în Neutru momentan...',
   loveLabel: 'Tipare de atracție',
   loveTitle: 'Ador',

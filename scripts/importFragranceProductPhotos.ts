@@ -18,6 +18,7 @@ interface TransferRecord {
   image_url: string;
   source_page: string;
   notes: string;
+  source_type?: string;
 }
 
 interface MatchedRow {
@@ -49,14 +50,19 @@ const readManifest = (directory: string): TransferRecord[] => {
       if (typeof fieldValue !== "string") throw new Error(`Invalid manifest field: ${field}`);
       return fieldValue;
     };
+    const indexedTransfer = !("fragrance_id" in record);
+    if (indexedTransfer && text("status") !== "downloaded") {
+      throw new Error("Indexed transfer records must have downloaded status.");
+    }
     const item: TransferRecord = {
-      fragrance_id: text("fragrance_id"),
+      fragrance_id: text(indexedTransfer ? "canonical_key" : "fragrance_id"),
       brand: text("brand"),
       perfume: text("perfume"),
       image_file: text("image_file"),
       image_url: text("image_url"),
-      source_page: text("source_page"),
-      notes: text("notes"),
+      source_page: text(indexedTransfer ? "image_source_url" : "source_page"),
+      notes: text(indexedTransfer ? "image_rights_note" : "notes"),
+      ...(indexedTransfer ? { source_type: text("source_type") } : {}),
     };
     if (!item.fragrance_id.trim() || !item.brand.trim() || !item.perfume.trim()) {
       throw new Error("Manifest fragrance identity must not be empty.");
@@ -70,12 +76,18 @@ const readManifest = (directory: string): TransferRecord[] => {
 async function main(): Promise<void> {
   loadEnvConfig(process.cwd());
   const { values } = parseArgs({
-    options: { input: { type: "string" }, apply: { type: "boolean", default: false } },
+    options: {
+      input: { type: "string" },
+      "images-dir": { type: "string", multiple: true },
+      apply: { type: "boolean", default: false },
+    },
     strict: true,
     allowPositionals: false,
   });
   if (!values.input) throw new Error("Usage: --input EXTRACTED_TRANSFER_DIRECTORY [--apply]");
   const inputDirectory = fs.realpathSync(path.resolve(values.input));
+  const imageDirectories = (values["images-dir"] ?? [path.join(inputDirectory, "images")])
+    .map((directory) => fs.realpathSync(path.resolve(directory)));
   const records = readManifest(inputDirectory);
   const database = getMasterFragranceDatabase();
   const find = database.prepare(`
@@ -86,14 +98,21 @@ async function main(): Promise<void> {
     (database.prepare("SELECT COUNT(*) AS count FROM fragrances").get() as { count: number }).count;
   const rowCountBefore = countRows();
   const matchedRowIds = new Set<number>();
-  const assets = new Map<string, { bytes: Buffer; destination: string }>();
-  const publicDirectory = path.join(process.cwd(), "public", "images", "product-photos");
+  const assets = new Map<string, { sourcePath: string; destination: string; sha256: string; size: number }>();
+  const publicDirectory = path.join(process.cwd(), "public", "images", "perfumes");
   const assignments = records.map((record) => {
     if (!/^images\/[a-zA-Z0-9._-]+\.(jpg|jpeg|png)$/i.test(record.image_file)) {
       throw new Error(`Unsafe or unsupported image path: ${record.image_file}`);
     }
-    const sourcePath = fs.realpathSync(path.join(inputDirectory, ...record.image_file.split("/")));
-    if (!sourcePath.startsWith(`${inputDirectory}${path.sep}`)) {
+    const candidates = imageDirectories.map((directory) => ({
+      directory, filename: path.join(directory, path.posix.basename(record.image_file)),
+    })).filter(({ filename }) => fs.existsSync(filename));
+    if (candidates.length !== 1) {
+      throw new Error(`Expected exactly one image file for ${record.image_file}; found ${candidates.length}.`);
+    }
+    const { directory, filename: sourceFilename } = candidates[0];
+    const sourcePath = fs.realpathSync(sourceFilename);
+    if (!sourcePath.startsWith(`${directory}${path.sep}`)) {
       throw new Error(`Image escapes transfer directory: ${record.image_file}`);
     }
     const bytes = fs.readFileSync(sourcePath);
@@ -101,13 +120,13 @@ async function main(): Promise<void> {
     const isJpeg = bytes.length > 4 && bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255;
     if (!isPng && !isJpeg) throw new Error(`Invalid JPEG/PNG image: ${record.image_file}`);
     const digest = createHash("sha256").update(bytes).digest("hex");
-    const filename = `${digest}.${isPng ? "png" : "jpg"}`;
-    const localImagePath = `/images/product-photos/${filename}`;
+    const filename = `product-photos--${digest}.${isPng ? "png" : "jpg"}`;
+    const localImagePath = `/images/perfumes/${filename}`;
     const destination = path.join(publicDirectory, filename);
     if (fs.existsSync(destination) && !fs.readFileSync(destination).equals(bytes)) {
       throw new Error(`Conflicting local asset: ${destination}`);
     }
-    assets.set(filename, { bytes, destination });
+    assets.set(filename, { sourcePath, destination, sha256: digest, size: bytes.length });
 
     const rows = find.all(record.fragrance_id, record.fragrance_id) as MatchedRow[];
     if (rows.length === 0) throw new Error(`No canonical match for: ${record.fragrance_id}`);
@@ -130,7 +149,7 @@ async function main(): Promise<void> {
     fragranceAssociations: assignments.length,
     canonicalRows: matchedRowIds.size,
     uniqueFiles: assets.size,
-    totalBytes: [...assets.values()].reduce((total, asset) => total + asset.bytes.length, 0),
+    totalBytes: [...assets.values()].reduce((total, asset) => total + asset.size, 0),
     rowCountBefore,
   };
   if (!values.apply) {
@@ -142,7 +161,11 @@ async function main(): Promise<void> {
   const backupPath = `${getMasterFragranceDatabasePath()}.before-product-photos-${timestamp}.bak`;
   await database.backup(backupPath);
   fs.mkdirSync(publicDirectory, { recursive: true });
-  for (const { bytes, destination } of assets.values()) {
+  for (const { sourcePath, destination, sha256 } of assets.values()) {
+    const bytes = fs.readFileSync(sourcePath);
+    if (createHash("sha256").update(bytes).digest("hex") !== sha256) {
+      throw new Error(`Source image changed during import: ${sourcePath}`);
+    }
     if (!fs.existsSync(destination)) fs.writeFileSync(destination, bytes, { flag: "wx" });
   }
   database.transaction(() => {

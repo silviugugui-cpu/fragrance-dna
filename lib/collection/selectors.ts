@@ -1,23 +1,5 @@
 import type { CollectionBrandDistribution, CollectionFragrance, CollectionFragranceView, CollectionSummary } from '@/lib/collection/types';
 
-const AXIS_TERMS: Record<string, string[]> = {
-  freshness: ['citrus', 'green', 'tea', 'water', 'bergamot', 'lemon', 'lavender'],
-  warmth: ['amber', 'honey', 'spice', 'tobacco', 'wood', 'musk', 'oud'],
-  sweetness: ['honey', 'rose', 'vanilla', 'amber'],
-  darkness: ['oud', 'smoke', 'tobacco', 'woody', 'wood'],
-  cleanliness: ['citrus', 'water', 'musk', 'lavender', 'tea'],
-  elegance: ['rose', 'tea', 'lavender', 'musk', 'wood', 'bergamot'],
-  character: ['oud', 'tobacco', 'smoke', 'amber', 'spice'],
-  presence: ['tobacco', 'oud', 'amber', 'spice', 'musk'],
-  comfort: ['musk', 'water', 'lavender', 'tea', 'wood', 'amber'],
-  uniqueness: ['oud', 'smoke', 'tea', 'green', 'herb', 'water'],
-  versatility: ['citrus', 'water', 'tea', 'musk', 'lavender', 'wood'],
-  luxury: ['oud', 'amber', 'rose', 'musk', 'wood'],
-  formality: ['musk', 'rose', 'lavender', 'wood', 'tea', 'amber'],
-};
-
-type CanonicalAxis = keyof typeof AXIS_TERMS;
-
 export function getCollectionSize(collection: CollectionFragrance[]): number {
   return collection.length;
 }
@@ -86,27 +68,9 @@ export function getCollectionDiversity(collection: Array<CollectionFragrance | C
   return 'Low';
 }
 
-export function getCollectionDNACoverage(collection: Array<CollectionFragrance | CollectionFragranceView>): number | null {
-  const ownedCollection = collection.filter((item) => item.owned);
-
-  if (ownedCollection.length === 0) {
-    return null;
-  }
-
-  const coveredAxes = new Set<CanonicalAxis>();
-
-  for (const item of ownedCollection) {
-    const notes = "canonicalNotes" in item ? item.canonicalNotes : [];
-
-    for (const [axis, terms] of Object.entries(AXIS_TERMS) as Array<[CanonicalAxis, string[]]>) {
-      const hit = notes.some((note) => terms.some((term) => note.toLowerCase().includes(term)));
-      if (hit) {
-        coveredAxes.add(axis);
-      }
-    }
-  }
-
-  return Math.round((coveredAxes.size / Object.keys(AXIS_TERMS).length) * 100);
+export function getCollectionDNACoverage(_collection: Array<CollectionFragrance | CollectionFragranceView>): number | null {
+  // Notes alone do not establish measured DNA-axis coverage.
+  return null;
 }
 
 export function buildCollectionSummary(collection: Array<CollectionFragrance | CollectionFragranceView>): CollectionSummary {

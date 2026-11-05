@@ -4,7 +4,7 @@ const test = {
   poolUnavailable: 'The User DNA fragrance pool is unavailable.',
   groundingRequiredEyebrow: 'GROUNDING REQUIRED',
   groundingRequiredTitle: 'Start with your olfactive preferences',
-  groundingRequiredDescription: 'Place at least two characteristics in Love or Avoid before requesting a diagnostic batch.',
+  groundingRequiredDescription: 'Place at least two characteristics in Love or Avoid before starting your adaptive evaluations.',
   beginGrounding: 'Begin Grounding',
   preparingBatch: 'Preparing your diagnostic batch...',
   noEvaluableFragrances: 'The User DNA fragrance pool contains no evaluable fragrances.',

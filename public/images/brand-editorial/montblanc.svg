@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-label="Abstract editorial scent composition for Montblanc">
+<defs>
+  <radialGradient id="bg"><stop stop-color="#272219"/><stop offset="1" stop-color="#080807"/></radialGradient>
+  <radialGradient id="glow"><stop stop-color="#fff0be"/><stop offset=".45" stop-color="#B79AB6" stop-opacity=".82"/><stop offset="1" stop-color="#B79AB6" stop-opacity="0"/></radialGradient>
+  <linearGradient id="petal" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#FFF2CF" stop-opacity=".82"/><stop offset=".55" stop-color="#B79AB6" stop-opacity=".55"/><stop offset="1" stop-color="#524332" stop-opacity=".2"/></linearGradient>
+  <filter id="soft"><feGaussianBlur stdDeviation="15"/></filter>
+</defs>
+<rect width="800" height="1000" fill="url(#bg)"/>
+<circle cx="407" cy="496" r="250" fill="url(#glow)" opacity=".19" filter="url(#soft)"/>
+<circle cx="365" cy="496" r="128" fill="none" stroke="#B79AB6" stroke-width="8" opacity="0.5"/><circle cx="407" cy="534" r="91" fill="none" stroke="#B79AB6" stroke-width="7" opacity="0.62"/><circle cx="449" cy="496" r="56" fill="none" stroke="#B79AB6" stroke-width="6" opacity="0.74"/><path d="M435.0 496.0L527.0 496.0" stroke="#B79AB6" stroke-width="2" opacity=".38"/><path d="M431.2 510.0L510.9 556.0" stroke="#B79AB6" stroke-width="2" opacity=".38"/><path d="M421.0 520.2L467.0 599.9" stroke="#B79AB6" stroke-width="2" opacity=".38"/><path d="M407.0 524.0L407.0 616.0" stroke="#B79AB6" stroke-width="2" opacity=".38"/><path d="M393.0 520.2L347.0 599.9" stroke="#B79AB6" stroke-width="2" opacity=".38"/><path d="M382.8 510.0L303.1 556.0" stroke="#B79AB6" stroke-width="2" opacity=".38"/><path d="M379.0 496.0L287.0 496.0" stroke="#B79AB6" stroke-width="2" opacity=".38"/><path d="M382.8 482.0L303.1 436.0" stroke="#B79AB6" stroke-width="2" opacity=".38"/><path d="M393.0 471.8L347.0 392.1" stroke="#B79AB6" stroke-width="2" opacity=".38"/><path d="M407.0 468.0L407.0 376.0" stroke="#B79AB6" stroke-width="2" opacity=".38"/><path d="M421.0 471.8L467.0 392.1" stroke="#B79AB6" stroke-width="2" opacity=".38"/><path d="M431.2 482.0L510.9 436.0" stroke="#B79AB6" stroke-width="2" opacity=".38"/>
+<rect x="38" y="38" width="724" height="924" rx="8" fill="none" stroke="#FCCB5F" stroke-opacity=".34"/>
+<path d="M64 868 H736" stroke="#FCCB5F" stroke-opacity=".38"/>
+<circle cx="400" cy="916" r="4" fill="#FCCB5F" opacity=".8"/>
+</svg>

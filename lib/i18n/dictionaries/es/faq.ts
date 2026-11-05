@@ -21,22 +21,22 @@ const faq: Dictionary['faq'] = {
     {
       question: '¿Cómo empieza mi perfil?',
       answer:
-        'El Grounding registra las familias olfativas que amas, te resultan neutras o evitas, y crea tu perfil de ADN inicial. Verás recomendaciones de inmediato. Se necesitan al menos dos preferencias de «Me encanta» o «Evito» antes de iniciar un lote de diagnóstico.',
+        'Grounding parte de tus elecciones explícitas Me encanta y Evito. Neutro no tiene influencia positiva ni negativa; las familias sin evaluar siguen siendo desconocidas. Necesitas dos elecciones Me encanta o Evito para el test. Las respuestas directas pueden corregir estas preferencias iniciales.',
     },
     {
       question: '¿Cómo funcionan las evaluaciones de perfumes?',
       answer:
-        'Cada lote adaptativo ofrece hasta seis perfumes, con una opción recomendada y una alternativa cuando esté disponible. Elige el perfume que puedas evaluar y puntúa cada característica mostrada. Tus respuestas solo afectan al perfil cuando confirmas la evaluación.',
+        'Valora el perfume en conjunto y hasta dos características adaptativas: cuánto las percibiste y, si las notaste, si te gustaron. No percibido nunca significa rechazo. Solo el gusto explícito refina la preferencia del atributo y su confianza; la valoración global compara composiciones por separado. El siguiente perfume se elige tras enviar. No poder evaluar no añade señales ni evaluaciones completas.',
     },
     {
-      question: '¿Los cambios provisionales de los controles afectan a mi insignia?',
+      question: '¿Las respuestas sin enviar afectan a mi insignia?',
       answer:
-        'No. Los cambios en los controles son un borrador hasta que confirmas. Las respuestas sin confirmar no modifican tu confianza de ADN, tu insignia actual ni tus recomendaciones.',
+        'No. Las respuestas parciales se guardan para retomarlas, pero no cambian preferencias, confianza, insignias ni recomendaciones antes del envío. Los antiguos controles conservan percepción, nunca gusto o rechazo.',
     },
     {
       question: '¿Puedo parar y continuar más tarde?',
       answer:
-        'Sí. El perfume seleccionado, tu posición en el lote, las evaluaciones completadas y tu perfil se guardan en tu cuenta. Puedes parar después de cualquier evaluación confirmada y retomar más tarde.',
+        'Sí. El perfume actual y las respuestas parciales se guardan en este navegador y se sincronizan con tu cuenta al iniciar sesión. Las evaluaciones completas se conservan. Si falla el guardado, reintenta antes de salir.',
     },
     {
       question: '¿Qué significan los niveles de insignia?',

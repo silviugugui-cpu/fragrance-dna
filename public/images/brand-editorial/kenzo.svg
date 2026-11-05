@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-label="Abstract editorial scent composition for Kenzo">
+<defs>
+  <radialGradient id="bg"><stop stop-color="#272219"/><stop offset="1" stop-color="#080807"/></radialGradient>
+  <radialGradient id="glow"><stop stop-color="#fff0be"/><stop offset=".45" stop-color="#EAAE5C" stop-opacity=".82"/><stop offset="1" stop-color="#EAAE5C" stop-opacity="0"/></radialGradient>
+  <linearGradient id="petal" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#FFF2CF" stop-opacity=".82"/><stop offset=".55" stop-color="#EAAE5C" stop-opacity=".55"/><stop offset="1" stop-color="#524332" stop-opacity=".2"/></linearGradient>
+  <filter id="soft"><feGaussianBlur stdDeviation="15"/></filter>
+</defs>
+<rect width="800" height="1000" fill="url(#bg)"/>
+<circle cx="434" cy="467" r="250" fill="url(#glow)" opacity=".19" filter="url(#soft)"/>
+<ellipse cx="523.0" cy="467.0" rx="34" ry="77" transform="rotate(0 523.0 467.0)" fill="url(#petal)" opacity=".62"/><ellipse cx="489.5" cy="536.6" rx="34" ry="77" transform="rotate(51 489.5 536.6)" fill="url(#petal)" opacity=".62"/><ellipse cx="414.2" cy="553.8" rx="34" ry="77" transform="rotate(102 414.2 553.8)" fill="url(#petal)" opacity=".62"/><ellipse cx="353.8" cy="505.6" rx="34" ry="77" transform="rotate(153 353.8 505.6)" fill="url(#petal)" opacity=".62"/><ellipse cx="353.8" cy="428.4" rx="34" ry="77" transform="rotate(204 353.8 428.4)" fill="url(#petal)" opacity=".62"/><ellipse cx="414.2" cy="380.2" rx="34" ry="77" transform="rotate(255 414.2 380.2)" fill="url(#petal)" opacity=".62"/><ellipse cx="489.5" cy="397.4" rx="34" ry="77" transform="rotate(306 489.5 397.4)" fill="url(#petal)" opacity=".62"/><circle cx="434" cy="467" r="36" fill="#EAAE5C" opacity=".78"/>
+<rect x="38" y="38" width="724" height="924" rx="8" fill="none" stroke="#FCCB5F" stroke-opacity=".34"/>
+<path d="M64 868 H736" stroke="#FCCB5F" stroke-opacity=".38"/>
+<circle cx="400" cy="916" r="4" fill="#FCCB5F" opacity=".8"/>
+</svg>

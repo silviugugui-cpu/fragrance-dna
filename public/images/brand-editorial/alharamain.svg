@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-label="Abstract editorial scent composition for Al Haramain">
+<defs>
+  <radialGradient id="bg"><stop stop-color="#272219"/><stop offset="1" stop-color="#080807"/></radialGradient>
+  <radialGradient id="glow"><stop stop-color="#fff0be"/><stop offset=".45" stop-color="#B79AB6" stop-opacity=".82"/><stop offset="1" stop-color="#B79AB6" stop-opacity="0"/></radialGradient>
+  <linearGradient id="petal" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#FFF2CF" stop-opacity=".82"/><stop offset=".55" stop-color="#B79AB6" stop-opacity=".55"/><stop offset="1" stop-color="#524332" stop-opacity=".2"/></linearGradient>
+  <filter id="soft"><feGaussianBlur stdDeviation="15"/></filter>
+</defs>
+<rect width="800" height="1000" fill="url(#bg)"/>
+<circle cx="377" cy="473" r="250" fill="url(#glow)" opacity=".19" filter="url(#soft)"/>
+<circle cx="335" cy="473" r="128" fill="none" stroke="#B79AB6" stroke-width="8" opacity="0.5"/><circle cx="377" cy="511" r="91" fill="none" stroke="#B79AB6" stroke-width="7" opacity="0.62"/><circle cx="419" cy="473" r="56" fill="none" stroke="#B79AB6" stroke-width="6" opacity="0.74"/><path d="M405.0 473.0L497.0 473.0" stroke="#B79AB6" stroke-width="2" opacity=".38"/><path d="M401.2 487.0L480.9 533.0" stroke="#B79AB6" stroke-width="2" opacity=".38"/><path d="M391.0 497.2L437.0 576.9" stroke="#B79AB6" stroke-width="2" opacity=".38"/><path d="M377.0 501.0L377.0 593.0" stroke="#B79AB6" stroke-width="2" opacity=".38"/><path d="M363.0 497.2L317.0 576.9" stroke="#B79AB6" stroke-width="2" opacity=".38"/><path d="M352.8 487.0L273.1 533.0" stroke="#B79AB6" stroke-width="2" opacity=".38"/><path d="M349.0 473.0L257.0 473.0" stroke="#B79AB6" stroke-width="2" opacity=".38"/><path d="M352.8 459.0L273.1 413.0" stroke="#B79AB6" stroke-width="2" opacity=".38"/><path d="M363.0 448.8L317.0 369.1" stroke="#B79AB6" stroke-width="2" opacity=".38"/><path d="M377.0 445.0L377.0 353.0" stroke="#B79AB6" stroke-width="2" opacity=".38"/><path d="M391.0 448.8L437.0 369.1" stroke="#B79AB6" stroke-width="2" opacity=".38"/><path d="M401.2 459.0L480.9 413.0" stroke="#B79AB6" stroke-width="2" opacity=".38"/>
+<rect x="38" y="38" width="724" height="924" rx="8" fill="none" stroke="#FCCB5F" stroke-opacity=".34"/>
+<path d="M64 868 H736" stroke="#FCCB5F" stroke-opacity=".38"/>
+<circle cx="400" cy="916" r="4" fill="#FCCB5F" opacity=".8"/>
+</svg>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { PERFUME_FALLBACK_IMAGE_SRC } from '@/lib/design/perfumeImage';
+import { normalizePerfumeImagePath, PERFUME_FALLBACK_IMAGE_SRC } from '@/lib/design/perfumeImage';
 
 export interface PerfumeImageWithFallbackProps {
   /** Image sources to try in priority order (empty values are skipped). */
@@ -12,7 +12,7 @@ export interface PerfumeImageWithFallbackProps {
 }
 
 // Tries each candidate source in order and ends at the shared fallback artwork.
-// Needed because locally managed image libraries (e.g. /images/master-db) are
+// Needed because locally managed image libraries (e.g. /images/perfumes) are
 // not deployed, so their paths 404 in production.
 export function PerfumeImageWithFallback({
   candidates,
@@ -21,7 +21,7 @@ export function PerfumeImageWithFallback({
   loading = 'lazy',
 }: PerfumeImageWithFallbackProps) {
   const sources = candidates
-    .map((candidate) => String(candidate ?? '').trim())
+    .map(normalizePerfumeImagePath)
     .filter((candidate) => candidate.length > 0);
   const sourcesKey = sources.join('|');
   const [errorState, setErrorState] = useState({ key: sourcesKey, failed: 0 });

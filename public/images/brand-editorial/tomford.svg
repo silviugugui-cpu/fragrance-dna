@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-label="Abstract editorial scent composition for Tom Ford">
+<defs>
+  <radialGradient id="bg"><stop stop-color="#272219"/><stop offset="1" stop-color="#080807"/></radialGradient>
+  <radialGradient id="glow"><stop stop-color="#fff0be"/><stop offset=".45" stop-color="#EAAE5C" stop-opacity=".82"/><stop offset="1" stop-color="#EAAE5C" stop-opacity="0"/></radialGradient>
+  <linearGradient id="petal" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#FFF2CF" stop-opacity=".82"/><stop offset=".55" stop-color="#EAAE5C" stop-opacity=".55"/><stop offset="1" stop-color="#524332" stop-opacity=".2"/></linearGradient>
+  <filter id="soft"><feGaussianBlur stdDeviation="15"/></filter>
+</defs>
+<rect width="800" height="1000" fill="url(#bg)"/>
+<circle cx="405" cy="461" r="250" fill="url(#glow)" opacity=".19" filter="url(#soft)"/>
+<path d="M112 318 C244 216, 306 414, 438 318 S630 224, 690 322" fill="none" stroke="#EAAE5C" stroke-width="2" opacity="0.3"/><path d="M112 374 C244 272, 306 470, 438 374 S630 280, 690 378" fill="none" stroke="#EAAE5C" stroke-width="3" opacity="0.37"/><path d="M112 430 C244 328, 306 526, 438 430 S630 336, 690 434" fill="none" stroke="#EAAE5C" stroke-width="4" opacity="0.44"/><path d="M112 486 C244 384, 306 582, 438 486 S630 392, 690 490" fill="none" stroke="#EAAE5C" stroke-width="2" opacity="0.51"/><path d="M112 542 C244 440, 306 638, 438 542 S630 448, 690 546" fill="none" stroke="#EAAE5C" stroke-width="3" opacity="0.5800000000000001"/><path d="M112 598 C244 496, 306 694, 438 598 S630 504, 690 602" fill="none" stroke="#EAAE5C" stroke-width="4" opacity="0.65"/><path d="M400 262 L520 470 L400 680 L280 470 Z" fill="none" stroke="#EAAE5C" stroke-width="2" opacity=".72"/><circle cx="400" cy="470" r="58" fill="#EAAE5C" opacity=".2"/>
+<rect x="38" y="38" width="724" height="924" rx="8" fill="none" stroke="#FCCB5F" stroke-opacity=".34"/>
+<path d="M64 868 H736" stroke="#FCCB5F" stroke-opacity=".38"/>
+<circle cx="400" cy="916" r="4" fill="#FCCB5F" opacity=".8"/>
+</svg>

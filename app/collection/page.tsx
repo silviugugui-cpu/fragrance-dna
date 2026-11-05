@@ -11,6 +11,8 @@ import { EMPTY_COLLECTION } from '@/lib/collection/storage';
 import { useResolvedCollection } from '@/lib/collection/useResolvedCollection';
 import { useLanguage } from '@/lib/i18n';
 import CollectionManager from '@/components/collection/CollectionManager';
+import { collectionTerritoryCoverage } from '@/lib/collection/territoryCoverage';
+import { getPriorityCopy } from '@/lib/i18n/priorityCopy';
 import {
   PageShell,
   PremiumButton,
@@ -87,39 +89,18 @@ function CollectionStatsSection() {
 }
 
 function TerritoryInsightSection() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
+  const copy = getPriorityCopy(locale);
   const collection = useSyncExternalStore(subscribeToCollection, loadCollection, () => EMPTY_COLLECTION);
-
-  // Calculate territory coverage based on collection size and diversity
+  const resolved = useResolvedCollection(collection);
   const territoryInsights = useMemo(() => {
-    if (collection.length === 0) {
-      return {
-        coverage: 0,
-        represented: 0,
-        diverse: false,
-        suggestion: t.collection.territory.startSuggestion,
-      };
-    }
-
-    // Simple heuristic: assume each fragrance maps to ~2-3 territories on average
-    const estimatedTerritoryReach = Math.min(
-      Math.ceil(collection.length / 2),
-      10
-    );
-
-    const coverage = (estimatedTerritoryReach / 10) * 100;
-    const diverse = estimatedTerritoryReach >= 5;
-
+    const coverage = collectionTerritoryCoverage(resolved);
     return {
-      coverage: Math.round(coverage),
-      represented: estimatedTerritoryReach,
-      diverse,
-      suggestion:
-        estimatedTerritoryReach < 5
-          ? t.collection.territory.buildSuggestion
-          : t.collection.territory.balancedSuggestion,
+      ...coverage,
+      diverse: coverage.represented >= 5,
+      suggestion: copy.coverageHelp,
     };
-  }, [collection.length, t]);
+  }, [resolved, copy.coverageHelp]);
 
   return (
     <section className="py-12 border-b border-black-600">
@@ -139,10 +120,10 @@ function TerritoryInsightSection() {
                 <p className="text-xs font-semibold text-gold uppercase mb-2">{t.collection.territory.coverageLabel}</p>
                 <div className="flex items-baseline gap-2">
                   <span className="text-4xl font-bold text-white">
-                    {territoryInsights.coverage}%
+                    {territoryInsights.coverage === null ? '—' : `${territoryInsights.coverage}%`}
                   </span>
                   <span className="text-sm text-gray-400">
-                    {t.collection.territory.territoriesCount(territoryInsights.represented)}
+                    {territoryInsights.coverage === null ? copy.insufficient : t.collection.territory.territoriesCount(territoryInsights.represented)}
                   </span>
                 </div>
               </div>
@@ -150,14 +131,14 @@ function TerritoryInsightSection() {
             </div>
 
             {/* Coverage Bar */}
-            <div className="mb-4">
+            {territoryInsights.coverage !== null && <div className="mb-4">
               <div className="h-2 bg-black-700 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-gold to-warm-500 transition-all duration-500"
                   style={{ width: `${territoryInsights.coverage}%` }}
                 />
               </div>
-            </div>
+            </div>}
 
             <p className="text-sm text-gray-400">{territoryInsights.suggestion}</p>
 
@@ -177,7 +158,7 @@ function TerritoryInsightSection() {
               <div>
                 <p className="text-xs font-semibold text-gold uppercase mb-2">{t.collection.territory.characterLabel}</p>
                 <h3 className="text-lg font-bold text-white">
-                  {territoryInsights.diverse ? t.collection.territory.diverseExplorer : t.collection.territory.buildingExplorer}
+                  {territoryInsights.coverage === null ? copy.insufficient : territoryInsights.diverse ? t.collection.territory.diverseExplorer : t.collection.territory.buildingExplorer}
                 </h3>
               </div>
               {territoryInsights.diverse ? (
@@ -189,7 +170,7 @@ function TerritoryInsightSection() {
 
             <div className="space-y-3 mb-4 text-sm text-gray-400">
               <p>
-                {territoryInsights.diverse
+                {territoryInsights.coverage === null ? copy.coverageHelp : territoryInsights.diverse
                   ? t.collection.territory.diverseText
                   : t.collection.territory.buildingText}
               </p>
@@ -199,7 +180,6 @@ function TerritoryInsightSection() {
             <div className="bg-black-700 border border-gold-900 rounded p-4 text-sm text-gray-300">
               <p className="font-semibold text-gold mb-2">{t.collection.territory.nextSteps}</p>
               <ul className="space-y-1 text-xs">
-                <li>{t.collection.territory.stepAddMore(Math.max(0, 3 - collection.length))}</li>
                 <li>{t.collection.territory.stepExplore}</li>
                 <li>{t.collection.territory.stepRate}</li>
               </ul>
@@ -250,7 +230,7 @@ export default function CollectionPage() {
             <p className="text-gray-400 mb-6">
               {t.collection.page.emptyDescription}
             </p>
-            <Link href="/grounding">
+            <Link href="/fragrances">
               <PremiumButton variant="primary" size="md">
                 {t.collection.page.emptyCta}
               </PremiumButton>

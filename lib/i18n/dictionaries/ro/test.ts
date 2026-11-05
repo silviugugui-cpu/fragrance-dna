@@ -6,7 +6,7 @@ const test: Dictionary['test'] = {
   poolUnavailable: 'Colecția de parfumuri User DNA nu este disponibilă.',
   groundingRequiredEyebrow: 'ANCORARE NECESARĂ',
   groundingRequiredTitle: 'Începe cu preferințele tale olfactive',
-  groundingRequiredDescription: 'Plasează cel puțin două caracteristici în Ador sau Evită înainte de a solicita un lot de diagnostic.',
+  groundingRequiredDescription: 'Plasează cel puțin două caracteristici în Ador sau Evită înainte de a începe evaluările adaptive.',
   beginGrounding: 'Începe ancorarea',
   preparingBatch: 'Se pregătește lotul tău de diagnostic...',
   noEvaluableFragrances: 'Colecția de parfumuri User DNA nu conține parfumuri evaluabile.',

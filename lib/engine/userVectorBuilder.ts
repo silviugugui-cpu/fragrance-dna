@@ -49,7 +49,7 @@ export function buildUserVector(seed: Seed): Vector {
   process(seed.constraints, -1);
 
   // NEUTRAL
-  process(seed.neutral, 0.2);
+  process(seed.neutral, 0);
 
   // CLAMP
   Object.keys(vector).forEach((k) => {

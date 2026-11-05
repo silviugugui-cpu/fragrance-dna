@@ -9,6 +9,7 @@ import { territories, Territory } from '@/lib/data/territories';
 import { CloseGlyphIcon, ChevronRightGlyphIcon } from '@/components/design-system/FragranceIcons';
 import { useLanguage } from '@/lib/i18n';
 import { usePublicTheme } from '@/lib/theme/PublicThemeProvider';
+import { getDiscoveryCopy } from '@/lib/i18n/discoveryCopy';
 
 interface TerritoryCardProps {
   territory: Territory;
@@ -233,7 +234,7 @@ const TerritoryDetailPanel: React.FC<TerritoryDetailProps> = ({ territory, onClo
 };
 
 export default function TerritoriesPage() {
-  const { t } = useLanguage();
+  const { locale, t } = useLanguage();
   const { assets } = usePublicTheme();
   const [selectedTerritoryId, setSelectedTerritoryId] = useState<string | null>(null);
   const [filterIntensity, setFilterIntensity] = useState<string | null>(null);
@@ -284,6 +285,7 @@ export default function TerritoriesPage() {
                     <p className="text-base md:text-lg text-gray-100/92 leading-relaxed">
                       {t.territories.hero.overview}
                     </p>
+                    <p className="mt-3 text-sm text-gray-300">{getDiscoveryCopy(locale).editorialHelp}</p>
                   </div>
 
                   <div className="rounded-[24px] border border-gold/18 bg-black/55 px-5 py-4 md:px-6 md:py-5 shadow-[0_18px_40px_rgba(0,0,0,0.35)] backdrop-blur-md">

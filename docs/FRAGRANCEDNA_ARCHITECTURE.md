@@ -65,7 +65,7 @@ Brand, name, image and DNA attributes must come from the canonical fragrance dat
 
 ## Local AI Perfume Images
 
-The batch image generator reads the canonical MasterFragrancePool and stores generated PNG assets under `public/images/ai-generated-perfumes`. It records the public asset path on the matching canonical fragrance records; it does not create a second catalog.
+The batch image generator reads the canonical MasterFragrancePool and stores generated PNG assets under `public/images/perfumes`, with `ai-generated-perfumes--` filename prefixes. It records the public asset path on the matching canonical fragrance records; it does not create a second catalog.
 
 Generated images are artistic interpretations inspired by fragrance metadata, not verified photographs of retail bottles. The generator skips records with an existing usable local image, uses deterministic filenames, processes one image at a time, and can be safely resumed by running it again.
 
@@ -79,7 +79,7 @@ validates a schema v1 photo manifest without changing image associations. Add
 record ID or key and verifies brand and perfume names before writing anything.
 It refuses missing, ambiguous, or conflicting image assignments.
 
-Product photos are stored in `public/images/product-photos` with content-hashed
+Product photos are stored in `public/images/perfumes` with `product-photos--` content-hashed
 filenames. Shared image files are stored once. The existing
 `updateMasterFragranceLocalImage` helper updates both indexed local paths and
 record JSON, including embedded User DNA profile image references. Existing
@@ -88,6 +88,26 @@ backs up SQLite before applying updates in a single transaction and records sour
 URLs, checksums, and associations in
 `data/generated/product-photo-import-report.json`. The SQLite database bundled
 with a transfer is not a replacement for the canonical MasterFragrancePool.
+
+The importer also accepts indexed schema v1 manifests with `canonical_key`,
+`image_source_url`, `image_rights_note`, `source_type`, and `status: "downloaded"`.
+For split photo packages, extract the index and pass each extracted `images`
+directory using repeated `--images-dir DIRECTORY` arguments. Every association
+must resolve to exactly one supplied file. Source and rights notes are preserved
+in the import report; importing does not establish permission to redistribute.
+Keep unlicensed transfers local until publication rights are confirmed.
+Asset validation processes one file at a time rather than retaining the entire
+photo library in memory. All matching canonical rows and their embedded test
+profiles receive the same image path.
+
+All local perfume image writers use the single flat `public/images/perfumes`
+directory, served at `/images/perfumes/`. Filenames retain a source prefix to
+avoid collisions between libraries. UI artwork, logos, and icons remain separate.
+Run `npx tsx scripts/consolidatePerfumePhotos.ts` to validate older libraries and
+add `--apply` to consolidate them. The migration backs up SQLite and changed
+JSON reference files, verifies copied image checksums, updates canonical records
+and embedded profile references, then removes the original files. The photo
+library remains local and excluded from Git; consolidation does not publish it.
 
 ## DNA Architecture
 
@@ -106,6 +126,42 @@ DNA Model v1 contains:
 * Formality
 
 Always use canonical axis names.
+
+### Explicit preference evidence and catalog classification
+
+Grounding starts with twelve `unrated` categories. Only explicit Love, Avoid
+and Neutral choices are saved in schema version 2; at least two Love/Avoid
+choices are required. Neutral carries zero vector weight. Legacy unversioned
+saves cannot distinguish untouched Neutral from explicit Neutral: preserve
+Love/Avoid on restore and leave their former Neutral categories unrated.
+Existing saved DNA is not silently overwritten; saving Grounding again
+rebuilds its seed/vector from the explicit choices.
+
+Collection territory coverage counts distinct canonical IDs only from owned
+perfumes' `reviewedTerritories` entries with reviewed status, HTTP source and
+confidence in (0,1]. Wishlist and unclassified perfumes do not contribute.
+No eligible classifications means unknown coverage, not zero or a size-based
+estimate. Note keywords also no longer fabricate DNA-axis coverage.
+
+Public inspiration filtering uses sourced canonical `relationships` with
+`inspired_by`/`clone_of`, reference brand/perfume and confidence in (0,1].
+The legacy `Dupe/Middle Eastern` brand category is not evidence of origin or
+copying and is not exposed as such. `originRegion` is a separate, explicit
+record attribute; unknown origin remains unknown. Editorial comparisons map
+to `resembles`, not `clone_of`. Brand-declared inspiration maps to `inspired_by`.
+`scripts/migrateFragranceRelationships.ts` backs up SQLite and promotes only
+existing documented evidence into canonical records; subsequent editorial
+imports retain this mapping. No region is inferred from a brand's name.
+
+Public library cards/details expose the three badges, never raw rating/vote
+fields. The popularity dimension's stable codes remain backward compatible,
+but labels describe review volume rather than popularity or iconic status.
+The library explanation identifies source snapshots and the adjusted 80/20
+formula; it does not claim live or first-party votes.
+
+Territory definitions use canonical Elegance/Comfort instead of legacy
+Refinement/Sensuality. The legacy perfumer-affinity helper excludes Presence entirely from its
+distance and reasons: dashboard Presence is profile confidence, not preference.
 
 ---
 
@@ -138,6 +194,168 @@ Recommendations should be based on:
 * gap analysis
 
 Never rely solely on popularity.
+
+### Selected perfume houses and purchase recommendations
+
+The staged `perfume-house-articles.sqlite` is an ingestion source, never a second
+runtime fragrance catalog. Validate it with
+`npx tsx scripts/importPerfumeHouseArticles.ts --input data/generated/perfume-house-articles.sqlite`
+and add `--apply` to import. The importer validates stable IDs/keys and normalized
+brand/perfume identity, verifies local assets, and backs up the canonical SQLite
+before a single transaction. Nonempty supplied documentation takes precedence;
+missing values do not erase existing fields. New identities are inserted through
+the existing canonical insert helper. Test profiles, remote photos, and unrelated
+metadata are retained. Earlier changed field values and source URLs are preserved
+with editorial membership; repeated imports do not replace the first prior values.
+
+`editorial_houses` stores house metadata and review status.
+`editorial_fragrances` references canonical `fragrances.row_id`, adding selection
+membership, provenance, source territory suggestions, and resemblance evidence.
+It does not duplicate perfume metadata. Each import replaces the selected
+membership atomically, not the underlying canonical fragrance catalog.
+Per-fragrance provenance is stored losslessly as a gzip-compressed JSON map
+per house (`details_blob`), keyed by canonical row ID, and decompressed only
+when that house is read. This avoids repeating source URLs and method labels
+thousands of times in the deployment database. Import compacts SQLite after
+the transaction. Duplicate canonical rows retain membership but appear once
+per source identity in editorial counts and paginated lists.
+`/api/recommendations` only draws candidates from this membership, retaining DNA
+ranking, grounding exclusions and owned-item filtering. Missing imports fail
+explicitly rather than silently reverting to the full catalog. Search, collection,
+and adaptive test continue using the entire canonical catalog.
+
+`/articles/houses` provides the selected-house directory, with category/search
+filters and `/articles/houses/[houseId]` paginated house catalogs. Public house
+profiles use seven-language editorial catalog overviews instead of the imported
+Romanian workflow boilerplate. Each overview describes the four most frequently
+documented accords across the house's canonical catalog, counting each source
+identity once per accord. It is independent of search, badge filters and the
+current page; it does not extrapolate a single representative perfume to the
+whole house or invent brand history. Houses without documented accords receive
+a localized invitation to explore their available compositions.
+The description is visible without expanding a draft panel and changes with the
+selected language, including accord names. Workbook selections and unresolved
+representative messages are not part of public house cards/profiles. Original
+descriptions, representative evidence and review statuses remain in canonical
+editorial metadata for future research, not in the visible house presentation.
+Brand links use the neutral label `Website`; this UI change does not certify
+their verification status. Partial catalog coverage and the editorial nature of
+territory suggestions remain disclosed. The workbook order is not a popularity ranking.
+Product territory suggestions use their own note/accord method and are not user
+territory affinities or confirmed product classifications. Resemblance reports
+retain source type; brand-declared inspiration is distinct from third-party
+comparisons, and pending research is never presented as a verified equivalence.
+Evidence about a workbook representative absent from the source catalog remains
+on the house's representative metadata; it never creates an invented perfume or
+an eligible purchase candidate.
+The supplied source does not include verified top/heart/base note pyramids.
+Artwork is original editorial SVG, not an official brand logo or bottle photo.
+Product photos remain in the local-only `public/images/perfumes` library; public
+release still requires licensed image delivery and editorial source review.
+
+### Wearing occasions
+
+The fragrance catalog stays at `/fragrances` for existing links, but belongs to
+Discover: it is the first shared vertical menu item and uses the same rail.
+It is not a standalone desktop or mobile primary navigation item. Discover is
+active on this route and on all `/articles/*` pages.
+
+`/articles/occasions` is the Discover editorial guide for eight wearing contexts.
+The supplied bilingual content lives in `lib/data/occasions.json`; the typed
+filter model and five additional locale translations sit alongside it. All
+seven locales use the existing territory and canonical axis display labels.
+Local original pop-art illustrations ship under `public/images/occasions`.
+Occasion, season, setting, time and territory filters combine on guide cards;
+mixed settings and anytime include the corresponding specific choices.
+
+These are editorial suggestions, not perfume classifications or recommendation
+scores. There is no note-derived territory assignment or DNA mutation. Note
+examples are displayed only when an exact normalized note occurs in the
+canonical perfume pool. The general catalog CTA is intentionally unfiltered:
+the existing catalog has no confirmed occasion-to-perfume bridge, so the page
+does not advertise or fabricate matched perfume results. Territory links target
+the canonical territory cards. Source policies and calculation details are
+not rendered as public workflow copy.
+
+### Perfumer Profiles and discovery semantics
+
+`/articles/perfumers` provides a searchable directory of 15 editorial profiles,
+with minimum credited-creation filters (15/25/50), locale-aware sorting and
+individual `/articles/perfumers/[slug]` routes in the sitemap. Profile biographies,
+creative approaches and interface copy support all seven languages.
+`lib/data/topPerfumerProfiles.ts` contains curated people and biography/portrait
+provenance, not static ranking counts. Houses such as Houbigant are not people.
+
+The importer preserves the source Olfactive Score and explicit creator credits
+(person name, perfumer role, attribution URL) in canonical compressed editorial
+details. Existing installations use `node --import tsx scripts/migratePerfumerEvidence.ts`;
+it backs up SQLite, validates scores, updates only evidence blobs, and is
+idempotent. Runtime reads only the canonical SQLite, never the companion.
+These are sourced catalog attributions, not claims of primary-source verification.
+
+`lib/database/perfumerProfiles.ts` deduplicates by source perfume identity and
+computes the 67th percentile of all eligible selected-catalog scores using
+linear interpolation at `(n-1)*0.67` in ascending order. Zero is valid; missing,
+non-finite and out-of-range scores are not fabricated. Cutoff ties qualify.
+The current 8,768-score snapshot has cutoff 77.36 and 2,896 qualifying perfumes.
+Each distinct perfume counts once for every attributed co-creator with a source.
+Profiles show both top-tier and evaluated counts, and all qualifying Signature
+Works with attribution links. Biography and attribution Sources are now public.
+Raw scores remain internal, including in house-page serialized props.
+
+Among the 15 featured people, rank sorts by qualifying count, then qualifying
+share of evaluated creations. Exact ties share a competition rank; filtering
+does not recalculate ranks. At least 15 sourced, evaluated creations are required
+for rank eligibility; smaller samples show no rank. This is neither a complete
+career ranking nor personal DNA compatibility. Unsupported static perfumer-DNA
+matches have been removed from the DNA page in favor of a profile-directory link.
+
+`lib/seasonalCues.ts` is shared by the search API and UI. Seasonal Cues remain
+accord-based discovery hints, not confirmed wearing recommendations. Results
+and details show the exact matching accord evidence; mobile uses the same controls.
+`lib/i18n/discoveryCopy.ts` supplies seven-language explanations and distinct
+names: Territory Guide (`/territories`), Your Territory Affinities (DNA), and
+Olfactive Territories, Explained (`/articles/territories`). Personal affinity
+values are independent estimates, not shares summing to 100. Versatility and
+other catalog characteristics are explicitly editorial, not personal affinities.
+
+`PerfumerPortrait` references real images on their cited publishers' hosts;
+source links are retained in the editorial records, not displayed as overlays.
+It reports an unavailable portrait instead
+of leaving a broken image; no portraits are copied into the product-photo
+library. Attribution and successful loading do not establish redistribution
+rights, and remote publishers can change their assets independently.
+
+### Community, popularity and Olfactive badges
+
+The same house importer requires exactly one validated badge row per source
+identity and the versioned six-state definitions for each family. Five levels
+are scored; `undefined` is a distinct missing-data state, never a zero score.
+Community bands are 0–<60, 60–<70, 70–<80, 80–<90 and 90–100. Popularity bands
+are 1–49, 50–199, 200–999, 1,000–4,999 and 5,000+ evaluations; absent/zero
+counts are undefined. Olfactive Score uses the same score bands and requires
+both source score and positive evaluation count. The supplied snapshot method
+combines 80% community score adjusted with a 50-vote source-median prior and
+20% within-source popularity percentile. It is not DNA compatibility, a sales
+measure, a live rating or an independent review by this platform.
+
+Canonical `fragrance_badges` references `fragrances.row_id`, storing only three
+ordinal levels (0–5). Duplicate canonical identities receive identical badges.
+Source ratings, votes and platform provenance stay in the ingestion source;
+the import metadata retains its SHA-256, methods and snapshot dates. The
+canonical badge table is replaced atomically with the editorial membership.
+Unselected perfumes have undefined badges, not extrapolated ratings.
+
+`FragranceBadges` and `FragranceBadgeFilters` are shared seven-language UI
+components. Segmented meters encode badge level, not a fabricated exact score;
+undefined shows a label without a meter. Directory filters count houses with
+matching perfumes, category/name filters combine with them, and links retain
+badge filters into house catalogs and pagination. All selected families use
+AND semantics on the same fragrance. House SQL, library search and purchase
+recommendations filter before pagination/limits. The collection applies the
+same badge predicates to resolved canonical records without persisting badges
+in user collection entries. Public library responses expose badge codes instead
+of raw ratings/votes; house card records omit those raw fields as well.
 
 ---
 

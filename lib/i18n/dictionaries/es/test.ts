@@ -6,7 +6,7 @@ const test: Dictionary['test'] = {
   poolUnavailable: 'El pool de fragancias User DNA no está disponible.',
   groundingRequiredEyebrow: 'BASE OLFATIVA REQUERIDA',
   groundingRequiredTitle: 'Empieza con tus preferencias olfativas',
-  groundingRequiredDescription: 'Coloca al menos dos características en Me encanta o Evitar antes de solicitar un lote de diagnóstico.',
+  groundingRequiredDescription: 'Coloca al menos dos características en Me encanta o Evitar antes de empezar tus evaluaciones adaptativas.',
   beginGrounding: 'Comenzar la base olfativa',
   preparingBatch: 'Preparando tu lote de diagnóstico...',
   noEvaluableFragrances: 'El pool de fragancias User DNA no contiene fragancias evaluables.',

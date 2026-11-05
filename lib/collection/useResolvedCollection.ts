@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { MasterFragranceRecord } from "@/lib/database/masterFragranceDatabase";
 import type { CollectionFragrance, CollectionFragranceView } from "@/lib/collection/types";
+import { reviewedTerritories } from "./territoryCoverage";
 
 const detailsCache = new Map<string, MasterFragranceRecord>();
 
@@ -69,6 +70,8 @@ export function useResolvedCollection(collection: CollectionFragrance[]): Collec
       perfumer: String(record?.perfumer ?? "") || undefined,
       description: String(record?.description ?? "") || undefined,
       confidence: typeof record?.confidence === "number" ? record.confidence : undefined,
+      badges: record?.badges,
+      reviewedTerritories: reviewedTerritories(record?.reviewedTerritories),
     };
   }), [collection, detailsById]);
 }

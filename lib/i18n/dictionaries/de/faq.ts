@@ -21,22 +21,22 @@ const faq: Dictionary['faq'] = {
     {
       question: 'Wie beginnt mein Profil?',
       answer:
-        'Das Grounding erfasst die olfaktorischen Familien, die Sie lieben, neutral sehen oder meiden, und erstellt Ihr erstes DNA-Profil. Empfehlungen sehen Sie sofort. Mindestens zwei „Liebe“- oder „Meide“-Präferenzen sind nötig, bevor eine Diagnose-Serie starten kann.',
+        'Grounding beginnt mit Ihren ausdrücklichen Liebe- und Meide-Auswahlen. Neutral hat keinen positiven oder negativen Einfluss; unbewertete Familien bleiben unbekannt. Zwei Liebe- oder Meide-Auswahlen sind für den Test nötig. Direkte Antworten können diese anfänglichen Vorlieben korrigieren.',
     },
     {
       question: 'Wie funktionieren Duftbewertungen?',
       answer:
-        'Jede adaptive Serie bietet bis zu sechs Düfte, mit einer empfohlenen Option und – wo verfügbar – einer Alternative. Wählen Sie den Duft, den Sie bewerten können, und beurteilen Sie jede angezeigte Eigenschaft. Ihre Antworten beeinflussen das Profil erst, wenn Sie die Bewertung bestätigen.',
+        'Bewerten Sie den Duft insgesamt und dann höchstens zwei adaptive Merkmale: Wahrnehmbarkeit und, falls bemerkt, Gefallen. Nicht bemerkt bedeutet nie Ablehnung. Nur ausdrückliches Gefallen verfeinert die Merkmalsvorliebe und ihre Konfidenz; die Gesamtbewertung dient separat dem Kompositionsvergleich. Der nächste Duft wird nach dem Absenden gewählt. Nicht bewertbar liefert weder Lernsignal noch abgeschlossene Bewertung.',
     },
     {
-      question: 'Beeinflussen vorläufige Regler-Änderungen mein Abzeichen?',
+      question: 'Beeinflussen ungesendete Antworten mein Abzeichen?',
       answer:
-        'Nein. Regler-Änderungen bleiben ein Entwurf, bis Sie bestätigen. Unbestätigte Antworten verändern weder Ihre DNA-Konfidenz noch Ihr aktuelles Abzeichen oder Ihre Empfehlungen.',
+        'Nein. Teilantworten werden zum Fortsetzen gespeichert, ändern aber vor dem Absenden keine Vorlieben, Konfidenz, Abzeichen oder Empfehlungen. Frühere Reglerwerte bleiben Wahrnehmungsverlauf, keine Vorlieben.',
     },
     {
       question: 'Kann ich pausieren und später weitermachen?',
       answer:
-        'Ja. Ihr ausgewählter Duft, die Position in der Serie, abgeschlossene Bewertungen und Ihr Profil werden in Ihrem Konto gespeichert. Sie können nach jeder bestätigten Bewertung aufhören und später fortfahren.',
+        'Ja. Der aktuelle Duft und Teilantworten werden in diesem Browser gespeichert und bei Anmeldung mit Ihrem Konto synchronisiert. Abgeschlossene Bewertungen bleiben erhalten. Bei Speicherfehlern versuchen Sie es vor dem Verlassen erneut.',
     },
     {
       question: 'Was bedeuten die Abzeichenstufen?',

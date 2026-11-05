@@ -26,7 +26,7 @@ const grounding: Dictionary['grounding'] = {
   sectionDescription: 'Ziehen Sie eine Qualität nach Liebe, Neutral oder Meiden, oder nutzen Sie X, ✓ und die Qualitäts-Schaltfläche, um sie zu platzieren.',
   neutralLabel: 'Neutrale Affinitäten',
   neutralTitle: 'Balance',
-  neutralDescription: 'Diese leisen Nuancen schaffen Atmosphäre, ohne ins Rampenlicht zu drängen, und hinterlassen eine sanfte, ausgewogene Spur.',
+  neutralDescription: 'Wählen Sie Neutral ausdrücklich, wenn Sie keine Vorliebe oder Abneigung haben. Die Wahl wird gespeichert, verändert Ihre DNA aber nicht.',
   neutralEmpty: 'Derzeit keine Qualitäten in Neutral...',
   loveLabel: 'Anziehungsmuster',
   loveTitle: 'Liebe',

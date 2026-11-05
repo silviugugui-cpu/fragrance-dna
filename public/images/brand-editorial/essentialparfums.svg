@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-label="Abstract editorial scent composition for Essential Parfums">
+<defs>
+  <radialGradient id="bg"><stop stop-color="#272219"/><stop offset="1" stop-color="#080807"/></radialGradient>
+  <radialGradient id="glow"><stop stop-color="#fff0be"/><stop offset=".45" stop-color="#EAAE5C" stop-opacity=".82"/><stop offset="1" stop-color="#EAAE5C" stop-opacity="0"/></radialGradient>
+  <linearGradient id="petal" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#FFF2CF" stop-opacity=".82"/><stop offset=".55" stop-color="#EAAE5C" stop-opacity=".55"/><stop offset="1" stop-color="#524332" stop-opacity=".2"/></linearGradient>
+  <filter id="soft"><feGaussianBlur stdDeviation="15"/></filter>
+</defs>
+<rect width="800" height="1000" fill="url(#bg)"/>
+<circle cx="402" cy="469" r="250" fill="url(#glow)" opacity=".19" filter="url(#soft)"/>
+<path d="M245 425 C210 325, 365 310, 310 435 C280 470, 250 455, 245 425Z" fill="url(#petal)" opacity=".5" transform="rotate(55 245 425)"/><path d="M245 425 Q280 385 305 427" stroke="#EAAE5C" opacity=".75" fill="none"/><path d="M290 492 C255 392, 410 377, 355 502 C325 537, 295 522, 290 492Z" fill="url(#petal)" opacity=".5" transform="rotate(-55 290 492)"/><path d="M290 492 Q325 452 350 494" stroke="#EAAE5C" opacity=".75" fill="none"/><path d="M335 379 C300 279, 455 264, 400 389 C370 424, 340 409, 335 379Z" fill="url(#petal)" opacity=".5" transform="rotate(55 335 379)"/><path d="M335 379 Q370 339 395 381" stroke="#EAAE5C" opacity=".75" fill="none"/><path d="M380 446 C345 346, 500 331, 445 456 C415 491, 385 476, 380 446Z" fill="url(#petal)" opacity=".5" transform="rotate(-55 380 446)"/><path d="M380 446 Q415 406 440 448" stroke="#EAAE5C" opacity=".75" fill="none"/><path d="M425 513 C390 413, 545 398, 490 523 C460 558, 430 543, 425 513Z" fill="url(#petal)" opacity=".5" transform="rotate(55 425 513)"/><path d="M425 513 Q460 473 485 515" stroke="#EAAE5C" opacity=".75" fill="none"/><path d="M470 400 C435 300, 590 285, 535 410 C505 445, 475 430, 470 400Z" fill="url(#petal)" opacity=".5" transform="rotate(-55 470 400)"/><path d="M470 400 Q505 360 530 402" stroke="#EAAE5C" opacity=".75" fill="none"/><path d="M515 467 C480 367, 635 352, 580 477 C550 512, 520 497, 515 467Z" fill="url(#petal)" opacity=".5" transform="rotate(55 515 467)"/><path d="M515 467 Q550 427 575 469" stroke="#EAAE5C" opacity=".75" fill="none"/><path d="M560 534 C525 434, 680 419, 625 544 C595 579, 565 564, 560 534Z" fill="url(#petal)" opacity=".5" transform="rotate(-55 560 534)"/><path d="M560 534 Q595 494 620 536" stroke="#EAAE5C" opacity=".75" fill="none"/>
+<rect x="38" y="38" width="724" height="924" rx="8" fill="none" stroke="#FCCB5F" stroke-opacity=".34"/>
+<path d="M64 868 H736" stroke="#FCCB5F" stroke-opacity=".38"/>
+<circle cx="400" cy="916" r="4" fill="#FCCB5F" opacity=".8"/>
+</svg>

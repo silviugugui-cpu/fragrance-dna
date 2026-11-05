@@ -280,62 +280,12 @@ function buildKnownAttributes(service: FragranceIntelligenceService): string[] {
 }
 
 export function buildBehaviorProjectionFromAnswers(
-  answers: Record<string, AnswerRecord>,
-  service: FragranceIntelligenceService,
-  calibrationContext?: AdaptiveSelectionCalibrationContext
+  _answers: Record<string, AnswerRecord>,
+  _service: FragranceIntelligenceService,
+  _calibrationContext?: AdaptiveSelectionCalibrationContext
 ): BehaviorProjectionState {
-  const canonicalAttributes = buildKnownAttributes(service);
-  const state = createBehaviorLearningApiState();
-
-  for (const [fragranceId, answer] of Object.entries(answers)) {
-    const canonical = service.getCanonicalFragrance(fragranceId);
-    if (!canonical) {
-      continue;
-    }
-
-    for (const attribute of canonical.coreAttributes) {
-      const value = answer[attribute.canonicalAttributeId];
-      if (typeof value !== "number") {
-        continue;
-      }
-
-      const current = state.attributes[attribute.canonicalAttributeId] ?? createEmptyAttributeState(attribute.canonicalAttributeId);
-      const signed = (value - 50) / 50;
-      const updated = {
-        ...current,
-        evidenceCount: current.evidenceCount + 1,
-        affinity: clampSigned((current.affinity + signed) / 2),
-        strength: clampSigned((current.strength + signed) / 2),
-        confidence: clamp01((current.confidence + Math.abs(signed)) / 2),
-        explorationPriority: clamp01(1 - clamp01(current.evidenceCount / 6) - current.confidence * 0.5),
-        lastValue: value,
-        lastFragranceId: fragranceId,
-        lastUpdated: new Date().toISOString(),
-        lastUpdatedAt: new Date().toISOString(),
-      };
-
-      state.attributes[attribute.canonicalAttributeId] = updated;
-    }
-  }
-
-  state.confidence.global = calculateGlobalConfidence(state.attributes);
-  state.behaviorVector = deriveBehaviorVector(state.attributes, canonicalAttributes);
-
-  if (calibrationContext?.behaviorVectorOverride) {
-    state.behaviorVector = {
-      ...state.behaviorVector,
-      ...calibrationContext.behaviorVectorOverride,
-    };
-  }
-
-  if (calibrationContext?.currentConfidenceState) {
-    state.confidence = {
-      global: clamp01(calibrationContext.currentConfidenceState.global),
-      updates: calibrationContext.currentConfidenceState.updates ?? state.confidence.updates,
-    };
-  }
-
-  return state;
+  // Legacy intensity answers cannot rebuild a preference projection.
+  return createBehaviorLearningApiState();
 }
 
 function createBehaviorLearningApiState(): BehaviorProjectionState {
@@ -366,25 +316,6 @@ function createBehaviorLearningApiState(): BehaviorProjectionState {
       global: 0,
       updates: 0,
     },
-  };
-}
-
-function createEmptyAttributeState(canonicalAttributeId: string) {
-  return {
-    canonicalAttributeId,
-    likedCount: 0,
-    dislikedCount: 0,
-    ignoredCount: 0,
-    uncertainCount: 0,
-    evidenceCount: 0,
-    affinity: 0,
-    strength: 0,
-    confidence: 0,
-    explorationPriority: 1,
-    lastValue: 50,
-    lastFragranceId: "",
-    lastUpdated: new Date(0).toISOString(),
-    lastUpdatedAt: new Date(0).toISOString(),
   };
 }
 
@@ -525,53 +456,6 @@ function calculateBehaviorAlignment(
   return clamp01(total / attributes.length);
 }
 
-function deriveBehaviorVector(
-  attributes: BehaviorProjectionState["attributes"],
-  knownAttributes: string[]
-): OlfactoryVector {
-  const vector: OlfactoryVector = {
-    freshness: 0,
-    warmth: 0,
-    sweetness: 0,
-    darkness: 0,
-    cleanliness: 0,
-    elegance: 0,
-  };
-
-  for (const attributeId of knownAttributes) {
-    const knowledge = attributes[attributeId];
-    if (!knowledge) {
-      continue;
-    }
-
-    const resolved = resolveCanonicalAttribute(attributeId);
-    if (!resolved) {
-      continue;
-    }
-
-    for (const axis of Object.keys(vector) as Array<keyof OlfactoryVector>) {
-      const axisWeight = resolved.vectorMapping[axis] ?? 0;
-      vector[axis] += axisWeight * knowledge.affinity * knowledge.confidence;
-    }
-  }
-
-  for (const axis of Object.keys(vector) as Array<keyof OlfactoryVector>) {
-    vector[axis] = clamp01(0.5 + vector[axis] / Math.max(1, knownAttributes.length));
-  }
-
-  return vector;
-}
-
-function calculateGlobalConfidence(attributes: BehaviorProjectionState["attributes"]): number {
-  const entries = Object.values(attributes);
-  if (entries.length === 0) {
-    return 0;
-  }
-
-  const total = entries.reduce((sum, attribute) => sum + attribute.confidence, 0);
-  return clamp01(total / entries.length);
-}
-
 function buildLeaderboard(
   candidates: AdaptiveSelectionCandidateReport[],
   limit?: number
@@ -665,8 +549,4 @@ function compareCandidatesDeterministically(
 
 function clamp01(value: number): number {
   return Math.max(0, Math.min(1, value));
-}
-
-function clampSigned(value: number): number {
-  return Math.max(-1, Math.min(1, value));
 }

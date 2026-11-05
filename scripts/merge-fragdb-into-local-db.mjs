@@ -8,8 +8,8 @@ const OUTPUT_PATH = path.join(ROOT, "data", "generated", "merged-fragdb-local-db
 const FRAGDB_LOCAL_PATH = path.join(ROOT, "data", "fragdb", "fragrances.csv");
 const FRAGDB_FULL_URL = "https://raw.githubusercontent.com/FragDB/fragrance-database/main/fragrances.csv";
 const FRAGDB_SAMPLE_URL = "https://raw.githubusercontent.com/FragDB/fragrance-database/main/samples/fragrances.csv";
-const LOCAL_IMAGES_DIR = path.join(ROOT, "public", "images", "fragdb");
-const LOCAL_IMAGES_WEB_BASE = "/images/fragdb";
+const LOCAL_IMAGES_DIR = path.join(ROOT, "public", "images", "perfumes");
+const LOCAL_IMAGES_WEB_BASE = "/images/perfumes";
 
 const normalize = (value) =>
   String(value ?? "")
@@ -63,7 +63,7 @@ const downloadFragDbImages = async (records) => {
     }
 
     stats.eligible += 1;
-    const fileName = imageFileNameForRecord(record);
+    const fileName = `fragdb--${imageFileNameForRecord(record)}`;
     const localFsPath = path.join(LOCAL_IMAGES_DIR, fileName);
     const localWebPath = `${LOCAL_IMAGES_WEB_BASE}/${fileName}`;
 

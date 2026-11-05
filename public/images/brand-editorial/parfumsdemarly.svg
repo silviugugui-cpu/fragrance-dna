@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-label="Abstract editorial scent composition for Parfums de Marly">
+<defs>
+  <radialGradient id="bg"><stop stop-color="#272219"/><stop offset="1" stop-color="#080807"/></radialGradient>
+  <radialGradient id="glow"><stop stop-color="#fff0be"/><stop offset=".45" stop-color="#8CB7B1" stop-opacity=".82"/><stop offset="1" stop-color="#8CB7B1" stop-opacity="0"/></radialGradient>
+  <linearGradient id="petal" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#FFF2CF" stop-opacity=".82"/><stop offset=".55" stop-color="#8CB7B1" stop-opacity=".55"/><stop offset="1" stop-color="#524332" stop-opacity=".2"/></linearGradient>
+  <filter id="soft"><feGaussianBlur stdDeviation="15"/></filter>
+</defs>
+<rect width="800" height="1000" fill="url(#bg)"/>
+<circle cx="420" cy="488" r="250" fill="url(#glow)" opacity=".19" filter="url(#soft)"/>
+<path d="M245 470 C210 370, 365 355, 310 480 C280 515, 250 500, 245 470Z" fill="url(#petal)" opacity=".5" transform="rotate(55 245 470)"/><path d="M245 470 Q280 430 305 472" stroke="#8CB7B1" opacity=".75" fill="none"/><path d="M290 537 C255 437, 410 422, 355 547 C325 582, 295 567, 290 537Z" fill="url(#petal)" opacity=".5" transform="rotate(-55 290 537)"/><path d="M290 537 Q325 497 350 539" stroke="#8CB7B1" opacity=".75" fill="none"/><path d="M335 424 C300 324, 455 309, 400 434 C370 469, 340 454, 335 424Z" fill="url(#petal)" opacity=".5" transform="rotate(55 335 424)"/><path d="M335 424 Q370 384 395 426" stroke="#8CB7B1" opacity=".75" fill="none"/><path d="M380 491 C345 391, 500 376, 445 501 C415 536, 385 521, 380 491Z" fill="url(#petal)" opacity=".5" transform="rotate(-55 380 491)"/><path d="M380 491 Q415 451 440 493" stroke="#8CB7B1" opacity=".75" fill="none"/><path d="M425 378 C390 278, 545 263, 490 388 C460 423, 430 408, 425 378Z" fill="url(#petal)" opacity=".5" transform="rotate(55 425 378)"/><path d="M425 378 Q460 338 485 380" stroke="#8CB7B1" opacity=".75" fill="none"/><path d="M470 445 C435 345, 590 330, 535 455 C505 490, 475 475, 470 445Z" fill="url(#petal)" opacity=".5" transform="rotate(-55 470 445)"/><path d="M470 445 Q505 405 530 447" stroke="#8CB7B1" opacity=".75" fill="none"/><path d="M515 512 C480 412, 635 397, 580 522 C550 557, 520 542, 515 512Z" fill="url(#petal)" opacity=".5" transform="rotate(55 515 512)"/><path d="M515 512 Q550 472 575 514" stroke="#8CB7B1" opacity=".75" fill="none"/><path d="M560 399 C525 299, 680 284, 625 409 C595 444, 565 429, 560 399Z" fill="url(#petal)" opacity=".5" transform="rotate(-55 560 399)"/><path d="M560 399 Q595 359 620 401" stroke="#8CB7B1" opacity=".75" fill="none"/>
+<rect x="38" y="38" width="724" height="924" rx="8" fill="none" stroke="#FCCB5F" stroke-opacity=".34"/>
+<path d="M64 868 H736" stroke="#FCCB5F" stroke-opacity=".38"/>
+<circle cx="400" cy="916" r="4" fill="#FCCB5F" opacity=".8"/>
+</svg>

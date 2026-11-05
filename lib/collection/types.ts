@@ -1,4 +1,5 @@
 import type { Fragrance } from '@/lib/types';
+import type { FragranceBadges } from '@/lib/fragranceBadges';
 
 export type CollectionFragrance = {
   id: string;
@@ -24,6 +25,8 @@ export type CollectionFragranceView = CollectionFragrance & {
   perfumer?: string;
   description?: string;
   confidence?: number;
+  badges?: FragranceBadges;
+  reviewedTerritories?: import("./territoryCoverage").ReviewedTerritory[];
 };
 
 export type CollectionFilter = 'all' | 'owned' | 'wishlist';

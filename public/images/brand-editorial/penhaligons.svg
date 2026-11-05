@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-label="Abstract editorial scent composition for Penhaligon&#x27;s">
+<defs>
+  <radialGradient id="bg"><stop stop-color="#272219"/><stop offset="1" stop-color="#080807"/></radialGradient>
+  <radialGradient id="glow"><stop stop-color="#fff0be"/><stop offset=".45" stop-color="#9D9B70" stop-opacity=".82"/><stop offset="1" stop-color="#9D9B70" stop-opacity="0"/></radialGradient>
+  <linearGradient id="petal" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#FFF2CF" stop-opacity=".82"/><stop offset=".55" stop-color="#9D9B70" stop-opacity=".55"/><stop offset="1" stop-color="#524332" stop-opacity=".2"/></linearGradient>
+  <filter id="soft"><feGaussianBlur stdDeviation="15"/></filter>
+</defs>
+<rect width="800" height="1000" fill="url(#bg)"/>
+<circle cx="367" cy="508" r="250" fill="url(#glow)" opacity=".19" filter="url(#soft)"/>
+<path d="M245 435 C210 335, 365 320, 310 445 C280 480, 250 465, 245 435Z" fill="url(#petal)" opacity=".5" transform="rotate(55 245 435)"/><path d="M245 435 Q280 395 305 437" stroke="#9D9B70" opacity=".75" fill="none"/><path d="M290 502 C255 402, 410 387, 355 512 C325 547, 295 532, 290 502Z" fill="url(#petal)" opacity=".5" transform="rotate(-55 290 502)"/><path d="M290 502 Q325 462 350 504" stroke="#9D9B70" opacity=".75" fill="none"/><path d="M335 389 C300 289, 455 274, 400 399 C370 434, 340 419, 335 389Z" fill="url(#petal)" opacity=".5" transform="rotate(55 335 389)"/><path d="M335 389 Q370 349 395 391" stroke="#9D9B70" opacity=".75" fill="none"/><path d="M380 456 C345 356, 500 341, 445 466 C415 501, 385 486, 380 456Z" fill="url(#petal)" opacity=".5" transform="rotate(-55 380 456)"/><path d="M380 456 Q415 416 440 458" stroke="#9D9B70" opacity=".75" fill="none"/><path d="M425 523 C390 423, 545 408, 490 533 C460 568, 430 553, 425 523Z" fill="url(#petal)" opacity=".5" transform="rotate(55 425 523)"/><path d="M425 523 Q460 483 485 525" stroke="#9D9B70" opacity=".75" fill="none"/><path d="M470 410 C435 310, 590 295, 535 420 C505 455, 475 440, 470 410Z" fill="url(#petal)" opacity=".5" transform="rotate(-55 470 410)"/><path d="M470 410 Q505 370 530 412" stroke="#9D9B70" opacity=".75" fill="none"/><path d="M515 477 C480 377, 635 362, 580 487 C550 522, 520 507, 515 477Z" fill="url(#petal)" opacity=".5" transform="rotate(55 515 477)"/><path d="M515 477 Q550 437 575 479" stroke="#9D9B70" opacity=".75" fill="none"/><path d="M560 544 C525 444, 680 429, 625 554 C595 589, 565 574, 560 544Z" fill="url(#petal)" opacity=".5" transform="rotate(-55 560 544)"/><path d="M560 544 Q595 504 620 546" stroke="#9D9B70" opacity=".75" fill="none"/>
+<rect x="38" y="38" width="724" height="924" rx="8" fill="none" stroke="#FCCB5F" stroke-opacity=".34"/>
+<path d="M64 868 H736" stroke="#FCCB5F" stroke-opacity=".38"/>
+<circle cx="400" cy="916" r="4" fill="#FCCB5F" opacity=".8"/>
+</svg>

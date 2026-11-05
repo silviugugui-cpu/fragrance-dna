@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 const BRAND_TYPES: Record<string, string> = {
   niche: "Niche",
   designer: "Designer",
-  dupe: "Dupe/Middle Eastern",
+  dupe: "inspired_by",
 };
 
 export async function GET(request: NextRequest) {

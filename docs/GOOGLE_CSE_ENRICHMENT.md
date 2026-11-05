@@ -14,7 +14,7 @@ This workflow enriches existing perfume records with missing fields using Google
 - Output enriched: data/generated/merged-fragdb-local-db.google-enriched.json
 - Output report: data/generated/google-cse-enrichment-report.json
 - Image localization report: data/generated/google-cse-image-download-report.json
-- Local image directory: public/images/google-enriched
+- Local image directory: public/images/perfumes (google-enriched-- filename prefix)
 
 ## Required Environment Variables
 

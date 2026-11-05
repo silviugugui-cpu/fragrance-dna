@@ -26,7 +26,7 @@ const grounding: Dictionary['grounding'] = {
   sectionDescription: 'Arrastra una cualidad a Me encanta, Neutro o Evitar, o usa X, ✓ y el botón de la cualidad para colocarla.',
   neutralLabel: 'Afinidades neutras',
   neutralTitle: 'Equilibrio',
-  neutralDescription: 'Estos susurros añaden atmósfera sin exigir protagonismo, creando una estela suave y equilibrada.',
+  neutralDescription: 'Elige Neutral explícitamente si no tienes preferencia ni rechazo. La elección se guarda, pero no modifica tu ADN.',
   neutralEmpty: 'No hay cualidades en Neutro ahora mismo...',
   loveLabel: 'Patrones de atracción',
   loveTitle: 'Me encanta',

@@ -37,8 +37,8 @@ const INPUT_PATH = path.join(ROOT, "data", "generated", "merged-fragdb-local-db.
 const OUTPUT_PATH = path.join(ROOT, "data", "generated", "merged-fragdb-local-db.google-enriched.json");
 const REPORT_PATH = path.join(ROOT, "data", "generated", "google-cse-enrichment-report.json");
 const IMAGE_REPORT_PATH = path.join(ROOT, "data", "generated", "google-cse-image-download-report.json");
-const LOCAL_IMAGES_DIR = path.join(ROOT, "public", "images", "google-enriched");
-const LOCAL_IMAGES_WEB_BASE = "/images/google-enriched";
+const LOCAL_IMAGES_DIR = path.join(ROOT, "public", "images", "perfumes");
+const LOCAL_IMAGES_WEB_BASE = "/images/perfumes";
 
 const GOOGLE_CSE_API_KEY = process.env.GOOGLE_CSE_API_KEY ?? "";
 const GOOGLE_CSE_CX = process.env.GOOGLE_CSE_CX ?? "";
@@ -476,7 +476,7 @@ export const downloadApprovedEnrichedImages = async (): Promise<{
     }
 
     attempted += 1;
-    const fileName = localImageFileName(record);
+    const fileName = `google-enriched--${localImageFileName(record)}`;
     const diskPath = path.join(LOCAL_IMAGES_DIR, fileName);
     const webPath = `${LOCAL_IMAGES_WEB_BASE}/${fileName}`;
 

@@ -1,0 +1,216 @@
+{
+  "schemaVersion": "1.0",
+  "page": {
+    "route": "/occasions",
+    "navigationLabel": { "en": "Occasions", "ro": "Ocazii de purtare" },
+    "title": { "en": "When to Wear Perfume", "ro": "Când purtăm parfumul" },
+    "intro": {
+      "en": "The right fragrance depends on the moment, the setting, and how close you’ll be to other people. Explore occasion guides built with Olfactive DNA territories, notes, and axes. Treat them as starting points, not rules: your taste and the way a fragrance wears on your skin still matter.",
+      "ro": "Parfumul potrivit depinde de moment, de loc și de cât de aproape vei fi de ceilalți. Explorează ghidurile de mai jos, construite cu teritorii olfactive, note și axe Olfactive DNA. Sunt puncte de pornire, nu reguli: gustul tău și felul în care parfumul se așază pe piele contează în continuare."
+    }
+  },
+  "canonicalSource": "docs/OLFACTIVEDNA_AXES_AND_TERRITORIES_EXPORT.json",
+  "matchingPolicy": {
+    "territoryAssignment": "editorial_review_with_source_and_confidence",
+    "notesAreClassificationRules": false,
+    "useUserDnaAffinityAsPerfumeClassification": false,
+    "showWhyMatched": true,
+    "showMissingClassificationState": true,
+    "doNotInterpretPresenceAsProjection": true,
+    "scoreIsRequired": false
+  },
+  "occasions": [
+    {
+      "id": "everyday",
+      "title": { "en": "Everyday & Errands", "ro": "Zile obișnuite și drumuri" },
+      "summary": {
+        "en": "Easy-to-wear scents for routine days, casual plans, and quick stops around town.",
+        "ro": "Parfumuri ușor de purtat în zile obișnuite, la planuri relaxate și drumuri prin oraș."
+      },
+      "guidance": {
+        "en": "Start with versatile compositions that feel fresh, clean, soft, or quietly floral. Look for a comfortable scent trail that suits changing plans.",
+        "ro": "Pornește de la compoziții versatile, proaspete, curate, delicate sau discret florale. Caută o prezență confortabilă, potrivită pentru planuri care se schimbă."
+      },
+      "territoryIds": ["fresh-citrus", "green-fresh", "musk", "floral"],
+      "axisIds": ["Freshness", "Versatility", "Comfort"],
+      "noteExamples": ["Bergamot", "Lemon", "Mandarin", "Neroli", "Green Tea", "Lavender", "Musk"],
+      "seasons": ["spring", "summer", "fall", "winter"],
+      "settings": ["indoors", "outdoors", "mixed"],
+      "timeOfDay": ["day", "anytime"],
+      "applicationTip": {
+        "en": "Choose a familiar, easygoing scent and adjust the amount to the space you’ll be in.",
+        "ro": "Alege un parfum familiar și relaxat, apoi adaptează cantitatea la spațiul în care vei sta."
+      },
+      "imagePath": "/images/occasions/everyday.png",
+      "imageAlt": { "en": "A person choosing a fragrance before a daytime outing", "ro": "O persoană își alege parfumul înainte de o ieșire în timpul zilei" }
+    },
+    {
+      "id": "work-study",
+      "title": { "en": "Work & Study", "ro": "Serviciu și studiu" },
+      "summary": {
+        "en": "Considerate choices for offices, classrooms, libraries, and shared workspaces.",
+        "ro": "Alegeri echilibrate pentru birou, cursuri, biblioteci și spații de lucru comune."
+      },
+      "guidance": {
+        "en": "Look for a composed profile: green freshness, refined woods, soft musk, or a restrained floral. In close shared spaces, a lighter application is often the most considerate choice.",
+        "ro": "Caută un profil echilibrat: prospețime verde, lemn rafinat, mosc delicat sau note florale discrete. În spații comune și apropiate, o aplicare moderată este de obicei alegerea atentă."
+      },
+      "territoryIds": ["green-fresh", "luxury-fresh", "woody-elegant", "musk"],
+      "axisIds": ["Elegance", "Formality", "Comfort", "Versatility"],
+      "noteExamples": ["Neroli", "Lavender", "Iris", "Vetiver", "Cedar", "Musk"],
+      "seasons": ["spring", "summer", "fall", "winter"],
+      "settings": ["indoors"],
+      "timeOfDay": ["day"],
+      "applicationTip": {
+        "en": "Keep the application close to the skin in shared rooms, meetings, and classrooms.",
+        "ro": "Păstrează aplicarea discretă în încăperi comune, ședințe și săli de curs."
+      },
+      "imagePath": "/images/occasions/work-study.png",
+      "imageAlt": { "en": "A professional applying fragrance before a workday", "ro": "O persoană se parfumează înaintea unei zile de lucru" }
+    },
+    {
+      "id": "date-night",
+      "title": { "en": "Date Night & Close Moments", "ro": "Întâlniri și momente apropiate" },
+      "summary": {
+        "en": "Personal, memorable fragrances for dinners, conversation, and time spent close together.",
+        "ro": "Parfumuri personale și memorabile pentru cine, conversații și momente petrecute aproape."
+      },
+      "guidance": {
+        "en": "Soft musk, expressive florals, warm amber, or a gentle gourmand can create an intimate impression. Choose a profile you enjoy wearing; there is no universal ‘date scent’.",
+        "ro": "Moscul delicat, florile expresive, ambra caldă sau acordurile gourmand blânde pot crea o impresie intimă. Alege un profil care îți place; nu există un parfum universal pentru întâlniri."
+      },
+      "territoryIds": ["musk", "floral", "amber", "rich-gourmand"],
+      "axisIds": ["Comfort", "Warmth", "Elegance", "Character"],
+      "noteExamples": ["Rose", "Jasmine", "Orange Blossom", "Vanilla", "Amber", "Musk"],
+      "seasons": ["spring", "summer", "fall", "winter"],
+      "settings": ["indoors", "outdoors", "mixed"],
+      "timeOfDay": ["evening"],
+      "applicationTip": {
+        "en": "For dinner or close conversation, favor a balanced application that stays pleasant at close range.",
+        "ro": "La cină sau în conversații apropiate, alege o aplicare echilibrată, plăcută de aproape."
+      },
+      "imagePath": "/images/occasions/date-night.png",
+      "imageAlt": { "en": "A person preparing for an evening date", "ro": "O persoană se pregătește pentru o întâlnire de seară" }
+    },
+    {
+      "id": "formal-occasions",
+      "title": { "en": "Formal Events & Ceremonies", "ro": "Evenimente formale și ceremonii" },
+      "summary": {
+        "en": "Refined options for receptions, weddings, ceremonies, theatre, and formal dinners.",
+        "ro": "Opțiuni rafinate pentru recepții, nunți, ceremonii, teatru și cine formale."
+      },
+      "guidance": {
+        "en": "Woody, elegant, leather, amber, or polished floral territories can complement formal dress. Consider the venue and duration; an elegant profile does not need to be loud.",
+        "ro": "Teritoriile lemnoase, elegante, de piele, ambrate sau florale rafinate pot completa ținuta formală. Ține cont de loc și de durată; un profil elegant nu trebuie să fie intens."
+      },
+      "territoryIds": ["woody-elegant", "leather", "amber", "luxury-fresh", "floral"],
+      "axisIds": ["Elegance", "Formality", "Complexity", "Luxury"],
+      "noteExamples": ["Iris", "Cedar", "Sandalwood", "Incense", "Amber", "Leather", "Rose"],
+      "seasons": ["spring", "summer", "fall", "winter"],
+      "settings": ["indoors", "mixed"],
+      "timeOfDay": ["evening", "anytime"],
+      "applicationTip": {
+        "en": "Match the fragrance’s character to the dress code and venue, and apply with restraint before close-seated events.",
+        "ro": "Potrivește caracterul parfumului cu ținuta și locul evenimentului și aplică moderat înaintea evenimentelor cu locuri apropiate."
+      },
+      "imagePath": "/images/occasions/formal-occasions.png",
+      "imageAlt": { "en": "A person preparing for a formal evening event", "ro": "O persoană se pregătește pentru un eveniment formal de seară" }
+    },
+    {
+      "id": "celebrations-night-out",
+      "title": { "en": "Celebrations & Night Out", "ro": "Sărbători și ieșiri de seară" },
+      "summary": {
+        "en": "Expressive choices for birthdays, parties, dancing, and lively evenings with friends.",
+        "ro": "Alegeri expresive pentru aniversări, petreceri, dans și seri animate cu prietenii."
+      },
+      "guidance": {
+        "en": "When the setting is lively, a fragrance with character, warmth, or a richer gourmand, tobacco, amber, or floral profile may feel at home. Let the occasion guide the application—not a need to out-project the room.",
+        "ro": "Într-un context animat, un parfum cu caracter, căldură sau un profil gourmand, de tutun, ambrat ori floral mai bogat se poate potrivi. Lasă contextul să dicteze aplicarea, nu dorința de a domina încăperea."
+      },
+      "territoryIds": ["rich-gourmand", "honey-tobacco", "amber", "floral"],
+      "axisIds": ["Character", "Warmth", "Complexity", "Uniqueness"],
+      "noteExamples": ["Vanilla", "Tonka Bean", "Tobacco", "Spices", "Amber", "Cherry", "Rose"],
+      "seasons": ["spring", "summer", "fall", "winter"],
+      "settings": ["indoors", "outdoors", "mixed"],
+      "timeOfDay": ["evening"],
+      "applicationTip": {
+        "en": "In crowded venues, a distinctive scent can still be worn with a measured application.",
+        "ro": "În spații aglomerate, și un parfum distinctiv poate fi purtat cu o aplicare măsurată."
+      },
+      "imagePath": "/images/occasions/celebrations-night-out.png",
+      "imageAlt": { "en": "Friends celebrating together at an evening gathering", "ro": "Prieteni sărbătoresc împreună la o întâlnire de seară" }
+    },
+    {
+      "id": "outdoors-warm-days",
+      "title": { "en": "Outdoors & Warm Days", "ro": "În aer liber și zile calde" },
+      "summary": {
+        "en": "Fresh, easygoing profiles for walks, gardens, open-air lunches, and warm-weather plans.",
+        "ro": "Profiluri proaspete și lejere pentru plimbări, grădini, prânzuri în aer liber și planuri pe vreme caldă."
+      },
+      "guidance": {
+        "en": "Fresh citrus, green freshness, refined fresh compositions, and soft musk make useful starting points. Use the actual notes and territory labels in the catalog; do not assume every aquatic or citrus fragrance wears alike.",
+        "ro": "Prospetimea citrică sau verde, compozițiile fresh rafinate și moscul delicat sunt puncte bune de pornire. Folosește notele și teritoriile marcate în catalog; nu presupune că toate parfumurile acvatice sau citrice se comportă la fel."
+      },
+      "territoryIds": ["fresh-citrus", "green-fresh", "luxury-fresh", "musk"],
+      "axisIds": ["Freshness", "Versatility", "Comfort"],
+      "noteExamples": ["Bergamot", "Lemon", "Grapefruit", "Mint", "Basil", "Neroli", "Green Notes"],
+      "seasons": ["spring", "summer"],
+      "settings": ["outdoors", "mixed"],
+      "timeOfDay": ["day"],
+      "applicationTip": {
+        "en": "Keep the amount comfortable in the heat and refresh only when needed; do not assume more sprays will improve the experience.",
+        "ro": "Păstrează cantitatea confortabilă pe căldură și reaplică doar dacă este nevoie; mai multe pulverizări nu garantează o experiență mai bună."
+      },
+      "imagePath": "/images/occasions/outdoors-warm-days.png",
+      "imageAlt": { "en": "A person walking outdoors on a warm day", "ro": "O persoană se plimbă în aer liber într-o zi caldă" }
+    },
+    {
+      "id": "travel-weekends",
+      "title": { "en": "Travel & Weekends", "ro": "Călătorii și weekenduri" },
+      "summary": {
+        "en": "Adaptable fragrances for a change of scenery, short trips, and unplanned weekend plans.",
+        "ro": "Parfumuri adaptabile pentru schimbarea decorului, escapade scurte și planuri spontane de weekend."
+      },
+      "guidance": {
+        "en": "Versatile fresh, green, or skin-close musk profiles can move easily between daytime exploring and a relaxed evening. Choose from the catalog’s reviewed territory and note data rather than relying on the occasion label alone.",
+        "ro": "Profilurile fresh, verzi sau de mosc apropiat de piele pot trece ușor de la explorarea din timpul zilei la o seară relaxată. Alege pe baza teritoriilor și notelor verificate în catalog, nu doar după eticheta ocaziei."
+      },
+      "territoryIds": ["fresh-citrus", "musk", "green-fresh", "luxury-fresh"],
+      "axisIds": ["Versatility", "Comfort", "Freshness", "Uniqueness"],
+      "noteExamples": ["Bergamot", "Tea", "Aromatic Herbs", "Musk", "Cedar", "Soft Woods"],
+      "seasons": ["spring", "summer", "fall", "winter"],
+      "settings": ["indoors", "outdoors", "mixed"],
+      "timeOfDay": ["day", "evening", "anytime"],
+      "applicationTip": {
+        "en": "Choose a compact, leak-resistant format and a profile that feels versatile across your plans.",
+        "ro": "Alege un format compact, rezistent la scurgeri, și un profil versatil pentru planurile tale."
+      },
+      "imagePath": "/images/occasions/travel-weekends.png",
+      "imageAlt": { "en": "A traveller packing a small fragrance for a weekend away", "ro": "O persoană împachetează un parfum pentru o escapadă de weekend" }
+    },
+    {
+      "id": "cozy-cold-weather",
+      "title": { "en": "Cozy Evenings & Cold Weather", "ro": "Seri confortabile și vreme rece" },
+      "summary": {
+        "en": "Comforting, enveloping profiles for quiet nights, winter plans, and time indoors.",
+        "ro": "Profiluri confortabile și învăluitoare pentru seri liniștite, planuri de iarnă și timp petrecut în interior."
+      },
+      "guidance": {
+        "en": "Warm amber, honey tobacco, rich gourmand, and woody elegant territories offer a useful place to explore. Look for notes such as vanilla, tonka, resins, tobacco, woods, or spices when those notes are actually listed for the perfume.",
+        "ro": "Teritoriile Amber, Honey Tobacco, Rich Gourmand și Woody Elegant sunt puncte utile de explorare. Caută note precum vanilie, tonka, rășini, tutun, lemn sau condimente doar când sunt listate efectiv pentru parfum."
+      },
+      "territoryIds": ["amber", "honey-tobacco", "rich-gourmand", "woody-elegant"],
+      "axisIds": ["Warmth", "Comfort", "Character", "Complexity"],
+      "noteExamples": ["Vanilla", "Tonka Bean", "Amber", "Benzoin", "Tobacco", "Cedar", "Sandalwood", "Spices"],
+      "seasons": ["fall", "winter"],
+      "settings": ["indoors", "mixed"],
+      "timeOfDay": ["evening", "anytime"],
+      "applicationTip": {
+        "en": "In a warm room or close gathering, balance richer notes with a considerate amount.",
+        "ro": "Într-o încăpere caldă sau la o întâlnire restrânsă, echilibrează notele bogate cu o cantitate atentă."
+      },
+      "imagePath": "/images/occasions/cozy-cold-weather.png",
+      "imageAlt": { "en": "A quiet fragrance moment at home on a cold evening", "ro": "Un moment liniștit cu parfum acasă, într-o seară rece" }
+    }
+  ]
+}

@@ -5,6 +5,7 @@ import { territories, Territory } from '@/lib/data/territories';
 import { CloseGlyphIcon, ChevronRightGlyphIcon } from '@/components/design-system/FragranceIcons';
 import { useLanguage } from '@/lib/i18n';
 import { usePublicTheme } from '@/lib/theme/PublicThemeProvider';
+import { getDiscoveryCopy } from '@/lib/i18n/discoveryCopy';
 
 const TERRITORY_BACKGROUNDS: Record<string, string> = {
   'fresh-citrus':  '/Territory/Fresh citrus.bmp',
@@ -31,9 +32,10 @@ function TerritoryMapCard({ territory, isSelected, onClick }: TerritoryCardProps
   const bgImage = TERRITORY_BACKGROUNDS[territory.id];
   return (
     <button
+      id={territory.id}
       onClick={onClick}
       className={`
-        territory-map-card relative flex min-w-0 cursor-pointer flex-col overflow-hidden rounded-[16px] border text-left transition-shadow duration-300
+        territory-map-card relative flex min-w-0 scroll-mt-40 cursor-pointer flex-col overflow-hidden rounded-[16px] border text-left transition-shadow duration-300
         ${isSelected ? 'ring-2 ring-gold shadow-gold' : 'hover:shadow-gold'}
       `}
       style={{
@@ -231,7 +233,8 @@ function TerritoryDetailPanel({ territory, onClose }: TerritoryDetailProps) {
 }
 
 export default function TerritoriesFullSection({ embedded = false }: { embedded?: boolean }) {
-  const { t } = useLanguage();
+  const { locale, t } = useLanguage();
+  const copy = getDiscoveryCopy(locale);
   const { assets, theme } = usePublicTheme();
   const [selectedTerritoryId, setSelectedTerritoryId] = useState<string | null>(null);
   const [filterIntensity, setFilterIntensity] = useState<string | null>(null);
@@ -277,11 +280,12 @@ export default function TerritoriesFullSection({ embedded = false }: { embedded?
             >
               <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em]">{t.territories.fullSection.kicker}</p>
               <h2 className="text-3xl font-semibold leading-tight md:text-5xl" style={{ textShadow: 'inherit' }}>
-                {t.territories.fullSection.title}
+                {embedded ? copy.explained : copy.guide}
               </h2>
               <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed md:text-lg">
                 {t.territories.fullSection.subtitle}
               </p>
+              <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed">{copy.editorialHelp}</p>
             </div>
           <div className="relative z-10 col-start-1 row-start-1 px-5 py-6 text-center md:px-8 md:py-8 lg:px-10 lg:py-10">
             <div className="mx-auto grid min-w-0 grid-cols-2 gap-2 sm:gap-5">

@@ -11,7 +11,7 @@ import {
 const ROOT = process.cwd();
 loadEnvConfig(ROOT);
 const PUBLIC_DIRECTORY = path.join(ROOT, "public");
-const IMAGE_DIRECTORY = path.join(PUBLIC_DIRECTORY, "images", "ai-generated-perfumes");
+const IMAGE_DIRECTORY = path.join(PUBLIC_DIRECTORY, "images", "perfumes");
 const REPORT_PATH = path.join(ROOT, "data", "generated", "ai-perfume-image-generation-report.json");
 const API_URL = "https://api.openai.com/v1/images/generations";
 const MODEL = process.env.OPENAI_IMAGE_MODEL?.trim() || "gpt-image-1";
@@ -77,13 +77,13 @@ const makeCandidate = (record: MasterFragranceRecord): ImageCandidate | null => 
   if (!identity || !label) return null;
 
   const digest = createHash("sha256").update(identity).digest("hex").slice(0, 32);
-  const localImagePath = `/images/ai-generated-perfumes/${digest}.png`;
+  const localImagePath = `/images/perfumes/ai-generated-perfumes--${digest}.png`;
 
   return {
     identity,
     label,
     localImagePath,
-    destinationPath: path.join(IMAGE_DIRECTORY, `${digest}.png`),
+    destinationPath: path.join(IMAGE_DIRECTORY, `ai-generated-perfumes--${digest}.png`),
     prompt: buildPrompt(record),
   };
 };

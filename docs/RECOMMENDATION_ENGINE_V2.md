@@ -1,5 +1,19 @@
 # Recommendation Engine v2
 
+## Explicit preference evidence
+
+Recommendations replay schema-2 submitted evaluations with explicit Grounding
+priors. They score attribute liking/prior compatibility and overall fragrance
+liking with canonical-attribute Jaccard similarity as independent contributions.
+Noticeability never increases liking. Overall dislike never assigns dislike to
+individual notes. Direct attribute liking may replace a contradictory Grounding
+Avoid; Avoid is therefore not an immutable hard exclusion.
+
+Legacy, unversioned DNA vectors are not used as liking evidence. The existing
+request vector remains a compatibility field; scores derive from validated
+evaluation records and explicit priors. Catalog membership, owned exclusions,
+badge filters and public source/score whitelists remain unchanged.
+
 ## Purpose
 Define objective-driven, context-aware recommendation intelligence that consumes canonical user and fragrance intelligence.
 

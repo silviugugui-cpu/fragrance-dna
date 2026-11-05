@@ -139,13 +139,6 @@ const perfumerSeeds: PerfumerSeed[] = [
     fragrances: ['Aqua Universalis', 'Lumiere Noire', 'Aqua Vitae'],
     dna: { Freshness: 95, Complexity: 70, Elegance: 85, Presence: 80, Luxury: 80 },
   },
-  {
-    name: 'Houbigant',
-    style: 'Historic French perfumery with modern reinterpretations, elegant florals and refined woody structures',
-    philosophy: 'Tradition refined through modern craftsmanship',
-    fragrances: ['Quelques Fleurs L\'Original', 'Fougere Royale', 'Orangers en Fleurs'],
-    dna: { Freshness: 65, Complexity: 85, Elegance: 95, Presence: 80, Luxury: 90 },
-  },
 ];
 
 export const perfumers: Perfumer[] = perfumerSeeds.map((perfumer) => ({

@@ -6,8 +6,12 @@ import es from './dictionaries/es';
 import it from './dictionaries/it';
 import pt from './dictionaries/pt';
 import ro from './dictionaries/ro';
+import { withDiscoveryLabels } from './discoveryCopy';
 
-export const DICTIONARIES: Record<Locale, Dictionary> = { en, fr, de, es, it, pt, ro };
+export const DICTIONARIES: Record<Locale, Dictionary> = {
+  en: withDiscoveryLabels(en, "en"), fr: withDiscoveryLabels(fr, "fr"), de: withDiscoveryLabels(de, "de"),
+  es: withDiscoveryLabels(es, "es"), it: withDiscoveryLabels(it, "it"), pt: withDiscoveryLabels(pt, "pt"), ro: withDiscoveryLabels(ro, "ro"),
+};
 
 /** Server-safe dictionary lookup; falls back to the default locale for unknown values. */
 export function getDictionary(locale: string | undefined | null): Dictionary {
