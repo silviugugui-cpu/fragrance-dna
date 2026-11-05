@@ -6,6 +6,9 @@ import type { EvidencedPerfumerProfile } from "@/lib/database/perfumerProfiles";
 import { getDiscoveryCopy } from "@/lib/i18n/discoveryCopy";
 import { getPerfumerText } from "@/lib/data/topPerfumerTranslations";
 import PerfumerPortrait from "../PerfumerPortrait";
+import { getFragranceHref } from "@/lib/fragranceNavigation";
+import PerfumerCredits from "@/components/PerfumerCredits";
+import { getFragrancePageCopy } from "@/lib/i18n/fragrancePageCopy";
 
 const panel = "rounded-3xl border border-[rgba(var(--public-champagne-channels,156,120,65),0.35)] bg-[rgba(var(--public-surface-channels,10,10,10),0.45)] p-6 sm:p-8";
 const ink = "text-[color:var(--public-ink-primary,#f2ddb1)]";
@@ -17,6 +20,7 @@ export default function PerfumerProfileClient({ profile }: { profile: EvidencedP
   const copy = t.articles.perfumers.directory;
   const text = getPerfumerText(profile, locale);
   const discovery = getDiscoveryCopy(locale);
+  const fragranceCopy = getFragrancePageCopy(locale);
 
   return (
     <main className="relative mx-auto w-[90vw] max-w-[1200px] pb-16 pt-8 lg:pt-10">
@@ -49,9 +53,9 @@ export default function PerfumerProfileClient({ profile }: { profile: EvidencedP
           <ul className="mt-5">
             {profile.works.map((creation) => (
               <li key={creation.id} className={`flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-[color:var(--public-border,rgba(180,145,85,0.4))] py-3 ${ink}`}>
-                <span>{creation.name}</span>
-                <span className={`text-sm ${muted}`}>{creation.brand}</span>
-                <span className={`w-full text-sm ${muted}`}>{creation.credits.map((credit, index) => <span key={credit.name}>{index > 0 && " · "}<a href={credit.source} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">{credit.name} — {discovery.role}</a></span>)}</span>
+                <Link href={getFragranceHref(creation.recordId, creation.brand, creation.name)} className="underline underline-offset-4">{creation.name}</Link>
+                <Link href={getFragranceHref(creation.recordId, creation.brand, creation.name)} className={`text-sm underline underline-offset-4 ${muted}`}>{creation.brand}</Link>
+                <span className={`w-full text-sm ${muted}`}><PerfumerCredits credits={creation.credits} /></span>
               </li>
             ))}
           </ul>
@@ -63,7 +67,7 @@ export default function PerfumerProfileClient({ profile }: { profile: EvidencedP
         <a href={profile.biographySourceUrl} target="_blank" rel="noopener noreferrer" className={`mt-4 inline-block underline underline-offset-4 ${muted}`}>{discovery.biography} — {new URL(profile.biographySourceUrl).hostname}</a>
         <p className={`mt-3 text-sm ${muted}`}>{discovery.attribution}: {discovery.works}</p>
         <ul className="mt-3 flex flex-wrap gap-3">
-          {[...new Set(profile.works.flatMap((work) => work.credits.map((credit) => credit.source)))].map((source) => <li key={source}><a href={source} target="_blank" rel="noopener noreferrer" className={`text-sm underline underline-offset-4 ${muted}`}>{new URL(source).pathname.split("/").filter(Boolean).pop()}</a></li>)}
+          {[...new Set(profile.works.flatMap((work) => work.credits.map((credit) => credit.source)))].map((source) => <li key={source}><a href={source} target="_blank" rel="noopener noreferrer" className={`text-sm underline underline-offset-4 ${muted}`}>{fragranceCopy.attribution} — {new URL(source).pathname.split("/").filter(Boolean).pop()}</a></li>)}
         </ul>
       </section>
     </main>

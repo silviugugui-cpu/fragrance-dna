@@ -3,6 +3,7 @@ import { gunzipSync } from "node:zlib";
 import type { BadgeFilters, FragranceBadges } from "../fragranceBadges";
 import { badgeFilterSql, badgesFromColumns, type BadgeColumns } from "./fragranceBadgeStorage";
 import type { CreatorCredit } from "../data/perfumerEvidence";
+import { getFragranceReferenceHref } from "./fragrancePages";
 
 export const curatedCatalogSchema = `
   CREATE TABLE IF NOT EXISTS editorial_houses (
@@ -50,6 +51,7 @@ export interface TerritorySuggestion {
 }
 
 export interface DupeEvidence {
+  referenceHref?: string;
   status: string;
   referenceBrand: string | null;
   referencePerfume: string | null;
@@ -115,13 +117,13 @@ export function readEditorialHouseCatalog(brandId: string, query: string, reques
   const pages = Math.max(1, Math.ceil(total / pageSize));
   const page = Math.min(pages, Math.max(1, Number.isFinite(requestedPage) ? Math.floor(requestedPage) : 1));
   const rows = database.prepare(`
-    SELECT f.row_id, f.record_json, b.community_level, b.popularity_level, b.olfactive_level FROM editorial_fragrances e
+    SELECT f.row_id, f.record_id, f.canonical_key, f.record_json, b.community_level, b.popularity_level, b.olfactive_level FROM editorial_fragrances e
     JOIN fragrances f ON f.row_id = e.row_id
     LEFT JOIN fragrance_badges b ON b.row_id = e.row_id WHERE ${where}
     ORDER BY CASE WHEN e.source_record_id = ? THEN 0 ELSE 1 END, f.perfume COLLATE NOCASE, f.row_id
     LIMIT ? OFFSET ?
   `).all(...params, house.featuredRecordId ?? "", pageSize, (page - 1) * pageSize) as Array<{
-    row_id: number; record_json: string;
+    row_id: number; record_id: string; canonical_key: string; record_json: string;
   } & BadgeColumns>;
   const stored = database.prepare("SELECT details_blob FROM editorial_houses WHERE brand_id = ?")
     .get(brandId) as { details_blob: Buffer };
@@ -141,7 +143,7 @@ export function readEditorialHouseCatalog(brandId: string, query: string, reques
       return {
         rowId: row.row_id,
         record: {
-          id: record.id, brand: record.brand, perfume: record.perfume, launchYear: record.launchYear,
+          id: row.record_id, canonicalKey: row.canonical_key, brand: record.brand, perfume: record.perfume, launchYear: record.launchYear,
           perfumer: record.perfumer, description: record.description, mainAccords: record.mainAccords,
           notes: record.notes, localImagePath: record.localImagePath, imageUrl: record.imageUrl,
         },
@@ -151,12 +153,25 @@ export function readEditorialHouseCatalog(brandId: string, query: string, reques
           importedAt: details[row.row_id].importedAt,
           previousValues: {},
           territories: details[row.row_id].territories,
-          similarities: details[row.row_id].similarities,
+          similarities: details[row.row_id].similarities.map((item) => ({
+            ...item, referenceHref: getFragranceReferenceHref(item.referenceBrand ?? "", item.referencePerfume ?? ""),
+          })),
         },
         badges: badgesFromColumns(row),
       };
     }),
   };
+}
+
+export function readEditorialFragranceDetails(rowId: number): EditorialFragranceDetails | null {
+  const stored = getMasterFragranceDatabase().prepare(`
+    SELECT h.details_blob FROM editorial_houses h
+    JOIN editorial_fragrances e ON e.brand_id = h.brand_id WHERE e.row_id = ?
+  `).get(rowId) as { details_blob: Buffer } | undefined;
+  if (!stored) return null;
+  const details = decodeEditorialDetails(stored.details_blob)[rowId];
+  if (!details) throw new Error(`Missing editorial provenance for canonical row ${rowId}.`);
+  return details;
 }
 
 export function readPurchaseRecommendationFragrances(filters: BadgeFilters = {}): MasterFragranceRecord[] {

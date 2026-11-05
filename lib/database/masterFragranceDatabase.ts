@@ -97,7 +97,7 @@ const schemaSql = `
   );
 `;
 
-const normalizeIdentity = (value: string): string =>
+export const normalizeIdentity = (value: string): string =>
   value.trim().toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "");
 
 const toText = (value: unknown): string => String(value ?? "").trim();
@@ -529,13 +529,16 @@ export const searchMasterFragrances = (
   params.push(...badgeFilters.params);
 
   const rows = getMasterFragranceDatabase().prepare(`
-    SELECT fragrances.record_json, b.community_level, b.popularity_level, b.olfactive_level
+    SELECT fragrances.record_id, fragrances.canonical_key, fragrances.record_json, b.community_level, b.popularity_level, b.olfactive_level
     FROM fragrances ${join} LEFT JOIN fragrance_badges b ON b.row_id = fragrances.row_id
     WHERE ${where.join(" AND ")}
     ORDER BY ${orderBy}
     LIMIT ?
-  `).all(...params, Math.max(1, Math.min(200, limit))) as Array<{ record_json: string } & BadgeColumns>;
-  return rows.map((row) => ({ ...JSON.parse(row.record_json) as MasterFragranceRecord, badges: badgesFromColumns(row) }));
+  `).all(...params, Math.max(1, Math.min(200, limit))) as Array<{ record_id: string; canonical_key: string; record_json: string } & BadgeColumns>;
+  return rows.map((row) => ({
+    ...JSON.parse(row.record_json) as MasterFragranceRecord,
+    id: row.record_id, canonicalKey: row.canonical_key, badges: badgesFromColumns(row),
+  }));
 };
 
 export const listMasterFragranceBrands = (brandType?: string): string[] => {

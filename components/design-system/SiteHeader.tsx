@@ -99,7 +99,7 @@ export function SiteHeader() {
         >
           {NAV_LINKS.map((link) => {
             const isActive = pathname === link.href
-              || (link.key === 'articles' && (pathname.startsWith('/articles/') || pathname === '/fragrances'));
+              || (link.key === 'articles' && (pathname.startsWith('/articles/') || pathname === '/fragrances' || pathname.startsWith('/fragrances/')));
             return (
               <Link
                 key={link.href}
@@ -214,7 +214,7 @@ export function SiteHeader() {
             <nav className="mobile-nav-list" aria-label="Mobile primary navigation">
               {NAV_LINKS.map((link) => {
                 const isActive = pathname === link.href
-                  || (link.key === 'articles' && (pathname.startsWith('/articles/') || pathname === '/fragrances'));
+                  || (link.key === 'articles' && (pathname.startsWith('/articles/') || pathname === '/fragrances' || pathname.startsWith('/fragrances/')));
                 return (
                   <Link
                     key={link.href}

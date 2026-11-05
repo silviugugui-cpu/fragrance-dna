@@ -28,6 +28,7 @@ const nextConfig = {
       "/articles/houses": ["./data/generated/fragrancedna.sqlite"],
       "/articles/houses/[houseId]": ["./data/generated/fragrancedna.sqlite"],
       "/api/fragrances/search": ["./data/generated/fragrancedna.sqlite"],
+      "/fragrances/[recordId]": ["./data/generated/fragrancedna.sqlite"],
       "/api/fragrances/brands": ["./data/generated/fragrancedna.sqlite"],
       "/api/downloads/user-flow-handoff": ["./docs/FRAGRANCEDNA_USER_FLOW_AND_NEON_HANDOFF_2026-10-19.json"],
       "/api/collection/catalog": ["./data/generated/fragrancedna.sqlite"],

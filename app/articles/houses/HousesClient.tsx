@@ -12,6 +12,8 @@ import { articlesMenuItems } from "../articlesMenu";
 import FragranceBadges from "@/components/FragranceBadges";
 import FragranceBadgeFilters from "@/components/FragranceBadgeFilters";
 import type { BadgeFilters } from "@/lib/fragranceBadges";
+import { getFragranceHref } from "@/lib/fragranceNavigation";
+import { getFragrancePageCopy } from "@/lib/i18n/fragrancePageCopy";
 
 type Catalog = NonNullable<ReturnType<typeof readEditorialHouseCatalog>>;
 const panel = "rounded-3xl border border-[color:var(--public-border,rgba(180,145,85,0.4))] bg-[rgba(var(--public-surface-channels,25,20,16),0.8)] p-5 sm:p-7";
@@ -25,6 +27,7 @@ export default function HousesClient({
 }: { houses?: EditorialHouse[]; catalog?: Catalog; query?: string; filters?: BadgeFilters; initialCategory?: string }) {
   const { t, locale } = useLanguage();
   const copy = t.articles.houses;
+  const fragranceCopy = getFragrancePageCopy(locale);
   const pathname = usePathname();
   const [search, setSearch] = useState(query);
   const [category, setCategory] = useState(initialCategory);
@@ -54,9 +57,9 @@ export default function HousesClient({
   ) : similarity.source && (
     <div key={index} className={`mt-4 rounded-xl border border-current p-3 text-sm ${muted}`}>
       <p>{similarity.status === "brand_claimed_inspired_by" ? copy.brandClaim : copy.similarity}</p>
-      <p className="mt-1 font-semibold">{similarity.referenceBrand} · {similarity.referencePerfume}</p>
+      <p className="mt-1 font-semibold"><Link href={similarity.referenceHref ?? getFragranceHref(null, similarity.referenceBrand ?? "", similarity.referencePerfume ?? "")} className="underline">{similarity.referenceBrand} · {similarity.referencePerfume}</Link></p>
       {similarity.summary && <p className="mt-2">{similarity.summary}</p>}
-      <a href={similarity.source} className="mt-2 inline-block underline" target="_blank" rel="noopener noreferrer">{copy.source}</a>
+      <a href={similarity.source} className="mt-2 inline-block underline" target="_blank" rel="noopener noreferrer">{fragranceCopy.evidence}</a>
       {similarity.sourceType && <p className="mt-1 text-xs">{similarity.sourceType}</p>}
     </div>
   );
@@ -174,7 +177,7 @@ export default function HousesClient({
                       <PerfumeImageWithFallback candidates={[record.localImagePath, record.imageUrl]}
                         alt={`${record.brand} ${record.perfume}`} className="h-36 w-28 shrink-0 rounded-xl bg-white object-contain p-2" />
                       <div className="min-w-0">
-                        <h2 className={`${heading} text-2xl`}>{record.perfume}</h2>
+                        <h2 className={`${heading} text-2xl`}><Link href={getFragranceHref(record.id, record.brand, record.perfume)} className="underline underline-offset-4">{record.perfume}</Link></h2>
                         <dl className={`mt-3 space-y-2 text-sm ${muted}`}>
                           {record.launchYear && <div><dt className="inline">{t.fragrances.detail.launched}: </dt><dd className="inline">{record.launchYear}</dd></div>}
                           {record.perfumer && <div><dt className="inline">{t.fragrances.detail.perfumer}: </dt><dd className="inline">{record.perfumer}</dd></div>}

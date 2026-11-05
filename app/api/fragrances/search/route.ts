@@ -2,10 +2,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import {
   searchMasterFragrances,
   type FragranceSearchFilters,
-  type MasterFragranceRecord,
 } from "@/lib/database/masterFragranceDatabase";
-import { parseBadgeFilters, type FragranceBadges } from "@/lib/fragranceBadges";
-import { publicBrandType, fragranceRelationships, type FragranceRelationship } from "@/lib/fragranceClassification";
+import { parseBadgeFilters } from "@/lib/fragranceBadges";
+import { toPublicFragrance } from "@/lib/database/publicFragrances";
 import { SEASON_ACCORDS, isCueSeason } from "@/lib/seasonalCues";
 
 export const dynamic = "force-dynamic";
@@ -30,51 +29,6 @@ const ERAS: Record<string, { yearFrom?: number; yearTo?: number }> = {
   "1990s": { yearFrom: 1990, yearTo: 1999 },
   classics: { yearTo: 1989 },
 };
-
-export interface PublicFragrance {
-  originRegion?: string;
-  relationships?: FragranceRelationship[];
-  id: string;
-  brand: string;
-  perfume: string;
-  brandType?: string;
-  launchYear?: string;
-  gender?: string;
-  perfumer?: string;
-  badges?: FragranceBadges;
-  mainAccords: string[];
-  description?: string;
-  imageUrl?: string;
-  localImagePath?: string;
-  dnaAxes?: Record<string, number>;
-}
-
-const text = (value: unknown): string | undefined => {
-  const normalized = String(value ?? "").trim();
-  return normalized.length > 0 ? normalized : undefined;
-};
-
-// Expose only consumer-facing fields; internal pipeline metadata
-// (source, confidence, status, fingerprints, external links) stays private.
-const toPublicFragrance = (record: MasterFragranceRecord): PublicFragrance => ({
-  id: text(record.externalId) ?? text(record.canonicalKey) ?? `${record.brand}-${record.perfume}`,
-  brand: text(record.brand) ?? "",
-  perfume: text(record.perfume ?? record.name) ?? "",
-  brandType: publicBrandType(record.brandType),
-  originRegion: text(record.originRegion),
-  relationships: fragranceRelationships(record.relationships),
-  launchYear: text(record.launchYear),
-  gender: text(record.gender),
-  perfumer: text(record.perfumer),
-  badges: record.badges,
-  mainAccords: Array.isArray(record.mainAccords)
-    ? record.mainAccords.map((accord) => String(accord)).filter(Boolean)
-    : [],
-  description: text(record.description),
-  imageUrl: text(record.imageUrl),
-  localImagePath: text(record.localImagePath),
-  dnaAxes: record.userDnaProfiles?.[0]?.dna_axes,
-});
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;

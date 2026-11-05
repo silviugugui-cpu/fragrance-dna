@@ -41,6 +41,22 @@ Never create:
 
 All fragrance systems must use the canonical pool.
 
+Public fragrance profiles use `/fragrances/[recordId]`, resolved from indexed
+SQLite `record_id` or `canonical_key`. Editorial `source_record_id` aliases map
+through `editorial_fragrances.row_id`, never through an external source URL.
+`getFragranceHref` is the shared URL builder; unresolved references use
+`/fragrances?q=BRAND+PERFUME`. The library reads this query on entry.
+Search responses expose the indexed internal ID, not `externalId`.
+Perfumer works retain their editorial identity for statistics and receive a
+separate canonical record ID for navigation. House catalogs and relationship
+references link to the same profiles. Relationship mapping uses exact normalized
+canonical brand/perfume keys, not fuzzy matches or source URLs. Evidence and
+attribution links remain secondary, explicitly labeled external citations.
+Known perfumer names link to their internal profiles; unknown creators stay text.
+Profiles are rendered on demand from the canonical SQLite, including available
+notes, accords, creators, badges and documented relationships. No second catalog
+or generated page inventory is maintained.
+
 ---
 
 ## Collection Architecture
