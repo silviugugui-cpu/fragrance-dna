@@ -11,6 +11,8 @@ import { territories } from "../lib/data/territories";
 import { getDictionary } from "../lib/i18n/getDictionary";
 import { LOCALES } from "../lib/i18n/config";
 import { getCollectionDNACoverage } from "../lib/collection/selectors";
+import { DNA_AXES, buildDnaAxisValues } from "../lib/engine/dnaAxes";
+import { classificationBasisLabel, getEvidenceCopy } from "../lib/i18n/evidenceCopy";
 
 test("untouched grounding is unrated, persisted choices are explicit, legacy neutrals are not evidence", () => {
   const state = emptyGroundingState();
@@ -48,12 +50,44 @@ test("coverage uses unique reviewed territories of owned perfumes, never collect
 test("all territory axes use canonical names; perfumer scores and reasons ignore profile confidence", () => {
   const axes = getDictionary("en").common.axes;
   assert.ok(Object.values(territories).every((territory) => territory.dnaAxes.every((axis) => axis in axes)));
+  assert.ok(Object.values(territories).every((territory) => territory.dnaAxes.every((axis) => DNA_AXES.includes(axis))));
   const user = { Freshness: 80, Complexity: 70, Elegance: 60, Luxury: 50, Presence: 0 };
   const perfumer = { ...user, Freshness: 60, Presence: 100 };
   const match = computePerfumerMatchScore(user, perfumer);
   assert.equal(match.score, 95);
   assert.deepEqual(match, computePerfumerMatchScore({ ...user, Presence: 100 }, perfumer));
   assert.ok(match.axisDiffs.every((item) => item.axis !== "Presence"));
+});
+
+test("personal DNA uses ten olfactive axes and confidence never becomes Presence", () => {
+  const axes = buildDnaAxisValues({ freshness: .8, warmth: .6, sweetness: .5, darkness: .4, cleanliness: .7, elegance: .9 });
+  assert.equal(DNA_AXES.length, 10);
+  assert.deepEqual(Object.keys(axes).sort(), [...DNA_AXES].sort());
+  assert.equal("Presence" in axes, false);
+  assert.equal(axes.Freshness, 80);
+  assert.equal(axes.Complexity, 69);
+});
+
+test("collection basis reports seven classified of eighteen owned; all locales explain evidence and comparative scores", () => {
+  const owned = Array.from({ length: 18 }, (_, index) => ({
+    fragranceId: `owned-${index}`, owned: true,
+    reviewedTerritories: index < 7 ? [{
+      territoryId: "amber", status: "reviewed" as const, source: "https://example.com/verified", confidence: .9,
+    }] : [],
+  }));
+  const basis = collectionTerritoryCoverage(owned);
+  assert.equal(basis.classified, 7);
+  assert.equal(basis.total, 18);
+  assert.equal(basis.represented, 1);
+  for (const locale of LOCALES) {
+    const copy = getEvidenceCopy(locale);
+    assert.ok(Object.values(copy).every((value) => value.length > 10));
+    assert.match(classificationBasisLabel(basis.classified, basis.total, locale), /7.+18/);
+    assert.doesNotMatch(classificationBasisLabel(0, 18, locale), /\{.+\}/);
+    const dna = getDictionary(locale).dna;
+    assert.match(dna.radar.signatureDescription, /10/);
+    assert.doesNotMatch(dna.heroDescription, /11/);
+  }
 });
 
 test("regional legacy category does not qualify as inspiration; sourced relationships do", () => {

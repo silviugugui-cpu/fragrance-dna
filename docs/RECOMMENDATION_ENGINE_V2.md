@@ -9,10 +9,18 @@ Noticeability never increases liking. Overall dislike never assigns dislike to
 individual notes. Direct attribute liking may replace a contradictory Grounding
 Avoid; Avoid is therefore not an immutable hard exclusion.
 
-Legacy, unversioned DNA vectors are not used as liking evidence. The existing
-request vector remains a compatibility field; scores derive from validated
-evaluation records and explicit priors. Catalog membership, owned exclusions,
+Legacy, unversioned DNA vectors are not used as liking evidence. `userVector`
+is not required or consumed by the endpoint or sent by the client. Scores derive
+from validated evaluation records and explicit priors. Explicit attributes use
+their recency-weighted affinity multiplied by evidence confidence; Grounding
+priors have weight 0.35. The denominator counts matching attributes without
+cancelling low-confidence attenuation. Overall liking remains separate.
+Catalog membership, owned exclusions,
 badge filters and public source/score whitelists remain unchanged.
+
+The API retains its 0..1 comparative ranking score. The interface displays
+`Preference fit` as a value out of 100, with an explicit explanation that this
+is neither a probability nor a guarantee of liking.
 
 ## Purpose
 Define objective-driven, context-aware recommendation intelligence that consumes canonical user and fragrance intelligence.

@@ -1,17 +1,5 @@
 import { territories, type Territory } from '../data/territories';
-import type { DnaAxis, DnaAxisValues } from '../../components/dna/DnaRadar';
-
-// Legacy territory descriptors are projected onto the existing canonical DNA axes.
-const TERRITORY_AXES: Record<string, DnaAxis> = {
-  Freshness: 'Freshness',
-  Warmth: 'Warmth',
-  Complexity: 'Complexity',
-  Comfort: 'Comfort',
-  Versatility: 'Versatility',
-  Elegance: 'Elegance',
-  Refinement: 'Elegance',
-  Sensuality: 'Comfort',
-};
+import { DNA_AXES, type DnaAxis, type DnaAxisValues } from './dnaAxes';
 
 export interface TerritoryAffinity {
   territory: Territory;
@@ -22,12 +10,8 @@ export interface TerritoryAffinity {
 export function calculateTerritoryAffinities(values: DnaAxisValues | null): TerritoryAffinity[] {
   if (!values) return [];
   return Object.values(territories).map((territory) => {
-    // Presence currently represents confidence on the DNA dashboard, not a scent preference.
-    const axes = [...new Set(territory.dnaAxes.filter((axis) => axis !== 'Presence').map((axis) => {
-      const canonical = TERRITORY_AXES[axis];
-      if (!canonical) throw new Error(`Unknown territory DNA axis: ${axis}`);
-      return canonical;
-    }))];
+    const axes = [...new Set(territory.dnaAxes)];
+    if (!axes.length || axes.some((axis) => !DNA_AXES.includes(axis))) throw new Error(`Invalid territory DNA axes: ${territory.id}`);
     const contributions = axes.map((axis) => {
       const value = values[axis];
       if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 100) {

@@ -10,23 +10,8 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { useLanguage } from '@/lib/i18n';
-
-export const DNA_AXES = [
-  'Freshness',
-  'Warmth',
-  'Complexity',
-  'Elegance',
-  'Character',
-  'Presence',
-  'Comfort',
-  'Uniqueness',
-  'Versatility',
-  'Luxury',
-  'Formality',
-] as const;
-
-export type DnaAxis = (typeof DNA_AXES)[number];
-export type DnaAxisValues = Partial<Record<DnaAxis, number>>;
+import { DNA_AXES, type DnaAxis, type DnaAxisValues } from '@/lib/engine/dnaAxes';
+export { DNA_AXES, type DnaAxis, type DnaAxisValues } from '@/lib/engine/dnaAxes';
 
 const PREVIEW_BASELINE: Record<DnaAxis, number> = {
   Freshness: 70,
@@ -34,7 +19,6 @@ const PREVIEW_BASELINE: Record<DnaAxis, number> = {
   Complexity: 58,
   Elegance: 60,
   Character: 56,
-  Presence: 52,
   Comfort: 61,
   Uniqueness: 54,
   Versatility: 64,
@@ -48,7 +32,6 @@ const PREVIEW_FINAL: Record<DnaAxis, number> = {
   Complexity: 72,
   Elegance: 69,
   Character: 81,
-  Presence: 74,
   Comfort: 85,
   Uniqueness: 76,
   Versatility: 68,

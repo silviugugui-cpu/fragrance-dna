@@ -13,6 +13,7 @@ import { useLanguage } from '@/lib/i18n';
 import CollectionManager from '@/components/collection/CollectionManager';
 import { collectionTerritoryCoverage } from '@/lib/collection/territoryCoverage';
 import { getPriorityCopy } from '@/lib/i18n/priorityCopy';
+import { classificationBasisLabel, getEvidenceCopy } from '@/lib/i18n/evidenceCopy';
 import {
   PageShell,
   PremiumButton,
@@ -24,7 +25,6 @@ import {
   TargetGlyphIcon,
   MapMarkerIcon,
   CompassRoseIcon,
-  SearchLensIcon,
   BottleOutlineIcon,
 } from '@/components/design-system';
 
@@ -91,13 +91,13 @@ function CollectionStatsSection() {
 function TerritoryInsightSection() {
   const { t, locale } = useLanguage();
   const copy = getPriorityCopy(locale);
+  const evidenceCopy = getEvidenceCopy(locale);
   const collection = useSyncExternalStore(subscribeToCollection, loadCollection, () => EMPTY_COLLECTION);
   const resolved = useResolvedCollection(collection);
   const territoryInsights = useMemo(() => {
     const coverage = collectionTerritoryCoverage(resolved);
     return {
       ...coverage,
-      diverse: coverage.represented >= 5,
       suggestion: copy.coverageHelp,
     };
   }, [resolved, copy.coverageHelp]);
@@ -141,6 +141,9 @@ function TerritoryInsightSection() {
             </div>}
 
             <p className="text-sm text-gray-400">{territoryInsights.suggestion}</p>
+            <p data-classification-basis className="mt-3 text-sm text-gold">
+              {classificationBasisLabel(territoryInsights.classified, territoryInsights.total, locale)}
+            </p>
 
             {/* CTA */}
             <div className="mt-6">
@@ -156,23 +159,17 @@ function TerritoryInsightSection() {
           <div className="premium-card-dark p-6">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <p className="text-xs font-semibold text-gold uppercase mb-2">{t.collection.territory.characterLabel}</p>
-                <h3 className="text-lg font-bold text-white">
-                  {territoryInsights.coverage === null ? copy.insufficient : territoryInsights.diverse ? t.collection.territory.diverseExplorer : t.collection.territory.buildingExplorer}
+                <p className="text-xs font-semibold text-gold uppercase mb-2">{evidenceCopy.represented}</p>
+                <h3 data-territories-represented className="text-lg font-bold text-white">
+                  {t.collection.territory.territoriesCount(territoryInsights.represented)}
                 </h3>
               </div>
-              {territoryInsights.diverse ? (
-                <CompassRoseIcon className="h-7 w-7 text-[rgba(var(--public-champagne-channels,212,175,55),0.75)]" />
-              ) : (
-                <SearchLensIcon className="h-7 w-7 text-[rgba(var(--public-champagne-channels,212,175,55),0.75)]" />
-              )}
+              <CompassRoseIcon className="h-7 w-7 text-[rgba(var(--public-champagne-channels,212,175,55),0.75)]" />
             </div>
 
             <div className="space-y-3 mb-4 text-sm text-gray-400">
               <p>
-                {territoryInsights.coverage === null ? copy.coverageHelp : territoryInsights.diverse
-                  ? t.collection.territory.diverseText
-                  : t.collection.territory.buildingText}
+                {evidenceCopy.coverageScope}
               </p>
             </div>
 

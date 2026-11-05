@@ -32,11 +32,12 @@ export type PreferenceEvidence = {
   contradictory: boolean;
   groundingPrior: number | null;
   groundingConflictResolved: boolean;
+  groundingConflictPending: boolean;
 };
 export type LearningProjection = {
   schemaVersion: 2;
   attributes: Record<string, PreferenceEvidence>;
-  perception: Record<string, { observations: number; noticed: number; mean: number }>;
+  perception: Record<string, { observations: number; noticed: number; mean: number; consecutiveNotNoticed: number }>;
   overall: Array<{ fragranceId: string; canonicalFragranceId: string; attributeIds: string[]; liking: Liking }>;
   vector: OlfactoryVector;
   confidence: number;
@@ -96,11 +97,12 @@ export function projectPreferences(records: FragranceEvaluation[], grounding: Gr
     if (record.overall !== null) overall.push({ fragranceId: record.fragranceId, canonicalFragranceId: record.canonicalFragranceId, attributeIds: record.attributeIds, liking: record.overall });
     for (const response of record.questions) {
       if (response.perception === null) continue;
-      const old = perception[response.attributeId] ?? { observations: 0, noticed: 0, mean: 0 };
+      const old = perception[response.attributeId] ?? { observations: 0, noticed: 0, mean: 0, consecutiveNotNoticed: 0 };
       perception[response.attributeId] = {
         observations: old.observations + 1,
         noticed: old.noticed + Number(response.perception > 0),
         mean: (old.mean * old.observations + response.perception) / (old.observations + 1),
+        consecutiveNotNoticed: response.perception === 0 ? old.consecutiveNotNoticed + 1 : 0,
       };
       if (response.perception > 0 && response.preference !== null) {
         explicit.set(response.attributeId, [...(explicit.get(response.attributeId) ?? []), response.preference]);
@@ -111,16 +113,29 @@ export function projectPreferences(records: FragranceEvaluation[], grounding: Gr
     const observations = explicit.get(id) ?? [];
     const last = observations.at(-1);
     const recent = observations.slice(-3);
-    const contradictory = recent.length > 1 && new Set(recent.map(Math.sign)).size > 1
-      && Math.sign(recent.at(-1)!) !== Math.sign(recent.at(-2)!);
+    const contradictory = new Set(recent.map(Math.sign)).size > 1;
+    let weightedLiking = 0;
+    let totalWeight = 0;
+    observations.forEach((value, index) => {
+      const weight = .75 ** (observations.length - 1 - index);
+      weightedLiking += value / 2 * weight;
+      totalWeight += weight;
+    });
+    const affinity = totalWeight ? weightedLiking / totalWeight : priors[id];
+    const confidence = clamp(observations.length / 3) * (contradictory ? .5 : 1);
+    const conflictsWithPrior = last !== undefined && priors[id] !== undefined
+      && (Math.sign(affinity) !== Math.sign(priors[id]) || Math.sign(last) !== Math.sign(priors[id]));
+    const groundingConflictResolved = conflictsWithPrior && observations.length >= 2 && confidence >= .5
+      && Math.sign(last!) === Math.sign(observations.at(-2)!)
+      && Math.sign(last!) === Math.sign(affinity) && Math.sign(affinity) !== Math.sign(priors[id]);
     attributes[id] = {
-      // Direct liking evidence replaces, rather than locks in, the declared prior.
-      affinity: last === undefined ? priors[id] : last / 2,
+      affinity,
       explicitCount: observations.length,
-      confidence: observations.length ? clamp(observations.length / 3) * (contradictory ? .35 : 1) : 0,
+      confidence,
       contradictory,
       groundingPrior: priors[id] ?? null,
-      groundingConflictResolved: last !== undefined && priors[id] !== undefined && Math.sign(last) !== Math.sign(priors[id]),
+      groundingConflictResolved,
+      groundingConflictPending: conflictsWithPrior && !groundingConflictResolved,
     };
   }
   const vector = { ...NEUTRAL_VECTOR };
@@ -130,11 +145,11 @@ export function projectPreferences(records: FragranceEvaluation[], grounding: Gr
     for (const [id, evidence] of Object.entries(attributes)) {
       const mapping = resolveCanonicalAttribute(id)?.vectorMapping[axis];
       if (!mapping || (evidence.explicitCount === 0 && evidence.affinity === 0)) continue;
-      const reliability = evidence.explicitCount ? 1 : .35;
+      const reliability = evidence.explicitCount ? evidence.confidence : .35;
       signed += evidence.affinity * mapping * reliability;
-      weight += Math.abs(mapping) * reliability;
+      weight += Math.abs(mapping);
     }
-    vector[axis] = weight ? clamp(.5 + .45 * signed / weight) : .5;
+    vector[axis] = clamp(.5 + .45 * signed / Math.max(1, weight));
   }
   const explicitCount = [...explicit.values()].reduce((sum, values) => sum + values.length, 0);
   const meanConfidence = Object.values(attributes).filter((value) => value.explicitCount).reduce((sum, value) => sum + value.confidence, 0) / Math.max(1, explicit.size);
@@ -144,8 +159,8 @@ export function projectPreferences(records: FragranceEvaluation[], grounding: Gr
 
 export function preferenceCompatibility(ids: string[], canonicalId: string, projection: LearningProjection): number {
   const attributes = ids.flatMap((id) => projection.attributes[id] ? [projection.attributes[id]] : []);
-  const affinity = attributes.reduce((sum, item) => sum + item.affinity * (item.explicitCount ? 1 : .35), 0)
-    / Math.max(1, attributes.reduce((sum, item) => sum + (item.explicitCount ? 1 : .35), 0));
+  const affinity = attributes.reduce((sum, item) => sum + item.affinity * (item.explicitCount ? item.confidence : .35), 0)
+    / Math.max(1, attributes.length);
   let overallSignal = 0;
   let similarityWeight = 0;
   for (const rated of projection.overall) {
@@ -161,11 +176,13 @@ export function preferenceCompatibility(ids: string[], canonicalId: string, proj
 
 export function questionPriority(id: string, projection: LearningProjection): number {
   const item = projection.attributes[id];
-  if (!item) return 2;
-  if (!item.explicitCount && item.groundingPrior !== null && item.groundingPrior !== 0) return 5;
-  if (item.contradictory) return 4;
-  if (item.explicitCount >= 3 && item.confidence >= .75) return 0;
-  return 3 * (1 - item.confidence);
+  const misses = projection.perception[id]?.consecutiveNotNoticed ?? 0;
+  const perceptionWeight = misses < 2 ? 1 : Math.max(.05, .25 ** (misses - 1));
+  const priority = !item ? 2
+    : item.groundingConflictPending || item.contradictory ? 4
+      : !item.explicitCount && item.groundingPrior !== null && item.groundingPrior !== 0 ? 5
+        : item.explicitCount >= 3 && item.confidence >= .75 ? 0 : 3 * (1 - item.confidence);
+  return priority * perceptionWeight;
 }
 
 export type AdaptiveCandidate = EvaluationFragranceRef & { attributeIds: string[]; questionIds: string[]; reason: SelectionReason; reasonAttributeId: string | null; score: number };
@@ -188,20 +205,20 @@ export function selectAdaptiveCandidate(service: FragranceIntelligenceService, r
     if (!ids.length) return [];
     const sorted = ids.map((id) => ({ id, priority: questionPriority(id, projection) })).filter((item) => item.priority > 0)
       .sort((a, b) => b.priority - a.priority || a.id.localeCompare(b.id));
-    const loved = ids.find((id) => priorIds[id] > 0 && !projection.attributes[id]?.explicitCount);
-    const uncertain = ids.find((id) => !projection.attributes[id]?.explicitCount && id !== loved);
+    const loved = ids.find((id) => priorIds[id] > 0 && !projection.attributes[id]?.explicitCount && questionPriority(id, projection) >= 2);
+    const uncertain = ids.find((id) => !projection.attributes[id]?.explicitCount && id !== loved && questionPriority(id, projection) >= 2);
     const firstFit = first && loved && uncertain;
     const questions = firstFit ? [loved, uncertain] : sorted.slice(0, 2).map((item) => item.id);
     const target = questions[0] ?? null;
     const state = target ? projection.attributes[target] : undefined;
-    const reason: SelectionReason = !target ? "composition" : state?.contradictory ? "clarify"
+    const reason: SelectionReason = !target ? "composition" : state?.contradictory || state?.groundingConflictPending ? "clarify"
       : state?.groundingPrior !== undefined && state.groundingPrior !== null && !state.explicitCount && state.groundingPrior !== 0 ? "confirm"
         : state?.explicitCount ? "clarify" : "explore";
     const novelty = ids.filter((id) => !projection.perception[id]).length / ids.length;
     const recentBrands = records.slice(-3).map((record) => refs.find((ref) => ref.fragranceId === record.fragranceId)?.brand);
     const diversity = recentBrands.includes(ref.brand) ? 0 : .15;
     const information = sorted.slice(0, 2).reduce((sum, item) => sum + item.priority, 0) / 10;
-    const score = (firstFit ? 10 : 0) + .5 * preferenceCompatibility(ids, canonicalId, projection) + .35 * information + .15 * novelty + diversity;
+    const score = (firstFit ? 10 : 0) + 1.5 * preferenceCompatibility(ids, canonicalId, projection) + .35 * information + .15 * novelty + diversity;
     return [{ ...ref, attributeIds: ids, questionIds: questions, reason: first && !firstFit ? "fallback" : reason, reasonAttributeId: target, score }];
   });
   return candidates.sort((a, b) => b.score - a.score || a.fragranceId.localeCompare(b.fragranceId))[0] ?? null;

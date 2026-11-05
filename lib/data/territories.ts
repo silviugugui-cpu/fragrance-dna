@@ -5,13 +5,15 @@
  * DNA associations, and fragrance examples.
  */
 
+import type { DnaAxis } from "../engine/dnaAxes";
+
 export interface Territory {
   id: string;
   name: string;
   label: string;
   description: string;
   characteristics: string[];
-  dnaAxes: string[];
+  dnaAxes: DnaAxis[];
   examples: string[];
   color: string;
   intensity: 'light' | 'moderate' | 'intense';
@@ -32,7 +34,7 @@ export const territories: Record<string, Territory> = {
       'Clean and crisp',
       'Morning-oriented'
     ],
-    dnaAxes: ['Freshness', 'Versatility', 'Presence'],
+    dnaAxes: ['Freshness', 'Versatility'],
     examples: [
       'Acqua di Gio',
       'Light Blue',
@@ -58,7 +60,7 @@ export const territories: Record<string, Territory> = {
       'Natural character',
       'Balanced freshness'
     ],
-    dnaAxes: ['Freshness', 'Complexity', 'Presence'],
+    dnaAxes: ['Freshness', 'Complexity'],
     examples: [
       'Guerlain Vetiver',
       'Hermes Eau de Gentillesse',
@@ -84,7 +86,7 @@ export const territories: Record<string, Territory> = {
       'Refined composites',
       'Elegant presence'
     ],
-    dnaAxes: ['Freshness', 'Elegance', 'Presence'],
+    dnaAxes: ['Freshness', 'Elegance'],
     examples: [
       'Creed Virgin Island Water',
       'Hermès H24',
@@ -188,7 +190,7 @@ export const territories: Record<string, Territory> = {
       'Clean and clear',
       'Durable presence'
     ],
-    dnaAxes: ['Elegance', 'Presence', 'Complexity'],
+    dnaAxes: ['Elegance', 'Complexity'],
     examples: [
       'Chanel No. 5 EDP',
       'Hermès Eau de Gentillesse',
@@ -214,7 +216,7 @@ export const territories: Record<string, Territory> = {
       'Oriental feel',
       'Lasting presence'
     ],
-    dnaAxes: ['Warmth', 'Comfort', 'Presence'],
+    dnaAxes: ['Warmth', 'Comfort'],
     examples: [
       'Tom Ford Amber Absolute',
       'Hypnotic Poison',
@@ -306,7 +308,7 @@ export function getTerritoriesBySeason(season: string): Territory[] {
  * Get territories by DNA axis
  */
 export function getTerritoriesByAxis(axis: string): Territory[] {
-  return Object.values(territories).filter(t => t.dnaAxes.includes(axis));
+  return Object.values(territories).filter(t => t.dnaAxes.some(value => value === axis));
 }
 
 /**

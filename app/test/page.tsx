@@ -17,6 +17,7 @@ import { draftForCandidate, selectAdaptiveCandidate, submitEvaluation, validateE
   type EvaluationDraft, type GroundingPrior, type Liking, type Perception } from "@/lib/test/preferenceLearning";
 import { useLanguage } from "@/lib/i18n";
 import { evaluationAttributeLabel, evaluationAttributeQuestions, evaluationReason, getEvaluationCopy } from "@/lib/i18n/evaluationCopy";
+import { getEvidenceCopy } from "@/lib/i18n/evidenceCopy";
 
 const likingValues: Liking[] = [-2, -1, 0, 1, 2];
 const perceptionValues: Perception[] = [0, 1, 2, 3];
@@ -26,6 +27,7 @@ export default function TestPage() {
   const { user, isLoading: authLoading } = useAuth();
   const { locale, t } = useLanguage();
   const copy = getEvaluationCopy(locale);
+  const evidenceCopy = getEvidenceCopy(locale);
   const [profiles, setProfiles] = useState<UserDnaProfileRecord[] | null>(null);
   const [session, setSession] = useState<DNASessionState | null>(null);
   const [grounding, setGrounding] = useState<GroundingPrior>({ love: [], neutral: [], redFlag: [] });
@@ -208,7 +210,10 @@ export default function TestPage() {
       {validationError && <p role="alert" className="mt-5 text-rose-300">{copy.required}</p>}
       <button type="button" disabled={!canSubmit} onClick={submit} className="mt-8 rounded-xl border border-gold bg-gold/15 px-5 py-3 font-semibold disabled:cursor-not-allowed disabled:opacity-40">{draft.unable ? copy.next : copy.submit}</button>
     </section> : <p className="my-8">{copy.exhausted}</p>}
-    {Object.entries(projection?.attributes ?? {}).filter(([, evidence]) => evidence.groundingConflictResolved).map(([id]) => <p key={id} className="mb-3 text-sm text-gold">{evaluationAttributeLabel(id, locale)}: {copy.conflicts}</p>)}
+    {Object.entries(projection?.attributes ?? {}).filter(([, evidence]) => evidence.groundingConflictResolved || evidence.groundingConflictPending).map(([id, evidence]) =>
+      <p key={id} data-preference-conflict={evidence.groundingConflictPending ? "provisional" : "resolved"} className="mb-3 text-sm text-gold">
+        {evaluationAttributeLabel(id, locale)}: {evidence.groundingConflictPending ? evidenceCopy.provisional : copy.conflicts}
+      </p>)}
     <Link href="/dna" className="mr-6 inline-block py-4 text-gold underline">{t.test.stopForNow}</Link>
     <Link href="/results" className="inline-block py-4 text-gold underline">{t.test.stopAndViewRecommendations}</Link>
   </main></PageShell>;

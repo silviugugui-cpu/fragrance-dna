@@ -26,7 +26,8 @@ test("strong perception plus explicit dislike means noticed but disliked; direct
   assert.equal(projection.perception.citrus.mean, 3);
   assert.equal(projection.attributes.citrus.affinity, -.5);
   assert.equal(projection.attributes.citrus.explicitCount, 1);
-  assert.equal(projection.attributes.citrus.groundingConflictResolved, true);
+  assert.equal(projection.attributes.citrus.groundingConflictResolved, false);
+  assert.equal(projection.attributes.citrus.groundingConflictPending, true);
   assert.ok(projection.vector.freshness < .5);
 });
 
@@ -40,6 +41,69 @@ test("not noticed never updates affinity or preference confidence, with or witho
   const after = projectPreferences([value], prior);
   assert.deepEqual(after.attributes, before.attributes);
   assert.deepEqual(after.vector, before.vector);
+});
+
+test("recency-weighted liking stabilizes earlier evidence instead of letting the last answer overwrite it", () => {
+  const values = [2, 2, 2, -2] as const;
+  const records = values.map((preference, index) => record({
+    id: `weighted-${index}`, fragranceId: `weighted-${index}`, canonicalFragranceId: `house::weighted-${index}`,
+    questions: [{ attributeId: "citrus", perception: 3, preference }],
+  }, index + 2));
+  const projection = projectPreferences(records, EMPTY_GROUNDING);
+  const weights = [.75 ** 3, .75 ** 2, .75, 1];
+  const expected = (weights[0] + weights[1] + weights[2] - weights[3]) / weights.reduce((sum, weight) => sum + weight, 0);
+  assert.ok(Math.abs(projection.attributes.citrus.affinity - expected) < 1e-10);
+  assert.ok(projection.attributes.citrus.affinity > 0);
+  assert.ok(projection.attributes.citrus.affinity < 1);
+  assert.equal(projection.attributes.citrus.contradictory, true);
+  assert.ok(projection.attributes.citrus.confidence < 1);
+  assert.deepEqual(projectPreferences([...records].reverse(), EMPTY_GROUNDING), projection);
+});
+
+test("one explicit answer has less matching and vector influence than corroborated evidence", () => {
+  const records = [0, 1, 2].map((index) => record({
+    id: `certain-${index}`, fragranceId: `certain-${index}`, canonicalFragranceId: `house::certain-${index}`,
+    questions: [{ attributeId: "citrus", perception: 1, preference: 2 }],
+    overall: 0,
+  }, index + 2));
+  const one = projectPreferences(records.slice(0, 1), EMPTY_GROUNDING);
+  const three = projectPreferences(records, EMPTY_GROUNDING);
+  assert.equal(one.attributes.citrus.affinity, three.attributes.citrus.affinity);
+  assert.ok(one.vector.freshness > .5 && one.vector.freshness < three.vector.freshness);
+  assert.ok(preferenceCompatibility(["citrus"], "house::new", one) < preferenceCompatibility(["citrus"], "house::new", three));
+  assert.ok(Math.abs(preferenceCompatibility(["citrus"], "house::new", one) - .6) < 1e-10);
+});
+
+test("Grounding conflicts are provisional until corroborated by consistent explicit liking", () => {
+  const first = record();
+  const second = record({ id: "corroborating", fragranceId: "second", canonicalFragranceId: "house::second" }, 3);
+  const before = projectPreferences([first], prior).attributes.citrus;
+  assert.equal(before.groundingConflictPending, true);
+  assert.equal(before.groundingConflictResolved, false);
+  const after = projectPreferences([first, second], prior).attributes.citrus;
+  assert.equal(after.groundingConflictPending, false);
+  assert.equal(after.groundingConflictResolved, true);
+  assert.ok(after.confidence > before.confidence);
+  assert.equal(after.affinity, -.5);
+});
+
+test("repeated not-noticed responses reduce question priority without changing liking or confidence", () => {
+  const records = [0, 1, 2].map((index) => record({
+    id: `miss-${index}`, fragranceId: `miss-${index}`, canonicalFragranceId: `house::miss-${index}`,
+    questions: [{ attributeId: "citrus", perception: 0, preference: null }], overall: 0,
+  }, index + 2));
+  const initial = projectPreferences([], prior);
+  const missed = projectPreferences(records, prior);
+  assert.deepEqual(missed.attributes, initial.attributes);
+  assert.deepEqual(missed.vector, initial.vector);
+  assert.equal(missed.confidence, initial.confidence);
+  assert.equal(missed.perception.citrus.consecutiveNotNoticed, 3);
+  assert.ok(questionPriority("citrus", missed) < questionPriority("rose", missed));
+  const noticed = record({
+    id: "noticed", fragranceId: "noticed", canonicalFragranceId: "house::noticed",
+    questions: [{ attributeId: "citrus", perception: 1, preference: 0 }],
+  }, 6);
+  assert.equal(projectPreferences([...records, noticed], prior).perception.citrus.consecutiveNotNoticed, 0);
 });
 
 test("overall dislike affects composition/similarity, never distributes dislike to its attributes", () => {

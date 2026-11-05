@@ -13,6 +13,7 @@ import type { DNASessionState, OlfactoryVector, UserDNAProfile } from '@/lib/typ
 import { useLanguage } from '@/lib/i18n';
 import type { Dictionary } from '@/lib/i18n/dictionaries/en';
 import { RecommendationsClient } from '@/app/results/RecommendationsClient';
+import { buildDnaAxisValues } from '@/lib/engine/dnaAxes';
 
 const SHIFT_MINIMAL_THRESHOLD = 8;
 const SHIFT_MODERATE_THRESHOLD = 16;
@@ -40,39 +41,6 @@ function mean(values: number[]): number {
     return 0;
   }
   return values.reduce((total, current) => total + current, 0) / values.length;
-}
-
-function buildAxisValues(vector: OlfactoryVector | null, confidence: number): DnaAxisValues {
-  const source = vector ?? PREVIEW_VECTOR;
-
-  const freshness = toScore(source.freshness);
-  const warmth = toScore(source.warmth);
-  const sweetness = toScore(source.sweetness);
-  const darkness = toScore(source.darkness);
-  const cleanliness = toScore(source.cleanliness);
-  const elegance = toScore(source.elegance);
-
-  const complexity = Math.round((elegance * 0.5) + (darkness * 0.3) + (warmth * 0.2));
-  const character = Math.round((warmth * 0.42) + (darkness * 0.4) + (sweetness * 0.18));
-  const comfort = Math.round((cleanliness * 0.62) + (sweetness * 0.38));
-  const uniqueness = Math.round((darkness * 0.58) + (elegance * 0.42));
-  const versatility = Math.max(0, Math.min(100, Math.round(100 - Math.abs(warmth - freshness) * 0.6)));
-  const luxury = Math.round((elegance * 0.68) + (warmth * 0.32));
-  const formality = Math.round((elegance * 0.62) + (cleanliness * 0.38));
-
-  return {
-    Freshness: freshness,
-    Warmth: warmth,
-    Complexity: complexity,
-    Elegance: elegance,
-    Character: character,
-    Presence: Math.max(0, Math.min(100, Math.round(confidence))),
-    Comfort: comfort,
-    Uniqueness: uniqueness,
-    Versatility: versatility,
-    Luxury: luxury,
-    Formality: formality,
-  };
 }
 
 function getEvolutionStrength(averageShift: number): 'Minimal' | 'Moderate' | 'Strong' {
@@ -204,10 +172,8 @@ export default function DnaPage() {
   const badgeProgress = nextBadge
     ? clampScore(((finalConfidence - currentBadge.minimum) / (nextBadge.minimum - currentBadge.minimum)) * 100)
     : 100;
-  const baselineConfidence = Math.max(35, Math.round(finalConfidence * 0.7));
-
-  const finalAxisValues = useMemo(() => buildAxisValues(finalVector, finalConfidence), [finalVector, finalConfidence]);
-  const baselineAxisValues = useMemo(() => buildAxisValues(groundingVector, baselineConfidence), [groundingVector, baselineConfidence]);
+  const finalAxisValues = useMemo(() => buildDnaAxisValues(finalVector ?? PREVIEW_VECTOR), [finalVector]);
+  const baselineAxisValues = useMemo(() => buildDnaAxisValues(groundingVector ?? PREVIEW_VECTOR), [groundingVector]);
   const territoryAffinities = useMemo(
     () => calculateTerritoryAffinities(finalVector ? finalAxisValues : null),
     [finalVector, finalAxisValues],

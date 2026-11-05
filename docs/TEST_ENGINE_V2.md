@@ -56,6 +56,17 @@ prior and an uncertain attribute; unavailable combinations receive an explained
 learning-value fallback. Selection then balances compatibility, uncertainty,
 novelty and recent-brand diversity.
 
+After the initial candidate, candidate score is 1.5 * confidence-aware preference
+compatibility + 0.35 * information + 0.15 * novelty + recent-brand diversity.
+Compatibility is attenuated for sparse explicit evidence; the overall weight
+allows newly submitted liking to affect the next choice without giving a single
+attribute response full confidence.
+Two consecutive "not noticed" responses multiply that attribute's question
+priority by 0.25, three by 0.0625, and later misses bottom out at 0.05.
+A noticed response resets this perception cooldown. It never changes liking or
+preference confidence. The initial Love/unknown preference also respects reduced
+priorities. Provisional Grounding conflicts remain clarification targets.
+
 Each fragrance requires overall liking or the explicit unable status.
 Per-attribute perception uses 0/1/2/3. Only noticed attributes require a separate
 liking answer (-2/-1/0/1/2). No sliders/default answers are submitted.

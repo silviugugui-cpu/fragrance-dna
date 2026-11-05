@@ -10,7 +10,7 @@ const evaluation = submitEvaluation({
 }, 2);
 const request = (overrides: Record<string, unknown> = {}) => new Request("http://localhost:3000/api/recommendations", {
   method: "POST", headers: { "content-type": "application/json" },
-  body: JSON.stringify({ userVector: NEUTRAL_VECTOR, groundingProfile: { love: ["Fresh & Citrusy"], neutral: [], redFlag: [] },
+  body: JSON.stringify({ groundingProfile: { love: ["Fresh & Citrusy"], neutral: [], redFlag: [] },
     evaluations: [evaluation], limit: 5, locale: "en", ...overrides }),
 });
 

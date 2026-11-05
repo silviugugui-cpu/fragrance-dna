@@ -3,34 +3,15 @@ import { resolveCanonicalAttribute } from "@/lib/intelligence/attributes";
 import { type MasterFragranceRecord } from "@/lib/database/masterFragranceDatabase";
 import { readPurchaseRecommendationFragrances } from "@/lib/database/curatedCatalog";
 import { getDictionary } from "@/lib/i18n/getDictionary";
-import type { OlfactoryVector } from "@/lib/types";
 import { parseBadgeFilters, type BadgeFilters } from "@/lib/fragranceBadges";
 import { parseEvaluationRecords } from "@/lib/test/evaluationSession";
 import { projectPreferences, preferenceCompatibility, knownAttributeIds } from "@/lib/test/preferenceLearning";
 
 export const dynamic = "force-dynamic";
 
-const AXES: Array<keyof OlfactoryVector> = [
-  "freshness",
-  "warmth",
-  "sweetness",
-  "darkness",
-  "cleanliness",
-  "elegance",
-];
-
-const clamp01 = (value: number): number => Math.max(0, Math.min(1, value));
 const toStringList = (value: unknown): string[] => Array.isArray(value)
   ? value.map((entry) => String(entry ?? "").trim()).filter(Boolean)
   : [];
-
-const readVector = (value: unknown): OlfactoryVector | null => {
-  if (!value || typeof value !== "object") return null;
-  const input = value as Record<string, unknown>;
-  const values = AXES.map((axis) => Number(input[axis]));
-  if (values.some((entry) => !Number.isFinite(entry))) return null;
-  return Object.fromEntries(AXES.map((axis) => [axis, clamp01(Number(input[axis]))])) as OlfactoryVector;
-};
 
 const getRecordId = (record: MasterFragranceRecord): string =>
   String(record.id ?? record.canonicalKey ?? "").trim();
@@ -53,10 +34,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid recommendation request." }, { status: 400 });
   }
 
-  const userVector = readVector(payload.userVector);
-  if (!userVector) {
-    return NextResponse.json({ error: "A complete user DNA vector is required." }, { status: 400 });
-  }
   let badgeFilters: BadgeFilters;
   try {
     const raw = payload.badgeFilters;

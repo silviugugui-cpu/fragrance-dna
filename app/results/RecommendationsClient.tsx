@@ -14,6 +14,7 @@ import FragranceBadges from '@/components/FragranceBadges';
 import FragranceBadgeFilters from '@/components/FragranceBadgeFilters';
 import type { BadgeFilters, FragranceBadges as Badges } from '@/lib/fragranceBadges';
 import { readGroundingPrior } from '@/lib/test/evaluationSession';
+import { getEvidenceCopy } from '@/lib/i18n/evidenceCopy';
 
 type Recommendation = {
   fragranceId: string;
@@ -36,6 +37,7 @@ interface RecommendationsClientProps {
 export function RecommendationsClient({ embedded = false }: RecommendationsClientProps) {
   const { locale, t } = useLanguage();
   const tr = t.recommendations;
+  const evidenceCopy = getEvidenceCopy(locale);
   const { user, isLoading: isAuthLoading } = useAuth();
   const [status, setStatus] = useState<RecommendationState>('loading');
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
@@ -77,7 +79,6 @@ export function RecommendationsClient({ embedded = false }: RecommendationsClien
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        userVector: currentSummary.finalVector,
         groundingProfile,
         ownedFragranceIds: collection.filter((item) => item.owned).map((item) => item.fragranceId),
         limit: 30,
@@ -141,6 +142,7 @@ export function RecommendationsClient({ embedded = false }: RecommendationsClien
           <p className="mt-3 max-w-2xl text-base leading-7 text-gray-300">
             {tr.intro}
           </p>
+          <p data-preference-fit-help className="mt-3 max-w-2xl text-sm text-gray-400">{evidenceCopy.fitHelp}</p>
           <div className="mt-5">
             <FragranceBadgeFilters filters={badgeFilters} onChange={setBadgeFilters} />
             <p className="mt-3 text-xs text-gray-400">{t.fragrances.badges.note}</p>
@@ -196,7 +198,10 @@ export function RecommendationsClient({ embedded = false }: RecommendationsClien
                     ) : null}
                   </div>
                   <div className="flex items-center justify-between gap-3 md:flex-col md:items-end">
-                    <span className="text-xl font-semibold text-white">{Math.round(recommendation.score * 100)}%</span>
+                    <div className="text-right" data-preference-fit>
+                      <p className="text-xs text-gray-400">{evidenceCopy.fit}</p>
+                      <span className="text-xl font-semibold text-white">{Math.round(recommendation.score * 100)} / 100</span>
+                    </div>
                     <button
                       type="button"
                       disabled={isWishlisted}

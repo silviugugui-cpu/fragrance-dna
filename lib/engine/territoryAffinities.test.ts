@@ -20,13 +20,15 @@ test('all territories are ranked by explainable axis means', () => {
     assert.ok(item.score >= 0 && item.score <= 100);
     assert.equal(item.score, Math.round(item.contributions.reduce((sum, axis) => sum + axis.score, 0) / item.contributions.length));
     if (index > 0) assert.ok(result[index - 1].score >= item.score);
-    assert.ok(item.contributions.every((axis) => axis.axis !== 'Presence'));
+    assert.ok(item.contributions.every((axis) => String(axis.axis) !== 'Presence'));
+    assert.deepEqual(item.contributions.map((axis) => axis.axis), item.territory.dnaAxes);
   }
 });
 
 test('warm preferences change rankings and confidence does not', () => {
   const original = calculateTerritoryAffinities(profile);
-  assert.deepEqual(calculateTerritoryAffinities({ ...profile, Presence: 100 }), original);
+  const changedConfidence = { ...profile, Presence: 100 };
+  assert.deepEqual(calculateTerritoryAffinities(changedConfidence), original);
   const warm = calculateTerritoryAffinities({
     Freshness: 10, Warmth: 100, Complexity: 80, Comfort: 100, Versatility: 10, Elegance: 30,
   });
@@ -34,7 +36,7 @@ test('warm preferences change rankings and confidence does not', () => {
   assert.notEqual(warm[0].territory.id, original[0].territory.id);
 });
 
-test('legacy descriptors resolve to canonical axes without duplicate weighting', () => {
+test('territory cards and affinity contributions share canonical axes without duplicate weighting', () => {
   const gourmand = calculateTerritoryAffinities(profile).find((item) => item.territory.id === 'rich-gourmand')!;
   assert.deepEqual(gourmand.contributions.map((axis) => axis.axis), ['Warmth', 'Comfort']);
   assert.equal(gourmand.score, 23);
