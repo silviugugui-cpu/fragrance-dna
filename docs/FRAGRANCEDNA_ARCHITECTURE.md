@@ -31,6 +31,15 @@ In case of conflict, the v2 canonical references above take precedence for imple
 
 ## Canonical Fragrance Source
 
+The canonical SQLite exceeds GitHub's 100 MiB per-file limit with complete
+photo associations. Git tracks its lossless `data/generated/fragrancedna.sqlite.gz`
+snapshot instead of the unpacked file. Run `npm run db:pack` after changing the
+database, and commit the archive. `predev` and `prebuild` restore missing SQLite
+automatically, verify its integrity, and preserve existing local edits. Vercel
+always restores the tracked snapshot before building; runtime file tracing still
+bundles the normal `.sqlite`, not the archive. Packing uses SQLite's consistent
+backup API and is not a second catalog or a data migration.
+
 MasterFragrancePool is the single source of truth.
 
 Never create:
@@ -119,7 +128,7 @@ Vercel Blob store using `scripts/uploadPerfumeImagesToBlob.ts`. The operator mus
 confirm publication rights with `--rights-confirmed`; the CSV itself is not a
 license. Preview with `node --import tsx scripts/uploadPerfumeImagesToBlob.ts`,
 then add `--apply --rights-confirmed` to publish. Optional `--limit N` processes
-the first N rows, retaining descending manifest priority. The free Hobby plan
+the first N rows, retaining descending manifest priority. By default the free Hobby plan
 has operation and transfer limits as well as storage limits: 1 GB of storage
 does not permit 8,049 uploads in one month. The uploader caps new objects at
 1,800 in a conservative rolling 31-day window (including other objects in this store), reserving
@@ -129,6 +138,21 @@ usage before each run. Start with `--limit 1800`; after a quota reset, increase
 the cumulative limit by at most 1,800 to continue. No scheduler or paid upgrade
 is enabled. Hobby can suspend Blob access if any allowance is exhausted.
 
+For a verified Pro subscription, pass `--plan pro` to explicitly disable only
+the Hobby image-count/storage ceilings. Pro usage is billable; this option does
+not upgrade the account or impose a spending cap. To publish every local image
+already associated in canonical SQLite (including perfumes without scores or
+editorial membership), first run
+`node --import tsx scripts/createFullBlobManifest.ts`, then
+`node --import tsx scripts/uploadPerfumeImagesToBlob.ts --input data/generated/vercel-blob-full-catalog-manifest.csv --plan pro --apply --rights-confirmed`.
+The generated manifest is a local ingestion inventory, never a second catalog.
+It preserves existing Blob keys, deduplicates identical image bytes by SHA-256,
+and uses deterministic content-addressed keys for newly discovered images.
+Shared photos retain their existing database associations; no names or scores
+are used to guess matches. Duplicate canonical rows with distinct local photos
+retain their own photo: mappings update only rows sharing both key and local path.
+JPEG, PNG and WebP files are supported and original bytes remain unchanged.
+
 The manifest is local ingestion input in
 `data/generated/vercel-blob-olfactive-score-manifest.csv`, not a runtime catalog.
 Before uploads, every file's size/hash, canonical key, master row ID, editorial
@@ -137,9 +161,9 @@ bytes and exact deterministic Blob keys without random suffixes or overwrites.
 The uploader backs up SQLite, verifies downloaded Blob bytes against the SHA-256,
 then writes only `blobImageUrl` and embedded `canonicalBlobImageUrl` fields.
 Existing local paths, original remote URLs, badges, scores and DNA are retained.
-Duplicate canonical rows receive the same association. Reruns list existing
+Duplicate canonical rows with the same local image receive the same association. Reruns list existing
 objects and verify their size/hash before reuse; conflicts fail explicitly.
-The complete store, including unrelated objects, must remain below the
+On Hobby the complete store, including unrelated objects, must remain below the
 850,000,000-byte operational ceiling. Credentials come from server-only
 `BLOB_READ_WRITE_TOKEN`, never client props, source code or committed reports.
 

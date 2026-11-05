@@ -32,7 +32,7 @@ tmp/
 *.tmp
 # Bulk/intermediate generated data (regenerable; only runtime assets are tracked)
 data/generated/*
-!data/generated/fragrancedna.sqlite
+!data/generated/fragrancedna.sqlite.gz
 !data/generated/manufacturer-sites.json
 !data/generated/sampleMasterPerfumeObject.json
 

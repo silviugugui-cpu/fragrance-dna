@@ -6,9 +6,12 @@
     "node": ">=22"
   },
   "scripts": {
+    "predev": "tsx scripts/prepareMasterDatabase.ts",
     "dev": "next dev",
+    "prebuild": "tsx scripts/prepareMasterDatabase.ts",
     "build": "node --max-old-space-size=8192 ./node_modules/next/dist/bin/next build",
     "start": "next start",
+    "db:pack": "tsx scripts/prepareMasterDatabase.ts --pack",
     "db:migrate": "tsx scripts/migrateMasterFragranceDatabase.ts",
     "db:auth:migrate": "tsx scripts/migrateAuthUsersToNeon.ts",
     "images:generate": "tsx scripts/generatePerfumeImages.ts"

@@ -38,6 +38,25 @@ nemodificate. Reluarea verifică obiectele existente fără a le încărca din n
 
 ### Limitele variantei gratuite
 
+Aceste limite se aplică modului implicit `--plan hobby`. Proiectul poate folosi
+`--plan pro` numai după confirmarea abonamentului; consumul Pro poate fi facturat.
+
+### Catalogul complet pe Pro
+
+```powershell
+node --import tsx scripts\createFullBlobManifest.ts
+node --import tsx scripts\uploadPerfumeImagesToBlob.ts --input data\generated\vercel-blob-full-catalog-manifest.csv --plan pro --apply --rights-confirmed
+```
+
+Inventarul complet include imaginile JPEG, PNG și WebP asociate deja în SQLite,
+indiferent de scor sau apartenența editorială. Hash-urile identice folosesc un
+singur obiect Blob; asocierile partajate existente nu sunt modificate. Cazurile
+cu același canonical key dar imagini locale diferite păstrează imaginea fiecărui
+rând. Cheile deja publicate rămân neschimbate. Fișierele fără asociere în DB nu
+sunt publicate automat.
+
+### Referință Hobby
+
 Planul Hobby are și limite de operațiuni: 2.000 de operațiuni avansate și
 10.000 de operațiuni simple, nu doar 1 GB de stocare și 10 GB de transfer.
 Fiecare upload consumă o operațiune avansată. Încărcarea întregii selecții de
