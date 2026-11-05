@@ -69,7 +69,8 @@ notes, accords, creators, badges and documented relationships. No second catalog
 or generated page inventory is maintained.
 
 The Discover sidebar shows localized section titles only, without subtitle
-hints, consistently across its overview, perfumers, houses, territories and occasions.
+hints, consistently across its overview, fragrance library, perfumers, houses,
+territories and occasions.
 
 ---
 
