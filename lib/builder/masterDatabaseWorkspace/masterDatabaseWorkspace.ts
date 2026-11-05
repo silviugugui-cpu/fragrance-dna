@@ -130,6 +130,7 @@ export interface MasterDatabaseDetailPanel {
   gender: string;
   description: string;
   imageUrl: string | null;
+  blobImageUrl?: string;
   localImagePath: string | null;
   notes: string[];
   matchedNotes: string[];
@@ -657,6 +658,7 @@ const buildDetailFallback = (record: CombinedDatabaseRecord): MasterDatabaseDeta
     gender,
     description,
     imageUrl: String(record.imageUrl ?? "").trim() || null,
+    blobImageUrl: String(record.blobImageUrl ?? "").trim() || undefined,
     localImagePath: String(record.localImagePath ?? "").trim() || null,
     notes,
     matchedNotes: notes,

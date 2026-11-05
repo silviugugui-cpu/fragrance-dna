@@ -9,6 +9,7 @@ import { PerfumeImageWithFallback } from "@/components/design-system/PerfumeImag
 import FragranceBadges from "@/components/FragranceBadges";
 import FragranceRelationships from "@/components/FragranceRelationships";
 import PerfumerCredits from "@/components/PerfumerCredits";
+import { getPerfumeImageCandidates } from "@/lib/design/perfumeImage";
 
 export default function FragranceProfileClient({ fragrance, credits }: {
   fragrance: PublicFragrance; credits: CreatorCredit[];
@@ -29,7 +30,7 @@ export default function FragranceProfileClient({ fragrance, credits }: {
       <Link href="/fragrances" className={`mb-5 inline-block rounded-full border border-current px-4 py-2 text-sm ${muted}`}>&larr; {copy.back}</Link>
       <article className="rounded-[28px] border border-[color:var(--public-border,rgba(180,145,85,0.4))] bg-[rgba(var(--public-surface-channels,20,15,10),0.95)] p-6 sm:p-9">
         <div className="grid gap-8 sm:grid-cols-[220px_minmax(0,1fr)]">
-          <PerfumeImageWithFallback candidates={[fragrance.localImagePath, fragrance.imageUrl]}
+          <PerfumeImageWithFallback candidates={getPerfumeImageCandidates(fragrance)}
             alt={`${fragrance.brand} ${fragrance.perfume}`} className="h-64 w-full rounded-2xl bg-white object-contain p-4" />
           <header className="min-w-0">
             <p className={`text-sm uppercase tracking-widest ${muted}`}>{fragrance.brand}</p>

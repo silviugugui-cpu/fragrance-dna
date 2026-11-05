@@ -114,6 +114,42 @@ directory using repeated `--images-dir DIRECTORY` arguments. Every association
 must resolve to exactly one supplied file. Source and rights notes are preserved
 in the import report; importing does not establish permission to redistribute.
 Keep unlicensed transfers local until publication rights are confirmed.
+Authorized product photos can be published to the project's connected public
+Vercel Blob store using `scripts/uploadPerfumeImagesToBlob.ts`. The operator must
+confirm publication rights with `--rights-confirmed`; the CSV itself is not a
+license. Preview with `node --import tsx scripts/uploadPerfumeImagesToBlob.ts`,
+then add `--apply --rights-confirmed` to publish. Optional `--limit N` processes
+the first N rows, retaining descending manifest priority. The free Hobby plan
+has operation and transfer limits as well as storage limits: 1 GB of storage
+does not permit 8,049 uploads in one month. The uploader caps new objects at
+1,800 in a conservative rolling 31-day window (including other objects in this store), reserving
+part of the 2,000 monthly advanced operations for listing and administration.
+Dashboard actions and other stores can also consume the allowance: check team
+usage before each run. Start with `--limit 1800`; after a quota reset, increase
+the cumulative limit by at most 1,800 to continue. No scheduler or paid upgrade
+is enabled. Hobby can suspend Blob access if any allowance is exhausted.
+
+The manifest is local ingestion input in
+`data/generated/vercel-blob-olfactive-score-manifest.csv`, not a runtime catalog.
+Before uploads, every file's size/hash, canonical key, master row ID, editorial
+source ID and local image association must match. Uploads preserve original
+bytes and exact deterministic Blob keys without random suffixes or overwrites.
+The uploader backs up SQLite, verifies downloaded Blob bytes against the SHA-256,
+then writes only `blobImageUrl` and embedded `canonicalBlobImageUrl` fields.
+Existing local paths, original remote URLs, badges, scores and DNA are retained.
+Duplicate canonical rows receive the same association. Reruns list existing
+objects and verify their size/hash before reuse; conflicts fail explicitly.
+The complete store, including unrelated objects, must remain below the
+850,000,000-byte operational ceiling. Credentials come from server-only
+`BLOB_READ_WRITE_TOKEN`, never client props, source code or committed reports.
+
+`getPerfumeImageCandidates` orders Blob, local and original remote images for
+library, perfume profiles, house catalogs and recommendations. Collection
+resolution and adaptive test profiles carry the same Blob association while
+retaining local fallback candidates. Unpublished perfumes keep their existing
+image behavior. Local JSONL events and the final upload summary under
+`data/generated` support recovery and report verified object counts/bytes;
+the canonical SQLite mappings are deployed with the application.
 Asset validation processes one file at a time rather than retaining the entire
 photo library in memory. All matching canonical rows and their embedded test
 profiles receive the same image path.
@@ -268,8 +304,9 @@ on the house's representative metadata; it never creates an invented perfume or
 an eligible purchase candidate.
 The supplied source does not include verified top/heart/base note pyramids.
 Artwork is original editorial SVG, not an official brand logo or bottle photo.
-Product photos remain in the local-only `public/images/perfumes` library; public
-release still requires licensed image delivery and editorial source review.
+Product-photo originals remain in the local-only `public/images/perfumes`
+library. Authorized photos may additionally be delivered from Vercel Blob;
+unlicensed assets remain local and still require rights and editorial review.
 
 ### Wearing occasions
 

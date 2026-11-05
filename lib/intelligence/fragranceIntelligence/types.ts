@@ -24,6 +24,7 @@ export type EvaluationFragranceRef = {
   brand?: string;
   canonicalFragranceId?: string;
   imageUrl?: string;
+  blobImageUrl?: string;
   localImagePath?: string;
 };
 

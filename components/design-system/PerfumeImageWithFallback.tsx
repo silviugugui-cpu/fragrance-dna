@@ -12,8 +12,7 @@ export interface PerfumeImageWithFallbackProps {
 }
 
 // Tries each candidate source in order and ends at the shared fallback artwork.
-// Needed because locally managed image libraries (e.g. /images/perfumes) are
-// not deployed, so their paths 404 in production.
+// Local originals are not deployed; published Blob photos should be first.
 export function PerfumeImageWithFallback({
   candidates,
   alt,

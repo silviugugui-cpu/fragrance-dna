@@ -821,6 +821,7 @@ export function StudioMasterDatabaseWorkspace({
                   <div className="overflow-hidden rounded border border-zinc-800 bg-zinc-900/70">
                     <PerfumeImageWithFallback
                       candidates={[
+                        selectedDetail?.blobImageUrl,
                         selectedDetail?.localImagePath,
                         selectedDetail?.imageUrl,
                         selectedRow.localImagePath,

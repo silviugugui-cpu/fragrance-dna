@@ -14,6 +14,7 @@ import FragranceBadgeFilters from "@/components/FragranceBadgeFilters";
 import type { BadgeFilters } from "@/lib/fragranceBadges";
 import { getFragranceHref } from "@/lib/fragranceNavigation";
 import { getFragrancePageCopy } from "@/lib/i18n/fragrancePageCopy";
+import { getPerfumeImageCandidates } from "@/lib/design/perfumeImage";
 
 type Catalog = NonNullable<ReturnType<typeof readEditorialHouseCatalog>>;
 const panel = "rounded-3xl border border-[color:var(--public-border,rgba(180,145,85,0.4))] bg-[rgba(var(--public-surface-channels,25,20,16),0.8)] p-5 sm:p-7";
@@ -174,7 +175,7 @@ export default function HousesClient({
                 {catalog.fragrances.map(({ rowId, record, details, badges }) => (
                   <article key={rowId} id={`fragrance-${rowId}`} className={panel}>
                     <div className="flex items-start gap-4">
-                      <PerfumeImageWithFallback candidates={[record.localImagePath, record.imageUrl]}
+                      <PerfumeImageWithFallback candidates={getPerfumeImageCandidates(record)}
                         alt={`${record.brand} ${record.perfume}`} className="h-36 w-28 shrink-0 rounded-xl bg-white object-contain p-2" />
                       <div className="min-w-0">
                         <h2 className={`${heading} text-2xl`}><Link href={getFragranceHref(record.id, record.brand, record.perfume)} className="underline underline-offset-4">{record.perfume}</Link></h2>

@@ -15,6 +15,7 @@ import { getPriorityCopy } from '@/lib/i18n/priorityCopy';
 import type { BadgeFilters } from '@/lib/fragranceBadges';
 import { getDiscoveryCopy } from '@/lib/i18n/discoveryCopy';
 import { isCueSeason, seasonalCueAccords } from '@/lib/seasonalCues';
+import { getPerfumeImageCandidates } from '@/lib/design/perfumeImage';
 
 const capitalize = (value: string): string => value.charAt(0).toUpperCase() + value.slice(1);
 
@@ -65,7 +66,7 @@ function PerfumeImage({
 }) {
   return (
     <PerfumeImageWithFallback
-      candidates={[fragrance.localImagePath, fragrance.imageUrl]}
+      candidates={getPerfumeImageCandidates(fragrance)}
       alt={`${fragrance.brand} ${fragrance.perfume}`}
       className={className}
     />

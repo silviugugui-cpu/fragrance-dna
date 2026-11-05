@@ -20,6 +20,7 @@ export interface PublicFragrance {
   notes: string[];
   description?: string;
   imageUrl?: string;
+  blobImageUrl?: string;
   localImagePath?: string;
   dnaAxes?: Record<string, number>;
 }
@@ -51,6 +52,7 @@ export function toPublicFragrance(record: MasterFragranceRecord): PublicFragranc
     notes: textList(record.notes),
     description: text(record.description),
     imageUrl: text(record.imageUrl),
+    blobImageUrl: text(record.blobImageUrl),
     localImagePath: text(record.localImagePath),
     dnaAxes: record.userDnaProfiles?.[0]?.dna_axes,
   };

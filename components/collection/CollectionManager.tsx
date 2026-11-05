@@ -62,7 +62,7 @@ const toCollectionCatalogResult = (
       brand: String(record.brand ?? 'Independent'),
       year: String(record.launchYear ?? '') || undefined,
       notes: [...(record.notes ?? []), ...(record.mainAccords ?? [])],
-      image: String(record.localImagePath ?? record.imageUrl ?? '') || undefined,
+      image: String(record.blobImageUrl || record.localImagePath || record.imageUrl || '') || undefined,
       canonicalRecord: record,
     },
     existing: collection.some((item) => item.fragranceId === id),
@@ -723,7 +723,7 @@ function CollectionCard({
         <div className="overflow-hidden rounded-[26px] border border-[rgba(212,175,120,0.12)] bg-[radial-gradient(circle_at_20%_20%,rgba(212,175,120,0.18),transparent_24%),radial-gradient(circle_at_80%_20%,rgba(165,185,150,0.14),transparent_20%),linear-gradient(135deg,rgba(var(--public-surface-channels,24,26,28),0.95),rgba(var(--public-surface-channels,12,14,16),0.95))]">
           <div className="flex aspect-[1.55] items-center justify-center p-6">
             <PerfumeImageWithFallback
-              candidates={[item.image]}
+              candidates={item.imageCandidates ?? [item.image]}
               alt={item.name ?? item.fragranceId}
               className="h-full w-full object-cover"
             />

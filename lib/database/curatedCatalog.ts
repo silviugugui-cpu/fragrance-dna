@@ -145,7 +145,7 @@ export function readEditorialHouseCatalog(brandId: string, query: string, reques
         record: {
           id: row.record_id, canonicalKey: row.canonical_key, brand: record.brand, perfume: record.perfume, launchYear: record.launchYear,
           perfumer: record.perfumer, description: record.description, mainAccords: record.mainAccords,
-          notes: record.notes, localImagePath: record.localImagePath, imageUrl: record.imageUrl,
+          notes: record.notes, localImagePath: record.localImagePath, imageUrl: record.imageUrl, blobImageUrl: record.blobImageUrl,
         },
         details: {
           sourceRecordId: details[row.row_id].sourceRecordId,

@@ -102,6 +102,7 @@ export async function POST(request: Request) {
       perfume: String(record.perfume ?? record.name ?? "").trim(),
       brand: String(record.brand ?? "").trim(),
       imageUrl: String(record.imageUrl ?? "").trim(),
+      blobImageUrl: String(record.blobImageUrl ?? "").trim(),
       localImagePath: String(record.localImagePath ?? "").trim(),
       badges: record.badges,
       score,

@@ -175,7 +175,7 @@ export default function TestPage() {
       : <p role="status" className="my-4 text-xs text-gray-400">{saveStatus === "saving" ? copy.pending : copy.saved}</p>}
     {draft && !reference ? <p role="alert" className="my-8">{t.test.poolUnavailable}</p> : draft && reference ? <section key={draft.id} className="premium-card-dark my-6 p-5 md:p-8">
       <div className="flex flex-col gap-5 sm:flex-row">
-        <PerfumeImageWithFallback candidates={[reference.localImagePath, reference.imageUrl]} alt={draft.displayName} className="h-36 w-36 shrink-0 object-contain" />
+        <PerfumeImageWithFallback candidates={[reference.blobImageUrl, reference.localImagePath, reference.imageUrl]} alt={draft.displayName} className="h-36 w-36 shrink-0 object-contain" />
         <div><p className="text-sm text-gold">{reference.brand}</p><h2 className="mt-2 text-2xl font-bold">{draft.displayName}</h2>
           <p data-selection-reason className="mt-4 max-w-2xl text-sm text-gray-300">{evaluationReason(draft.reason, draft.reasonAttributeId, locale)}</p></div>
       </div>

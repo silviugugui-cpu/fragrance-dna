@@ -19,6 +19,7 @@ export interface MasterFragranceRecord {
   source?: string;
   externalId?: string;
   imageUrl?: string;
+  blobImageUrl?: string;
   localImagePath?: string;
   externalUrl?: string;
   rating?: string | number;
@@ -42,6 +43,7 @@ export interface UserDnaProfileRecord {
   canonicalBrand?: string;
   canonicalPerfume?: string;
   canonicalImageUrl?: string;
+  canonicalBlobImageUrl?: string;
   canonicalLocalImagePath?: string;
   type?: string;
   dna_axes?: Record<string, number>;
@@ -310,6 +312,7 @@ export const readMasterUserDnaProfiles = (): Array<UserDnaProfileRecord & { cano
           canonicalBrand: toText(record.brand),
           canonicalPerfume: toText(record.perfume ?? record.name),
           canonicalImageUrl: toText(record.imageUrl),
+          canonicalBlobImageUrl: toText(record.blobImageUrl),
           canonicalLocalImagePath: toText(record.localImagePath),
         });
       }

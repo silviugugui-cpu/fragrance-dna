@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { MasterFragranceRecord } from "@/lib/database/masterFragranceDatabase";
 import type { CollectionFragrance, CollectionFragranceView } from "@/lib/collection/types";
 import { reviewedTerritories } from "./territoryCoverage";
+import { getPerfumeImageCandidates } from "../design/perfumeImage";
 
 const detailsCache = new Map<string, MasterFragranceRecord>();
 
@@ -62,7 +63,8 @@ export function useResolvedCollection(collection: CollectionFragrance[]): Collec
       ...item,
       name: String(record?.perfume ?? record?.name ?? item.name ?? "Unknown fragrance"),
       brand: String(record?.brand ?? item.brand ?? "Independent"),
-      image: String(record?.localImagePath ?? record?.imageUrl ?? item.image ?? "") || undefined,
+      image: String(record?.blobImageUrl || record?.localImagePath || record?.imageUrl || item.image || "") || undefined,
+      imageCandidates: record ? getPerfumeImageCandidates(record) : [item.image],
       launchYear: String(record?.launchYear ?? "") || undefined,
       brandType: String(record?.brandType ?? "") || undefined,
       canonicalNotes: Array.isArray(record?.notes) ? record.notes.map(String) : [],

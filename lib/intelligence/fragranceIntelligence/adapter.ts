@@ -21,6 +21,7 @@ type CanonicalLayer = {
   canonicalBrand?: string;
   canonicalPerfume?: string;
   canonicalImageUrl?: string;
+  canonicalBlobImageUrl?: string;
   canonicalLocalImagePath?: string;
   name?: string;
   type?: string;
@@ -50,6 +51,7 @@ class AdapterBackedFragranceIntelligenceService implements FragranceIntelligence
       brand: String(profile.canonicalBrand ?? "").trim(),
       canonicalFragranceId: String(profile.canonicalFragranceId ?? "").trim(),
       imageUrl: String(profile.canonicalImageUrl ?? "").trim(),
+      blobImageUrl: String(profile.canonicalBlobImageUrl ?? "").trim(),
       localImagePath: String(profile.canonicalLocalImagePath ?? "").trim(),
     }));
 

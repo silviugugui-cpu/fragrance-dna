@@ -18,6 +18,7 @@ export type CollectionFragranceView = CollectionFragrance & {
   name: string;
   brand: string;
   image?: string;
+  imageCandidates?: Array<string | undefined>;
   launchYear?: string;
   brandType?: string;
   canonicalNotes: string[];

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { PageShell, PremiumButton } from '@/components/design-system';
 import { PerfumeImageWithFallback } from '@/components/design-system/PerfumeImageWithFallback';
+import { getPerfumeImageCandidates } from '@/lib/design/perfumeImage';
 import { useAuth } from '@/lib/auth';
 import { getUserScopedStorageKey } from '@/lib/auth/userScope';
 import { loadCollection, addCollectionFragrance } from '@/lib/collection/storage';
@@ -21,6 +22,7 @@ type Recommendation = {
   perfume: string;
   brand: string;
   imageUrl: string;
+  blobImageUrl?: string;
   localImagePath: string;
   score: number;
   matchedAttributes: string[];
@@ -184,7 +186,7 @@ export function RecommendationsClient({ embedded = false }: RecommendationsClien
                 <article key={recommendation.fragranceId} className="grid gap-4 py-5 md:grid-cols-[36px_72px_minmax(0,1fr)_160px] md:items-center">
                   <p className="text-sm font-semibold text-gold">{String(index + 1).padStart(2, '0')}</p>
                   <PerfumeImageWithFallback
-                    candidates={[recommendation.localImagePath, recommendation.imageUrl]}
+                    candidates={getPerfumeImageCandidates(recommendation)}
                     alt={tr.bottleAlt(recommendation.perfume || tr.fallbackName)}
                     className="h-[72px] w-[72px] rounded border border-white/10 bg-black/30 object-contain"
                   />

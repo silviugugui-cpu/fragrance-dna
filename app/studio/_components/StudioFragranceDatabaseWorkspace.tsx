@@ -509,6 +509,7 @@ export function StudioFragranceDatabaseWorkspace({
                     <div className="mt-3 overflow-hidden rounded border border-zinc-800 bg-zinc-900/60">
                       <PerfumeImageWithFallback
                         candidates={[
+                          selectedDetail?.blobImageUrl,
                           selectedDetail?.localImagePath,
                           selectedDetail?.imageUrl,
                           selectedRow.localImagePath,

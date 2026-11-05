@@ -1,5 +1,9 @@
 export const PERFUME_FALLBACK_IMAGE_SRC = "/Background/background carton front page.png";
 
+export const getPerfumeImageCandidates = (record: {
+  blobImageUrl?: string; localImagePath?: string; imageUrl?: string;
+}): Array<string | undefined> => [record.blobImageUrl, record.localImagePath, record.imageUrl];
+
 export const normalizePerfumeImagePath = (value: string | null | undefined): string =>
   String(value ?? "").trim().replace(
     /^\/images\/(master-db|product-photos|fragdb|google-enriched|ai-generated-perfumes)\/([^/]+)$/,

@@ -14,7 +14,7 @@ const publicRecord = (record: MasterFragranceRecord): MasterFragranceRecord => (
   id: record.id, canonicalKey: record.canonicalKey, name: record.name,
   perfume: record.perfume, brand: record.brand, brandType: publicBrandType(record.brandType),
   launchYear: record.launchYear, perfumer: record.perfumer, gender: record.gender,
-  localImagePath: record.localImagePath, imageUrl: record.imageUrl,
+  localImagePath: record.localImagePath, imageUrl: record.imageUrl, blobImageUrl: record.blobImageUrl,
   notes: record.notes, mainAccords: record.mainAccords, description: record.description,
   confidence: record.confidence, badges: record.badges,
   reviewedTerritories: reviewedTerritories(record.reviewedTerritories),
