@@ -68,6 +68,9 @@ Profiles are rendered on demand from the canonical SQLite, including available
 notes, accords, creators, badges and documented relationships. No second catalog
 or generated page inventory is maintained.
 
+The Discover sidebar shows localized section titles only, without subtitle
+hints, consistently across its overview, perfumers, houses, territories and occasions.
+
 ---
 
 ## Collection Architecture

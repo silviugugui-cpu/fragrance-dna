@@ -47,7 +47,6 @@ export default function OccasionsClient({ availableNotes }: { availableNotes: st
                 const active = item.href === "/articles/occasions";
                 return <Link key={item.key} href={item.href} aria-current={active ? "page" : undefined} data-active={String(active)} className="articles-rail-button rounded-2xl border px-4 py-4">
                   <p className="font-articles-heading text-lg">{entry.label}</p>
-                  <p className="mt-2 text-[10px] uppercase tracking-[0.15em]">{entry.hint}</p>
                 </Link>;
               })}
             </nav>

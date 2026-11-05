@@ -55,7 +55,6 @@ export default function ArticlesPage() {
                         className="articles-rail-button w-full rounded-2xl border px-4 py-4 text-left transition-all duration-300"
                       >
                         <p className="font-articles-heading text-[1.12rem] leading-tight text-[color:var(--public-ink-primary,#f4ddb2)]">{menuEntry.label}</p>
-                        <p className="mt-2 font-articles-body text-[10px] uppercase tracking-[0.2em] text-[color:var(--public-ink-muted,#bb9660)]">{menuEntry.hint}</p>
                       </Link>
                     );
                   })}

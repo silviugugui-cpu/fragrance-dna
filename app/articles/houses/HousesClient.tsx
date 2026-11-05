@@ -79,7 +79,6 @@ export default function HousesClient({
                   <Link key={item.href} href={item.href} aria-current={active ? "page" : undefined}
                     data-active={active ? "true" : "false"} className="articles-rail-button rounded-2xl border px-4 py-4">
                     <span className={`${heading} block text-lg`}>{entry.label}</span>
-                    <span className={`mt-2 block text-xs ${muted}`}>{entry.hint}</span>
                   </Link>
                 );
               })}
