@@ -1,8 +1,11 @@
 export const PERFUME_FALLBACK_IMAGE_SRC = "/Background/background carton front page.png";
+export const PRODUCT_PHOTOS_ENABLED = false;
 
 export const getPerfumeImageCandidates = (record: {
   blobImageUrl?: string; localImagePath?: string; imageUrl?: string;
-}): Array<string | undefined> => [record.blobImageUrl, record.localImagePath, record.imageUrl];
+}): Array<string | undefined> => PRODUCT_PHOTOS_ENABLED
+  ? [record.blobImageUrl, record.localImagePath, record.imageUrl]
+  : [];
 
 export const normalizePerfumeImagePath = (value: string | null | undefined): string =>
   String(value ?? "").trim().replace(

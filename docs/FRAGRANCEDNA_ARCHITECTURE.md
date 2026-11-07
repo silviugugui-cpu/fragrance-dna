@@ -230,10 +230,12 @@ On Hobby the complete store, including unrelated objects, must remain below the
 `BLOB_READ_WRITE_TOKEN`, never client props, source code or committed reports.
 
 `getPerfumeImageCandidates` orders Blob, local and original remote images for
-library, perfume profiles, house catalogs and recommendations. Collection
-resolution and adaptive test profiles carry the same Blob association while
-retaining local fallback candidates. Unpublished perfumes keep their existing
-image behavior. Local JSONL events and the final upload summary under
+library, perfume profiles, house catalogs and recommendations when product
+photos are enabled. `PRODUCT_PHOTOS_ENABLED` in `lib/design/perfumeImage.ts`
+temporarily disables product-photo display throughout the web app, leaving the
+shared fallback artwork visible while retaining stored image associations for
+later re-enablement. Collection resolution and adaptive test profiles preserve
+the same image metadata. Local JSONL events and the final upload summary under
 `data/generated` support recovery and report verified object counts/bytes;
 the canonical SQLite mappings are deployed with the application.
 Asset validation processes one file at a time rather than retaining the entire
