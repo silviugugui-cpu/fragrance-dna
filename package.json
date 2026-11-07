@@ -14,7 +14,8 @@
     "db:pack": "tsx scripts/prepareMasterDatabase.ts --pack",
     "db:migrate": "tsx scripts/migrateMasterFragranceDatabase.ts",
     "db:auth:migrate": "tsx scripts/migrateAuthUsersToNeon.ts",
-    "images:generate": "tsx scripts/generatePerfumeImages.ts"
+    "images:generate": "tsx scripts/generatePerfumeImages.ts",
+    "images:upload-repair": "tsx scripts/uploadRepairedCatalogImages.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.2.0",
