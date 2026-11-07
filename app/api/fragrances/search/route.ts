@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
   if (Number.isFinite(minRating) && minRating > 0) filters.minRating = Math.min(5, minRating);
 
   const parsedLimit = Number.parseInt(searchParams.get("limit") ?? "36", 10);
-  const limit = Number.isFinite(parsedLimit) ? Math.max(1, Math.min(60, parsedLimit)) : 36;
+  const limit = Number.isFinite(parsedLimit) ? Math.max(1, Math.min(200, parsedLimit)) : 36;
 
   try {
     const results = searchMasterFragrances(filters, limit).map(toPublicFragrance);

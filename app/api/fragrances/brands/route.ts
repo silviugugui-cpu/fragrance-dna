@@ -1,5 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { listMasterFragranceBrands } from "@/lib/database/masterFragranceDatabase";
+import {
+  listMasterFragranceBrandSummaries,
+  listMasterFragranceBrands,
+} from "@/lib/database/masterFragranceDatabase";
 
 export const dynamic = "force-dynamic";
 
@@ -17,8 +20,9 @@ export async function GET(request: NextRequest) {
 
   try {
     const brands = listMasterFragranceBrands(type ? BRAND_TYPES[type] : undefined);
+    const summaries = listMasterFragranceBrandSummaries(type ? BRAND_TYPES[type] : undefined);
     return NextResponse.json(
-      { brands },
+      { brands, summaries },
       { headers: { "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400" } },
     );
   } catch (error) {

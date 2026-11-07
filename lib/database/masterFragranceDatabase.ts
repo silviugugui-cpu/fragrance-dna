@@ -562,6 +562,31 @@ export const listMasterFragranceBrands = (brandType?: string): string[] => {
   return rows.map((row) => row.brand);
 };
 
+export interface MasterFragranceBrandSummary {
+  name: string;
+  count: number;
+  topFragrance: string;
+}
+
+export const listMasterFragranceBrandSummaries = (brandType?: string): MasterFragranceBrandSummary[] => {
+  const where = brandType === "inspired_by"
+    ? `${INSPIRATION_SQL} AND fragrances.brand <> ''`
+    : brandType
+      ? "fragrances.brand_type = ? AND fragrances.brand <> ''"
+      : "fragrances.brand <> ''";
+  const rows = getMasterFragranceDatabase().prepare(`
+    SELECT fragrances.brand AS name, COUNT(*) AS count,
+      (SELECT perfume FROM fragrances AS item
+       WHERE item.brand = fragrances.brand COLLATE NOCASE
+       ORDER BY item.perfume COLLATE NOCASE LIMIT 1) AS topFragrance
+    FROM fragrances
+    WHERE ${where}
+    GROUP BY fragrances.brand
+    ORDER BY count DESC, name COLLATE NOCASE
+  `).all(...(brandType && brandType !== "inspired_by" ? [brandType] : [])) as MasterFragranceBrandSummary[];
+  return rows;
+};
+
 export const rebuildFragranceSearchIndex = (): void => {
   assertMasterDatabaseWritable();
   const database = getMasterFragranceDatabase();

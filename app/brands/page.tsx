@@ -1,10 +1,8 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { getAllFragrances } from '@/engine/dataLoader';
 import { useLanguage } from '@/lib/i18n';
-import type { Fragrance } from '@/lib/types';
 import {
   PageShell,
   SectionHeader,
@@ -21,34 +19,53 @@ interface BrandStats {
   name: string;
   count: number;
   topFragrance: string;
-  avgScore?: number;
+}
+
+function isBrandStats(value: unknown): value is BrandStats {
+  if (!value || typeof value !== 'object') return false;
+  const summary = value as Record<string, unknown>;
+  return typeof summary.name === 'string'
+    && typeof summary.count === 'number'
+    && Number.isInteger(summary.count)
+    && typeof summary.topFragrance === 'string';
 }
 
 export default function BrandsPage() {
   const { t } = useLanguage();
-  const fragrances = useMemo(() => getAllFragrances(), []);
+  const [brands, setBrands] = useState<BrandStats[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  // Group fragrances by brand
-  const brandMap = new Map<string, Fragrance[]>();
+  useEffect(() => {
+    let active = true;
+    const loadBrands = async () => {
+      try {
+        const response = await fetch('/api/fragrances/brands');
+        const payload: unknown = await response.json();
+        if (!response.ok) {
+          const message = payload && typeof payload === 'object' && 'error' in payload
+            ? String(payload.error)
+            : 'Could not load fragrance brands.';
+          throw new Error(message);
+        }
+        const summaries = payload && typeof payload === 'object' && 'summaries' in payload
+          ? payload.summaries
+          : undefined;
+        if (!Array.isArray(summaries) || !summaries.every(isBrandStats)) {
+          throw new Error('The fragrance brand response is invalid.');
+        }
+        if (active) setBrands(summaries);
+      } catch (error) {
+        if (active) setLoadError(error instanceof Error ? error.message : 'Could not load fragrance brands.');
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    void loadBrands();
+    return () => { active = false; };
+  }, []);
 
-  fragrances.forEach((f: Fragrance) => {
-    const brand = f.brand || 'Independent';
-    if (!brandMap.has(brand)) {
-      brandMap.set(brand, []);
-    }
-    brandMap.get(brand)!.push(f);
-  });
-
-  // Convert to sorted array
-  const brands: BrandStats[] = Array.from(brandMap.entries())
-    .map(([name, items]) => ({
-      name,
-      count: items.length,
-      topFragrance: items[0]?.name || t.brands.notAvailable,
-    }))
-    .sort((a, b) => b.count - a.count);
-
-  const totalFragrances = fragrances.length;
+  const totalFragrances = brands.reduce((total, brand) => total + brand.count, 0);
   const dominantHouse = brands[0]?.name ?? t.brands.notAvailable;
 
   return (
@@ -97,7 +114,15 @@ export default function BrandsPage() {
             ))}
           </div>
 
-          {brands.length === 0 && (
+          {loadError && (
+            <div role="alert" className="premium-card-dark p-10 text-center mt-8">
+              <p className="text-red-300">{loadError}</p>
+            </div>
+          )}
+
+          {loading && <p role="status" className="mt-8 text-center text-gray-400">Loading brands…</p>}
+
+          {!loading && !loadError && brands.length === 0 && (
             <div className="premium-card-dark p-10 text-center mt-8">
               <p className="text-gray-400">{t.brands.empty}</p>
             </div>

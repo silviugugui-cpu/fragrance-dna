@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import {
+  isGeneratedPerfumeImage,
   normalizePerfumeImagePath,
   PERFUME_FALLBACK_IMAGE_SRC,
-  PRODUCT_PHOTOS_ENABLED,
 } from '@/lib/design/perfumeImage';
 
 export interface PerfumeImageWithFallbackProps {
@@ -23,9 +23,9 @@ export function PerfumeImageWithFallback({
   className,
   loading = 'lazy',
 }: PerfumeImageWithFallbackProps) {
-  const sources = PRODUCT_PHOTOS_ENABLED
-    ? candidates.map(normalizePerfumeImagePath).filter((candidate) => candidate.length > 0)
-    : [];
+  const sources = candidates
+    .map(normalizePerfumeImagePath)
+    .filter(isGeneratedPerfumeImage);
   const sourcesKey = sources.join('|');
   const [errorState, setErrorState] = useState({ key: sourcesKey, failed: 0 });
   const failedCount = errorState.key === sourcesKey ? errorState.failed : 0;
@@ -38,9 +38,7 @@ export function PerfumeImageWithFallback({
       alt={alt}
       className={className}
       loading={loading}
-      onError={PRODUCT_PHOTOS_ENABLED
-        ? () => setErrorState({ key: sourcesKey, failed: failedCount + 1 })
-        : undefined}
+      onError={() => setErrorState({ key: sourcesKey, failed: failedCount + 1 })}
     />
   );
 }

@@ -8,6 +8,8 @@ import Database from "better-sqlite3";
 import { assertBlobUploadLimits, readBlobManifest, readVerifiedImage, saveBlobImage, validateBlobAssignment, type BlobImageAssignment } from "../lib/database/blobImages";
 import {
   getPerfumeImageCandidates,
+  isGeneratedPerfumeImage,
+  normalizePerfumeImagePath,
   PERFUME_FALLBACK_IMAGE_SRC,
   PRODUCT_PHOTOS_ENABLED,
   resolvePerfumeImageSrc,
@@ -87,13 +89,25 @@ test("persists only verified Blob associations, preserves local paths, scores, b
   } finally { f.dispose(); }
 });
 
-test("product photos are paused in public pages and the shared fallback remains available", () => {
+test("only generated perfume images bypass the product-photo pause", () => {
   const record = { blobImageUrl: "https://store.public.blob.vercel-storage.com/p.jpg", localImagePath: "/images/perfumes/local.jpg", imageUrl: "https://example.com/original.jpg" };
   assert.equal(PRODUCT_PHOTOS_ENABLED, false);
   const sources = getPerfumeImageCandidates(record);
   assert.deepEqual(sources, []);
   assert.notEqual(resolvePerfumeImageSrc(...sources).src, record.blobImageUrl);
   assert.equal(resolvePerfumeImageSrc(...sources).src, PERFUME_FALLBACK_IMAGE_SRC);
+
+  const generated = "/images/ai-generated-perfumes/parfums-de-marly-layton.jpg";
+  assert.equal(normalizePerfumeImagePath(generated), generated);
+  assert.equal(isGeneratedPerfumeImage(generated), true);
+  assert.equal(isGeneratedPerfumeImage("/images/ai-generated-perfumes/../source.jpg"), false);
+  assert.deepEqual(getPerfumeImageCandidates({ localImagePath: generated }), [generated]);
+  assert.deepEqual(getPerfumeImageCandidates({ localImagePath: "/images/perfumes/original.jpg" }), []);
+  assert.deepEqual(getPerfumeImageCandidates({ localImagePath: "/images/ai-generated-perfumes/../source.jpg" }), []);
+  assert.deepEqual(resolvePerfumeImageSrc("/images/perfumes/original.jpg", generated), {
+    src: generated,
+    isFallback: false,
+  });
 });
 
 test("free-tier guard enforces 1800 images per rolling 31 days and an 850 MB store ceiling", () => {

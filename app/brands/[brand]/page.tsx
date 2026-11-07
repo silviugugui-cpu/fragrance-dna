@@ -1,11 +1,9 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import FragranceCard from '@/components/FragranceCard';
-import { getAllFragrances } from '@/engine/dataLoader';
-import type { Fragrance } from '@/lib/types';
+import { PerfumeImageWithFallback } from '@/components/design-system/PerfumeImageWithFallback';
 import {
   PageShell,
   SectionHeader,
@@ -16,94 +14,91 @@ import {
   DNAHelixIcon,
   CrystalGlyphIcon,
 } from '@/components/design-system';
+import type { PublicFragrance } from '@/lib/database/publicFragrances';
+import { getFragranceHref } from '@/lib/fragranceNavigation';
+import { getPerfumeImageCandidates } from '@/lib/design/perfumeImage';
+
+function isPublicFragrance(value: unknown): value is PublicFragrance {
+  if (!value || typeof value !== 'object') return false;
+  const fragrance = value as Record<string, unknown>;
+  return typeof fragrance.id === 'string'
+    && typeof fragrance.brand === 'string'
+    && typeof fragrance.perfume === 'string'
+    && Array.isArray(fragrance.mainAccords)
+    && fragrance.mainAccords.every((accord) => typeof accord === 'string')
+    && Array.isArray(fragrance.notes)
+    && fragrance.notes.every((note) => typeof note === 'string');
+}
 
 export default function BrandDetailPage() {
   const params = useParams();
   const brandParam = typeof params?.brand === 'string' ? params.brand : '';
   const brandName = decodeURIComponent(brandParam);
-  const fragrances = useMemo(() => getAllFragrances(), []);
+  const [brandFragrances, setBrandFragrances] = useState<PublicFragrance[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Filter fragrances for this brand
-  const brandFragrances = useMemo(() => {
-    return fragrances
-      .filter((f: Fragrance) => (f.brand || 'Independent') === brandName)
-      .slice(0, 10);
-  }, [fragrances, brandName]);
-
-  // Calculate brand DNA (aggregate vector)
-  const calculateBrandDNA = () => {
-    if (brandFragrances.length === 0) {
-      return {
-        freshness: 0.5,
-        warmth: 0.5,
-        sweetness: 0.5,
-        darkness: 0.5,
-        cleanliness: 0.5,
-        elegance: 0.5,
-      };
-    }
-
-    const axes = ['freshness', 'warmth', 'sweetness', 'darkness', 'cleanliness', 'elegance'] as const;
-    const aggregated: Record<string, number> = {};
-
-    for (const axis of axes) {
-      let sum = 0;
-      let count = 0;
-
-      for (const frag of brandFragrances) {
-        if (frag.semantic_v1?.[axis] !== undefined) {
-          sum += frag.semantic_v1[axis];
-          count++;
+  useEffect(() => {
+    let active = true;
+    const loadFragrances = async () => {
+      setLoading(true);
+      setBrandFragrances([]);
+      setLoadError(null);
+      try {
+        const query = new URLSearchParams({ brand: brandName, limit: '200' });
+        const response = await fetch(`/api/fragrances/search?${query.toString()}`);
+        const payload: unknown = await response.json();
+        if (!response.ok) {
+          const message = payload && typeof payload === 'object' && 'error' in payload
+            ? String(payload.error)
+            : 'Could not load fragrances for this brand.';
+          throw new Error(message);
         }
+        const results = payload && typeof payload === 'object' && 'results' in payload
+          ? payload.results
+          : undefined;
+        if (!Array.isArray(results) || !results.every(isPublicFragrance)) {
+          throw new Error('The fragrance response is invalid.');
+        }
+        if (active) setBrandFragrances(results);
+      } catch (error) {
+        if (active) setLoadError(error instanceof Error ? error.message : 'Could not load fragrances for this brand.');
+      } finally {
+        if (active) setLoading(false);
       }
+    };
+    void loadFragrances();
+    return () => { active = false; };
+  }, [brandName]);
 
-      aggregated[axis] = count > 0 ? sum / count : 0.5;
-    }
-
-    return aggregated;
-  };
-
-  const brandDNA = calculateBrandDNA();
-
-  // Calculate seasonal distribution
-  const calculateSeasonalDistribution = () => {
+  const seasonalDistribution = useMemo(() => {
     const distribution = { spring: 0, summer: 0, autumn: 0, winter: 0 };
-    const seasonKeywords = {
+    const keywords = {
       spring: ['fresh', 'green', 'light', 'floral'],
       summer: ['citrus', 'aquatic', 'fresh', 'crisp'],
       autumn: ['warm', 'woody', 'spice', 'amber'],
       winter: ['warm', 'woody', 'vanilla', 'oriental'],
     };
-
-    for (const frag of brandFragrances) {
-      const notes = (frag.notes || []).map((n: string) => n.toLowerCase());
-      
-      for (const [season, keywords] of Object.entries(seasonKeywords)) {
-        const matches = keywords.filter((keyword) =>
-          notes.some((note: string) => note.includes(keyword))
-        ).length;
-
-        if (season === 'spring') distribution.spring += matches;
-        if (season === 'summer') distribution.summer += matches;
-        if (season === 'autumn') distribution.autumn += matches;
-        if (season === 'winter') distribution.winter += matches;
+    for (const fragrance of brandFragrances) {
+      const terms = [...fragrance.notes, ...fragrance.mainAccords].map((term) => term.toLowerCase());
+      for (const [season, seasonKeywords] of Object.entries(keywords) as Array<[keyof typeof distribution, string[]]>) {
+        distribution[season] += seasonKeywords.filter((keyword) => terms.some((term) => term.includes(keyword))).length;
       }
     }
-
-    // Normalize
-    const total = Object.values(distribution).reduce((a, b) => a + b, 1);
-    distribution.spring /= total;
-    distribution.summer /= total;
-    distribution.autumn /= total;
-    distribution.winter /= total;
-
     return distribution;
-  };
+  }, [brandFragrances]);
+  const strongestSeason = Object.entries(seasonalDistribution)
+    .sort((left, right) => right[1] - left[1])[0]?.[0] ?? 'spring';
+  const hasSeasonalData = Object.values(seasonalDistribution).some((value) => value > 0);
+  const leadingAccord = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const fragrance of brandFragrances) {
+      for (const accord of fragrance.mainAccords) counts.set(accord, (counts.get(accord) ?? 0) + 1);
+    }
+    return [...counts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ?? 'Not available';
+  }, [brandFragrances]);
 
-  const seasonalDistribution = calculateSeasonalDistribution();
-  const strongestSeason = Object.entries(seasonalDistribution).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'spring';
-
-  if (brandFragrances.length === 0) {
+  if (!loading && !loadError && brandFragrances.length === 0) {
     return (
       <PageShell>
         <section className="py-12 md:py-16">
@@ -141,25 +136,19 @@ export default function BrandDetailPage() {
             className="mb-8"
           />
 
+          {loadError && <p role="alert" className="mb-6 text-red-300">{loadError}</p>}
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <StatCard label="Portfolio" value={brandFragrances.length.toString()} subtitle="fragrances" icon={<BottleOutlineIcon className="h-5 w-5" />} />
             <StatCard
-              label="Brand Character"
-              value={
-                brandDNA.elegance > 0.6
-                  ? 'Elegant'
-                  : brandDNA.freshness > 0.6
-                    ? 'Fresh'
-                    : brandDNA.warmth > 0.6
-                      ? 'Warm'
-                      : 'Balanced'
-              }
-              subtitle="dominant impression"
+              label="Signature Accord"
+              value={leadingAccord}
+              subtitle="most common portfolio accord"
               icon={<DNAHelixIcon className="h-5 w-5" />}
             />
             <StatCard
               label="Strongest Season"
-              value={strongestSeason.charAt(0).toUpperCase() + strongestSeason.slice(1)}
+              value={hasSeasonalData ? strongestSeason.charAt(0).toUpperCase() + strongestSeason.slice(1) : 'Not available'}
               subtitle="highest seasonal weight"
               icon={<CrystalGlyphIcon className="h-5 w-5" />}
             />
@@ -167,9 +156,10 @@ export default function BrandDetailPage() {
 
           <PremiumCard variant="dark" className="p-6 md:p-8 mb-10">
             <p className="text-sm uppercase tracking-wider text-gold mb-5">Seasonal Distribution</p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {hasSeasonalData ? <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {Object.entries(seasonalDistribution).map(([season, value]) => {
-                const normalized = (value * 100) / Math.max(...Object.values(seasonalDistribution));
+                const maximum = Math.max(...Object.values(seasonalDistribution));
+                const normalized = maximum > 0 ? (value * 100) / maximum : 0;
                 return (
                   <div key={season}>
                     <div className="mb-2 flex items-center justify-between">
@@ -185,23 +175,45 @@ export default function BrandDetailPage() {
                   </div>
                 );
               })}
-            </div>
+            </div> : <p className="text-sm text-gray-400">Seasonal data is not available for this house.</p>}
           </PremiumCard>
 
           <SectionHeader
-            label="TOP FRAGRANCES"
-            title={brandFragrances.length === 10 ? 'Top 10 Selections' : `All ${brandFragrances.length} Selections`}
-            description="Highest-priority fragrances currently available for this house."
+            label="FRAGRANCES"
+            title={`${brandFragrances.length} Selections`}
+            description="Fragrances currently available for this house."
             className="mb-6"
           />
 
+          {loading && <p role="status" className="mb-6 text-gray-400">Loading fragrances…</p>}
+
           <div className="grid gap-6 lg:grid-cols-2">
-            {brandFragrances.map((f: Fragrance, idx: number) => (
-              <div key={f.id || f.name} className="relative">
+            {brandFragrances.map((fragrance, idx) => (
+              <div key={fragrance.id} className="relative">
                 <div className="absolute -top-3 -left-3 w-8 h-8 rounded-full bg-gold/15 flex items-center justify-center border border-gold/30 z-10">
                   <span className="text-xs font-semibold text-gold">{idx + 1}</span>
                 </div>
-                <FragranceCard f={f} />
+                <PremiumCard variant="dark" className="flex h-full gap-4 p-4">
+                  <PerfumeImageWithFallback
+                    candidates={getPerfumeImageCandidates(fragrance)}
+                    alt={`${fragrance.brand} ${fragrance.perfume}`}
+                    className="h-36 w-28 shrink-0 rounded-lg object-cover"
+                  />
+                  <div className="min-w-0">
+                    <Link
+                      href={getFragranceHref(fragrance.id, fragrance.brand, fragrance.perfume)}
+                      className="text-lg font-semibold text-white underline-offset-4 hover:underline"
+                    >
+                      {fragrance.perfume}
+                    </Link>
+                    <p className="mt-1 text-sm text-gray-300">
+                      {[fragrance.launchYear, fragrance.gender].filter(Boolean).join(' · ')}
+                    </p>
+                    <p className="mt-3 text-sm text-gray-400">
+                      {fragrance.mainAccords.slice(0, 4).join(' · ')}
+                    </p>
+                  </div>
+                </PremiumCard>
               </div>
             ))}
           </div>
