@@ -4,6 +4,7 @@ import path from "node:path";
 import type { BadgeFilters, FragranceBadges } from "../fragranceBadges";
 import { fragranceBadgeSchema, badgeFilterSql, badgesFromColumns, type BadgeColumns } from "./fragranceBadgeStorage";
 import { INSPIRATION_SQL } from "../fragranceClassification";
+import { normalizeMasterBrandName } from "./brandNames";
 
 export interface MasterFragranceRecord {
   [key: string]: unknown;
@@ -109,7 +110,7 @@ const toSearchText = (value: unknown): string => Array.isArray(value)
   : "";
 
 const buildCanonicalKey = (record: MasterFragranceRecord): string => {
-  const brand = normalizeIdentity(toText(record.brand));
+  const brand = normalizeIdentity(normalizeMasterBrandName(toText(record.brand)));
   const perfume = normalizeIdentity(toText(record.perfume ?? record.name));
   return String(record.canonicalKey ?? `${brand}::${perfume}`).trim().toLowerCase();
 };
@@ -117,22 +118,25 @@ const buildCanonicalKey = (record: MasterFragranceRecord): string => {
 const buildRecordId = (record: MasterFragranceRecord): string =>
   toText(record.id ?? record.canonicalKey) || buildCanonicalKey(record);
 
-const buildIndexedValues = (record: MasterFragranceRecord) => ({
-  recordId: buildRecordId(record),
-  canonicalKey: buildCanonicalKey(record),
-  brand: toText(record.brand),
-  brandType: toText(record.brandType) || "N/A",
-  perfume: toText(record.perfume ?? record.name),
-  launchYear: toText(record.launchYear),
-  rating: toText(record.rating),
-  source: toText(record.source),
-  imageUrl: toText(record.imageUrl),
-  localImagePath: toText(record.localImagePath),
-  userDnaTestEnabled: record.userDnaTestEnabled === true ? 1 : 0,
-  notes: toSearchText(record.notes),
-  accords: toSearchText(record.mainAccords),
-  json: JSON.stringify(record),
-});
+const buildIndexedValues = (record: MasterFragranceRecord) => {
+  const normalizedRecord = { ...record, brand: normalizeMasterBrandName(toText(record.brand)) };
+  return {
+    recordId: buildRecordId(normalizedRecord),
+    canonicalKey: buildCanonicalKey(normalizedRecord),
+    brand: normalizedRecord.brand,
+    brandType: toText(record.brandType) || "N/A",
+    perfume: toText(record.perfume ?? record.name),
+    launchYear: toText(record.launchYear),
+    rating: toText(record.rating),
+    source: toText(record.source),
+    imageUrl: toText(record.imageUrl),
+    localImagePath: toText(record.localImagePath),
+    userDnaTestEnabled: record.userDnaTestEnabled === true ? 1 : 0,
+    notes: toSearchText(record.notes),
+    accords: toSearchText(record.mainAccords),
+    json: JSON.stringify(normalizedRecord),
+  };
+};
 
 const globalDatabase = globalThis as typeof globalThis & { __fragranceDatabase?: SqliteConnection };
 let localConnection: SqliteConnection | undefined;
@@ -499,7 +503,7 @@ export const searchMasterFragrances = (
   }
   if (filters.brand) {
     where.push("fragrances.brand = ? COLLATE NOCASE");
-    params.push(filters.brand);
+    params.push(normalizeMasterBrandName(filters.brand));
   }
   if (filters.gender) {
     where.push("json_extract(fragrances.record_json, '$.gender') = ?");

@@ -40,6 +40,13 @@ always restores the tracked snapshot before building; runtime file tracing still
 bundles the normal `.sqlite`, not the archive. Packing uses SQLite's consistent
 backup API and is not a second catalog or a data migration.
 
+Exact display-name aliases for the canonical fragrance houses live in
+`lib/database/brandNames.ts`. Run `npm run db:normalize-brands -- --apply` to
+normalize the active SQLite catalog and its persistent JSON sources. The
+migration preserves product and house IDs, rebuilds FTS, creates timestamped
+backups, and verifies the packed SQLite snapshot; future master imports use the
+same exact-name map.
+
 MasterFragrancePool is the single source of truth.
 
 Never create:

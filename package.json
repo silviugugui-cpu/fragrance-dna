@@ -15,6 +15,7 @@
     "local:restart": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/manageLocalServer.ps1 -Mode restart",
     "build:local": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/buildAndRestartLocal.ps1",
     "db:pack": "tsx scripts/prepareMasterDatabase.ts --pack",
+    "db:normalize-brands": "tsx scripts/normalizeMasterBrandNames.ts",
     "db:migrate": "tsx scripts/migrateMasterFragranceDatabase.ts",
     "db:auth:migrate": "tsx scripts/migrateAuthUsersToNeon.ts",
     "images:generate": "tsx scripts/generatePerfumeImages.ts",

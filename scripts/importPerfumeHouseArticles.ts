@@ -15,6 +15,7 @@ import {
 } from "../lib/database/curatedCatalog";
 import { territories } from "../lib/data/territories";
 import { relationshipsFromEvidence } from "../lib/fragranceClassification";
+import { normalizeMasterBrandName } from "../lib/database/brandNames";
 import { BADGE_CODES, BADGE_FAMILIES, badgeLevel, type BadgeFamily } from "../lib/fragranceBadges";
 import { fragranceBadgeSchema } from "../lib/database/fragranceBadgeStorage";
 import { creatorCredits } from "../lib/data/perfumerEvidence";
@@ -244,7 +245,7 @@ async function main(): Promise<void> {
       const detailsByHouse = new Map<string, Record<string, EditorialFragranceDetails>>();
       for (const house of houses) {
         const data: EditorialHouse = {
-          id: house.brand_id, name: house.brand_name, category: house.selection_category,
+          id: house.brand_id, name: normalizeMasterBrandName(house.brand_name), category: house.selection_category,
           description: house.editorial_description_ro, descriptionStatus: house.description_status,
           website: safeUrl(house.official_site_url), websiteStatus: house.official_site_status,
           image: house.asset_path, imageAlt: house.alt_text_ro, representative: house.representative_perfume_name,

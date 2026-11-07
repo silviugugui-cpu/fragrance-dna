@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import type { MasterFragranceRecord } from "../lib/database/masterFragranceDatabase";
+import { normalizeMasterBrandName } from "../lib/database/brandNames";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -329,6 +330,7 @@ const main = (): void => {
         ? { top, heart, base }
         : undefined;
       const updatedRecord = { ...sourceRecord } as MasterFragranceRecord & JsonRecord;
+      updatedRecord.brand = normalizeMasterBrandName(String(updatedRecord.brand ?? researched.brand));
       updatedRecord.source = "documented-research";
       updatedRecord.launchYear = researched.launch_year ?? undefined;
       updatedRecord.gender = researched.gender ?? undefined;
