@@ -508,7 +508,7 @@ export default function FragranceLibraryClient({ initialQuery }: { initialQuery:
         </section>
 
         {results.length > 0 && (
-          <section aria-label={season ? getDiscoveryCopy(locale).seasonal : t.fragrances.hero.title} className="relative z-10 grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+          <section aria-label={season ? getDiscoveryCopy(locale).seasonal : t.fragrances.hero.title} className="relative z-10 grid w-full gap-4 sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3">
             {season && <h2 className="col-span-full text-xl">{getDiscoveryCopy(locale).seasonal}</h2>}
             {results.map((fragrance) => (
               <article
@@ -519,11 +519,11 @@ export default function FragranceLibraryClient({ initialQuery }: { initialQuery:
                   boxShadow: 'var(--public-panel-shadow, 0 10px 20px rgba(0,0,0,0.32), inset 0 1px 0 rgba(var(--public-champagne-channels,255,228,173),0.1))',
                 }}
               >
-                <Link href={getFragranceHref(fragrance.id, fragrance.brand, fragrance.perfume)} className="block overflow-hidden rounded-2xl border border-[rgba(var(--public-champagne-channels,156,120,65),0.3)] bg-black/40 p-3">
+                <Link href={getFragranceHref(fragrance.id, fragrance.brand, fragrance.perfume)} className="-mx-5 -mt-5 mb-4 block aspect-square overflow-hidden rounded-t-[23px] border-b border-[rgba(var(--public-champagne-channels,156,120,65),0.3)] bg-black/40">
                   <PerfumeImage
                     key={fragrance.id}
                     fragrance={fragrance}
-                    className="h-36 w-full object-contain transition-transform duration-300 group-hover:scale-[1.04]"
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
                   />
                 </Link>
                 <p className="mt-4 font-articles-body text-[11px] uppercase tracking-[0.22em] text-[color:var(--public-ink-secondary,#d4b67a)]">

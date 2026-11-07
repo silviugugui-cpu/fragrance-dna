@@ -49,29 +49,26 @@ Typography must:
 
 ## Deployment
 
-Every task is incomplete until:
+### Default workflow: local only
 
-1. local verification succeeds
-2. build succeeds
-3. GitHub is synchronized
-4. Vercel deployment succeeds
-5. production matches local
+* Implement, test, and build changes locally. Keep the work persisted in the local repository.
+* Do not commit, push/synchronize with GitHub, trigger a deployment, or publish changes unless the user explicitly asks to deploy.
+* Never deploy automatically after completing an individual task.
+* When the user explicitly requests a deployment, deploy the complete accumulated set of local changes since the last deployed version together.
 
-Do not stop after code changes.
+### Only when deployment is explicitly requested
+
+* Review and validate the full accumulated change set before publishing.
+* Synchronize GitHub and deploy to Vercel only as part of that requested batch.
+* Verify the deployed production version after deployment and report the result.
 
 ---
 
 ## Verification
 
-Before reporting success:
-
-* verify localhost:3000
-* verify build output
-* verify GitHub synchronization
-* verify Vercel deployment
-* verify production rendering
-
-Do not claim verification unless it was actually performed.
+For normal local-only tasks, verify relevant behavior at `http://localhost:3000`, run the applicable tests, and build when appropriate.
+Do not treat GitHub synchronization, Vercel deployment, or production checks as task requirements unless the user explicitly requests a deployment.
+Do not claim verification that was not actually performed.
 
 ---
 
@@ -124,4 +121,3 @@ Always read and follow:
 /docs/FRAGRANCEDNA_ARCHITECTURE.md
 
 before implementing major features.
-
