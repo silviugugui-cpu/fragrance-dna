@@ -35,7 +35,7 @@ export default function FragrancePage({ params, searchParams }: Props) {
   const returnPerfumer = topPerfumerProfiles.find((profile) => profile.slug === searchParams.fromPerfumer);
   return <FragranceProfileClient
     fragrance={toPublicFragrance(found.record)}
-    credits={details?.creatorCredits ?? []}
+    credits={details?.creatorCredits?.map(({ name }) => ({ name })) ?? []}
     returnPerfumer={returnPerfumer ? { slug: returnPerfumer.slug, name: returnPerfumer.name } : undefined}
   />;
 }

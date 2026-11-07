@@ -8,7 +8,7 @@ import {
   isMasterFragranceDatabaseReadOnly,
 } from "../lib/database/masterFragranceDatabase";
 
-const sources = ["master-db", "product-photos", "fragdb", "google-enriched", "ai-generated-perfumes"];
+const sources = ["master-db", "product-photos", "google-enriched", "ai-generated-perfumes"];
 const root = process.cwd();
 const imageRoot = path.join(root, "public", "images");
 const destination = path.join(imageRoot, "perfumes");
@@ -44,7 +44,7 @@ async function main(): Promise<void> {
   });
   const mappings = new Map(files.map((file) => [file.previous, file.current]));
   const replacePaths = (value: string): string => value.replace(
-    /\/images\/(?:master-db|product-photos|fragdb|google-enriched|ai-generated-perfumes)\/[^"\\\s]+/g,
+    /\/images\/(?:master-db|product-photos|google-enriched|ai-generated-perfumes)\/[^"\\\s]+/g,
     (previous) => {
       const current = mappings.get(previous);
       if (!current) throw new Error(`Missing source image: ${previous}`);
@@ -63,8 +63,7 @@ async function main(): Promise<void> {
     row.image !== rows[index].local_image_path || row.json !== rows[index].record_json);
   const generated = path.join(root, "data", "generated");
   const referenceFiles = [
-    "complete-fragrance-database.json", "merged-fragdb-local-db.json",
-    "merged-fragdb-local-db.google-enriched.json", "sampleMasterPerfumeObject.json",
+    "complete-fragrance-database.json", "sampleMasterPerfumeObject.json",
     "product-photo-import-report.json", "user-profiles.json",
   ].flatMap((name) => {
     const filename = path.join(generated, name);

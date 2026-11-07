@@ -16,7 +16,7 @@ const fragrances: Dictionary['fragrances'] = {
     communityLevels: ['Wenig geschätzt', 'Mäßig geschätzt', 'Gut bewertet', 'Sehr gut bewertet', 'Außergewöhnlich'],
     popularityLevels: ['Sehr wenige Bewertungen', 'Wenige Bewertungen', 'Mittlerer Umfang', 'Viele Bewertungen', 'Sehr viele Bewertungen'],
     olfactiveLevels: ['Entdeckung', 'Vielversprechend', 'Beachtet', 'Favorit', 'Referenz'],
-    note: 'Fragrantica- oder Parfumo-Bewertungen aus dem Katalog, keine Live-Daten oder eigenen Stimmen. Balken zeigen Stufen, keine Rohwerte. Umfang bedeutet nicht Qualität. Olfactive Score: 80% vertrauensbereinigte Bewertung und 20% relativer Bewertungsumfang, keine DNA-Übereinstimmung.',
+    note: 'Der Olfactive Score ist ein redaktioneller, algorithmisch berechneter Indikator – kein Maß für die DNA-Kompatibilität.',
     level: (n: number) => `Stufe ${n} von 5`,
   },
   seasonOptions: {
@@ -78,6 +78,14 @@ const fragrances: Dictionary['fragrances'] = {
     marine: 'Marin',
     honey: 'Honig',
     caramel: 'Karamell',
+    coffee: 'Kaffee',
+    spicy: 'Würzig',
+    'dark floral': 'Dunkle Blüten',
+    'green fruity': 'Grün-fruchtig',
+    'dried fruit': 'Trockenfrüchte',
+    gourmand: 'Gourmand',
+    minty: 'Minzig',
+    solar: 'Solar',
   },
   hero: {
     eyebrow: 'Duftbibliothek',
@@ -87,7 +95,7 @@ const fragrances: Dictionary['fragrances'] = {
   },
   search: {
     label: 'Bibliothek durchsuchen',
-    placeholder: 'Versuchen Sie einen Parfum- oder Markennamen, z. B. Sauvage, Creed, Baccarat Rouge...',
+    placeholder: 'Parfum oder Marke...',
     category: 'Kategorie',
     brand: 'Marke',
     brandPlaceholder: 'Jede Marke',
@@ -112,6 +120,9 @@ const fragrances: Dictionary['fragrances'] = {
   detail: {
     launched: 'Erschienen',
     perfumer: 'Parfümeur',
+    topNotes: 'Kopfnote',
+    heartNotes: 'Herznote',
+    baseNotes: 'Basisnote',
     audience: 'Zielgruppe',
     category: 'Kategorie',
     communityRating: 'Community-Bewertung',

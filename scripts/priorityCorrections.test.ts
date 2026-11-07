@@ -113,7 +113,8 @@ test("all locales describe review volume rather than popularity or iconic status
   for (const locale of LOCALES) {
     const copy = getDictionary(locale).fragrances;
     assert.doesNotMatch(copy.categoryOptions.dupe, /Middle|Moyen|Medio|Médio|Naher|Mijlociu/);
-    assert.ok(copy.badges.note.includes("Fragrantica") && copy.badges.note.includes("Parfumo"));
+    assert.match(copy.badges.note, /Olfactive Score/i);
+    assert.doesNotMatch(copy.badges.note, /Fragrantica|Parfumo/i);
     assert.equal(copy.badges.popularityLevels.length, 5);
     assert.doesNotMatch(copy.badges.popularityLevels.join(" "), /icon|ikon|emerg/i);
   }

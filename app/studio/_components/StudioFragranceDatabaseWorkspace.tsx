@@ -2,22 +2,13 @@
 
 import Link from "next/link";
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   publishMasterDatabaseAction,
   rebuildMasterDatabaseAction,
   runBuilderNowAction,
   runDryRunAction,
 } from "@/app/studio/_actions/builderControlActions";
-import {
-  clearStaleFragranticaQueueAction,
-  downloadApprovedGoogleImagesAction,
-  runGoogleCseEnrichmentAction,
-  runCompleteDatabaseSyncAction,
-  runFragranticaSmokeTestAction,
-} from "@/app/studio/_actions/sourcesActions";
 import { PerfumeImageWithFallback } from "@/components/design-system/PerfumeImageWithFallback";
-import type { SourcesWorkspaceData } from "@/lib/builder/connectors/sourcesWorkspace";
 import type {
   MasterDatabaseDetailPanel,
   MasterDatabaseListRow,
@@ -26,7 +17,6 @@ import type {
 
 interface StudioFragranceDatabaseWorkspaceProps {
   masterData: MasterDatabaseWorkspaceResult | null;
-  sourcesData: SourcesWorkspaceData | null;
   loadError?: string;
 }
 
@@ -155,27 +145,11 @@ const buildFallbackDetail = (row: MasterDatabaseListRow): MasterDatabaseDetailPa
 
 export function StudioFragranceDatabaseWorkspace({
   masterData,
-  sourcesData,
   loadError,
 }: StudioFragranceDatabaseWorkspaceProps) {
-  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [brandFilter, setBrandFilter] = useState("all");
   const [selectedId, setSelectedId] = useState<string>(masterData?.rows[0]?.id ?? "");
-
-  const fragrantica = sourcesData?.fragrantica ?? null;
-
-  useEffect(() => {
-    if (fragrantica?.status !== "running") {
-      return;
-    }
-
-    const timer = window.setInterval(() => {
-      router.refresh();
-    }, 3500);
-
-    return () => window.clearInterval(timer);
-  }, [fragrantica?.status, router]);
 
   const availableBrands = useMemo(() => {
     if (!masterData) {
@@ -237,29 +211,11 @@ export function StudioFragranceDatabaseWorkspace({
     selectedRow && masterData ? masterData.detailsById[selectedRow.id] ?? buildFallbackDetail(selectedRow) : null;
 
   const workspaceRows = masterData?.workspacePerfumes ?? masterData?.rows.length ?? 0;
-  const combinedRows = masterData?.combinedPerfumes ?? masterData?.totalPerfumes ?? workspaceRows;
   const completeRows = masterData?.rows.filter((row) => row.builderStatus === "complete").length ?? 0;
   const partialRows = masterData?.rows.filter((row) => row.builderStatus === "partial").length ?? 0;
   const missingRows = masterData?.rows.filter((row) => row.builderStatus === "missing-core").length ?? 0;
   const completeInfoPercent = workspaceRows > 0 ? Number(((completeRows / workspaceRows) * 100).toFixed(2)) : 0;
   const needsMoreInfoRows = workspaceRows - completeRows;
-  const discoveryProgress = fragrantica?.completionPercent ?? 0;
-  const fragranticaCandidates =
-    sourcesData?.discoveryCandidates.filter((candidate) => candidate.connector === "fragrantica").length ?? 0;
-  const fragranticaErrors =
-    sourcesData?.executionLogs.filter(
-      (log) => log.connector === "fragrantica" && log.status === "failed",
-    ).length ?? 0;
-  const hasNoImportsYet = (fragrantica?.importedCount ?? 0) === 0 && (fragrantica?.mergedCount ?? 0) === 0;
-  const scanStateLabel = fragrantica
-    ? fragrantica.status === "running"
-      ? "Running"
-      : fragrantica.status === "complete"
-        ? "Complete"
-        : fragrantica.status === "needs-review"
-          ? "Needs Review"
-          : "Idle"
-    : "Idle";
 
   return (
     <section className="space-y-4">
@@ -269,52 +225,9 @@ export function StudioFragranceDatabaseWorkspace({
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-amber-100">Fragrance Database Manager</h1>
             <p className="mt-2 max-w-3xl text-sm text-zinc-400">
-              Search by brand or perfume, select a record, review the fields you need for the project, and run a FragDB
-              scan from the same screen.
+              Search by brand or perfume, review catalog coverage, and open records for detailed editing.
             </p>
           </div>
-          <form action={runCompleteDatabaseSyncAction}>
-            <button
-              type="submit"
-              className="rounded border border-fuchsia-400/40 bg-fuchsia-500/10 px-4 py-2 text-xs uppercase tracking-[0.1em] text-fuchsia-100 hover:bg-fuchsia-500/20"
-            >
-              Scan FragDB & Update DB
-            </button>
-          </form>
-        </div>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <form action={clearStaleFragranticaQueueAction}>
-            <button
-              type="submit"
-              className="rounded border border-zinc-700 bg-zinc-900/70 px-3 py-1.5 text-[11px] uppercase tracking-[0.1em] text-zinc-200 hover:border-amber-300/30"
-            >
-              Clean Stale FragDB Queue
-            </button>
-          </form>
-          <form action={runFragranticaSmokeTestAction}>
-            <button
-              type="submit"
-              className="rounded border border-cyan-400/35 bg-cyan-500/10 px-3 py-1.5 text-[11px] uppercase tracking-[0.1em] text-cyan-100 hover:bg-cyan-500/20"
-            >
-              Run FragDB Smoke Test
-            </button>
-          </form>
-          <form action={runGoogleCseEnrichmentAction}>
-            <button
-              type="submit"
-              className="rounded border border-emerald-400/35 bg-emerald-500/10 px-3 py-1.5 text-[11px] uppercase tracking-[0.1em] text-emerald-100 hover:bg-emerald-500/20"
-            >
-              Enrich Missing Fields (Google)
-            </button>
-          </form>
-          <form action={downloadApprovedGoogleImagesAction}>
-            <button
-              type="submit"
-              className="rounded border border-indigo-400/35 bg-indigo-500/10 px-3 py-1.5 text-[11px] uppercase tracking-[0.1em] text-indigo-100 hover:bg-indigo-500/20"
-            >
-              Download Approved Images
-            </button>
-          </form>
         </div>
       </header>
 
@@ -328,69 +241,12 @@ export function StudioFragranceDatabaseWorkspace({
       {!loadError && masterData ? (
         <div className="space-y-4">
           <section className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">
-            <Metric label="Scan State" value={scanStateLabel} />
-            <Metric label="Scan Progress" value={formatPercent(discoveryProgress)} />
-            <Metric label="Imported" value={formatNumber(fragrantica?.importedCount ?? 0)} />
-            <Metric label="Merged" value={formatNumber(fragrantica?.mergedCount ?? 0)} />
+            <Metric label="Catalog Records" value={formatNumber(workspaceRows)} />
             <Metric label="Complete Info" value={formatNumber(completeRows)} />
             <Metric label="Needs More Info" value={formatNumber(needsMoreInfoRows)} />
             <Metric label="Complete Info %" value={formatPercent(completeInfoPercent)} />
-            <Metric label="Tracked Source Records" value={formatNumber(fragrantica?.trackedBrands ?? masterData.totalBrands)} />
-            <Metric label="Workspace Rows" value={formatNumber(workspaceRows)} />
-            <Metric label="Combined DB Total" value={formatNumber(combinedRows)} />
-            <Metric label="Pending Review" value={formatNumber(fragrantica?.pendingReviewCount ?? 0)} />
             <Metric label="Partial" value={formatNumber(partialRows)} />
             <Metric label="Missing Core" value={formatNumber(missingRows)} />
-          </section>
-
-          <section className="rounded-xl border border-zinc-800 bg-zinc-900/55 p-4">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-zinc-300">FragDB Progress</h2>
-                <p className="mt-1 text-sm text-zinc-400">
-                  Real-time import progress for the current crawl. Imported and merged counts update while the scan is running.
-                </p>
-              </div>
-              <div className="rounded border border-zinc-800 bg-zinc-950/60 px-3 py-2 text-xs text-zinc-400">
-                <p>Last full sweep: {fragrantica?.lastFullDiscoveryAt ?? "not yet completed"}</p>
-                <p className="mt-1 flex flex-wrap items-center gap-2">
-                  <span>Current state: {fragrantica?.message ?? "Ready to scan"}</span>
-                  <span className="rounded border border-amber-300/30 bg-amber-300/10 px-2 py-0.5 text-[11px] font-medium text-amber-100">
-                    {formatPercent(discoveryProgress)}
-                  </span>
-                </p>
-                <p className="mt-1 text-zinc-500">
-                  {hasNoImportsYet
-                    ? "No imports yet. The crawler is still discovering candidates or waiting on FragDB responses."
-                    : "Imports are already flowing into the database."}
-                </p>
-                <p className="mt-1">Discovered candidates: {formatNumber(fragranticaCandidates)}</p>
-                <p className="mt-1">Crawl errors: {formatNumber(fragranticaErrors)}</p>
-              </div>
-            </div>
-
-            <div className="mt-3 h-2 overflow-hidden rounded-full bg-zinc-800">
-              <div className="h-full rounded-full bg-amber-300/80" style={{ width: `${Math.min(100, discoveryProgress)}%` }} />
-            </div>
-
-            <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-3">
-              <div className="rounded border border-zinc-800 bg-zinc-950/55 p-3 text-sm text-zinc-300">
-                <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">Imported vs merged</p>
-                <p className="mt-1">Imported: {formatNumber(fragrantica?.importedCount ?? 0)}</p>
-                <p className="mt-1">Merged existing: {formatNumber(fragrantica?.mergedCount ?? 0)}</p>
-                <p className="mt-1">Pending review: {formatNumber(fragrantica?.pendingReviewCount ?? 0)}</p>
-              </div>
-              <div className="rounded border border-zinc-800 bg-zinc-950/55 p-3 text-sm text-zinc-300">
-                <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">Coverage split</p>
-                <p className="mt-1">Complete info: {formatNumber(completeRows)}</p>
-                <p className="mt-1">Needs more info: {formatNumber(needsMoreInfoRows)}</p>
-                <p className="mt-1">Complete percentage: {formatPercent(completeInfoPercent)}</p>
-              </div>
-              <div className="rounded border border-zinc-800 bg-zinc-950/55 p-3 text-sm text-zinc-300">
-                <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">Workflow</p>
-                <p className="mt-1">Open master record for deeper review if you want to edit the full perfume profile.</p>
-              </div>
-            </div>
           </section>
 
           <section className="rounded-xl border border-zinc-800 bg-zinc-900/55 p-4">
@@ -452,7 +308,7 @@ export function StudioFragranceDatabaseWorkspace({
               </div>
 
               <p className="mt-3 text-xs text-zinc-500">
-                Showing {formatNumber(filteredRows.length)} of {formatNumber(combinedRows)} perfumes.
+                Showing {formatNumber(filteredRows.length)} of {formatNumber(workspaceRows)} perfumes.
               </p>
 
               <div className="mt-4 overflow-hidden rounded border border-zinc-800 bg-zinc-950/55">

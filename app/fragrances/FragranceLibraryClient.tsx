@@ -15,7 +15,6 @@ import FragranceBadges from '@/components/FragranceBadges';
 import FragranceBadgeFilters from '@/components/FragranceBadgeFilters';
 import type { BadgeFilters } from '@/lib/fragranceBadges';
 import { getDiscoveryCopy } from '@/lib/i18n/discoveryCopy';
-import { isCueSeason, seasonalCueAccords } from '@/lib/seasonalCues';
 import { getPerfumeImageCandidates } from '@/lib/design/perfumeImage';
 
 const capitalize = (value: string): string => value.charAt(0).toUpperCase() + value.slice(1);
@@ -84,25 +83,12 @@ function DetailRow({ label, value }: { label: string; value?: string }) {
   );
 }
 
-function SeasonalEvidence({ fragrance, season }: { fragrance: PublicFragrance; season: string }) {
-  const { locale, t } = useLanguage();
-  if (!isCueSeason(season)) return null;
-  const accords = seasonalCueAccords(fragrance.mainAccords, season);
-  if (!accords.length) return null;
-  const copy = getDiscoveryCopy(locale);
-  return <p className="mt-3 text-sm text-[color:var(--public-ink-secondary,#dacfb7)]">
-    {copy.seasonal} · {t.fragrances.seasonOptions[season]} — {copy.cueReason}: {accords.map((accord) => t.fragrances.accordLabels[accord] ?? accord).join(", ")}
-  </p>;
-}
-
 function FragranceDetail({
   fragrance,
   onClose,
-  season,
 }: {
   fragrance: PublicFragrance;
   onClose: () => void;
-  season: string;
 }) {
   const { t } = useLanguage();
 
@@ -161,8 +147,6 @@ function FragranceDetail({
               <DetailRow label={t.fragrances.detail.category} value={fragrance.brandType} />
             </dl>
             <FragranceBadges badges={fragrance.badges} />
-            <SeasonalEvidence fragrance={fragrance} season={season} />
-            <p className="mt-3 text-xs text-[color:var(--public-ink-secondary,#dacfb7)]">{t.fragrances.badges.note}</p>
             <FragranceRelationships relationships={fragrance.relationships} />
           </div>
         </div>
@@ -348,7 +332,27 @@ export default function FragranceLibraryClient({ initialQuery }: { initialQuery:
         </aside>
         <div className="articles-content-column min-w-0">
       <section className="relative z-10 w-full">
-        <ArticlesIntroHero imageSrc="/fragrances-library-pop-art.png" />
+        <div className="relative w-full">
+          <ArticlesIntroHero imageSrc="/fragrances-library-pop-art.png" />
+          <div className="absolute left-[10%] top-[19%] z-20 flex h-12 w-[80%] items-center rounded-full border-2 border-[#112d43] bg-[#fff8e9] px-4 shadow-[0_8px_24px_rgba(0,0,0,0.65)] ring-2 ring-[#f2c879] ring-offset-1 ring-offset-[#112d43] backdrop-blur-sm focus-within:ring-4 focus-within:ring-[#153a55] sm:left-[39%] sm:h-[9%] sm:w-[22%] sm:px-2 md:px-3">
+            <label htmlFor="fragrance-search" className="sr-only">
+              {t.fragrances.search.label}
+            </label>
+            <input
+              id="fragrance-search"
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder={t.fragrances.search.placeholder}
+              autoComplete="off"
+              className="min-w-0 flex-1 bg-transparent font-articles-body text-[clamp(0.75rem,1vw,1rem)] font-semibold text-[#112d43] placeholder:text-[#435563] focus:outline-none"
+            />
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="ml-1 h-5 w-5 shrink-0 text-[#112d43] sm:h-4 sm:w-4">
+              <circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" strokeWidth="2.4" />
+              <path d="m16 16 4.2 4.2" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+            </svg>
+          </div>
+        </div>
       </section>
 
       <section className="relative z-10 mt-4 w-full space-y-6">
@@ -360,20 +364,7 @@ export default function FragranceLibraryClient({ initialQuery }: { initialQuery:
             boxShadow: 'var(--public-panel-shadow, 0 30px 58px rgba(0,0,0,0.52), inset 0 1px 0 rgba(var(--public-champagne-channels,244,220,165),0.18))',
           }}
         >
-          <label htmlFor="fragrance-search" className="font-articles-body text-xs uppercase tracking-[0.28em] text-[color:var(--public-ink-secondary,#d1b57d)]">
-            {t.fragrances.search.label}
-          </label>
-          <input
-            id="fragrance-search"
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder={t.fragrances.search.placeholder}
-            autoComplete="off"
-            className="mt-3 w-full rounded-2xl border border-[rgba(var(--public-champagne-channels,156,120,65),0.45)] bg-black/40 px-5 py-4 font-articles-body text-[1.02rem] text-[color:var(--public-ink-primary,#f1e3c4)] placeholder-[#8a7450] transition-all duration-300 focus:border-[rgba(var(--public-champagne-channels,243,210,147),0.8)] focus:bg-black/55 focus:outline-none focus:ring-2 focus:ring-[rgba(var(--public-champagne-channels,243,210,147),0.2)]"
-          />
-
-          <div className="mt-5 border-t border-[rgba(var(--public-champagne-channels,156,120,65),0.25)] pt-5">
+          <div>
             <div className="flex flex-wrap items-center gap-2">
               <span className="mr-1 font-articles-body text-[11px] uppercase tracking-[0.24em] text-[color:var(--public-ink-muted,#b7955f)]">{t.fragrances.search.category}</span>
               {CATEGORY_OPTIONS.map((option) => {
@@ -550,7 +541,6 @@ export default function FragranceLibraryClient({ initialQuery }: { initialQuery:
                     .join(' · ')}
                 </p>
                 <FragranceBadges badges={fragrance.badges} />
-                <SeasonalEvidence fragrance={fragrance} season={season} />
                 <button type="button" onClick={() => setSelected(fragrance)} className="mt-3 text-xs underline underline-offset-4">{t.fragrances.detail.about}</button>
               </article>
             ))}
@@ -560,7 +550,7 @@ export default function FragranceLibraryClient({ initialQuery }: { initialQuery:
 
         </div>
       </div>
-      {selected && <FragranceDetail fragrance={selected} season={season} onClose={() => setSelected(null)} />}
+      {selected && <FragranceDetail fragrance={selected} onClose={() => setSelected(null)} />}
     </main>
   );
 }

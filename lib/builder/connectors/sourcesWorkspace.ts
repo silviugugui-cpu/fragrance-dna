@@ -1,6 +1,4 @@
 ﻿import "server-only";
-import fs from "node:fs";
-import path from "node:path";
 import {
   connectorLabel,
   readConnectorState,
@@ -21,13 +19,6 @@ import {
   loadMasterDatabaseWorkspaceData,
   type EnrichmentTask,
 } from "@/lib/builder/masterDatabaseWorkspace/masterDatabaseWorkspace";
-import {
-  getCachedFragranticaDatasetStats,
-  getAllFragranticaSnapshots,
-  listFragranticaSnapshots,
-  searchFragranticaFragrances,
-  type FragranticaSnapshot,
-} from "@/lib/builder/connectors/fragranticaConnector";
 import { searchParfumoFragrances, type ParfumoSnapshot } from "@/lib/builder/connectors/parfumoConnector";
 import {
   loadManufacturerSites,
@@ -117,18 +108,6 @@ export interface SourcesWorkspaceData {
     matchedPerfumeId: string | null;
     mergedIntoPerfumeId: string | null;
   }>;
-  fragrantica: {
-    status: "idle" | "running" | "needs-review" | "complete";
-    message: string;
-    completionPercent: number;
-    pendingReviewCount: number;
-    importedCount: number;
-    mergedCount: number;
-    trackedBrands: number;
-    discoveryCursor: number;
-    syncCursor: number;
-    lastFullDiscoveryAt: string | null;
-  };
 }
 
 interface EnrichmentPoolItem {
@@ -139,13 +118,6 @@ interface EnrichmentPoolItem {
 }
 
 const nowIso = (): string => new Date().toISOString();
-const connectorVersion = "fragrantica-connector-v1";
-const COMPLETE_DB_OUTPUT_PATH = path.join(
-  process.cwd(),
-  "data",
-  "generated",
-  "complete-fragrance-database.json",
-);
 
 const taskToConnector = (task: EnrichmentTask): ConnectorType => {
   if (task.suggestedConnector === "Image Connector") {
@@ -156,10 +128,6 @@ const taskToConnector = (task: EnrichmentTask): ConnectorType => {
     return "parfumo";
   }
 
-  if (task.suggestedConnector === "Fragrantica Connector" || task.suggestedConnector === "FragDB Connector") {
-    return "fragrantica";
-  }
-
   return "custom";
 };
 
@@ -167,32 +135,6 @@ const normalizeText = (value: string): string => value.trim().toLowerCase().repl
 
 const canonicalKey = (perfume: string, brand: string): string =>
   `${normalizeText(brand)}::${normalizeText(perfume)}`;
-
-const stableDigest = (value: string): string => {
-  let hash = 0;
-  for (let index = 0; index < value.length; index += 1) {
-    hash = (hash * 31 + value.charCodeAt(index)) >>> 0;
-  }
-  return hash.toString(16).padStart(8, "0");
-};
-
-const toFieldSync = (input: {
-  field: string;
-  rawValue: string;
-  canonicalValue: string;
-  confidence: number;
-  decisionReference: string;
-}): ConnectorSynchronizedField => ({
-  field: input.field,
-  source: "FragDB",
-  connector: "fragrantica",
-  synchronizedAt: nowIso(),
-  confidence: input.confidence,
-  rawValue: input.rawValue,
-  canonicalValue: input.canonicalValue,
-  connectorVersion,
-  decisionReference: input.decisionReference,
-});
 
 const pushConflict = (state: ConnectorState, input: Omit<ConnectorConflictRecord, "id">): void => {
   const exists = state.conflicts.find(
@@ -248,11 +190,10 @@ const isStaleQueuedJob = (job: ConnectorJob, nowMs: number): boolean => {
 const clearStaleQueuedJobs = (
   state: ConnectorState,
   connector?: ConnectorType,
-): { cleared: number; fragranticaCleared: number } => {
+): { cleared: number } => {
   const now = nowIso();
   const nowMs = Date.now();
   let cleared = 0;
-  let fragranticaCleared = 0;
 
   state.jobs = state.jobs.map((job) => {
     if (connector && job.connector !== connector) {
@@ -264,10 +205,6 @@ const clearStaleQueuedJobs = (
     }
 
     cleared += 1;
-    if (job.connector === "fragrantica") {
-      fragranticaCleared += 1;
-    }
-
     return {
       ...job,
       status: "cancelled" as ConnectorJobStatus,
@@ -278,7 +215,7 @@ const clearStaleQueuedJobs = (
     };
   });
 
-  return { cleared, fragranticaCleared };
+  return { cleared };
 };
 
 type DiscoveryReviewAction = "approve" | "reject" | "ignore" | "merge";
@@ -382,7 +319,7 @@ const buildDiscoveryHistory = (
                 ? "Canonical match detected during discovery."
                 : candidate.status === "duplicate"
                   ? "Duplicate canonical key detected before queue execution."
-                  : "Discovery candidate detected by the FragDB scheduler.",
+                  : "External-source discovery candidate detected.",
     matchedPerfumeId: candidate.matchedPerfumeId,
     mergedIntoPerfumeId: candidate.mergedIntoPerfumeId,
   }));
@@ -432,7 +369,7 @@ const brandWindow = <T,>(items: T[], cursor: number, size: number): { slice: T[]
 };
 
 const createDiscoveryCandidateFromSnapshot = (
-  snapshot: FragranticaSnapshot | ParfumoSnapshot | ManufacturerSnapshot,
+  snapshot: ParfumoSnapshot | ManufacturerSnapshot,
   connector: ConnectorType,
   source: string,
   match: { id: string } | null,
@@ -456,79 +393,36 @@ const createDiscoveryCandidateFromSnapshot = (
 });
 
 const createFieldMappings = (
-  snapshot: FragranticaSnapshot | ParfumoSnapshot,
-  connector: ConnectorType,
+  snapshot: ParfumoSnapshot,
   sourceField: string,
   decisionReference: string,
-): ConnectorSynchronizedField[] => [
-  {
-    ...toFieldSync({ field: "brand", rawValue: snapshot.brand, canonicalValue: snapshot.brand, confidence: snapshot.confidence, decisionReference }),
-    connector,
+): ConnectorSynchronizedField[] => {
+  const fields: Array<{ field: string; value: string }> = [
+    { field: "brand", value: snapshot.brand },
+    { field: "perfumeName", value: snapshot.perfumeName },
+    { field: "launchYear", value: snapshot.launchYear },
+    { field: "perfumer", value: snapshot.perfumer },
+    { field: "gender", value: snapshot.gender },
+    { field: "mainAccords", value: snapshot.mainAccords.join(", ") },
+    { field: "notes", value: snapshot.notes.join(", ") },
+    { field: "imageUrl", value: snapshot.imageUrl },
+    { field: "parfumoUrl", value: snapshot.externalUrl },
+    { field: "rating", value: `${snapshot.rating}|${snapshot.voteCount}` },
+    { field: "releaseStatus", value: snapshot.releaseStatus },
+    { field: "availability", value: snapshot.availability },
+  ];
+  return fields.map(({ field, value }) => ({
+    field,
     source: sourceField,
-  },
-  {
-    ...toFieldSync({ field: "perfumeName", rawValue: snapshot.perfumeName, canonicalValue: snapshot.perfumeName, confidence: snapshot.confidence, decisionReference }),
-    connector,
-    source: sourceField,
-  },
-  {
-    ...toFieldSync({ field: "launchYear", rawValue: snapshot.launchYear, canonicalValue: snapshot.launchYear, confidence: snapshot.confidence, decisionReference }),
-    connector,
-    source: sourceField,
-  },
-  {
-    ...toFieldSync({ field: "perfumer", rawValue: snapshot.perfumer, canonicalValue: snapshot.perfumer, confidence: snapshot.confidence, decisionReference }),
-    connector,
-    source: sourceField,
-  },
-  {
-    ...toFieldSync({ field: "gender", rawValue: snapshot.gender, canonicalValue: snapshot.gender, confidence: snapshot.confidence, decisionReference }),
-    connector,
-    source: sourceField,
-  },
-  {
-    ...toFieldSync({ field: "mainAccords", rawValue: snapshot.mainAccords.join(", "), canonicalValue: snapshot.mainAccords.join(", "), confidence: snapshot.confidence, decisionReference }),
-    connector,
-    source: sourceField,
-  },
-  {
-    ...toFieldSync({ field: "notes", rawValue: snapshot.notes.join(", "), canonicalValue: snapshot.notes.join(", "), confidence: snapshot.confidence, decisionReference }),
-    connector,
-    source: sourceField,
-  },
-  {
-    ...toFieldSync({ field: "imageUrl", rawValue: snapshot.imageUrl, canonicalValue: snapshot.imageUrl, confidence: snapshot.confidence, decisionReference }),
-    connector,
-    source: sourceField,
-  },
-  {
-    ...toFieldSync({ field: `${connector}Url`, rawValue: snapshot.externalUrl, canonicalValue: snapshot.externalUrl, confidence: snapshot.confidence, decisionReference }),
-    connector,
-    source: sourceField,
-  },
-  {
-    ...toFieldSync({ field: "rating", rawValue: `${snapshot.rating}|${snapshot.voteCount}`, canonicalValue: `${snapshot.rating}|${snapshot.voteCount}`, confidence: snapshot.confidence, decisionReference }),
-    connector,
-    source: sourceField,
-  },
-  {
-    ...toFieldSync({ field: "releaseStatus", rawValue: snapshot.releaseStatus, canonicalValue: snapshot.releaseStatus, confidence: snapshot.confidence, decisionReference }),
-    connector,
-    source: sourceField,
-  },
-  {
-    ...toFieldSync({ field: "availability", rawValue: snapshot.availability, canonicalValue: snapshot.availability, confidence: snapshot.confidence, decisionReference }),
-    connector,
-    source: sourceField,
-  },
-];
-
-const parseListField = (value: string): string[] =>
-  value
-    .split(/[,|;/]/g)
-    .map((item) => item.trim())
-    .filter((item) => item.length > 0)
-    .slice(0, 24);
+    connector: "parfumo",
+    synchronizedAt: nowIso(),
+    confidence: snapshot.confidence,
+    rawValue: value,
+    canonicalValue: value,
+    connectorVersion: "parfumo-connector-v1",
+    decisionReference,
+  }));
+};
 
 const stringifyParfumoFieldValue = (
   snapshot: ParfumoSnapshot,
@@ -546,30 +440,6 @@ const stringifyParfumoFieldValue = (
   return typeof value === "string" ? value : "";
 };
 
-const extractFieldMapFromLatestSync = (
-  state: ConnectorState,
-  perfumeId: string,
-  connector: ConnectorType,
-): Map<string, string> => {
-  const jobs = state.jobs
-    .filter(
-      (job) =>
-        job.connector === connector &&
-        job.perfumeId === perfumeId &&
-        job.status === "completed" &&
-        Array.isArray(job.synchronizedFields) &&
-        job.synchronizedFields.length > 0,
-    )
-    .sort(
-      (left, right) =>
-        new Date(right.finishedAt ?? right.createdAt).getTime() -
-        new Date(left.finishedAt ?? left.createdAt).getTime(),
-    );
-
-  const latest = jobs[0]?.synchronizedFields ?? [];
-  return new Map(latest.map((field) => [field.field, field.canonicalValue]));
-};
-
 const reconcileParfumoSnapshotWithTruth = async (
   state: ConnectorState,
   row: { id: string; perfume: string; brand: string },
@@ -581,7 +451,6 @@ const reconcileParfumoSnapshotWithTruth = async (
     notes: [...snapshot.notes],
   };
 
-  const fragranticaValues = extractFieldMapFromLatestSync(state, row.id, "fragrantica");
   const manufacturerTruth = await resolveManufacturerTruth(
     row.brand,
     row.perfume,
@@ -590,32 +459,24 @@ const reconcileParfumoSnapshotWithTruth = async (
   const overriddenFields: string[] = [];
   let usedManufacturer = false;
 
-  const preferManufacturerOrFragrantica = (
+  const preferManufacturer = (
     field: string,
     currentValue: string,
     setValue: (value: string) => void,
     manufacturerValue?: string,
   ): void => {
-    const fragranticaValue = (fragranticaValues.get(field) ?? "").trim();
     const normalizedCurrent = normalizeText(currentValue);
-    const normalizedFragrantica = normalizeText(fragranticaValue);
-    if (!fragranticaValue || normalizedCurrent === normalizedFragrantica) {
-      return;
-    }
-
     const normalizedManufacturer = normalizeText(manufacturerValue ?? "");
-    if (manufacturerValue && normalizedManufacturer.length > 0) {
-      setValue(manufacturerValue);
-      overriddenFields.push(field);
-      usedManufacturer = true;
+    if (!manufacturerValue || normalizedManufacturer.length === 0 || normalizedCurrent === normalizedManufacturer) {
       return;
     }
 
-    setValue(fragranticaValue);
+    setValue(manufacturerValue);
     overriddenFields.push(field);
+    usedManufacturer = true;
   };
 
-  preferManufacturerOrFragrantica(
+  preferManufacturer(
     "launchYear",
     resolved.launchYear,
     (value) => {
@@ -624,7 +485,7 @@ const reconcileParfumoSnapshotWithTruth = async (
     manufacturerTruth?.launchYear,
   );
 
-  preferManufacturerOrFragrantica(
+  preferManufacturer(
     "perfumer",
     resolved.perfumer,
     (value) => {
@@ -633,11 +494,7 @@ const reconcileParfumoSnapshotWithTruth = async (
     manufacturerTruth?.perfumer,
   );
 
-  preferManufacturerOrFragrantica("gender", resolved.gender, (value) => {
-    resolved.gender = value;
-  });
-
-  preferManufacturerOrFragrantica(
+  preferManufacturer(
     "availability",
     resolved.availability,
     (value) => {
@@ -646,7 +503,7 @@ const reconcileParfumoSnapshotWithTruth = async (
     manufacturerTruth?.availability,
   );
 
-  preferManufacturerOrFragrantica(
+  preferManufacturer(
     "releaseStatus",
     resolved.releaseStatus,
     (value) => {
@@ -654,24 +511,6 @@ const reconcileParfumoSnapshotWithTruth = async (
     },
     manufacturerTruth?.releaseStatus,
   );
-
-  const fragranticaAccords = fragranticaValues.get("mainAccords") ?? "";
-  if (
-    fragranticaAccords.length > 0 &&
-    normalizeText(resolved.mainAccords.join(", ")) !== normalizeText(fragranticaAccords)
-  ) {
-    resolved.mainAccords = parseListField(fragranticaAccords);
-    overriddenFields.push("mainAccords");
-  }
-
-  const fragranticaNotes = fragranticaValues.get("notes") ?? "";
-  if (
-    fragranticaNotes.length > 0 &&
-    normalizeText(resolved.notes.join(", ")) !== normalizeText(fragranticaNotes)
-  ) {
-    resolved.notes = parseListField(fragranticaNotes);
-    overriddenFields.push("notes");
-  }
 
   return {
     snapshot: resolved,
@@ -775,7 +614,7 @@ const buildDashboard = async (state: ConnectorState): Promise<SourcesWorkspaceDa
       missingFields: 0,
       queueSize: state.jobs.filter((job) => isQueuedJob(job)).length,
       confidence: 1,
-      note: `Auto-cleaned ${staleCleanup.cleared} stale queued connector jobs (${staleCleanup.fragranticaCleared} FragDB).`,
+      note: `Auto-cleaned ${staleCleanup.cleared} stale queued connector jobs.`,
     });
   }
 
@@ -792,7 +631,6 @@ const buildDashboard = async (state: ConnectorState): Promise<SourcesWorkspaceDa
     },
     {
       "local-excel": 0,
-      fragrantica: 0,
       parfumo: 0,
       notino: 0,
       parfimo: 0,
@@ -811,7 +649,6 @@ const buildDashboard = async (state: ConnectorState): Promise<SourcesWorkspaceDa
       },
       {
         "local-excel": 0,
-        fragrantica: 0,
         parfumo: 0,
         notino: 0,
         parfimo: 0,
@@ -939,59 +776,6 @@ const buildDashboard = async (state: ConnectorState): Promise<SourcesWorkspaceDa
     config: state.connectors[connector].config,
   }));
 
-  const fragDbStats =
-    getCachedFragranticaDatasetStats() ??
-    ({ totalRecords: 0, mode: "sample" as const });
-
-  const fragranticaPendingReviewCount = discoveryCandidates.filter(
-    (candidate) =>
-      candidate.connector === "fragrantica" &&
-      (candidate.status === "new" || candidate.status === "pending" || candidate.status === "review"),
-  ).length;
-  const fragranticaImportedCount = discoveryCandidates.filter(
-    (candidate) =>
-      candidate.connector === "fragrantica" &&
-      (candidate.status === "imported" || candidate.status === "matched"),
-  ).length;
-  const fragranticaMergedCount = discoveryCandidates.filter(
-    (candidate) => candidate.connector === "fragrantica" && candidate.status === "merged",
-  ).length;
-  const nowMs = Date.now();
-  const fragranticaRunning = state.jobs.some(
-    (job) => job.connector === "fragrantica" && isQueuedJob(job) && !isStaleQueuedJob(job, nowMs),
-  );
-  const fragranticaCompleted =
-    Boolean(state.connectorMemory.fragrantica.lastFullDiscoveryAt) &&
-    state.connectorMemory.fragrantica.discoveryCursor === 0 &&
-    !fragranticaRunning &&
-    fragranticaPendingReviewCount === 0;
-  const fragranticaCompletionPercent = fragranticaCompleted
-    ? 100
-    : fragDbStats.totalRecords > 0
-      ? Number(
-          Math.min(
-            99,
-            (state.connectorMemory.fragrantica.discoveryCursor / Math.max(1, fragDbStats.totalRecords)) * 100,
-          ).toFixed(2),
-        )
-      : 0;
-  const fragranticaStatus: SourcesWorkspaceData["fragrantica"]["status"] = fragranticaRunning
-    ? "running"
-    : fragranticaCompleted
-      ? "complete"
-      : fragranticaPendingReviewCount > 0
-        ? "needs-review"
-        : "idle";
-  const fragranticaMessage = fragranticaRunning
-    ? "Scanarea FragDB ruleazÄƒ; parfumurile noi È™i update-urile existente sunt adÄƒugate automat cÃ¢nd sunt gÄƒsite."
-    : fragranticaCompleted
-      ? "Crawl-ul curent FragDB este complet pentru baza urmÄƒritÄƒ acum. Nu mai existÄƒ candidaÈ›i noi sau de revizuit."
-      : fragranticaPendingReviewCount > 0
-        ? "ExistÄƒ candidaÈ›i FragDB Ã®n aÈ™teptare. DupÄƒ aprobare, baza poate fi consideratÄƒ complet sincronizatÄƒ pentru acest crawl."
-        : fragDbStats.mode === "sample"
-          ? "Rulezi Ã®n modul FragDB sample (set restrÃ¢ns). Pentru importuri reale la scarÄƒ, adaugÄƒ fragrances.csv complet Ã®n data/fragdb."
-          : "PorneÈ™te sincronizarea FragDB pentru a actualiza baza de parfumuri È™i a adÄƒuga automat intrÄƒrile lipsÄƒ.";
-
   const synchronizationStatus =
     dashboard.some((item) => item.status === "error") ||
     state.jobs.some((job) => job.status === "failed")
@@ -1038,18 +822,6 @@ const buildDashboard = async (state: ConnectorState): Promise<SourcesWorkspaceDa
     discoveryStatistics,
     discoveryCandidates,
     discoveryHistory,
-    fragrantica: {
-      status: fragranticaStatus,
-      message: fragranticaMessage,
-      completionPercent: fragranticaCompletionPercent,
-      pendingReviewCount: fragranticaPendingReviewCount,
-      importedCount: fragranticaImportedCount,
-      mergedCount: fragranticaMergedCount,
-      trackedBrands: fragDbStats.totalRecords,
-      discoveryCursor: state.connectorMemory.fragrantica.discoveryCursor,
-      syncCursor: state.connectorMemory.fragrantica.syncCursor,
-      lastFullDiscoveryAt: state.connectorMemory.fragrantica.lastFullDiscoveryAt,
-    },
   };
 };
 
@@ -1155,215 +927,6 @@ const generateDiscoveryJobs = (state: ConnectorState, limit: number): number => 
   }
 
   return created;
-};
-
-const executeFragranticaSynchronization = async (
-  state: ConnectorState,
-  runType: "run" | "dry-run",
-): Promise<{
-  importedRecords: number;
-  updatedRecords: number;
-  failedRecords: number;
-  missingFields: number;
-  queueSize: number;
-  confidence: number;
-  executionTimeMs: number;
-  status: "success" | "failed";
-  note: string;
-}> => {
-  const started = Date.now();
-  const staleCleanup = clearStaleQueuedJobs(state, "fragrantica");
-  const master = await loadMasterDatabaseWorkspaceData();
-  const runtime = state.connectors.fragrantica;
-  const discoveryBatchSize = Math.max(1, Math.min(runtime.config.batchSize, 50));
-  const syncBatchSize = Math.max(1, Math.min(runtime.config.batchSize, 30));
-
-  const masterByKey = new Map(
-    master.rows.map((row) => [canonicalKey(row.perfume, row.brand), row]),
-  );
-  const existingCandidateKeys = new Set(
-    state.discoveredCandidates.map((candidate) =>
-      `${candidate.connector}:${candidate.canonicalKey}:${candidate.externalUrl ?? ""}`,
-    ),
-  );
-
-  const discoveryBatch = await listFragranticaSnapshots(
-    state.connectorMemory.fragrantica.discoveryCursor,
-    discoveryBatchSize,
-    runtime.config.timeoutMs,
-  );
-  const syncBatch = await listFragranticaSnapshots(
-    state.connectorMemory.fragrantica.syncCursor,
-    syncBatchSize,
-    runtime.config.timeoutMs,
-  );
-
-  if (runType === "dry-run") {
-    return {
-      importedRecords: discoveryBatch.items.length,
-      updatedRecords: 0,
-      failedRecords: 0,
-      missingFields: Math.max(0, discoveryBatch.totalRecords - discoveryBatch.items.length),
-      queueSize: discoveryBatch.items.length,
-      confidence: 0,
-      executionTimeMs: Date.now() - started,
-      status: "success",
-      note: `Dry run prepared ${discoveryBatch.items.length} FragDB synchronization probes.`,
-    };
-  }
-
-  for (const snapshot of discoveryBatch.items) {
-    const candidateKey = `${"fragrantica"}:${canonicalKey(snapshot.perfumeName, snapshot.brand)}:${snapshot.externalUrl}`;
-    if (existingCandidateKeys.has(candidateKey)) {
-      continue;
-    }
-
-    existingCandidateKeys.add(candidateKey);
-    const match = masterByKey.get(canonicalKey(snapshot.perfumeName, snapshot.brand)) ?? null;
-    const candidate = createDiscoveryCandidateFromSnapshot(
-      snapshot,
-      "fragrantica",
-      discoveryBatch.mode === "local" ? "fragdb-local" : "fragdb-sample",
-      match,
-    );
-    state.discoveredCandidates = [candidate, ...state.discoveredCandidates].slice(0, 6000);
-  }
-
-  state.connectorMemory.fragrantica.discoveryCursor = discoveryBatch.nextCursor;
-  if (discoveryBatch.wrapped && discoveryBatch.totalRecords > 0) {
-    state.connectorMemory.fragrantica.lastFullDiscoveryAt = nowIso();
-  }
-
-  let synced = 0;
-  let changed = 0;
-  let failed = 0;
-  let confidenceAccumulator = 0;
-
-  for (const snapshot of syncBatch.items) {
-    const matchedRow = masterByKey.get(canonicalKey(snapshot.perfumeName, snapshot.brand));
-    if (!matchedRow) {
-      continue;
-    }
-
-    const decisionReference = `decision:${matchedRow.id}:${Date.now()}`;
-
-    try {
-      const fieldSync = createFieldMappings(
-        snapshot,
-        "fragrantica",
-        "FragDB",
-        decisionReference,
-      );
-      const digest = stableDigest(JSON.stringify(fieldSync.map((item) => `${item.field}:${item.rawValue}`)));
-      const previous = state.connectorMemory.fragrantica.syncIndex[matchedRow.id];
-      const hasChanged = !previous || previous.digest !== digest || previous.status !== "active";
-
-      if (hasChanged) {
-        changed += 1;
-        state.jobs = [
-          {
-            id: `connector-job-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-            connector: "fragrantica" as ConnectorType,
-            workflow: "enrichment" as ConnectorWorkflow,
-            perfumeId: matchedRow.id,
-            taskId: null,
-            groupKey: matchedRow.id,
-            field: "fragrantica-sync",
-            priority: runtime.config.priority,
-            source: "fragdb-csv",
-            reason: previous ? "External record changed" : "First FragDB synchronization",
-            confidence: snapshot.confidence,
-            status: "completed" as ConnectorJobStatus,
-            result: "enriched" as ConnectorJob["result"],
-            createdAt: nowIso(),
-            startedAt: nowIso(),
-            finishedAt: nowIso(),
-            durationMs: 0,
-            errorMessage: null,
-            synchronizedFields: fieldSync,
-          },
-          ...state.jobs,
-        ].slice(0, 12000);
-
-        if (matchedRow.launchYear.trim().length > 0 && snapshot.launchYear.length > 0 && matchedRow.launchYear.trim() !== snapshot.launchYear.trim()) {
-          pushConflict(state, {
-            perfumeId: matchedRow.id,
-            conflictingField: "launchYear",
-            conflictingValues: [matchedRow.launchYear.trim(), snapshot.launchYear.trim()],
-            sources: ["Master Database", "FragDB"],
-            connector: "fragrantica",
-            confidence: snapshot.confidence,
-            timestamp: nowIso(),
-            affectedCanonicalObject: matchedRow.id,
-            status: "open",
-            resolutionHistory: [
-              {
-                at: nowIso(),
-                action: "detected",
-                note: "Launch year mismatch detected during FragDB synchronization.",
-              },
-            ],
-          });
-        }
-      }
-
-      state.connectorMemory.fragrantica.syncIndex[matchedRow.id] = {
-        url: snapshot.externalUrl,
-        digest,
-        status: "active",
-        lastSynchronizedAt: nowIso(),
-      };
-
-      confidenceAccumulator += snapshot.confidence;
-      synced += 1;
-    } catch (error) {
-      failed += 1;
-      state.jobs = [
-        {
-          id: `connector-job-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-          connector: "fragrantica" as ConnectorType,
-          workflow: "enrichment" as ConnectorWorkflow,
-          perfumeId: matchedRow.id,
-          taskId: null,
-          groupKey: matchedRow.id,
-          field: "fragrantica-sync",
-          priority: runtime.config.priority,
-          source: "fragdb-csv",
-          reason: "FragDB synchronization error",
-          confidence: 0,
-          status: "failed" as ConnectorJobStatus,
-          result: "skipped" as ConnectorJob["result"],
-          createdAt: nowIso(),
-          startedAt: nowIso(),
-          finishedAt: nowIso(),
-          durationMs: 0,
-          errorMessage: error instanceof Error ? error.message : "Unknown synchronization error",
-        },
-        ...state.jobs,
-      ].slice(0, 12000);
-    }
-  }
-
-  state.connectorMemory.fragrantica.syncCursor = syncBatch.nextCursor;
-  state.scheduler.lastEnrichmentSyncAt = nowIso();
-
-  const queueSize = state.jobs.filter(
-    (job) =>
-      job.connector === "fragrantica" &&
-      (job.status === "pending" || job.status === "running"),
-  ).length;
-
-  return {
-    importedRecords: synced,
-    updatedRecords: changed,
-    failedRecords: failed,
-    missingFields: Math.max(0, syncBatch.items.length - synced),
-    queueSize,
-    confidence: synced > 0 ? Number((confidenceAccumulator / synced).toFixed(2)) : 0,
-    executionTimeMs: Date.now() - started,
-    status: failed > 0 ? "failed" : "success",
-    note: `FragDB synchronized ${synced} fragrances, changed ${changed}, failed ${failed}. Cleaned stale jobs: ${staleCleanup.cleared}.`,
-  };
 };
 
 const executeParfumoSynchronization = async (
@@ -1475,9 +1038,7 @@ const executeParfumoSynchronization = async (
               stringifyParfumoFieldValue(snapshot, field),
               stringifyParfumoFieldValue(truthAligned.snapshot, field),
             ],
-            sources: truthAligned.usedManufacturer
-              ? ["Parfumo", "Manufacturer", "Fragrantica"]
-              : ["Parfumo", "Fragrantica"],
+            sources: truthAligned.usedManufacturer ? ["Parfumo", "Manufacturer"] : ["Parfumo"],
             connector: "parfumo",
             confidence: truthAligned.snapshot.confidence,
             timestamp: nowIso(),
@@ -1487,8 +1048,7 @@ const executeParfumoSynchronization = async (
               {
                 at: nowIso(),
                 action: "truth-policy",
-                note:
-                  "Parfumo value overridden by manufacturer truth when available, otherwise Fragrantica fallback.",
+                note: "Parfumo value overridden by manufacturer truth when available.",
               },
             ],
           });
@@ -1497,12 +1057,9 @@ const executeParfumoSynchronization = async (
 
       const fieldSync = createFieldMappings(
         truthAligned.snapshot,
-        "parfumo",
         truthAligned.usedManufacturer
           ? "Parfumo (manufacturer-validated)"
-          : truthAligned.overriddenFields.length > 0
-            ? "Parfumo (Fragrantica-fallback)"
-            : "Parfumo",
+          : "Parfumo",
         decisionReference,
       );
       state.jobs = [
@@ -1713,10 +1270,6 @@ const executeConnectorJobs = async (
   status: "success" | "failed";
   note: string;
 }> => {
-  if (connector === "fragrantica") {
-    return executeFragranticaSynchronization(state, runType);
-  }
-
   if (connector === "parfumo") {
     return executeParfumoSynchronization(state, runType);
   }
@@ -2155,45 +1708,6 @@ export const generateDiscoveryJobsFromConnectors = async (
   );
   let discovered = 0;
 
-  const fragranticaSweep = brandWindow(
-    brands,
-    state.connectorMemory.fragrantica.discoveryCursor,
-    Math.max(1, Math.min(limit, 8)),
-  );
-  for (const brand of fragranticaSweep.slice) {
-    try {
-      const snapshots = await searchFragranticaFragrances(
-        brand,
-        4,
-        state.connectors.fragrantica.config.timeoutMs,
-      );
-      for (const snapshot of snapshots) {
-        const key = `${"fragrantica"}:${canonicalKey(snapshot.perfumeName, snapshot.brand)}:${snapshot.externalUrl}`;
-        if (existingCandidateKeys.has(key)) {
-          continue;
-        }
-
-        existingCandidateKeys.add(key);
-        const match = masterByKey.get(canonicalKey(snapshot.perfumeName, snapshot.brand)) ?? null;
-        const candidate = createDiscoveryCandidateFromSnapshot(
-          snapshot,
-          "fragrantica",
-          "fragrantica-live",
-          match,
-        );
-        state.discoveredCandidates = [candidate, ...state.discoveredCandidates].slice(0, 6000);
-        discovered += 1;
-      }
-    } catch {
-      continue;
-    }
-  }
-
-  state.connectorMemory.fragrantica.discoveryCursor = fragranticaSweep.nextCursor;
-  if (fragranticaSweep.nextCursor === 0 && brands.length > 0) {
-    state.connectorMemory.fragrantica.lastFullDiscoveryAt = nowIso();
-  }
-
   const parfumoSweep = brandWindow(
     brands,
     state.connectorMemory.parfumo.discoveryCursor,
@@ -2352,120 +1866,10 @@ const autoApproveDiscoveryCandidates = (
   return { approved, merged };
 };
 
-const writeCompleteDatabaseExport = async (state: ConnectorState): Promise<void> => {
-  const master = await loadMasterDatabaseWorkspaceData();
-  const fragDb = await getAllFragranticaSnapshots(state.connectors.fragrantica.config.timeoutMs);
-
-  type CombinedRecord = {
-    source: string;
-    perfume: string;
-    brand: string;
-    launchYear: string;
-    confidence: number;
-    canonicalKey: string;
-    status: string;
-    externalId?: string;
-    externalUrl?: string;
-    rating?: string;
-    voteCount?: string;
-    gender?: string;
-    perfumer?: string;
-    notes?: string[];
-    mainAccords?: string[];
-    imageUrl?: string;
-  };
-
-  const masterRows: CombinedRecord[] = master.rows.map((row) => ({
-    source: "master-database",
-    perfume: row.perfume,
-    brand: row.brand,
-    launchYear: row.launchYear,
-    confidence: row.confidence,
-    canonicalKey: canonicalKey(row.perfume, row.brand),
-    status: "existing",
-  }));
-
-  const fragDbRows: CombinedRecord[] = fragDb.items.map((item) => ({
-    source: fragDb.mode === "local" ? "fragdb-local" : "fragdb-sample",
-    perfume: item.perfumeName,
-    brand: item.brand,
-    launchYear: item.launchYear,
-    confidence: item.confidence,
-    canonicalKey: canonicalKey(item.perfumeName, item.brand),
-    status: "imported",
-    externalId: item.externalId,
-    externalUrl: item.externalUrl,
-    rating: item.rating,
-    voteCount: item.voteCount,
-    gender: item.gender,
-    perfumer: item.perfumer,
-    notes: item.notes,
-    mainAccords: item.mainAccords,
-    imageUrl: item.imageUrl,
-  }));
-
-  const mergedByKey = new Map<string, CombinedRecord>();
-  let duplicatesResolvedInFavorOfFragDb = 0;
-
-  for (const row of masterRows) {
-    mergedByKey.set(row.canonicalKey, row);
-  }
-
-  for (const row of fragDbRows) {
-    if (mergedByKey.has(row.canonicalKey)) {
-      duplicatesResolvedInFavorOfFragDb += 1;
-    }
-    // Requirement: for duplicates, keep FRAGDB source row.
-    mergedByKey.set(row.canonicalKey, row);
-  }
-
-  const discoveryRows: CombinedRecord[] = state.discoveredCandidates
-    .filter((candidate) =>
-      candidate.status === "imported" || candidate.status === "merged" || candidate.status === "matched",
-    )
-    .map((candidate) => ({
-      source: candidate.source,
-      perfume: candidate.perfume,
-      brand: candidate.brand,
-      launchYear: "",
-      confidence: candidate.confidence,
-      canonicalKey: candidate.canonicalKey,
-      status: candidate.status,
-      externalUrl: candidate.externalUrl ?? undefined,
-    }))
-    .filter((row) => !mergedByKey.has(row.canonicalKey));
-
-  const finalRecords = [...mergedByKey.values(), ...discoveryRows].sort((left, right) =>
-    left.canonicalKey.localeCompare(right.canonicalKey),
-  );
-
-  const payload = {
-    generatedAt: nowIso(),
-    mergePolicy: "dedupe by canonicalKey (brand+perfume), prefer FRAGDB on duplicates",
-    fragDbMode: fragDb.mode,
-    totalMasterPerfumes: masterRows.length,
-    totalFragDbPerfumes: fragDbRows.length,
-    duplicatesResolvedInFavorOfFragDb,
-    totalDiscoveryOnlyPerfumes: discoveryRows.length,
-    totalCombinedPerfumes: finalRecords.length,
-    sources: {
-      fragdb: finalRecords.filter((item) => /^fragdb/i.test(item.source)).length,
-      master: finalRecords.filter((item) => item.source === "master-database").length,
-      parfumo: finalRecords.filter((item) => /parfumo/i.test(item.source)).length,
-      manufacturer: finalRecords.filter((item) => /manufacturer/i.test(item.source)).length,
-    },
-    records: finalRecords,
-  };
-
-  fs.mkdirSync(path.dirname(COMPLETE_DB_OUTPUT_PATH), { recursive: true });
-  fs.writeFileSync(COMPLETE_DB_OUTPUT_PATH, JSON.stringify(payload, null, 2), "utf-8");
-};
-
 export const runCompleteDatabaseSynchronization = async (): Promise<SourcesWorkspaceData> => {
   const state = readConnectorState();
-  clearStaleQueuedJobs(state, "fragrantica");
 
-  const activeConnectors: ConnectorType[] = (["fragrantica", "parfumo", "custom", "images"] as ConnectorType[])
+  const activeConnectors: ConnectorType[] = (["parfumo", "custom", "images"] as ConnectorType[])
     .filter((connector) => state.connectors[connector].config.enabled);
 
   const maxCycles = 16;
@@ -2522,104 +1926,6 @@ export const runCompleteDatabaseSynchronization = async (): Promise<SourcesWorks
     queueSize: state.jobs.filter((job) => job.status === "pending" || job.status === "running").length,
     confidence: 1,
     note: `One-click complete sync executed across ${activeConnectors.length} connectors. Auto-approved ${totalAutoApproved}, merged ${totalMerged}.`,
-  });
-
-  await writeCompleteDatabaseExport(state);
-
-  const hydrated = await buildDashboard(state);
-  writeConnectorState(state);
-  return hydrated;
-};
-
-export const clearStaleFragranticaQueue = async (): Promise<{ cleared: number; pending: number }> => {
-  const state = readConnectorState();
-  const staleCleanup = clearStaleQueuedJobs(state, "fragrantica");
-  const now = nowIso();
-  let forcedCleared = 0;
-
-  state.jobs = state.jobs.map((job) => {
-    if (job.connector !== "fragrantica" || !isQueuedJob(job)) {
-      return job;
-    }
-
-    forcedCleared += 1;
-    return {
-      ...job,
-      status: "cancelled" as ConnectorJobStatus,
-      result: job.result ?? "skipped",
-      finishedAt: now,
-      durationMs: job.durationMs ?? 0,
-      errorMessage: "Manually cancelled from Studio cleanup action.",
-    };
-  });
-
-  const totalCleared = staleCleanup.cleared + forcedCleared;
-  prioritizePendingJobs(state);
-
-  appendHistory(state, {
-    connector: "fragrantica",
-    runType: "sync",
-    startedAt: nowIso(),
-    finishedAt: nowIso(),
-    status: "success",
-    executionTimeMs: 0,
-    importedRecords: 0,
-    updatedRecords: totalCleared,
-    failedRecords: 0,
-    missingFields: 0,
-    queueSize: state.jobs.filter((job) => job.connector === "fragrantica" && isQueuedJob(job)).length,
-    confidence: 1,
-    note:
-      totalCleared > 0
-        ? `Cleared ${totalCleared} FragDB queued jobs (${staleCleanup.cleared} stale, ${forcedCleared} active).`
-        : "No FragDB queued jobs found.",
-  });
-
-  const hydrated = await buildDashboard(state);
-  writeConnectorState(state);
-
-  return {
-    cleared: totalCleared,
-    pending: hydrated.pendingConnectorJobs,
-  };
-};
-
-export const runFragranticaSmokeTest = async (): Promise<SourcesWorkspaceData> => {
-  const state = readConnectorState();
-  const runtime = state.connectors.fragrantica;
-  const previousBatch = runtime.config.batchSize;
-  const previousTimeout = runtime.config.timeoutMs;
-
-  clearStaleQueuedJobs(state, "fragrantica");
-
-  runtime.config.batchSize = Math.max(1, Math.min(2, previousBatch));
-  runtime.config.timeoutMs = Math.max(12000, Math.min(previousTimeout, 20000));
-
-  try {
-    generateDiscoveryJobs(state, 20);
-    await generateEnrichmentJobs(state, 40);
-    prioritizePendingJobs(state);
-
-    await runSingleConnector(state, "fragrantica", "run");
-  } finally {
-    runtime.config.batchSize = previousBatch;
-    runtime.config.timeoutMs = previousTimeout;
-  }
-
-  appendHistory(state, {
-    connector: "fragrantica",
-    runType: "run",
-    startedAt: nowIso(),
-    finishedAt: nowIso(),
-    status: "success",
-    executionTimeMs: 0,
-    importedRecords: 0,
-    updatedRecords: 0,
-    failedRecords: 0,
-    missingFields: 0,
-    queueSize: state.jobs.filter((job) => job.connector === "fragrantica" && isQueuedJob(job)).length,
-    confidence: state.connectors.fragrantica.execution.confidence,
-    note: "Fragrantica smoke test executed with reduced batch and timeout.",
   });
 
   const hydrated = await buildDashboard(state);

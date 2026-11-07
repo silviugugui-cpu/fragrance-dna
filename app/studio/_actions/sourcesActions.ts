@@ -4,21 +4,14 @@ import { revalidatePath } from "next/cache";
 import { requireAdminSession } from "@/lib/auth/serverSession";
 import {
   cancelConnectorExecution,
-  clearStaleFragranticaQueue,
   previewConnectorChanges,
   reviewDiscoveryCandidate,
   retryFailedConnectorJobs,
   runAllConnectors,
-  runFragranticaSmokeTest,
   runConnector,
   generateDiscoveryJobsFromConnectors,
-  runCompleteDatabaseSynchronization,
   updateConnectorConfiguration,
 } from "@/lib/builder/connectors/sourcesWorkspace";
-import {
-  downloadApprovedEnrichedImages,
-  runGoogleCseEnrichment,
-} from "@/lib/builder/connectors/googleCseEnrichment";
 import type { ConnectorType } from "@/lib/builder/connectors/connectorState";
 
 const revalidateSources = (): void => {
@@ -35,7 +28,6 @@ const parseConnector = (value: FormDataEntryValue | null): ConnectorType | null 
 
   const allowed: ConnectorType[] = [
     "local-excel",
-    "fragrantica",
     "parfumo",
     "notino",
     "parfimo",
@@ -70,36 +62,6 @@ export const runConnectorAction = async (formData: FormData): Promise<void> => {
 export const runAllConnectorsAction = async (): Promise<void> => {
   await requireAdminSession();
   await runAllConnectors("run");
-  revalidateSources();
-};
-
-export const runCompleteDatabaseSyncAction = async (): Promise<void> => {
-  await requireAdminSession();
-  await runCompleteDatabaseSynchronization();
-  revalidateSources();
-};
-
-export const clearStaleFragranticaQueueAction = async (): Promise<void> => {
-  await requireAdminSession();
-  await clearStaleFragranticaQueue();
-  revalidateSources();
-};
-
-export const runFragranticaSmokeTestAction = async (): Promise<void> => {
-  await requireAdminSession();
-  await runFragranticaSmokeTest();
-  revalidateSources();
-};
-
-export const runGoogleCseEnrichmentAction = async (): Promise<void> => {
-  await requireAdminSession();
-  await runGoogleCseEnrichment();
-  revalidateSources();
-};
-
-export const downloadApprovedGoogleImagesAction = async (): Promise<void> => {
-  await requireAdminSession();
-  await downloadApprovedEnrichedImages();
   revalidateSources();
 };
 

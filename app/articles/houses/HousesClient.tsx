@@ -87,7 +87,33 @@ export default function HousesClient({
           </ArticlesRail>
         </aside>
         <div className="articles-content-column min-w-0 space-y-6">
-          {!catalog && <ArticlesIntroHero imageSrc="/images/top-olfactive-houses-pop-art.png" />}
+          {!catalog && (
+            <div className="relative">
+              <ArticlesIntroHero imageSrc="/images/top-olfactive-houses-pop-art.png" unoptimized />
+              <form action={pathname} method="get" className="absolute left-[10%] top-[19%] z-20 flex h-11 w-[80%] items-center rounded-full border-2 border-[#112d43] bg-[#fff8e9] px-4 shadow-[0_8px_24px_rgba(0,0,0,0.65)] ring-2 ring-[#f2c879] ring-offset-1 ring-offset-[#112d43] backdrop-blur-sm focus-within:ring-4 focus-within:ring-[#153a55] sm:left-[39%] sm:h-[9%] sm:w-[22%] sm:px-2 md:px-3">
+                <label htmlFor="house-search" className="sr-only">{copy.search}</label>
+                <input
+                  id="house-search"
+                  name="q"
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  type="search"
+                  maxLength={200}
+                  placeholder={copy.search}
+                  autoComplete="off"
+                  className="min-w-0 flex-1 bg-transparent font-articles-body text-[clamp(0.75rem,1vw,1rem)] font-semibold text-[#112d43] placeholder:text-[#435563] focus:outline-none"
+                />
+                <input type="hidden" name="category" value={category} />
+                {Object.entries(filterParams).map(([name, value]) => (
+                  <input key={name} type="hidden" name={name} value={value} />
+                ))}
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="ml-1 h-5 w-5 shrink-0 text-[#112d43] sm:h-4 sm:w-4">
+                  <circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" strokeWidth="2.4" />
+                  <path d="m16 16 4.2 4.2" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+                </svg>
+              </form>
+            </div>
+          )}
           <header className={panel}>
             {catalog && <Link href={directoryLink} className={`text-sm underline ${muted}`}>{copy.back}</Link>}
             <h1 className={`${heading} mt-3 text-3xl sm:text-5xl`}>{catalog?.house.name ?? copy.title}</h1>
@@ -99,11 +125,7 @@ export default function HousesClient({
           {!catalog ? (
             <>
               <form action={pathname} method="get" className={`${panel} flex flex-wrap items-end gap-4`}>
-                <label className={`flex-1 ${muted}`}>
-                  {copy.search}
-                  <input name="q" value={search} onChange={(event) => setSearch(event.target.value)} type="search"
-                    className="mt-2 block w-full rounded-xl border border-current bg-transparent p-3" />
-                </label>
+                <input type="hidden" name="q" value={search} />
                 <label className={muted}>
                   {t.fragrances.search.category}
                   <select name="category" value={category} onChange={(event) => setCategory(event.target.value)}
@@ -116,7 +138,6 @@ export default function HousesClient({
                 <FragranceBadgeFilters key={JSON.stringify(filters)} filters={filters} />
                 <button className={`rounded-xl border border-current p-3 ${muted}`} type="submit">{copy.searchAction}</button>
                 <Link href="/articles/houses" className={`text-sm underline ${muted}`}>{t.fragrances.search.clearFilters}</Link>
-                <p className={`w-full text-xs ${muted}`}>{t.fragrances.badges.note}</p>
               </form>
               {filtered.length === 0 && <p className={`${panel} ${muted}`}>{copy.noResults}</p>}
               <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -168,7 +189,6 @@ export default function HousesClient({
                 <FragranceBadgeFilters key={JSON.stringify(filters)} filters={filters} />
                 <button className={`rounded-xl border border-current p-3 ${muted}`} type="submit">{copy.searchAction}</button>
                 <Link href={pathname} className={`text-sm underline ${muted}`}>{t.fragrances.search.clearFilters}</Link>
-                <p className={`w-full text-xs ${muted}`}>{t.fragrances.badges.note}</p>
               </form>
               <p className={muted} aria-live="polite">{copy.catalog}: {catalog.total}</p>
               {catalog.fragrances.length === 0 && <p className={`${panel} ${muted}`}>{copy.noResults}</p>}

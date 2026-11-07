@@ -30,8 +30,6 @@ export type UsabilityStatus = "usable" | "not-usable";
 export type SuggestedConnector =
   | "Image Connector"
   | "Parfumo Connector"
-  | "Fragrantica Connector"
-  | "FragDB Connector"
   | "Review";
 
 export interface EnrichmentTask {
@@ -979,10 +977,6 @@ const suggestedToConnector = (value: SuggestedConnector): ConnectorType => {
     return "parfumo";
   }
 
-  if (value === "Fragrantica Connector") {
-    return "fragrantica";
-  }
-
   return "custom";
 };
 
@@ -1101,7 +1095,7 @@ const buildEnrichmentTasks = (input: {
       id: `${input.id}:launch-year`,
       field: "launchYear",
       reason: "Launch year missing",
-      suggestedConnector: "Fragrantica Connector",
+      suggestedConnector: "Parfumo Connector",
       resolutionType: "automatic",
     });
   }
@@ -1111,7 +1105,7 @@ const buildEnrichmentTasks = (input: {
       id: `${input.id}:family`,
       field: "family",
       reason: "Family missing",
-      suggestedConnector: "Fragrantica Connector",
+      suggestedConnector: "Parfumo Connector",
       resolutionType: "automatic",
     });
   }
@@ -1121,7 +1115,7 @@ const buildEnrichmentTasks = (input: {
       id: `${input.id}:gender`,
       field: "gender",
       reason: "Gender missing",
-      suggestedConnector: "Fragrantica Connector",
+      suggestedConnector: "Parfumo Connector",
       resolutionType: "automatic",
     });
   }

@@ -9,14 +9,13 @@ export default function FragranceRelationships({ relationships }: { relationship
   const { locale, t } = useLanguage();
   const copy = getFragrancePageCopy(locale);
   return <>{relationships.map((relation) => (
-    <div key={`${relation.type}:${relation.source}:${relation.href}`} className="mt-4 text-sm">
+    <div key={`${relation.type}:${relation.href}`} className="mt-4 text-sm">
       <p>{relation.type === "resembles" ? t.articles.houses.similarity
         : relation.type === "clone_of" ? copy.cloneOf : t.articles.houses.brandClaim}:{" "}
         <Link href={relation.href} className="underline underline-offset-4">
           {relation.referenceBrand} · {relation.referencePerfume}
         </Link>
       </p>
-      <a href={relation.source} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-xs underline underline-offset-4">{copy.evidence}</a>
     </div>
   ))}</>;
 }

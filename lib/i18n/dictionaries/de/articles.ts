@@ -26,7 +26,7 @@ const articles: Dictionary['articles'] = {
     source: 'Dokumentationsquelle', territories: 'Territoriumsvorschläge · Prüfung ausstehend',
     evidence: 'Belegbegriffe', method: 'Methode', confidence: 'Vertrauen laut Quelle',
     similarity: 'Berichtete Ähnlichkeit · keine Gleichwertigkeit', brandClaim: 'Von der Marke erklärte Inspiration',
-    pending: 'Ähnlichkeit noch in Recherche', notes: 'Katalognoten (unstrukturiert; keine geprüfte Duftpyramide)',
+    pending: 'Ähnlichkeit noch in Recherche', notes: 'Noten',
     noResults: 'Keine Treffer in dieser Auswahl.', previous: 'Zurück', next: 'Weiter', back: 'Alle ausgewählten Häuser',
     page: 'Seite', art: 'Originale redaktionelle Illustration; kein offizielles Markenbild.', reviewStatus: 'Prüfstatus',
   },

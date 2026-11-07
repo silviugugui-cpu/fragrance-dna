@@ -54,7 +54,7 @@ const articles = {
     similarity: 'Reported resemblance · not an equivalence claim',
     brandClaim: 'Brand-declared inspiration',
     pending: 'Resemblance research pending',
-    notes: 'Catalog notes (unstructured; no verified note pyramid)',
+    notes: 'Notes',
     noResults: 'No matches in this selection.',
     previous: 'Previous',
     next: 'Next',
@@ -66,8 +66,7 @@ const articles = {
   needToKnow: {
     kicker: 'Need to Know',
     title: 'Articles in Need to Know',
-    intro:
-      'Explore structured fragrance knowledge by category.',
+    intro: 'Explore fragrance knowledge...',
     sectionLabel: 'Section',
     nowReading: 'Now reading',
     articleCount: (count: number) => `${count} articles`,

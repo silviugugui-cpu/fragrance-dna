@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 import { test } from "node:test";
 import Database from "better-sqlite3";
 import { getFragranceHref, getFragranceSearchHref, getPerfumerFragranceHref } from "../lib/fragranceNavigation";
@@ -14,7 +16,7 @@ test("URL builder encodes internal IDs and never substitutes an external destina
   const id = "brand::perfume / extrait?#%";
   assert.equal(decodeURIComponent(getFragranceHref(id).split("/").pop()!), id);
   assert.equal(getFragranceHref(null, "Brand", "Perfume"), "/fragrances?q=Brand+Perfume");
-  assert.equal(getFragranceHref("https://www.fragrantica.com/perfume/123", "Brand", "Perfume"), "/fragrances?q=Brand+Perfume");
+  assert.equal(getFragranceHref("https://example.com/perfume/123", "Brand", "Perfume"), "/fragrances?q=Brand+Perfume");
   assert.equal(new URL(getFragranceSearchHref("Hermès", "Un Jardin"), "http://localhost:3000").searchParams.get("q"), "Hermès Un Jardin");
 });
 
@@ -62,13 +64,86 @@ test("indexed record IDs, canonical keys and editorial aliases resolve without u
   } finally { db.close(); }
 });
 
+test("public fragrance profiles remove opaque codes without discarding real terms", () => {
+  const fragrance = toPublicFragrance({
+    id: "dior::sauvage",
+    brand: "Dior",
+    perfume: "Sauvage",
+    mainAccords: ["fresh spicy", "a34", "citrus"],
+    notes: ["Calabrian bergamot", "n1963"],
+    notesByStage: { top: ["Bergamot", "n213"], heart: [], base: ["Ambroxan"] },
+  });
+
+  assert.deepEqual(fragrance.mainAccords, ["fresh spicy", "citrus"]);
+  assert.deepEqual(fragrance.notes, ["Calabrian bergamot"]);
+  assert.deepEqual(fragrance.notesByStage, { top: ["Bergamot"], heart: [], base: ["Ambroxan"] });
+  assert.ok([...fragrance.mainAccords, ...fragrance.notes, ...(fragrance.notesByStage?.top ?? [])]
+    .every((term) => !/^[an]\d+$/i.test(term)));
+});
+
+test("the ten documented records retain canonical identities and expose researched notes and images", () => {
+  const expectedKeys = [
+    "chanel::cocomademoiselle",
+    "dior::sauvage",
+    "dolcegabbana::lightblue",
+    "lancome::lavieestbelle",
+    "mugler::alien",
+    "mugler::angel",
+    "tomford::blackorchid",
+    "tomford::tobaccovanille",
+    "versace::eros",
+    "yvessaintlaurent::blackopium",
+  ];
+  const db = getMasterFragranceDatabase();
+  const placeholders = expectedKeys.map(() => "?").join(", ");
+  const rows = db.prepare(`
+    SELECT row_id, record_id, canonical_key, source, rating, image_url, local_image_path, record_json
+    FROM fragrances WHERE canonical_key IN (${placeholders}) ORDER BY canonical_key
+  `).all(...expectedKeys) as Array<{
+    row_id: number; record_id: string; canonical_key: string; source: string;
+    rating: string; image_url: string; local_image_path: string; record_json: string;
+  }>;
+
+  assert.equal(rows.length, expectedKeys.length);
+  for (const row of rows) {
+    const record = JSON.parse(row.record_json) as Record<string, unknown>;
+    const fragrance = toPublicFragrance(record);
+    assert.ok(expectedKeys.includes(row.canonical_key));
+    assert.equal(row.record_id, row.canonical_key);
+    assert.equal(row.source, "documented-research");
+    assert.equal(row.rating, "");
+    assert.equal(row.image_url, "");
+    assert.ok(row.local_image_path.startsWith("/images/documented-perfumes/"));
+    assert.ok(fs.existsSync(path.join(process.cwd(), "public", row.local_image_path.slice(1))));
+    assert.ok(fragrance.mainAccords.length > 0);
+    assert.ok(fragrance.notes.length > 0);
+    assert.ok([...fragrance.mainAccords, ...fragrance.notes]
+      .every((term) => !/^[an]\d+$/i.test(term)));
+    assert.equal(JSON.stringify(record).toLowerCase().includes("fragdb"), false);
+  }
+
+  const dior = rows.find((row) => row.canonical_key === "dior::sauvage");
+  assert.ok(dior);
+  const diorProfile = toPublicFragrance(JSON.parse(dior.record_json) as Record<string, unknown>);
+  assert.deepEqual(diorProfile.mainAccords, ["citrus", "fresh spicy", "aromatic", "amber", "woody"]);
+  assert.deepEqual(diorProfile.notes, [
+    "Calabrian bergamot", "Sichuan pepper", "Ambroxan", "Elemi", "Woody notes",
+  ]);
+  assert.equal(fs.readdirSync(path.join(process.cwd(), "public", "images", "documented-perfumes")).length, 11);
+});
+
 test("all perfumer works navigate to their actual canonical catalog record, preserving statistics identities", () => {
   const db = getMasterFragranceDatabase();
   const profiles = readEvidencedPerfumerProfiles();
   assert.equal(profiles.length, 15);
   let works = 0;
   for (const profile of profiles) {
+    assert.ok(!("portraitSourceUrl" in profile));
+    assert.ok(!("biographySourceUrl" in profile));
     for (const work of profile.works) {
+      for (const credit of work.credits) {
+        assert.ok(!("source" in credit));
+      }
       const mapping = db.prepare(`SELECT f.record_id FROM editorial_fragrances e
         JOIN fragrances f ON f.row_id = e.row_id WHERE e.source_record_id = ? ORDER BY e.row_id LIMIT 1`)
         .get(work.id) as { record_id: string } | undefined;

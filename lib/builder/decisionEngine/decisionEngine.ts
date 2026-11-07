@@ -140,9 +140,6 @@ const safeAverage = (values: number[]): number => {
 
 const toSourceConnector = (object: CanonicalMasterPerfumeObject): string => {
   const sources = Object.values(object.provenance).map((entry) => entry.source.toLowerCase());
-  if (sources.some((source) => source.includes("fragrantica") || source.includes("fragdb"))) {
-    return "Fragrantica Connector";
-  }
   if (sources.some((source) => source.includes("parfumo"))) {
     return "Parfumo Connector";
   }

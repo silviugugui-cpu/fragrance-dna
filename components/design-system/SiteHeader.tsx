@@ -7,6 +7,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -19,6 +20,7 @@ import { useAuth } from '@/lib/auth';
 import { useLanguage } from '@/lib/i18n';
 import { isAdminUser } from '@/lib/auth/adminAccess';
 import { getDnaConfidenceBadge, loadDnaSession } from '@/lib/dnaSession';
+import { articlesMenuItems } from '@/app/articles/articlesMenu';
 
 const NAV_LINKS = [
   { href: '/', key: 'home' },
@@ -37,7 +39,7 @@ export function SiteHeader() {
   const { t } = useLanguage();
   const { assets } = usePublicTheme();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeMobileMenu, setActiveMobileMenu] = useState<'dna' | 'passion' | null>(null);
   const [confidence, setConfidence] = useState(0);
   const userBadge = getDnaConfidenceBadge(confidence);
   const userBadgeLabel = t.common.badges[userBadge.id] ?? userBadge.label;
@@ -57,12 +59,12 @@ export function SiteHeader() {
   }, [user?.id]);
 
   useEffect(() => {
-    setIsMobileMenuOpen(false);
+    setActiveMobileMenu(null);
     setIsDropdownOpen(false);
   }, [pathname]);
 
   useEffect(() => {
-    if (!isMobileMenuOpen) {
+    if (!activeMobileMenu) {
       return;
     }
     const previousOverflow = document.body.style.overflow;
@@ -70,7 +72,7 @@ export function SiteHeader() {
     return () => {
       document.body.style.overflow = previousOverflow;
     };
-  }, [isMobileMenuOpen]);
+  }, [activeMobileMenu]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -191,44 +193,78 @@ export function SiteHeader() {
           )}
           <button
             type="button"
-            className="mobile-menu-btn"
-            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-            aria-expanded={isMobileMenuOpen}
+            className={`mobile-menu-btn ${activeMobileMenu === 'dna' ? 'active' : ''}`}
+            onClick={() => setActiveMobileMenu((current) => current === 'dna' ? null : 'dna')}
+            aria-label={t.header.mobileMenuSections.exploreYourDna}
+            aria-expanded={activeMobileMenu === 'dna'}
             aria-controls="mobile-primary-nav"
           >
-            {isMobileMenuOpen ? t.header.closeMenu : t.header.menu}
+            {t.header.mobileMenuSections.exploreYourDnaButton}
+          </button>
+          <button
+            type="button"
+            className={`mobile-menu-btn ${activeMobileMenu === 'passion' ? 'active' : ''}`}
+            onClick={() => setActiveMobileMenu((current) => current === 'passion' ? null : 'passion')}
+            aria-label={t.header.mobileMenuSections.yourPassion}
+            aria-expanded={activeMobileMenu === 'passion'}
+            aria-controls="mobile-primary-nav"
+          >
+            {t.header.mobileMenuSections.yourPassionButton}
           </button>
         </div>
       </div>
 
-      {isMobileMenuOpen && (
+      {activeMobileMenu && typeof document !== 'undefined' && createPortal(
         <>
           <button
             type="button"
             className="mobile-nav-backdrop md:hidden"
             aria-label={t.header.closeMobileMenu}
-            onClick={() => setIsMobileMenuOpen(false)}
+            onClick={() => setActiveMobileMenu(null)}
           />
 
           <div id="mobile-primary-nav" className="mobile-nav-panel md:hidden">
-            <nav className="mobile-nav-list" aria-label="Mobile primary navigation">
-              {NAV_LINKS.map((link) => {
-                const isActive = pathname === link.href
-                  || (link.key === 'articles' && (pathname.startsWith('/articles/') || pathname === '/fragrances' || pathname.startsWith('/fragrances/')));
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={`mobile-nav-link ${isActive ? 'active' : ''}`}
-                  >
-                    <span className="mobile-nav-link-title">{t.header.nav[link.key].mobile}</span>
-                    <span className="mobile-nav-link-hint">{t.header.nav[link.key].hint}</span>
-                  </Link>
-                );
-              })}
-            </nav>
+            {activeMobileMenu === 'dna' && <section className="mobile-nav-section">
+              <h2 className="mobile-nav-section-title">{t.header.mobileMenuSections.exploreYourDna}</h2>
+              <nav className="mobile-nav-list" aria-label={t.header.mobileMenuSections.exploreYourDna}>
+                {NAV_LINKS.filter((link) => link.key !== 'articles').map((link) => {
+                  const isActive = pathname === link.href;
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className={`mobile-nav-link ${isActive ? 'active' : ''}`}
+                    >
+                      <span className="mobile-nav-link-title">{t.header.nav[link.key].mobile}</span>
+                      <span className="mobile-nav-link-hint">{t.header.nav[link.key].hint}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+            </section>}
 
-            <LanguageSwitcher variant="full" className="mt-6 border-t border-white/10 pt-5" />
+            {activeMobileMenu === 'passion' && <section className="mobile-nav-section">
+              <h2 className="mobile-nav-section-title">{t.header.mobileMenuSections.yourPassion}</h2>
+              <nav className="mobile-nav-list" aria-label={t.header.mobileMenuSections.yourPassion}>
+                {articlesMenuItems.map((item) => {
+                  const isActive = pathname === item.href
+                    || (item.href !== '/articles' && pathname.startsWith(`${item.href}/`));
+                  const menuEntry = t.articles.menu.items[item.key];
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      aria-current={isActive ? 'page' : undefined}
+                      className={`mobile-nav-link ${isActive ? 'active' : ''}`}
+                      onClick={() => setActiveMobileMenu(null)}
+                    >
+                      <span className="mobile-nav-link-title">{menuEntry.label}</span>
+                      <span className="mobile-nav-link-hint">{menuEntry.hint}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+            </section>}
 
             {user && (
               <button
@@ -241,7 +277,8 @@ export function SiteHeader() {
               </button>
             )}
           </div>
-        </>
+        </>,
+        document.body,
       )}
     </header>
   );

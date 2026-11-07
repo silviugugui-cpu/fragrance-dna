@@ -14,7 +14,7 @@
     communityLevels: ['Low appreciation', 'Moderate appreciation', 'Well liked', 'Highly liked', 'Exceptional'],
     popularityLevels: ['Very few reviews', 'Few reviews', 'Moderate review volume', 'Many reviews', 'Very many reviews'],
     olfactiveLevels: ['Discovery', 'Promising', 'Noticed', 'Favorite', 'Reference'],
-    note: 'Based on catalog snapshots of Fragrantica or Parfumo user reviews, not live data or our own votes. Bars show five ordinal levels, not raw scores. Review volume is not quality. Olfactive Score combines 80% confidence-adjusted community appreciation and 20% relative review volume; it is not your DNA match.',
+    note: 'Olfactive Score is an editorial indicator calculated algorithmically; it is not a measure of DNA compatibility.',
     level: (n: number) => `Level ${n} of 5`,
   },
   seasonOptions: {
@@ -76,6 +76,14 @@
     marine: 'Marine',
     honey: 'Honey',
     caramel: 'Caramel',
+    coffee: 'Coffee',
+    spicy: 'Spicy',
+    'dark floral': 'Dark floral',
+    'green fruity': 'Green fruity',
+    'dried fruit': 'Dried fruit',
+    gourmand: 'Gourmand',
+    minty: 'Minty',
+    solar: 'Solar',
   } as Record<string, string>,
   hero: {
     eyebrow: 'Fragrance Library',
@@ -85,7 +93,7 @@
   },
   search: {
     label: 'Search the library',
-    placeholder: 'Try a perfume or brand name, e.g. Sauvage, Creed, Baccarat Rouge...',
+    placeholder: 'Perfume or brand...',
     category: 'Category',
     brand: 'Brand',
     brandPlaceholder: 'Any brand',
@@ -110,6 +118,9 @@
   detail: {
     launched: 'Launched',
     perfumer: 'Perfumer',
+    topNotes: 'Top notes',
+    heartNotes: 'Heart notes',
+    baseNotes: 'Base notes',
     audience: 'Audience',
     category: 'Category',
     communityRating: 'Community rating',

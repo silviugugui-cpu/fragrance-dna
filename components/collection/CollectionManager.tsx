@@ -516,7 +516,6 @@ export default function CollectionManager() {
       </div>
 
       <FragranceBadgeFilters filters={badgeFilters} onChange={setBadgeFilters} />
-      <p className="text-xs text-[color:var(--public-ink-secondary,#dacfb7)]">{t.fragrances.badges.note}</p>
       {filteredCollection.length === 0 ? (
         <div className="glass-card p-12 text-center space-y-4">
           <p className="text-3xl font-light text-[color:var(--public-readable-text,rgba(242,229,199,0.95))]">

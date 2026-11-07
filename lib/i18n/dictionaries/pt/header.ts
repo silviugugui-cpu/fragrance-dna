@@ -21,6 +21,12 @@ const header: Dictionary['header'] = {
   menu: 'Menu',
   closeMenu: 'Fechar',
   closeMobileMenu: 'Fechar o menu móvel',
+  mobileMenuSections: {
+    exploreYourDna: 'Explore o seu ADN',
+    yourPassion: 'A sua paixão',
+    exploreYourDnaButton: 'ADN',
+    yourPassionButton: 'Paixão',
+  },
   signIntoYourDna: 'Entre no seu ADN',
   dnaBadgeAria: (name, badge) => `${name}, emblema de ADN ${badge}`,
   dnaBadgeTitle: (badge) => `Emblema de ADN ${badge}`,

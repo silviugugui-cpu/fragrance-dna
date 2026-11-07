@@ -16,7 +16,7 @@ const fragrances: Dictionary['fragrances'] = {
     communityLevels: ['Poco apprezzato', 'Moderatamente apprezzato', 'Ben apprezzato', 'Molto apprezzato', 'Eccezionale'],
     popularityLevels: ['Pochissime recensioni', 'Poche recensioni', 'Volume moderato', 'Molte recensioni', 'Moltissime recensioni'],
     olfactiveLevels: ['Da scoprire', 'Promettente', 'Notevole', 'Preferito', 'Riferimento'],
-    note: 'Recensioni Fragrantica o Parfumo del catalogo, non dati in tempo reale o voti propri. Le barre mostrano livelli, non punteggi grezzi. Il volume non indica qualità. Olfactive Score: 80% apprezzamento corretto per la fiducia e 20% volume relativo delle recensioni, non compatibilità DNA.',
+    note: 'Olfactive Score è un indicatore editoriale calcolato algoritmicamente; non misura la compatibilità DNA.',
     level: (n: number) => `Livello ${n} di 5`,
   },
   seasonOptions: {
@@ -78,6 +78,14 @@ const fragrances: Dictionary['fragrances'] = {
     marine: 'Marino',
     honey: 'Miele',
     caramel: 'Caramello',
+    coffee: 'Caffè',
+    spicy: 'Speziato',
+    'dark floral': 'Floreale scuro',
+    'green fruity': 'Fruttato verde',
+    'dried fruit': 'Frutta secca',
+    gourmand: 'Gourmand',
+    minty: 'Mentolato',
+    solar: 'Solare',
   },
   hero: {
     eyebrow: 'Libreria delle fragranze',
@@ -87,7 +95,7 @@ const fragrances: Dictionary['fragrances'] = {
   },
   search: {
     label: 'Cerca nella libreria',
-    placeholder: 'Prova con il nome di un profumo o di un marchio, ad es. Sauvage, Creed, Baccarat Rouge...',
+    placeholder: 'Profumo o marca...',
     category: 'Categoria',
     brand: 'Marchio',
     brandPlaceholder: 'Qualsiasi marchio',
@@ -112,6 +120,9 @@ const fragrances: Dictionary['fragrances'] = {
   detail: {
     launched: 'Lancio',
     perfumer: 'Profumiere',
+    topNotes: 'Note di testa',
+    heartNotes: 'Note di cuore',
+    baseNotes: 'Note di fondo',
     audience: 'Pubblico',
     category: 'Categoria',
     communityRating: 'Voto della community',

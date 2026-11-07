@@ -26,7 +26,7 @@ const articles: Dictionary['articles'] = {
     source: 'Fonte documentale', territories: 'Territori suggeriti · revisione in attesa',
     evidence: 'Termini di evidenza', method: 'Metodo', confidence: 'Affidabilità dichiarata dalla fonte',
     similarity: 'Somiglianza riportata · non equivalenza', brandClaim: 'Ispirazione dichiarata dal marchio',
-    pending: 'Somiglianza in ricerca', notes: 'Note del catalogo (non strutturate; piramide non verificata)',
+    pending: 'Somiglianza in ricerca', notes: 'Note',
     noResults: 'Nessun risultato in questa selezione.', previous: 'Precedente', next: 'Successivo', back: 'Tutte le case selezionate',
     page: 'Pagina', art: 'Illustrazione editoriale originale; non ufficiale.', reviewStatus: 'Stato della revisione',
   },

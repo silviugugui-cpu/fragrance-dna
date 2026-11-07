@@ -1,12 +1,23 @@
 import { getMasterFragranceDatabase } from "./masterFragranceDatabase";
 import { decodeEditorialDetails } from "./curatedCatalog";
-import { calculatePerfumerStatistics, type PerfumerCreationEvidence } from "../data/perfumerEvidence";
+import {
+  calculatePerfumerStatistics,
+  type CreatorCredit,
+  type PerfumerCreationEvidence,
+} from "../data/perfumerEvidence";
 import { topPerfumerProfiles, type TopPerfumerProfile } from "../data/topPerfumerProfiles";
 
-export type EvidencedPerfumerProfile = TopPerfumerProfile & {
+type PublicCreatorCredit = Pick<CreatorCredit, "name" | "role">;
+type PublicCreditedWork =
+  Omit<ReturnType<typeof calculatePerfumerStatistics>["statistics"][number]["works"][number], "credits"> & {
+    credits: PublicCreatorCredit[];
+    recordId: string | null;
+  };
+
+export type EvidencedPerfumerProfile = Omit<TopPerfumerProfile, "portraitSourceUrl" | "biographySourceUrl"> & {
   topCreations: number;
   evaluatedCreations: number;
-  works: Array<ReturnType<typeof calculatePerfumerStatistics>["statistics"][number]["works"][number] & { recordId: string | null }>;
+  works: PublicCreditedWork[];
   rank: number | null;
 };
 
@@ -30,6 +41,25 @@ export function readEvidencedPerfumerProfiles(): EvidencedPerfumerProfile[] {
   return topPerfumerProfiles.map((profile) => {
     const stats = statistics.find((item) => item.slug === profile.slug);
     if (!stats) throw new Error(`Missing perfumer statistics: ${profile.slug}`);
-    return { ...profile, ...stats, works: stats.works.map((work) => ({ ...work, recordId: recordIds.get(work.id) ?? null })) };
+    const publicProfile: Omit<TopPerfumerProfile, "portraitSourceUrl" | "biographySourceUrl"> = {
+      slug: profile.slug,
+      name: profile.name,
+      portraitUrl: profile.portraitUrl,
+      portraitPosition: profile.portraitPosition,
+      bio: profile.bio,
+      approach: profile.approach,
+      creations: profile.creations,
+    };
+    return {
+      ...publicProfile,
+      topCreations: stats.topCreations,
+      evaluatedCreations: stats.evaluatedCreations,
+      rank: stats.rank,
+      works: stats.works.map(({ credits, ...work }) => ({
+        ...work,
+        credits: credits.map(({ name, role }) => ({ name, role })),
+        recordId: recordIds.get(work.id) ?? null,
+      })),
+    };
   });
 }

@@ -119,7 +119,10 @@ test("runtime canonical counts, denominators, works and rankings match the suppl
         assert.equal(profile.evaluatedCreations, evaluated.length, profile.name);
         assert.equal(profile.topCreations, top.length, profile.name);
         assert.deepEqual(profile.works.map((work) => work.id).sort(), top.map((row) => row.id).sort());
-        assert.ok(profile.works.every((work) => work.credits.length && work.credits.every((credit) => /^https?:/.test(credit.source))));
+        assert.ok(profile.works.every((work) =>
+          work.credits.length > 0 &&
+          work.credits.every((credit) => credit.role === "perfumer" && !("source" in credit)),
+        ));
       }
       assert.equal(profiles.find((profile) => profile.slug === "olivier-polge")?.rank, 12);
       assert.equal(profiles.find((profile) => profile.slug === "daniela-andrier")?.rank, 13);

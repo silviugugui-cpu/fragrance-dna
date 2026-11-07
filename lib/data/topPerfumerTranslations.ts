@@ -112,7 +112,10 @@ const translations: Record<string, Record<TranslatedLocale, Translation>> = {
   },
 };
 
-export function getPerfumerText(profile: TopPerfumerProfile, locale: Locale): Translation {
+export function getPerfumerText(
+  profile: Pick<TopPerfumerProfile, "slug" | "bio" | "approach">,
+  locale: Locale,
+): Translation {
   if (locale === "en" || locale === "ro") {
     return {
       bio: profile.bio[locale],

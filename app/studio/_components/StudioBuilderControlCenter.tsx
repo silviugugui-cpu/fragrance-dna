@@ -27,7 +27,7 @@ type OperationsSection =
   | "publish"
   | "logs";
 
-type MissionOpenTarget = OperationsSection | "sources";
+type MissionOpenTarget = OperationsSection;
 
 interface StudioBuilderControlCenterProps {
   data: BuilderControlCenterData | null;
@@ -205,14 +205,7 @@ export function StudioBuilderControlCenter({
           {activeSection === "mission-control" ? (
             <MissionControlSection
               data={data}
-              onOpenSection={(section) => {
-                if (section === "sources") {
-                  window.location.href = "/studio/sources";
-                  return;
-                }
-
-                setActiveSection(section);
-              }}
+              onOpenSection={setActiveSection}
             />
           ) : null}
           {activeSection === "run-builder" ? <RunBuilderSection /> : null}
@@ -288,10 +281,10 @@ function MissionControlSection({
       section: "logs",
     },
     {
-      title: "Sources",
+      title: "Connector Jobs",
       value: formatNumber(data.missionControl.pendingConnectorJobs),
       sub: `Discovery ${formatNumber(data.missionControl.discoveryQueue)} / Enrichment ${formatNumber(data.missionControl.enrichmentQueue)}`,
-      section: "sources",
+      section: "jobs",
     },
   ];
 

@@ -26,7 +26,7 @@ const articles: Dictionary['articles'] = {
     source: 'Source documentaire', territories: 'Territoires suggérés · révision en attente',
     evidence: 'Termes justificatifs', method: 'Méthode', confidence: 'Confiance déclarée par la source',
     similarity: 'Ressemblance rapportée · pas une équivalence', brandClaim: 'Inspiration déclarée par la marque',
-    pending: 'Ressemblance en cours de recherche', notes: 'Notes du catalogue (non structurées ; pyramide non vérifiée)',
+    pending: 'Ressemblance en cours de recherche', notes: 'Notes',
     noResults: 'Aucun résultat dans cette sélection.', previous: 'Précédent', next: 'Suivant', back: 'Toutes les maisons sélectionnées',
     page: 'Page', art: 'Illustration éditoriale originale, non officielle.', reviewStatus: 'État de vérification',
   },

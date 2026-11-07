@@ -7,7 +7,7 @@ export type StudioNavItem = {
 export const studioNavItems: StudioNavItem[] = [
   {
     label: "Fragrance Database",
-    description: "One-button FragDB scan, update, and automatic perfume discovery.",
+    description: "Search and manage canonical fragrance records.",
     href: "/studio",
   },
   {

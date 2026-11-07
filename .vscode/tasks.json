@@ -17,7 +17,7 @@
 			"args": [
 				"-NoProfile",
 				"-Command",
-				"$source = 'D:\\-projects\\projects\\_Fragrantiq\\data\\generated\\user-dna-test-database.xlsx'; $desktopDir = 'C:\\Users\\silvi\\OneDrive\\Desktop'; if (!(Test-Path $source)) { throw \"Source file not found: $source\" }; if (!(Test-Path $desktopDir)) { $desktopDir = [Environment]::GetFolderPath('Desktop') }; $target = Join-Path $desktopDir 'user-dna-test-database.xlsx'; Copy-Item -Path $source -Destination $target -Force; Get-Item $target | Select-Object FullName,Length,LastWriteTime | Format-List"
+				"$source = '${workspaceFolder}\\data\\generated\\user-dna-test-database.xlsx'; $desktopDir = [Environment]::GetFolderPath('Desktop'); if (!(Test-Path $source)) { throw \"Source file not found: $source\" }; $target = Join-Path $desktopDir 'user-dna-test-database.xlsx'; Copy-Item -Path $source -Destination $target -Force; Get-Item $target | Select-Object FullName,Length,LastWriteTime | Format-List"
 			],
 			"isBackground": false
 		},
@@ -27,7 +27,7 @@
 			"command": "node",
 			"args": [
 				"-e",
-				"const fs=require('fs');const path=require('path');const os=require('os');const src='D:/-projects/projects/_Fragrantiq/data/generated/user-dna-test-database.xlsx';if(!fs.existsSync(src)){throw new Error('Source file not found: '+src);}let desktop=path.join(os.homedir(),'OneDrive','Desktop');if(!fs.existsSync(desktop)){desktop=path.join(os.homedir(),'Desktop');}const dst=path.join(desktop,'user-dna-test-database.xlsx');fs.copyFileSync(src,dst);const s=fs.statSync(dst);console.log(JSON.stringify({savedTo:dst,sizeBytes:s.size},null,2));"
+				"const fs=require('fs');const path=require('path');const os=require('os');const src=path.join(process.cwd(),'data','generated','user-dna-test-database.xlsx');if(!fs.existsSync(src)){throw new Error('Source file not found: '+src);}let desktop=path.join(process.env.OneDrive||path.join(os.homedir(),'OneDrive'),'Desktop');if(!fs.existsSync(desktop)){desktop=path.join(os.homedir(),'Desktop');}const dst=path.join(desktop,'user-dna-test-database.xlsx');fs.copyFileSync(src,dst);const s=fs.statSync(dst);console.log(JSON.stringify({savedTo:dst,sizeBytes:s.size},null,2));"
 			],
 			"isBackground": false
 		},
@@ -107,16 +107,6 @@
 			"args": [
 				"status",
 				"--short"
-			],
-			"isBackground": false
-		},
-		{
-			"label": "check-imported-image-url",
-			"type": "shell",
-			"command": "node",
-			"args": [
-				"scripts/check-single-image-url.mjs",
-				"http://localhost:3000/images/master-db/fragrantica-47798-a-n-other-or-18.jpg"
 			],
 			"isBackground": false
 		},
@@ -357,9 +347,18 @@
 		{
 			"label": "restart-studio-on-3000",
 			"type": "shell",
-			"command": "npm.cmd run dev",
+			"command": "npm.cmd run local:restart",
 			"args": [],
-			"isBackground": true,
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "build-and-restart-local-3000",
+			"type": "shell",
+			"command": "npm.cmd run build:local",
+			"args": [],
+			"isBackground": false,
 			"problemMatcher": [],
 			"group": "build"
 		},

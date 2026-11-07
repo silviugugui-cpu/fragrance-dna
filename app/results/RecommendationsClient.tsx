@@ -147,7 +147,6 @@ export function RecommendationsClient({ embedded = false }: RecommendationsClien
           <p data-preference-fit-help className="mt-3 max-w-2xl text-sm text-gray-400">{evidenceCopy.fitHelp}</p>
           <div className="mt-5">
             <FragranceBadgeFilters filters={badgeFilters} onChange={setBadgeFilters} />
-            <p className="mt-3 text-xs text-gray-400">{t.fragrances.badges.note}</p>
           </div>
           {summary ? (
             <div className="mt-6 flex flex-wrap gap-6 border-y border-white/10 py-4 text-sm">

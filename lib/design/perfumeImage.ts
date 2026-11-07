@@ -6,7 +6,7 @@ export const getPerfumeImageCandidates = (record: {
 
 export const normalizePerfumeImagePath = (value: string | null | undefined): string =>
   String(value ?? "").trim().replace(
-    /^\/images\/(master-db|product-photos|fragdb|google-enriched|ai-generated-perfumes)\/([^/]+)$/,
+    /^\/images\/(master-db|product-photos|google-enriched|ai-generated-perfumes)\/([^/]+)$/,
     "/images/perfumes/$1--$2",
   );
 

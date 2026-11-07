@@ -5,7 +5,6 @@ import { createBuilderConfig } from "@/lib/builder/config";
 
 export type ConnectorType =
   | "local-excel"
-  | "fragrantica"
   | "parfumo"
   | "notino"
   | "parfimo"
@@ -156,20 +155,6 @@ export interface ConnectorState {
     lastPrioritizationAt: string | null;
   };
   connectorMemory: {
-    fragrantica: {
-      discoveryCursor: number;
-      syncCursor: number;
-      lastFullDiscoveryAt: string | null;
-      syncIndex: Record<
-        string,
-        {
-          url: string;
-          digest: string;
-          status: "active" | "removed";
-          lastSynchronizedAt: string;
-        }
-      >;
-    };
     parfumo: {
       discoveryCursor: number;
       syncCursor: number;
@@ -186,7 +171,6 @@ export interface ConnectorState {
 
 const connectorTypes: ConnectorType[] = [
   "local-excel",
-  "fragrantica",
   "parfumo",
   "notino",
   "parfimo",
@@ -197,7 +181,6 @@ const connectorTypes: ConnectorType[] = [
 
 const defaultConfigByConnector: Record<ConnectorType, ConnectorConfig> = {
   "local-excel": { enabled: true, batchSize: 1200, timeoutMs: 45000, priority: 1, dryRunDefault: false },
-  fragrantica: { enabled: true, batchSize: 400, timeoutMs: 30000, priority: 2, dryRunDefault: true },
   parfumo: { enabled: true, batchSize: 400, timeoutMs: 30000, priority: 3, dryRunDefault: true },
   notino: { enabled: true, batchSize: 300, timeoutMs: 30000, priority: 4, dryRunDefault: true },
   parfimo: { enabled: true, batchSize: 300, timeoutMs: 30000, priority: 5, dryRunDefault: true },
@@ -230,14 +213,6 @@ const defaultRegistryByConnector: Record<ConnectorType, ConnectorRegistryItem> =
     supportsEnrichment: true,
     skeleton: false,
     description: "Seed connector for local workbook discovery and field enrichment updates.",
-  },
-  fragrantica: {
-    connector: "fragrantica",
-    label: "FragDB",
-    supportsDiscovery: true,
-    supportsEnrichment: true,
-    skeleton: true,
-    description: "FragDB CSV discovery and enrichment connector with lifecycle and queue integration.",
   },
   parfumo: {
     connector: "parfumo",
@@ -292,7 +267,6 @@ const defaultRegistryByConnector: Record<ConnectorType, ConnectorRegistryItem> =
 const defaultState = (): ConnectorState => ({
   registry: {
     "local-excel": { ...defaultRegistryByConnector["local-excel"] },
-    fragrantica: { ...defaultRegistryByConnector.fragrantica },
     parfumo: { ...defaultRegistryByConnector.parfumo },
     notino: { ...defaultRegistryByConnector.notino },
     parfimo: { ...defaultRegistryByConnector.parfimo },
@@ -302,7 +276,6 @@ const defaultState = (): ConnectorState => ({
   },
   connectors: {
     "local-excel": { config: { ...defaultConfigByConnector["local-excel"] }, execution: defaultExecutionMeta() },
-    fragrantica: { config: { ...defaultConfigByConnector.fragrantica }, execution: defaultExecutionMeta() },
     parfumo: { config: { ...defaultConfigByConnector.parfumo }, execution: defaultExecutionMeta() },
     notino: { config: { ...defaultConfigByConnector.notino }, execution: defaultExecutionMeta() },
     parfimo: { config: { ...defaultConfigByConnector.parfimo }, execution: defaultExecutionMeta() },
@@ -319,12 +292,6 @@ const defaultState = (): ConnectorState => ({
     lastPrioritizationAt: null,
   },
   connectorMemory: {
-    fragrantica: {
-      discoveryCursor: 0,
-      syncCursor: 0,
-      lastFullDiscoveryAt: null,
-      syncIndex: {},
-    },
     parfumo: {
       discoveryCursor: 0,
       syncCursor: 0,
@@ -359,6 +326,7 @@ export const readConnectorState = (): ConnectorState => {
     const raw = fs.readFileSync(statePath, "utf-8");
     const parsed = JSON.parse(raw) as Partial<ConnectorState>;
     const fallback = defaultState();
+    const supportedConnectors = new Set<string>(connectorTypes);
 
     const mergedRegistry = connectorTypes.reduce<Record<ConnectorType, ConnectorRegistryItem>>(
       (acc, connector) => {
@@ -395,24 +363,20 @@ export const readConnectorState = (): ConnectorState => {
     return {
       registry: mergedRegistry,
       connectors: mergedConnectors,
-      jobs: Array.isArray(parsed.jobs) ? parsed.jobs : [],
-      discoveredCandidates: Array.isArray(parsed.discoveredCandidates)
-        ? parsed.discoveredCandidates
+      jobs: Array.isArray(parsed.jobs)
+        ? parsed.jobs.filter((job) => supportedConnectors.has(job.connector))
         : [],
-      conflicts: Array.isArray(parsed.conflicts) ? parsed.conflicts : [],
+      discoveredCandidates: Array.isArray(parsed.discoveredCandidates)
+        ? parsed.discoveredCandidates.filter((candidate) => supportedConnectors.has(candidate.connector))
+        : [],
+      conflicts: Array.isArray(parsed.conflicts)
+        ? parsed.conflicts.filter((conflict) => supportedConnectors.has(conflict.connector))
+        : [],
       scheduler: {
         ...fallback.scheduler,
         ...(parsed.scheduler ?? {}),
       },
       connectorMemory: {
-        fragrantica: {
-          ...fallback.connectorMemory.fragrantica,
-          ...(parsed.connectorMemory?.fragrantica ?? {}),
-          syncIndex: {
-            ...fallback.connectorMemory.fragrantica.syncIndex,
-            ...(parsed.connectorMemory?.fragrantica?.syncIndex ?? {}),
-          },
-        },
         parfumo: {
           ...fallback.connectorMemory.parfumo,
           ...(parsed.connectorMemory?.parfumo ?? {}),
@@ -422,7 +386,9 @@ export const readConnectorState = (): ConnectorState => {
           ...(parsed.connectorMemory?.manufacturer ?? {}),
         },
       },
-      history: Array.isArray(parsed.history) ? parsed.history : [],
+      history: Array.isArray(parsed.history)
+        ? parsed.history.filter((item) => item.connector === "all" || supportedConnectors.has(item.connector))
+        : [],
       lastUpdatedAt: parsed.lastUpdatedAt ?? fallback.lastUpdatedAt,
     };
   } catch {
@@ -446,7 +412,6 @@ export const writeConnectorState = (state: ConnectorState): void => {
 export const connectorLabel = (connector: ConnectorType): string => {
   const map: Record<ConnectorType, string> = {
     "local-excel": "Local Excel",
-    fragrantica: "FragDB",
     parfumo: "Parfumo",
     notino: "Notino",
     parfimo: "Parfimo",

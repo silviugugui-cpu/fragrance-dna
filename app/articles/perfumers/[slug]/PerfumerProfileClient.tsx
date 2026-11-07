@@ -8,7 +8,6 @@ import { getPerfumerText } from "@/lib/data/topPerfumerTranslations";
 import PerfumerPortrait from "../PerfumerPortrait";
 import { getPerfumerFragranceHref } from "@/lib/fragranceNavigation";
 import PerfumerCredits from "@/components/PerfumerCredits";
-import { getFragrancePageCopy } from "@/lib/i18n/fragrancePageCopy";
 
 const panel = "rounded-3xl border border-[rgba(var(--public-champagne-channels,156,120,65),0.35)] bg-[rgba(var(--public-surface-channels,10,10,10),0.45)] p-6 sm:p-8";
 const ink = "text-[color:var(--public-ink-primary,#f2ddb1)]";
@@ -20,7 +19,6 @@ export default function PerfumerProfileClient({ profile }: { profile: EvidencedP
   const copy = t.articles.perfumers.directory;
   const text = getPerfumerText(profile, locale);
   const discovery = getDiscoveryCopy(locale);
-  const fragranceCopy = getFragrancePageCopy(locale);
 
   return (
     <main className="relative mx-auto w-[90vw] max-w-[1200px] pb-16 pt-8 lg:pt-10">
@@ -60,14 +58,6 @@ export default function PerfumerProfileClient({ profile }: { profile: EvidencedP
           </ul>
           {!profile.works.length && <p className={`mt-4 ${muted}`}>{discovery.noWorks}</p>}
         </div>
-      </section>
-      <section className={`mt-6 ${panel}`}>
-        <h2 className={`font-articles-heading text-2xl ${ink}`}>{discovery.sources}</h2>
-        <a href={profile.biographySourceUrl} target="_blank" rel="noopener noreferrer" className={`mt-4 inline-block underline underline-offset-4 ${muted}`}>{discovery.biography} — {new URL(profile.biographySourceUrl).hostname}</a>
-        <p className={`mt-3 text-sm ${muted}`}>{discovery.attribution}: {discovery.works}</p>
-        <ul className="mt-3 flex flex-wrap gap-3">
-          {[...new Set(profile.works.flatMap((work) => work.credits.map((credit) => credit.source)))].map((source) => <li key={source}><a href={source} target="_blank" rel="noopener noreferrer" className={`text-sm underline underline-offset-4 ${muted}`}>{fragranceCopy.attribution} — {new URL(source).pathname.split("/").filter(Boolean).pop()}</a></li>)}
-        </ul>
       </section>
     </main>
   );

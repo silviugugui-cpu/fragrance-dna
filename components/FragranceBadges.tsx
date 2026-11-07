@@ -7,14 +7,19 @@ export default function FragranceBadges({ badges = UNDEFINED_BADGES }: { badges?
   const { t } = useLanguage();
   const copy = t.fragrances.badges;
   return (
-    <div className="mt-4 space-y-3 text-[color:var(--public-ink-primary,#ecdcbb)]" title={copy.note}>
+    <div className="mt-4 space-y-3 text-[color:var(--public-ink-primary,#ecdcbb)]">
       {BADGE_FAMILIES.map((family) => {
         const level = badgeLevel(family, badges[family]);
         const label = level ? copy[`${family}Levels`][level - 1] : copy.undefined;
         return (
           <div key={family} data-badge-family={family} data-badge-code={badges[family]}>
             <div className="flex flex-wrap items-center justify-between gap-1 text-xs">
-              <span className="text-[color:var(--public-ink-secondary,#dacfb7)]">{copy[family]}</span>
+              <span
+                className="text-[color:var(--public-ink-secondary,#dacfb7)]"
+                title={family === "olfactive" ? copy.note : undefined}
+              >
+                {copy[family]}
+              </span>
               <span className="rounded-full border border-current px-2 py-0.5 font-medium">{label}</span>
             </div>
             {level > 0 && (

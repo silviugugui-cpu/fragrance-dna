@@ -12,7 +12,7 @@ import PerfumerCredits from "@/components/PerfumerCredits";
 import { getPerfumeImageCandidates } from "@/lib/design/perfumeImage";
 
 export default function FragranceProfileClient({ fragrance, credits, returnPerfumer }: {
-  fragrance: PublicFragrance; credits: CreatorCredit[];
+  fragrance: PublicFragrance; credits: Array<Pick<CreatorCredit, "name">>;
   returnPerfumer?: { slug: string; name: string };
 }) {
   const { locale, t } = useLanguage();
@@ -24,6 +24,11 @@ export default function FragranceProfileClient({ fragrance, credits, returnPerfu
     [detail.audience, fragrance.gender],
     [detail.category, fragrance.brandType],
   ].filter(([, value]) => Boolean(value));
+  const noteStages = [
+    { label: detail.topNotes, notes: fragrance.notesByStage?.top ?? [] },
+    { label: detail.heartNotes, notes: fragrance.notesByStage?.heart ?? [] },
+    { label: detail.baseNotes, notes: fragrance.notesByStage?.base ?? [] },
+  ].filter((stage) => stage.notes.length > 0);
   const heading = "font-articles-heading text-[color:var(--public-ink-primary,#f4deb2)]";
   const muted = "text-[color:var(--public-ink-secondary,#dacfb7)]";
   return (
@@ -44,7 +49,6 @@ export default function FragranceProfileClient({ fragrance, credits, returnPerfu
               </div>}
             </dl>
             <div className="mt-5"><FragranceBadges badges={fragrance.badges} /></div>
-            <p className={`mt-3 text-xs ${muted}`}>{t.fragrances.badges.note}</p>
           </header>
         </div>
         {fragrance.description && <section className="mt-8">
@@ -56,7 +60,14 @@ export default function FragranceProfileClient({ fragrance, credits, returnPerfu
           <ul className={`mt-3 flex flex-wrap gap-2 ${muted}`}>{fragrance.mainAccords.map((accord) =>
             <li key={accord} className="rounded-full border border-current px-3 py-1 text-sm">{t.fragrances.accordLabels[accord] ?? accord}</li>)}</ul>
         </section>}
-        {fragrance.notes.length > 0 && <section className="mt-8">
+        {noteStages.length > 0 ? <section className="mt-8">
+          <h2 className={`${heading} text-2xl`}>{t.articles.houses.notes}</h2>
+          <dl className={`mt-3 grid gap-3 sm:grid-cols-3 ${muted}`}>{noteStages.map(({ label, notes }) =>
+            <div key={label}>
+              <dt className="font-semibold">{label}</dt>
+              <dd className="mt-1">{notes.join(", ")}</dd>
+            </div>)}</dl>
+        </section> : fragrance.notes.length > 0 && <section className="mt-8">
           <h2 className={`${heading} text-2xl`}>{t.articles.houses.notes}</h2>
           <p className={`mt-3 ${muted}`}>{fragrance.notes.join(", ")}</p>
         </section>}

@@ -24,7 +24,6 @@ export type CanonicalField =
   | "mainAccords"
   | "notes"
   | "imageUrl"
-  | "fragranticaUrl"
   | "rating"
   | "releaseStatus"
   | "availability";
@@ -113,7 +112,6 @@ const canonicalFields: CanonicalField[] = [
   "mainAccords",
   "notes",
   "imageUrl",
-  "fragranticaUrl",
   "rating",
   "releaseStatus",
   "availability",
@@ -126,7 +124,6 @@ const defaultModel: MergeTrustModel = {
     "official brand": 100,
     "manual review": 98,
     parfumo: 92,
-    fragrantica: 90,
     notino: 84,
     parfimo: 80,
     miraj: 78,
@@ -139,36 +136,30 @@ const defaultModel: MergeTrustModel = {
     launchYear: {
       "official brand": 100,
       parfumo: 95,
-      fragrantica: 88,
       "local excel": 70,
     },
     notes: {
-      fragrantica: 92,
       parfumo: 90,
       "official brand": 75,
       "local excel": 65,
     },
     perfumer: {
       parfumo: 95,
-      fragrantica: 86,
       "official brand": 82,
       "local excel": 64,
     },
     mainAccords: {
-      fragrantica: 90,
       parfumo: 87,
       "local excel": 62,
     },
     availability: {
       notino: 91,
       parfimo: 88,
-      fragrantica: 82,
       "local excel": 66,
     },
     brand: {
       "official brand": 100,
       manual: 98,
-      fragrantica: 86,
       parfumo: 84,
       "local excel": 70,
     },

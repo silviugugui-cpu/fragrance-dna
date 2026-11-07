@@ -26,7 +26,7 @@ const articles: Dictionary['articles'] = {
     source: 'Fuente documental', territories: 'Territorios sugeridos · revisión pendiente',
     evidence: 'Términos de evidencia', method: 'Método', confidence: 'Confianza declarada por la fuente',
     similarity: 'Similitud reportada · no equivalencia', brandClaim: 'Inspiración declarada por la marca',
-    pending: 'Similitud en investigación', notes: 'Notas del catálogo (sin estructura; pirámide no verificada)',
+    pending: 'Similitud en investigación', notes: 'Notas',
     noResults: 'Sin resultados en esta selección.', previous: 'Anterior', next: 'Siguiente', back: 'Todas las casas seleccionadas',
     page: 'Página', art: 'Ilustración editorial original; no es una imagen oficial.', reviewStatus: 'Estado de revisión',
   },

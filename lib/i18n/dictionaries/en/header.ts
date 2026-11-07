@@ -19,6 +19,12 @@ const header = {
   menu: 'Menu',
   closeMenu: 'Close',
   closeMobileMenu: 'Close mobile menu',
+  mobileMenuSections: {
+    exploreYourDna: 'Explore your DNA',
+    yourPassion: 'Your passion',
+    exploreYourDnaButton: 'DNA',
+    yourPassionButton: 'Passion',
+  },
   signIntoYourDna: 'Sign in',
   dnaBadgeAria: (name: string, badge: string) => `${name}, ${badge} DNA badge`,
   dnaBadgeTitle: (badge: string) => `${badge} DNA badge`,

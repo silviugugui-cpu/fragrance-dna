@@ -16,7 +16,7 @@ const fragrances: Dictionary['fragrances'] = {
     communityLevels: ['Apreciere redusă', 'Apreciere moderată', 'Bine apreciat', 'Foarte apreciat', 'Excepțional'],
     popularityLevels: ['Foarte puține evaluări', 'Puține evaluări', 'Volum moderat', 'Multe evaluări', 'Foarte multe evaluări'],
     olfactiveLevels: ['De explorat', 'Promițător', 'Remarcat', 'Favorit', 'De referință'],
-    note: 'Evaluări Fragrantica sau Parfumo din snapshot-ul catalogului, nu date live sau voturi proprii. Barele arată niveluri, nu scoruri brute. Volumul evaluărilor nu reprezintă calitatea. Olfactive Score combină 80% apreciere ajustată după încredere și 20% volum relativ al evaluărilor; nu este compatibilitatea ADN.',
+    note: 'Olfactive Score este un indicator editorial calculat algoritmic; nu reprezintă compatibilitatea ADN.',
     level: (n: number) => `Nivelul ${n} din 5`,
   },
   seasonOptions: {
@@ -78,6 +78,14 @@ const fragrances: Dictionary['fragrances'] = {
     marine: 'Marin',
     honey: 'Miere',
     caramel: 'Caramel',
+    coffee: 'Cafea',
+    spicy: 'Condimentat',
+    'dark floral': 'Floral întunecat',
+    'green fruity': 'Fructat verde',
+    'dried fruit': 'Fructe uscate',
+    gourmand: 'Gurmand',
+    minty: 'Mentolat',
+    solar: 'Solar',
   },
   hero: {
     eyebrow: 'Biblioteca de parfumuri',
@@ -87,7 +95,7 @@ const fragrances: Dictionary['fragrances'] = {
   },
   search: {
     label: 'Caută în bibliotecă',
-    placeholder: 'Încearcă numele unui parfum sau al unei mărci, de ex. Sauvage, Creed, Baccarat Rouge...',
+    placeholder: 'Parfum sau marcă...',
     category: 'Categorie',
     brand: 'Marcă',
     brandPlaceholder: 'Orice marcă',
@@ -112,6 +120,9 @@ const fragrances: Dictionary['fragrances'] = {
   detail: {
     launched: 'Lansat',
     perfumer: 'Parfumier',
+    topNotes: 'Note de vârf',
+    heartNotes: 'Note de mijloc',
+    baseNotes: 'Note de bază',
     audience: 'Public',
     category: 'Categorie',
     communityRating: 'Nota comunității',

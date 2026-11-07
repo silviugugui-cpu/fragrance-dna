@@ -6,6 +6,7 @@ import { DNA_CONFIDENCE_BADGES } from '@/lib/dnaSession';
 import { useLanguage } from '@/lib/i18n';
 import { getDiscoveryCopy } from '@/lib/i18n/discoveryCopy';
 import ArticlesIntroHero from '@/app/articles/ArticlesIntroHero';
+import TerritoriesFullSection from '@/components/territories/TerritoriesFullSection';
 
 export default function FaqPage() {
   const { t, locale } = useLanguage();
@@ -36,6 +37,10 @@ export default function FaqPage() {
             ))}
           </div>
         </div>
+      </section>
+
+      <section id="olfactive-territories" aria-label={t.territories.pageTitle} className="scroll-mt-24 py-10 md:py-14">
+        <TerritoriesFullSection />
       </section>
 
       <section className="py-10 md:py-14">

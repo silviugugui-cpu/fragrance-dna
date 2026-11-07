@@ -30,7 +30,25 @@ export default function PerfumersPage({ profiles }: { profiles: EvidencedPerfume
   return (
     <main className="relative pb-16 pt-8 lg:pt-10">
       <section className="articles-intro-wrap relative z-10 mx-auto w-[90vw] max-w-[1600px]">
-        <ArticlesIntroHero imageSrc="/Pictures/Smels/perfumers-atelier-pop-art-hero-2x.jpg" title={t.articles.perfumers.title} />
+        <div className="relative">
+          <ArticlesIntroHero imageSrc="/Pictures/Smels/perfumers-atelier-pop-art-hero-2x.jpg" title={t.articles.perfumers.title} />
+          <div className="absolute left-[10%] top-[19%] z-20 flex h-11 w-[80%] items-center rounded-full border-2 border-[#112d43] bg-[#fff8e9] px-4 shadow-[0_8px_24px_rgba(0,0,0,0.65)] ring-2 ring-[#f2c879] ring-offset-1 ring-offset-[#112d43] backdrop-blur-sm focus-within:ring-4 focus-within:ring-[#153a55] sm:left-[39%] sm:h-[9%] sm:w-[22%] sm:px-2 md:px-3">
+            <label htmlFor="perfumer-search" className="sr-only">{copy.search}</label>
+            <input
+              id="perfumer-search"
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder={copy.placeholder}
+              autoComplete="off"
+              className="min-w-0 flex-1 bg-transparent font-articles-body text-[clamp(0.75rem,1vw,1rem)] font-semibold text-[#112d43] placeholder:text-[#435563] focus:outline-none"
+            />
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="ml-1 h-5 w-5 shrink-0 text-[#112d43] sm:h-4 sm:w-4">
+              <circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" strokeWidth="2.4" />
+              <path d="m16 16 4.2 4.2" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+            </svg>
+          </div>
+        </div>
       </section>
 
       <section className="relative z-10 mx-auto mt-4 grid w-[90vw] max-w-[1600px] gap-4 lg:grid-cols-3">
@@ -66,11 +84,7 @@ export default function PerfumersPage({ profiles }: { profiles: EvidencedPerfume
                   </p>
                 </div>
 
-                <div className="mt-5 grid gap-3 md:grid-cols-[minmax(220px,1fr)_200px]">
-                  <label className="font-articles-body text-xs uppercase tracking-[0.12em] text-[color:var(--public-ink-secondary,#d9c7a2)]">
-                    <span className="mb-2 block">{copy.search}</span>
-                    <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={copy.placeholder} className="w-full rounded-xl border border-[rgba(var(--public-champagne-channels,176,138,83),0.45)] bg-[rgba(var(--public-surface-channels,10,10,10),0.7)] px-3 py-2.5 normal-case tracking-normal text-[color:var(--public-ink-primary,#f2ddb1)] outline-none placeholder:text-[color:var(--public-ink-muted,#bb9660)] focus:border-[color:var(--public-ink-secondary,#e2c185)]" />
-                  </label>
+                <div className="mt-5 grid gap-3 md:grid-cols-[200px]">
                   <label className="font-articles-body text-xs uppercase tracking-[0.12em] text-[color:var(--public-ink-secondary,#d9c7a2)]">
                     <span className="mb-2 block">{copy.sort}</span>
                     <select value={sort} onChange={(event) => {

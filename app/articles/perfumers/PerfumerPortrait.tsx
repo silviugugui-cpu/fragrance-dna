@@ -4,7 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/lib/i18n";
 import type { TopPerfumerProfile } from "@/lib/data/topPerfumerProfiles";
 
-export default function PerfumerPortrait({ profile, priority = false }: { profile: TopPerfumerProfile; priority?: boolean }) {
+export default function PerfumerPortrait({ profile, priority = false }: {
+  profile: Pick<TopPerfumerProfile, "name" | "portraitUrl" | "portraitPosition">;
+  priority?: boolean;
+}) {
   const [failedUrl, setFailedUrl] = useState<string | null>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const { t } = useLanguage();

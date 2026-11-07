@@ -33,7 +33,7 @@ const articles: Dictionary['articles'] = {
     similarity: 'Asemănare raportată · nu echivalență',
     brandClaim: 'Inspirație declarată de marcă',
     pending: 'Asemănarea este încă în cercetare',
-    notes: 'Note din catalog (nestructurate; fără piramidă verificată)',
+    notes: 'Note',
     noResults: 'Niciun rezultat în această selecție.',
     previous: 'Înapoi',
     next: 'Înainte',
